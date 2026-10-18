@@ -17,8 +17,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
  * cluster block, 5 pixels tall and 10 wide like Xenon's {@code CrystalBlock(5, 3)}), a crystal block, bricks, chiseled
  * bricks and a lantern, all amethyst blocks; and the prism lantern. Properties are Xenon's ({@link MainBlockProperties}).
  *
- * <p>Xenon gave the purple lantern a plain crystal block's properties, so it was the only lantern without light; here it
- * glows like the others.
+ * <p>Crystal blocks glow with light 5 and lanterns with 15. Xenon gave the purple lantern a plain crystal block's
+ * properties, so it was the only lantern with light 5; here it glows like the others.
  */
 public final class MainCrystals {
     private static final ApeiraRegistrar R = Apeira.REGISTRAR;

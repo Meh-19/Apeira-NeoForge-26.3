@@ -13,7 +13,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * Xenon's prism lantern: right-clicking it switches {@link #LIT}, which swaps its still texture for a blinking one. As
- * in Xenon, it gives no light either way.
+ * in Xenon, its light (a crystal block's 5) is the same either way.
  */
 public class PrismLanternBlock extends Block {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;

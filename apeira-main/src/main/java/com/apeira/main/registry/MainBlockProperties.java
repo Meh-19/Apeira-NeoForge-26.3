@@ -40,8 +40,10 @@ final class MainBlockProperties {
                 .lightLevel(state -> 5).pushReaction(PushReaction.POPPED).noOcclusion();
     }
 
+    /** Crystal blocks, bricks and the prism lantern glow faintly (light 5). */
     static BlockBehaviour.Properties crystalBlock() {
-        return BlockBehaviour.Properties.of().randomTicks().strength(1.5F).sound(SoundType.AMETHYST).requiresCorrectToolForDrops();
+        return BlockBehaviour.Properties.of().randomTicks().strength(1.5F).sound(SoundType.AMETHYST).lightLevel(state -> 5)
+                .requiresCorrectToolForDrops();
     }
 
     static BlockBehaviour.Properties crystalLantern() {
