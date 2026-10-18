@@ -16,8 +16,11 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.data.event.DatapackRegistryGatherer;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -38,6 +41,8 @@ import net.neoforged.neoforge.data.event.GatherDataRegistryEntriesEvent;
  *             .itemModels(DecorItemModels::new)
  *             .language(DecorLanguage::new)
  *             .recipes(DecorRecipes::new)
+ *             .blockLoot(DecorBlockLoot::new)
+ *             .blockTags(DecorBlockTags::new)
  *             .dataMaps(DecorDataMaps::new);
  *     }
  * }
@@ -55,7 +60,8 @@ import net.neoforged.neoforge.data.event.GatherDataRegistryEntriesEvent;
  * <li>{@link GatherDataEvent.Server} fires for a {@code serverData} run, which only generates data, so only
  * {@linkplain #server data providers} are added here.</li>
  * <li>{@link GatherDataRegistryEntriesEvent} fires before both. Recipes are datapack registry entries in 26.x and are
- * generated from here, through {@link DatapackRegistryGatherer#recipe}, rather than as a {@link DataProvider}.</li>
+ * generated from here, through {@link DatapackRegistryGatherer#recipe}, rather than as a {@link DataProvider}. Loot
+ * tables are too, through {@link DatapackRegistryGatherer#lootTable}.</li>
  * </ul>
  *
  * <p>Generated files are only written for mods named with {@code --mod} in the data run. Entries are generated for
@@ -159,6 +165,20 @@ public final class ApeiraDataGenerators {
     public ApeiraDataGenerators recipes(RecipeFactory factory) {
         recipes.add(queue(factory));
         return this;
+    }
+
+    /** Adds block tags, such as the mining tool tags. */
+    public ApeiraDataGenerators blockTags(Function<Context, ? extends ApeiraBlockTagsProvider> factory) {
+        return server(factory::apply);
+    }
+
+    /**
+     * Adds block loot tables. Loot tables are datapack registry entries in 26.x, so they are generated through
+     * {@link DatapackRegistryGatherer#lootTable} like {@linkplain #recipes recipes}.
+     */
+    public ApeiraDataGenerators blockLoot(BiFunction<LootTableSubProvider.Context, ApeiraRegistrar, ? extends ApeiraBlockLootProvider> factory) {
+        return registryEntries(gatherer -> gatherer.lootTable(new LootTableProvider.SubProviderEntry(
+                context -> factory.apply(context, registrar), LootContextParamSets.BLOCK)));
     }
 
     /** Adds NeoForge data maps. */

@@ -11,6 +11,8 @@ public final class MainData {
         data.blockStates(() -> new MainBlockStateProvider())
                 .itemModels(() -> new MainModelProvider())
                 .language(MainLanguageProvider::new)
-                .recipes(MainRecipeProvider::new);
+                .recipes(MainRecipeProvider::new)
+                .blockLoot(MainBlockLootSubProvider::new)
+                .blockTags(MainBlockTagProvider::new);
     }
 }

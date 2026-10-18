@@ -16,8 +16,10 @@ import org.jspecify.annotations.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -49,6 +51,7 @@ public final class ApeiraRegistrar {
     private final DeferredRegister<BlockEntityType<?>> blockEntityTypes;
     private final DeferredRegister<FluidType> fluidTypes;
     private final DeferredRegister<Fluid> fluids;
+    private final DeferredRegister<CreativeModeTab> creativeTabs;
     /** Every register this registrar owns, keyed by registry, in creation order. */
     private final Map<ResourceKey<? extends Registry<?>>, DeferredRegister<?>> registers = new LinkedHashMap<>();
     private @Nullable IEventBus modEventBus;
@@ -61,6 +64,7 @@ public final class ApeiraRegistrar {
         this.blockEntityTypes = track(DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, namespace));
         this.fluidTypes = track(DeferredRegister.create(NeoForgeRegistries.Keys.FLUID_TYPES, namespace));
         this.fluids = track(DeferredRegister.create(Registries.FLUID, namespace));
+        this.creativeTabs = track(DeferredRegister.create(Registries.CREATIVE_MODE_TAB, namespace));
     }
 
     /** Creates a registrar for the shared {@code apeira} namespace. */
@@ -94,7 +98,7 @@ public final class ApeiraRegistrar {
     }
 
     /**
-     * Returns this registrar's register for any other registry (sounds, creative tabs, menus, ...), creating it on
+     * Returns this registrar's register for any other registry (sounds, menus, particles, ...), creating it on
      * first use. Registers created after {@link #register} are attached to the bus immediately.
      */
     @SuppressWarnings("unchecked")
@@ -143,6 +147,10 @@ public final class ApeiraRegistrar {
         return fluids;
     }
 
+    public DeferredRegister<CreativeModeTab> creativeTabs() {
+        return creativeTabs;
+    }
+
     /** All registers owned by this registrar, in creation order. */
     public Collection<DeferredRegister<?>> registers() {
         return Collections.unmodifiableCollection(registers.values());
@@ -186,5 +194,14 @@ public final class ApeiraRegistrar {
     /** Registers a NeoForge fluid type (the physical and visual properties shared by a source and flowing fluid). */
     public DeferredHolder<FluidType, FluidType> fluidType(String name, FluidType.Properties properties) {
         return fluidTypes.register(name, () -> new FluidType(properties));
+    }
+
+    /**
+     * Registers a creative tab titled with the translation key {@code itemGroup.<namespace>.<name>}. The builder sets
+     * the icon and contents; NeoForge places modded tabs after the vanilla ones.
+     */
+    public DeferredHolder<CreativeModeTab, CreativeModeTab> creativeTab(String name, UnaryOperator<CreativeModeTab.Builder> builder) {
+        return creativeTabs.register(name, () -> builder.apply(CreativeModeTab.builder()
+                .title(Component.translatable(id(name).toLanguageKey("itemGroup")))).build());
     }
 }
