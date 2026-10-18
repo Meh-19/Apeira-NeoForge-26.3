@@ -12,6 +12,9 @@ def allMods = [(mod_id): project] + libraryModules.collectEntries { path ->
     [(p.property('mod_id')): p]
 }
 
+// apeira-decor generates its resources from this module's decorData run.
+def decorProject = project(':apeira-decor')
+
 neoForge {
     // Tell NeoForge which source sets belong to which mod so all four load as separate mods in dev runs.
     mods {
@@ -45,10 +48,9 @@ neoForge {
         // apeira-decor's blocks (furniture) and entities, written to that module's own generated resources.
         decorData {
             clientData()
-            def decor = project(':apeira-decor')
-            programArguments.addAll '--mod', decor.property('mod_id'), '--all',
-                    '--output', decor.file('src/generated/resources/').absolutePath,
-                    '--existing', decor.file('src/main/resources/').absolutePath
+            programArguments.addAll '--mod', decorProject.property('mod_id'), '--all',
+                    '--output', decorProject.file('src/generated/resources/').absolutePath,
+                    '--existing', decorProject.file('src/main/resources/').absolutePath
         }
 
         configureEach {
