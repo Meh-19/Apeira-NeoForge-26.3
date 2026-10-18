@@ -11,12 +11,17 @@ import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
+import com.apeira.main.registry.MainTags;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 /**
@@ -79,6 +84,36 @@ public final class MainBlockTagProvider extends ApeiraBlockTagsProvider {
                 MainBuildingBlocks.bundles().stream(), Stream.of(MainBuildingBlocks.SHOJI, MainBuildingBlocks.SALVAGING_TABLE))
                 .flatMap(s -> s).toArray(DeferredBlock<?>[]::new));
         add(BlockTags.ENABLES_BUBBLE_COLUMN_PUSH_UP, MainRocks.POROUS_DOLOMITE);
+        xenonPlants();
+    }
+
+    /**
+     * Xenon's plants, vines and special blocks, tagged as Xenon tagged them: plants, vines, the stick, the small lily and
+     * yellow birch leaves with a hoe, ash, frost and the moss covers with a shovel, the mycena blocks with an axe, and
+     * rock, pebbles, echo glass and the spike trap with a pickaxe (pebbles and echo glass need stone). Xenon left the
+     * aubrietas, litter, aquarium glass and turkey blocks untagged; they keep it. Vines are climbable.
+     */
+    private void xenonPlants() {
+        DeferredBlock<?>[] hoe = Stream.of(MainPlants.grasses().stream(), MainPlants.vines().stream(),
+                Stream.of(MainPlants.CATTAIL, MainPlants.OCULUS_ORCHID, MainPlants.HIBISCUS, MainPlants.SMALL_LILY, MainPlants.CLOVER,
+                        MainPlants.ORANGE_MYCENA, MainPlants.TALL_ORANGE_MYCENA, MainPlants.STICK, MainSpecialBlocks.YELLOW_BIRCH_LEAVES))
+                .flatMap(s -> s).toArray(DeferredBlock<?>[]::new);
+        add(BlockTags.MINEABLE_WITH_HOE, hoe);
+        add(BlockTags.CLIMBABLE, MainPlants.vines().toArray(DeferredBlock<?>[]::new));
+        add(BlockTags.MINEABLE_WITH_SHOVEL, MainPlants.ASH, MainPlants.FROST, MainPlants.DAMP_MOSS, MainPlants.GRIMOSS);
+        add(BlockTags.MINEABLE_WITH_AXE, MainSpecialBlocks.MYCENA_MUSHROOM_STEM, MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM,
+                MainSpecialBlocks.MYCENA_MUSHROOM_BLOCK);
+        add(BlockTags.MINEABLE_WITH_PICKAXE, MainPlants.ROCK, MainPlants.PEBBLES, MainSpecialBlocks.ECHO_GLASS, MainSpecialBlocks.SPIKE_TRAP);
+        add(BlockTags.NEEDS_STONE_TOOL, MainPlants.PEBBLES, MainSpecialBlocks.ECHO_GLASS);
+
+        // Where cattails and clover grow (Xenon's list), and the blocks that keep coral next to them alive: dolomite.
+        tag(MainTags.WETLAND_PLANT_SOIL).addTag(BlockTags.DIRT).add(Stream.of(Blocks.SAND, Blocks.RED_SAND, Blocks.GRAVEL, Blocks.CLAY,
+                Blocks.MUD, Blocks.MUDDY_MANGROVE_ROOTS, Blocks.MOSS_BLOCK, Blocks.FARMLAND, Blocks.SOUL_SAND, Blocks.SOUL_SOIL)
+                .map(block -> block.builtInRegistryHolder().key()).toArray(ResourceKey[]::new));
+        add(MainTags.KEEPS_CORAL_ALIVE, Stream.of(Stream.<DeferredBlock<?>>of(MainRocks.DOLOMITE, MainRocks.DOLOMITE_PILLAR,
+                MainRocks.POLISHED_DOLOMITE, MainRocks.DOLOMITE_BRICKS, MainRocks.CHISELED_DOLOMITE, MainRocks.POROUS_DOLOMITE),
+                MainRocks.DOLOMITE_SHAPES.shapes().stream(), MainRocks.POLISHED_DOLOMITE_SHAPES.shapes().stream(),
+                MainRocks.DOLOMITE_BRICKS_SHAPES.shapes().stream()).flatMap(s -> s).toArray(DeferredBlock<?>[]::new));
     }
 
     private static Stream<DeferredBlock<?>> withShapes(MainDyedBlocks.Dyed dyed) {

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "rotation=0": {
+      "model": "apeira:block/shelf_fungus"
+    },
+    "rotation=1": {
+      "model": "apeira:block/shelf_fungus",
+      "y": 90
+    },
+    "rotation=2": {
+      "model": "apeira:block/shelf_fungus",
+      "y": 180
+    },
+    "rotation=3": {
+      "model": "apeira:block/shelf_fungus",
+      "y": 270
+    }
+  }
+}

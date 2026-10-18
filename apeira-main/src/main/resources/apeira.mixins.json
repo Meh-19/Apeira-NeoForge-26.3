@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.apeira.main.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "CoralMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

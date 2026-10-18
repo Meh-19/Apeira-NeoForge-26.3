@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "apeira:block/cattail"
+    },
+    "half=upper": {
+      "model": "apeira:block/cattail_top"
+    }
+  }
+}

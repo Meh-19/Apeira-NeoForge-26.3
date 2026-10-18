@@ -1,11 +1,14 @@
 package com.apeira.main.datagen;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.apeira.core.datagen.ApeiraBlockLootProvider;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.core.registry.PlankSet;
+import com.apeira.main.block.DecorationBlock;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCrates;
@@ -13,17 +16,29 @@ import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
+import net.minecraft.advancements.predicates.StatePropertiesPredicate;
 import net.minecraft.data.loot.LootTableSubProvider;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.MatchBlock;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
 /**
  * Loot tables for {@link MainBlocks}, {@link MainWoods}, {@link MainStones}, {@link MainLanterns}, Xenon's blocks
- * ({@link MainRocks}, {@link MainDyedBlocks}, {@link MainCrystals}, {@link MainBuildingBlocks}) and {@link MainCrates}.
+ * ({@link MainRocks}, {@link MainDyedBlocks}, {@link MainCrystals}, {@link MainBuildingBlocks}, {@link MainPlants},
+ * {@link MainSpecialBlocks}) and {@link MainCrates}.
  * Every Apeira block needs one, or data generation fails.
  */
 public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
@@ -84,8 +99,54 @@ public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
         MainCrystals.all().forEach(crystal -> dropSelf(crystal.get()));
         MainBuildingBlocks.all().forEach(block -> dropSelf(block.get()));
 
+        xenonPlants();
+
         // A closed crate drops itself; an open one cannot be broken.
         MainCrates.all().forEach(crate -> dropSelf(crate.get()));
+    }
+
+    /**
+     * Xenon's plants drop only to shears (Xenon's intent: its {@code dropsWithShears} tables were never added), the
+     * placed stick a stick, rocks and pebbles one item per stone, and the covers themselves, except frost, which drops
+     * nothing as in Xenon. Placed turkeys drop nothing; echo and aquarium glass need Silk Touch, like glass.
+     */
+    private void xenonPlants() {
+        List<Block> shearsOnly = new ArrayList<>();
+        MainPlants.grasses().forEach(plant -> shearsOnly.add(plant.get()));
+        MainPlants.vines().forEach(vine -> shearsOnly.add(vine.get()));
+        MainPlants.litter().forEach(litter -> shearsOnly.add(litter.get()));
+        shearsOnly.addAll(List.of(MainPlants.OCULUS_ORCHID.get(), MainPlants.HIBISCUS.get(), MainPlants.CLOVER.get(), MainPlants.SMALL_LILY.get(),
+                MainPlants.ORANGE_MYCENA.get(), MainPlants.TALL_ORANGE_MYCENA.get()));
+        shearsOnly.forEach(block -> add(block, createShearsOnlyDrop(block)));
+        add(MainPlants.CATTAIL.get(), createDoublePlantShearsDrop(MainPlants.CATTAIL.get()));
+        MainPlants.aubrietas().forEach(aubrieta -> dropSelf(aubrieta.get()));
+        add(MainPlants.STICK.get(), createSingleItemTable(Items.STICK));
+        add(MainPlants.ROCK.get(), createCountDrops(MainPlants.ROCK.get()));
+        add(MainPlants.PEBBLES.get(), createCountDrops(MainPlants.PEBBLES.get()));
+        dropSelf(MainPlants.ASH.get());
+        dropSelf(MainPlants.DAMP_MOSS.get());
+        dropSelf(MainPlants.GRIMOSS.get());
+        add(MainPlants.FROST.get(), noDrop());
+
+        dropSelf(MainSpecialBlocks.SPIKE_TRAP.get());
+        add(MainSpecialBlocks.YELLOW_BIRCH_LEAVES.get(), createLeavesDrops(MainSpecialBlocks.YELLOW_BIRCH_LEAVES.get(), Blocks.BIRCH_SAPLING,
+                NORMAL_LEAVES_SAPLING_CHANCES));
+        add(MainSpecialBlocks.ECHO_GLASS.get(), createSilkTouchOnlyTable(MainSpecialBlocks.ECHO_GLASS.get()));
+        add(MainSpecialBlocks.AQUARIUM_GLASS.get(), createSilkTouchOnlyTable(MainSpecialBlocks.AQUARIUM_GLASS.get()));
+        dropSelf(MainSpecialBlocks.MYCENA_MUSHROOM_STEM.get());
+        dropSelf(MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM.get());
+        dropSelf(MainSpecialBlocks.MYCENA_MUSHROOM_BLOCK.get());
+        add(MainSpecialBlocks.RAW_TURKEY_BLOCK.get(), noDrop());
+        add(MainSpecialBlocks.COOKED_TURKEY_BLOCK.get(), noDrop());
+        dropSelf(MainSpecialBlocks.TURKEY_SKELETON.get());
+    }
+
+    /** One item for each of a {@link DecorationBlock}'s stones, like candles. */
+    private LootTable.Builder createCountDrops(Block block) {
+        return LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ContextIntProviders.exactly(1))
+                .add((LootPoolEntryContainer.Builder<?>) applyExplosionDecay(block, LootItem.lootTableItem(block).apply(List.of(2, 3),
+                        count -> SetItemCountFunction.setCount(ContextIntProviders.exactly(count)).when(MatchBlock.blockMatches(blocks, block,
+                                StatePropertiesPredicate.Builder.properties().hasProperty(DecorationBlock.COUNT, count.intValue())))))));
     }
 
     /** Planks and their shapes drop themselves; a double slab drops two slabs. */

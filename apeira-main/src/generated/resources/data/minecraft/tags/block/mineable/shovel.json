@@ -12,6 +12,10 @@
     "apeira:damp_moss_block",
     "apeira:grimoss_block",
     "apeira:grimweed_block",
-    "apeira:pale_grimweed_block"
+    "apeira:pale_grimweed_block",
+    "apeira:ash",
+    "apeira:frost",
+    "apeira:damp_moss",
+    "apeira:grimoss"
   ]
 }

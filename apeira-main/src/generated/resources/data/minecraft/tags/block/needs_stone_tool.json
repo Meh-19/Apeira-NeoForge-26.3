@@ -372,6 +372,8 @@
     "apeira:blighted_bone_block",
     "apeira:carved_blighted_bone_block",
     "apeira:scorched_bone_block",
-    "apeira:carved_scorched_bone_block"
+    "apeira:carved_scorched_bone_block",
+    "apeira:pebbles",
+    "apeira:echo_glass"
   ]
 }

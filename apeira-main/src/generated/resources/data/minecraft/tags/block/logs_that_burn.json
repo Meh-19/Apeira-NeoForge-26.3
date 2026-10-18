@@ -7,6 +7,8 @@
     "#apeira:bayou_logs",
     "#apeira:wisteria_logs",
     "#apeira:baobab_logs",
-    "apeira:palm_crown"
+    "apeira:palm_crown",
+    "apeira:mycena_mushroom_stem",
+    "apeira:stripped_mycena_mushroom_stem"
   ]
 }

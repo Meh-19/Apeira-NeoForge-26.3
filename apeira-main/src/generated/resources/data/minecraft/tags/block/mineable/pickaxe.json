@@ -425,6 +425,10 @@
     "apeira:carved_blighted_bone_block",
     "apeira:scorched_bone_block",
     "apeira:carved_scorched_bone_block",
-    "apeira:blighted_shroomlight"
+    "apeira:blighted_shroomlight",
+    "apeira:rock",
+    "apeira:pebbles",
+    "apeira:echo_glass",
+    "apeira:spike_trap"
   ]
 }

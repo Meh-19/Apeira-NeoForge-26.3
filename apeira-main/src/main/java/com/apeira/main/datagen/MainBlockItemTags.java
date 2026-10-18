@@ -7,7 +7,9 @@ import com.apeira.core.registry.PlankSet;
 import com.apeira.core.registry.ShapeSet;
 import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainDyedBlocks;
+import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.tags.BlockItemTags;
@@ -63,6 +65,21 @@ final class MainBlockItemTags {
         }
         tags.add(BlockItemTags.WOOL, MainDyedBlocks.QUILTED_WOOL.stream().map(MainDyedBlocks.Dyed::block).toArray(DeferredBlock<?>[]::new));
         tags.add(BlockItemTags.DIRT, MainBuildingBlocks.GRIMWEED_BLOCK, MainBuildingBlocks.PALE_GRIMWEED_BLOCK);
+        addXenonPlants(tags);
+    }
+
+    /**
+     * Xenon's flower tags (it called most of its grasses flowers, so bees visit them), yellow birch leaves as leaves and
+     * the mycena stems as logs that burn. Xenon also had the stick in its flower tag; it is left out.
+     */
+    private static void addXenonPlants(BlockAndItemTags tags) {
+        tags.add(BlockItemTags.FLOWERS, Stream.concat(MainPlants.grasses().stream(), Stream.of(MainPlants.CATTAIL, MainPlants.OCULUS_ORCHID,
+                MainPlants.HIBISCUS, MainPlants.CLOVER, MainPlants.SMALL_LILY, MainPlants.ORANGE_MYCENA)).toArray(DeferredBlock<?>[]::new));
+        tags.add(BlockItemTags.SMALL_FLOWERS, MainPlants.HOGWEED, MainPlants.FROSTED_GRASS, MainPlants.DRY_GRASS, MainPlants.HIBISCUS,
+                MainPlants.OCULUS_ORCHID, MainPlants.CLOVER, MainPlants.GRIMWEED, MainPlants.DRY_BUSH, MainPlants.SOUL_STALKS,
+                MainPlants.BEACH_GRASS, MainPlants.BRAMBLE);
+        tags.add(BlockItemTags.LEAVES, MainSpecialBlocks.YELLOW_BIRCH_LEAVES);
+        tags.add(BlockItemTags.LOGS_THAT_BURN, MainSpecialBlocks.MYCENA_MUSHROOM_STEM, MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM);
     }
 
     private static void shapes(BlockAndItemTags tags, PlankSet planks) {

@@ -1,0 +1,39 @@
+{
+  "textures": {
+    "0": "apeira:block/rocks",
+    "particle": "apeira:block/rocks"
+  },
+  "elements": [
+    {
+      "from": [6, 0, 6],
+      "to": [12, 2, 12],
+      "faces": {
+        "north": {
+          "uv": [7.5, 11.5, 10.5, 12.5],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [7.5, 11.5, 10.5, 12.5],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [10.5, 11.5, 7.5, 12.5],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [7.5, 11.5, 10.5, 12.5],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [3, 0, 6, 3],
+          "rotation": 90,
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [14.5, 0, 15.5, 1],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}

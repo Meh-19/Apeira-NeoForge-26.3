@@ -7,6 +7,7 @@ import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainMaterials;
 import com.apeira.main.registry.MainRocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
@@ -16,11 +17,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.BlockFamilies;
 import net.minecraft.data.BlockFamily;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CookingBookCategory;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -101,9 +105,25 @@ public final class MainRecipeProvider extends ApeiraRecipeProvider {
 
         stones();
         xenon();
+        turkey();
         for (MainLanterns.Lantern lantern : MainLanterns.all()) {
             lantern(lantern.block(), lantern.planks());
         }
+    }
+
+    /** Xenon's turkey recipes: raw turkey cooked in a furnace, a smoker or on a campfire. */
+    private void turkey() {
+        Ingredient raw = Ingredient.of(MainMaterials.RAW_TURKEY.get());
+        String name = getItemName(MainMaterials.COOKED_TURKEY.get());
+        save(SimpleCookingRecipeBuilder.smelting(raw, RecipeCategory.FOOD, CookingBookCategory.MISC, MainMaterials.COOKED_TURKEY.get(), 0.35F, 200)
+                .group("turkey").unlockedBy(getHasName(MainMaterials.RAW_TURKEY.get()), has(MainMaterials.RAW_TURKEY.get())),
+                name + "_from_smelting_raw_turkey");
+        save(SimpleCookingRecipeBuilder.smoking(raw, RecipeCategory.FOOD, MainMaterials.COOKED_TURKEY.get(), 0.35F, 100)
+                .group("turkey").unlockedBy(getHasName(MainMaterials.RAW_TURKEY.get()), has(MainMaterials.RAW_TURKEY.get())),
+                name + "_from_smoking_raw_turkey");
+        save(SimpleCookingRecipeBuilder.campfireCooking(raw, RecipeCategory.FOOD, MainMaterials.COOKED_TURKEY.get(), 0.35F, 600)
+                .group("turkey").unlockedBy(getHasName(MainMaterials.RAW_TURKEY.get()), has(MainMaterials.RAW_TURKEY.get())),
+                name + "_from_campfire_raw_turkey");
     }
 
     /**
