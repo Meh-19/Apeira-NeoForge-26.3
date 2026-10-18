@@ -1,0 +1,5 @@
+// Library module. Shared configuration comes from the root build.gradle.
+// Runs are configured in apeira-main, which loads every Apeira module together.
+
+dependencies {
+}
