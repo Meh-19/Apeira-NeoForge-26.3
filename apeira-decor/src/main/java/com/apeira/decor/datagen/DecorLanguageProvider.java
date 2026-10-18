@@ -26,6 +26,8 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
         addEntityType(DecorEntities.SEAT, "Seat");
 
         container("painting_table", "Painting Table");
+        container("wardrobe", "Wardrobe");
+        addId("key", "open_wardrobe", "Open Wardrobe");
         tooltip("paint.color", "Painted %s, Shade %s");
         tooltip("paint.finish", "%s Finish");
         message("paint_copied", "Copied: %s");

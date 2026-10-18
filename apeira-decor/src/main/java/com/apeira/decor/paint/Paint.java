@@ -2,6 +2,7 @@ package com.apeira.decor.paint;
 
 import org.jspecify.annotations.Nullable;
 
+import com.apeira.decor.cosmetic.CosmeticItem;
 import com.apeira.decor.item.PaintbrushItem;
 import com.apeira.decor.registry.DecorDataComponents;
 
@@ -31,10 +32,19 @@ public final class Paint {
         stack.set(DecorDataComponents.PAINT.get(), paint & 0xFFFFFF);
     }
 
-    /** Whether the painting table accepts the stack: a paintbrush, or the item of a {@link PaintableBlock}. */
+    /**
+     * Whether the painting table accepts the stack: a paintbrush, the item of a {@link PaintableBlock} or a paintable
+     * {@link CosmeticItem}.
+     */
     public static boolean canPaint(ItemStack stack) {
         return stack.getItem() instanceof PaintbrushItem
-                || stack.getItem() instanceof BlockItem item && item.getBlock() instanceof PaintableBlock;
+                || stack.getItem() instanceof BlockItem item && item.getBlock() instanceof PaintableBlock
+                || isPaintableCosmetic(stack);
+    }
+
+    /** Whether the stack is a cosmetic that takes paint. */
+    public static boolean isPaintableCosmetic(ItemStack stack) {
+        return stack.getItem() instanceof CosmeticItem cosmetic && cosmetic.paintable();
     }
 
     /**

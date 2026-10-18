@@ -1,0 +1,32 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:item/cosmetic/shark_hat",
+          "tints": [
+            {
+              "type": "minecraft:constant",
+              "value": -1
+            },
+            {
+              "type": "apeira:paint"
+            }
+          ]
+        },
+        "when": [
+          "head",
+          "thirdperson_lefthand",
+          "thirdperson_righthand"
+        ]
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/rare_hat_token"
+    },
+    "property": "minecraft:display_context"
+  }
+}

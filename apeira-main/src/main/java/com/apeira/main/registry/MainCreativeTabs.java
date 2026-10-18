@@ -4,6 +4,7 @@ import java.util.stream.Stream;
 
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.ApeiraDecor;
+import com.apeira.decor.cosmetic.CosmeticItem;
 import com.apeira.main.Apeira;
 
 import net.minecraft.world.item.CreativeModeTab;
@@ -14,12 +15,20 @@ public final class MainCreativeTabs {
     private static final ApeiraRegistrar R = Apeira.REGISTRAR;
 
     /**
-     * "Apeira Content": every block and item of the main module, in registration order (blocks first), followed by the
-     * decor module's furniture.
+     * "Apeira Content": every block and item of the main module but the cosmetics, in registration order (blocks
+     * first), followed by the decor module's furniture.
      */
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CONTENT = R.creativeTab("content", tab -> tab
             .icon(MainItems.APEIRA_GEM::toStack)
-            .displayItems(Stream.concat(R.items().getEntries().stream(), ApeiraDecor.REGISTRAR.items().getEntries().stream()).toList()));
+            .displayItems(Stream.concat(R.items().getEntries().stream(), ApeiraDecor.REGISTRAR.items().getEntries().stream())
+                    .filter(item -> !(item.get() instanceof CosmeticItem))
+                    .toList()));
+
+    /** "Cosmetics": the crate cosmetics, grouped by crate as in {@link MainCosmetics}. */
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> COSMETICS = R.creativeTab("cosmetics", tab -> tab
+            .icon(MainCosmetics.WESTERN_HAT::toStack)
+            .withTabsBefore(CONTENT.getId())
+            .displayItems(MainCosmetics.all().stream().map(MainCosmetics.Cosmetic::item).toList()));
 
     private MainCreativeTabs() {}
 
