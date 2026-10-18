@@ -115,15 +115,15 @@ public final class MainRecipeProvider extends ApeiraRecipeProvider {
     private void turkey() {
         Ingredient raw = Ingredient.of(MainMaterials.RAW_TURKEY.get());
         String name = getItemName(MainMaterials.COOKED_TURKEY.get());
-        SimpleCookingRecipeBuilder.smelting(raw, RecipeCategory.FOOD, CookingBookCategory.MISC, MainMaterials.COOKED_TURKEY.get(), 0.35F, 200)
-                .group("turkey").unlockedBy(getHasName(MainMaterials.RAW_TURKEY.get()), has(MainMaterials.RAW_TURKEY.get()))
-                .save(output, name + "_from_smelting_raw_turkey");
-        SimpleCookingRecipeBuilder.smoking(raw, RecipeCategory.FOOD, MainMaterials.COOKED_TURKEY.get(), 0.35F, 100)
-                .group("turkey").unlockedBy(getHasName(MainMaterials.RAW_TURKEY.get()), has(MainMaterials.RAW_TURKEY.get()))
-                .save(output, name + "_from_smoking_raw_turkey");
-        SimpleCookingRecipeBuilder.campfireCooking(raw, RecipeCategory.FOOD, MainMaterials.COOKED_TURKEY.get(), 0.35F, 600)
-                .group("turkey").unlockedBy(getHasName(MainMaterials.RAW_TURKEY.get()), has(MainMaterials.RAW_TURKEY.get()))
-                .save(output, name + "_from_campfire_raw_turkey");
+        save(SimpleCookingRecipeBuilder.smelting(raw, RecipeCategory.FOOD, CookingBookCategory.MISC, MainMaterials.COOKED_TURKEY.get(), 0.35F, 200)
+                .group("turkey").unlockedBy(getHasName(MainMaterials.RAW_TURKEY.get()), has(MainMaterials.RAW_TURKEY.get())),
+                name + "_from_smelting_raw_turkey");
+        save(SimpleCookingRecipeBuilder.smoking(raw, RecipeCategory.FOOD, MainMaterials.COOKED_TURKEY.get(), 0.35F, 100)
+                .group("turkey").unlockedBy(getHasName(MainMaterials.RAW_TURKEY.get()), has(MainMaterials.RAW_TURKEY.get())),
+                name + "_from_smoking_raw_turkey");
+        save(SimpleCookingRecipeBuilder.campfireCooking(raw, RecipeCategory.FOOD, MainMaterials.COOKED_TURKEY.get(), 0.35F, 600)
+                .group("turkey").unlockedBy(getHasName(MainMaterials.RAW_TURKEY.get()), has(MainMaterials.RAW_TURKEY.get())),
+                name + "_from_campfire_raw_turkey");
     }
 
     /**
