@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:item/furniture/stone_lion_placed"
+        },
+        "when": "none"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/furniture/stone_lion"
+    },
+    "property": "minecraft:display_context"
+  }
+}

@@ -1,10 +1,18 @@
 {
-  "common": [],
+  "common": [
+    "apeira:bathroom_bin",
+    "apeira:shower_head",
+    "apeira:bathroom_mirror",
+    "apeira:bathroom_rug",
+    "apeira:toilet"
+  ],
   "rare": [
-    "apeira:plunger"
+    "apeira:plunger",
+    "apeira:washing_machine"
   ],
   "epic": [
-    "apeira:rubber_duckie_hat"
+    "apeira:rubber_duckie_hat",
+    "apeira:bathtub"
   ],
   "legendary": [
     "apeira:tub"

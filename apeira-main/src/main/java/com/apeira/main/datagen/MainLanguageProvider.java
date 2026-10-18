@@ -52,6 +52,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         block(MainCrates.FAST_FOOD_CRATE, "Fast Food Crate");
         block(MainCrates.FESTIVE_CRATE, "Festive Crate");
         block(MainCrates.FUN_FAIR_CRATE, "Fun Fair Crate");
+        block(MainCrates.GARDEN_CRATE, "Garden Crate");
         block(MainCrates.ZODIAC_CRATE, "Zodiac Crate");
 
         creativeTab("content", "Apeira Content");

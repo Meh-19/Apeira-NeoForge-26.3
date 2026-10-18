@@ -1,0 +1,29 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:item/furniture/grand_piano_placed",
+          "tints": [
+            {
+              "type": "apeira:paint"
+            }
+          ]
+        },
+        "when": "none"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/furniture/grand_piano",
+      "tints": [
+        {
+          "type": "apeira:paint"
+        }
+      ]
+    },
+    "property": "minecraft:display_context"
+  }
+}

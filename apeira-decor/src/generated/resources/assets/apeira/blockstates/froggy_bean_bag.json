@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/froggy_bean_bag",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/froggy_bean_bag"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/froggy_bean_bag",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/froggy_bean_bag",
+      "y": 270
+    }
+  }
+}

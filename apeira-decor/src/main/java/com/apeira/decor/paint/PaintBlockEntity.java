@@ -15,6 +15,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -31,7 +32,12 @@ public class PaintBlockEntity extends BlockEntity {
     private @Nullable Integer paint;
 
     public PaintBlockEntity(BlockPos pos, BlockState state) {
-        super(DecorBlockEntities.PAINT.get(), pos, state);
+        this(DecorBlockEntities.PAINT.get(), pos, state);
+    }
+
+    /** For block entities that keep paint and more, such as large furniture. */
+    protected PaintBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     /** The block's paint, or {@code null} if it is unpainted. */

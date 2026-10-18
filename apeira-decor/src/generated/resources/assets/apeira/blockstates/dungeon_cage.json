@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/dungeon_cage",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/dungeon_cage"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/dungeon_cage",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/dungeon_cage",
+      "y": 270
+    }
+  }
+}

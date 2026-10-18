@@ -5,13 +5,17 @@
     "apeira:reindeer_antlers",
     "apeira:santa_hat",
     "apeira:elf_hat",
-    "apeira:festive_candle"
+    "apeira:festive_candle",
+    "apeira:festive_cutout"
   ],
   "rare": [
     "apeira:christmas_tree_hat",
-    "apeira:festive_bells"
+    "apeira:festive_bells",
+    "apeira:santa_sleigh"
   ],
-  "epic": [],
+  "epic": [
+    "apeira:christmas_tree"
+  ],
   "legendary": [],
   "limited": []
 }

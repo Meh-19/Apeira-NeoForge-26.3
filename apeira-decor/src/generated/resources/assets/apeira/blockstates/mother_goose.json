@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/mother_goose",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/mother_goose"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/mother_goose",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/mother_goose",
+      "y": 270
+    }
+  }
+}

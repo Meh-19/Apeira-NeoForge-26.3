@@ -36,6 +36,7 @@ public final class MainCrates {
     public static final DeferredBlock<CrateBlock> FAST_FOOD_CRATE = crate("fast_food_crate");
     public static final DeferredBlock<CrateBlock> FESTIVE_CRATE = crate("festive_crate");
     public static final DeferredBlock<CrateBlock> FUN_FAIR_CRATE = crate("fun_fair_crate");
+    public static final DeferredBlock<CrateBlock> GARDEN_CRATE = crate("garden_crate");
     public static final DeferredBlock<CrateBlock> ZODIAC_CRATE = crate("zodiac_crate");
 
     private MainCrates() {}

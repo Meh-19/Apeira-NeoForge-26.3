@@ -1,13 +1,21 @@
 {
   "common": [
-    "apeira:hard_hat"
+    "apeira:hard_hat",
+    "apeira:i_beam",
+    "apeira:metal_scaffolding",
+    "apeira:porta_potty"
   ],
-  "rare": [],
+  "rare": [
+    "apeira:cement_mixer",
+    "apeira:forklift"
+  ],
   "epic": [
-    "apeira:treads"
+    "apeira:treads",
+    "apeira:excavator"
   ],
   "legendary": [
-    "apeira:crane"
+    "apeira:crane",
+    "apeira:construction_crane"
   ],
   "limited": []
 }

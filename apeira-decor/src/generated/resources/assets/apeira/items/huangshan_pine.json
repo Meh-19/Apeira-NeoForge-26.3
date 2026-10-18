@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:item/furniture/huangshan_pine_placed"
+        },
+        "when": "none"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/furniture/huangshan_pine"
+    },
+    "property": "minecraft:display_context"
+  }
+}

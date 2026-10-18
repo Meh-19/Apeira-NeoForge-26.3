@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/stone_lion",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/stone_lion"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/stone_lion",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/stone_lion",
+      "y": 270
+    }
+  }
+}

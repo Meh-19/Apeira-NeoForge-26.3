@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/concert_stage",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/concert_stage"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/concert_stage",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/concert_stage",
+      "y": 270
+    }
+  }
+}

@@ -2,12 +2,15 @@
   "common": [
     "apeira:hatched_egg",
     "apeira:carrot_cane",
-    "apeira:hatched_egg_hat"
+    "apeira:hatched_egg_hat",
+    "apeira:spring_balloons",
+    "apeira:mother_goose"
   ],
   "rare": [
     "apeira:bunny_beanie",
     "apeira:egg_basket",
-    "apeira:bunny_headband"
+    "apeira:bunny_headband",
+    "apeira:froggy_bean_bag"
   ],
   "epic": [],
   "legendary": [],

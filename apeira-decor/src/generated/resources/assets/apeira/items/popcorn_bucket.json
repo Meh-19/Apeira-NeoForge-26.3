@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/popcorn_bucket",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

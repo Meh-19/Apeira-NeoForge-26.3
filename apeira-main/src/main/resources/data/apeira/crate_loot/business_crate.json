@@ -1,9 +1,19 @@
 {
-  "common": [],
-  "rare": [],
+  "common": [
+    "apeira:laptop",
+    "apeira:office_chair",
+    "apeira:desk_lamp",
+    "apeira:office_blinds",
+    "apeira:office_desk"
+  ],
+  "rare": [
+    "apeira:printing_machine"
+  ],
   "epic": [
     "apeira:money_sack"
   ],
-  "legendary": [],
+  "legendary": [
+    "apeira:revolving_door"
+  ],
   "limited": []
 }

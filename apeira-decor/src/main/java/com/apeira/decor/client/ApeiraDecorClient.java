@@ -14,7 +14,7 @@ import com.apeira.decor.network.OpenWardrobePayload;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.decor.paint.Paint;
 import com.apeira.decor.registry.DecorBlockEntities;
-import com.apeira.decor.registry.DecorBlocks;
+import com.apeira.decor.registry.DecorFurniture;
 import com.apeira.decor.registry.DecorEntities;
 import com.apeira.decor.registry.DecorMenus;
 
@@ -26,17 +26,20 @@ import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.registries.DeferredBlock;
 
 /** Client entrypoint for the Apeira Decor module. */
 @Mod(value = ApeiraDecor.MOD_ID, dist = Dist.CLIENT)
@@ -53,6 +56,7 @@ public final class ApeiraDecorClient {
         modEventBus.addListener(ApeiraDecorClient::registerScreens);
         modEventBus.addListener(ApeiraDecorClient::registerBlockTints);
         modEventBus.addListener(ApeiraDecorClient::registerItemTints);
+        modEventBus.addListener(ApeiraDecorClient::registerItemConditions);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addPaintTooltip);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::openWardrobe);
         NeoForge.EVENT_BUS.addListener(CrateCamera::onClientTick);
@@ -69,6 +73,7 @@ public final class ApeiraDecorClient {
         // Every entity type needs a renderer, even an invisible one: the game crashes rendering an entity without one.
         event.registerEntityRenderer(DecorEntities.SEAT.get(), NoopRenderer::new);
         event.registerBlockEntityRenderer(DecorBlockEntities.CRATE.get(), CrateRenderer::new);
+        event.registerBlockEntityRenderer(DecorBlockEntities.FURNITURE.get(), FurnitureRenderer::new);
     }
 
     /** Worn cosmetics, on players and mannequins of both skin models. */
@@ -104,14 +109,21 @@ public final class ApeiraDecorClient {
         event.register(DecorMenus.WARDROBE.get(), WardrobeScreen::new);
     }
 
-    /** Paintable blocks: tint index 0 shows the block's paint. */
+    /** Paintable furniture with a block model: tint index 0 shows the block's paint. Large furniture tints its item. */
     private static void registerBlockTints(RegisterColorHandlersEvent.BlockTintSources event) {
-        event.register(List.of(PaintBlockTint.INSTANCE), DecorBlocks.OAK_CHAIR.get());
+        Block[] blocks = DecorFurniture.matching(furniture -> furniture.paintable() && furniture.large() == null).stream()
+                .map(DeferredBlock::get).toArray(Block[]::new);
+        event.register(List.of(PaintBlockTint.INSTANCE), blocks);
     }
 
     /** {@code apeira:paint}, which item definitions use to show an item's paint. Also needed by the data run. */
     private static void registerItemTints(RegisterColorHandlersEvent.ItemTintSources event) {
         event.register(ApeiraDecor.REGISTRAR.id("paint"), PaintTintSource.MAP_CODEC);
+    }
+
+    /** {@code apeira:worn_cosmetic}, which cosmetic item definitions use to show their 3D model only when worn. */
+    private static void registerItemConditions(RegisterConditionalItemModelPropertyEvent event) {
+        event.register(ApeiraDecor.REGISTRAR.id("worn_cosmetic"), WornCosmetic.MAP_CODEC);
     }
 
     /**

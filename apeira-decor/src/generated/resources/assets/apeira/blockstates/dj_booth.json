@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/dj_booth",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/dj_booth"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/dj_booth",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/dj_booth",
+      "y": 270
+    }
+  }
+}

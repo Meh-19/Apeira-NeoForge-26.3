@@ -1,0 +1,29 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:item/furniture/gothic_throne_placed",
+          "tints": [
+            {
+              "type": "apeira:paint"
+            }
+          ]
+        },
+        "when": "none"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/furniture/gothic_throne",
+      "tints": [
+        {
+          "type": "apeira:paint"
+        }
+      ]
+    },
+    "property": "minecraft:display_context"
+  }
+}

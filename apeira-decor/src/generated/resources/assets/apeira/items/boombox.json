@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/boombox",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

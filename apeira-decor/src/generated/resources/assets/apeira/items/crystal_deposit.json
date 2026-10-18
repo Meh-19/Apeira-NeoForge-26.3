@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/crystal_deposit",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

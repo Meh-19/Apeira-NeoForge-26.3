@@ -29,7 +29,8 @@ import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 /**
  * Draws the cosmetics in a player's (or mannequin's) wardrobe: the hat on the head, the back cosmetic on the body
  * and the hand cosmetic in the off hand while it holds nothing. Transforms are CosmoLib's {@code CosmeticPlayerLayer}.
- * Item models draw the cosmetic's 3D model in the head and third-person contexts and its token elsewhere.
+ * Models are resolved under {@link WornCosmetic}, so item definitions draw the cosmetic's 3D model here and its token
+ * everywhere else.
  */
 public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
     /** CosmoLib's {@code BackOffsetData.DEFAULT_Y}: lifts back cosmetics from the body's pivot onto the back. */
@@ -66,7 +67,7 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
     private static ItemStackRenderState resolve(ItemModelResolver resolver, Avatar avatar, ItemStack stack,
             ItemDisplayContext context) {
         ItemStackRenderState state = new ItemStackRenderState();
-        resolver.updateForLiving(state, stack, context, avatar);
+        WornCosmetic.whileWorn(() -> resolver.updateForLiving(state, stack, context, avatar));
         return state;
     }
 

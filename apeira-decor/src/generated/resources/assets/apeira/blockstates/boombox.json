@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/boombox",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/boombox"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/boombox",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/boombox",
+      "y": 270
+    }
+  }
+}

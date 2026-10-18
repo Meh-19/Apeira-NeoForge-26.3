@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/ivy_pergola",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/ivy_pergola"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/ivy_pergola",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/ivy_pergola",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/food_stall",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/food_stall"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/food_stall",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/food_stall",
+      "y": 270
+    }
+  }
+}

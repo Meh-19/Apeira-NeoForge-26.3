@@ -1,11 +1,22 @@
 {
   "common": [
     "apeira:comically_large_fork",
-    "apeira:comically_large_spoon"
+    "apeira:comically_large_spoon",
+    "apeira:condiment_caddy",
+    "apeira:burger_tray",
+    "apeira:cone_light",
+    "apeira:restaurant_table",
+    "apeira:hotdog_tray",
+    "apeira:donut_box",
+    "apeira:burger_signage",
+    "apeira:hotdog_signage",
+    "apeira:donut_signage"
   ],
   "rare": [
     "apeira:fry_pack",
-    "apeira:burger_cap"
+    "apeira:burger_cap",
+    "apeira:restaurant_booth",
+    "apeira:vending_machine"
   ],
   "epic": [],
   "legendary": [],

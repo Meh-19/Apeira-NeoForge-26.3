@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/restaurant_table",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/lantern_lamppost",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/lantern_lamppost"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/lantern_lamppost",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/lantern_lamppost",
+      "y": 270
+    }
+  }
+}

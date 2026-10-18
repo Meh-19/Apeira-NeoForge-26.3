@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/kitchen_shelf",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/kitchen_shelf"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/kitchen_shelf",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/kitchen_shelf",
+      "y": 270
+    }
+  }
+}

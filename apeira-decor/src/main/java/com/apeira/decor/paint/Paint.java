@@ -38,7 +38,7 @@ public final class Paint {
      */
     public static boolean canPaint(ItemStack stack) {
         return stack.getItem() instanceof PaintbrushItem
-                || stack.getItem() instanceof BlockItem item && item.getBlock() instanceof PaintableBlock
+                || stack.getItem() instanceof BlockItem item && item.getBlock() instanceof PaintableBlock block && block.takesPaint()
                 || isPaintableCosmetic(stack);
     }
 

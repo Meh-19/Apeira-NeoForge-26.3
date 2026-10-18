@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/huangshan_pine",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/huangshan_pine"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/huangshan_pine",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/huangshan_pine",
+      "y": 270
+    }
+  }
+}

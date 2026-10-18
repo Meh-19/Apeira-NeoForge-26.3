@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/train_set",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

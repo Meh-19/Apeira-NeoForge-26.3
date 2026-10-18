@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/magic_candles",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/magic_candles"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/magic_candles",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/magic_candles",
+      "y": 270
+    }
+  }
+}

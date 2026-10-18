@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/condiment_caddy",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/condiment_caddy"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/condiment_caddy",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/condiment_caddy",
+      "y": 270
+    }
+  }
+}

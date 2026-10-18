@@ -37,7 +37,7 @@ public class PaintbrushItem extends Item {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Player player = context.getPlayer();
-        if (!(level.getBlockState(pos).getBlock() instanceof PaintableBlock)
+        if (!(level.getBlockState(pos).getBlock() instanceof PaintableBlock paintable) || !paintable.takesPaint()
                 || !(level.getBlockEntity(pos) instanceof PaintBlockEntity block)) {
             return InteractionResult.PASS;
         }

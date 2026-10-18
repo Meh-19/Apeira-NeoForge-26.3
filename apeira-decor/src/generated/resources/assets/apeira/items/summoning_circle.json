@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/summoning_circle",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}
