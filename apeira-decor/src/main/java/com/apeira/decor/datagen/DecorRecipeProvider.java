@@ -23,9 +23,9 @@ public final class DecorRecipeProvider extends ApeiraRecipeProvider {
                 .pattern("WW")
                 .pattern("PP")
                 .pattern("PP")
-                .define('W', Items.WHITE_WOOL)
+                .define('W', Items.WOOL.white())
                 .define('P', ItemTags.PLANKS)
-                .unlockedBy(getHasName(Items.WHITE_WOOL), has(Items.WHITE_WOOL))
+                .unlockedBy(getHasName(Items.WOOL.white()), has(Items.WOOL.white()))
                 .save(output);
         shaped(RecipeCategory.TOOLS, DecorItems.PAINTBRUSH)
                 .pattern("F")
