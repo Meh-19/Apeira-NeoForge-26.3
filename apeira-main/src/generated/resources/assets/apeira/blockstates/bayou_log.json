@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "apeira:block/bayou_log_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "apeira:block/bayou_log"
+    },
+    "axis=z": {
+      "model": "apeira:block/bayou_log_horizontal",
+      "x": 90
+    }
+  }
+}

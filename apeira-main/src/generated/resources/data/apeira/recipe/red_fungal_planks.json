@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "dyed_fungal_planks",
+  "key": {
+    "#": "apeira:fungal_planks",
+    "D": "minecraft:red_dye"
+  },
+  "pattern": [
+    "###",
+    "#D#",
+    "###"
+  ],
+  "result": {
+    "count": 8,
+    "id": "apeira:red_fungal_planks"
+  }
+}

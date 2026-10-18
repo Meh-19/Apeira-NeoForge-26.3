@@ -86,6 +86,17 @@ public abstract class ApeiraItemModelProvider {
         generators().generateFlatItem(item.asItem(), ModelTemplates.FLAT_HANDHELD_ROD_ITEM);
     }
 
+    /**
+     * A piece of armour drawn from {@code item/<name>} that shows armour trims, using NeoForge's dynamic trim model, so
+     * no model per trim material is generated. {@code slotTrimPrefix} is vanilla's trim texture prefix for its slot,
+     * such as {@link ItemModelGenerators#TRIM_PREFIX_HELMET}.
+     */
+    protected void trimmableArmor(ItemLike item, Identifier slotTrimPrefix) {
+        Item value = item.asItem();
+        ModelTemplates.FLAT_ITEM.create(value, TextureMapping.layer0(value), generators().modelOutput);
+        generators().generateDynamicTrimmableItem(value, slotTrimPrefix, null);
+    }
+
     /** A block's item rendered with the block's model at {@code block/<name>}. */
     protected void blockItem(Block block) {
         blockItem(block, ModelLocationUtils.getModelLocation(block));

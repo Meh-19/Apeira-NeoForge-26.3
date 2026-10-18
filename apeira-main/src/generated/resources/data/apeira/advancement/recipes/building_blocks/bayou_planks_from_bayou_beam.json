@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_bayou_beam": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:bayou_beam"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:bayou_planks_from_bayou_beam"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_bayou_beam"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:bayou_planks_from_bayou_beam"
+    ]
+  }
+}

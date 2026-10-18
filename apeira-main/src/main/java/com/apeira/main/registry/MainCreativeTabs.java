@@ -20,10 +20,10 @@ public final class MainCreativeTabs {
 
     /**
      * "Apeira Content": every block and item of the main module but the cosmetics and crates, in registration order
-     * (blocks first), followed by the decor module's furniture.
+     * (items, then mineral blocks, then woods), followed by the decor module's furniture.
      */
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CONTENT = R.creativeTab("content", tab -> tab
-            .icon(MainItems.APEIRA_GEM::toStack)
+            .icon(MainItems.RUBY::toStack)
             .displayItems(Stream.concat(R.items().getEntries().stream(), ApeiraDecor.REGISTRAR.items().getEntries().stream())
                     .filter(item -> !(item.get() instanceof CosmeticItem)
                             && !(item.get() instanceof BlockItem block && block.getBlock() instanceof CrateBlock))

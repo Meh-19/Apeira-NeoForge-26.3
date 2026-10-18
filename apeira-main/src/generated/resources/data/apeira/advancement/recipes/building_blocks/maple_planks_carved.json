@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_maple_slab": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:maple_slab"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:maple_planks_carved"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_maple_slab"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:maple_planks_carved"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/button_inventory",
+  "textures": {
+    "texture": "apeira:block/purple_fungal_planks"
+  }
+}

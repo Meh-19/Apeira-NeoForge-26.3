@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "minecraft:mushroom_stem"
+  ],
+  "result": {
+    "count": 4,
+    "id": "apeira:fungal_planks"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_bleak_beam": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:bleak_beam"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:bleak_planks_from_bleak_beam"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_bleak_beam"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:bleak_planks_from_bleak_beam"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/button_pressed",
+  "textures": {
+    "texture": "apeira:block/light_blue_fungal_planks"
+  }
+}

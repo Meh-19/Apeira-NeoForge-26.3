@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "apeira:block/wisteria_beam_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "apeira:block/wisteria_beam"
+    },
+    "axis=z": {
+      "model": "apeira:block/wisteria_beam_horizontal",
+      "x": 90
+    }
+  }
+}

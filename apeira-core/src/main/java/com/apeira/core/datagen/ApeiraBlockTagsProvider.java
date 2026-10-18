@@ -1,5 +1,8 @@
 package com.apeira.core.datagen;
 
+import java.util.function.Consumer;
+
+import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
@@ -37,5 +40,20 @@ public abstract class ApeiraBlockTagsProvider extends BlockTagsProvider {
         for (DeferredBlock<?> block : blocks) {
             appender.add(block.key());
         }
+    }
+
+    /** Writes the block half of the module's {@link BlockAndItemTags}. */
+    protected void blockItemTags(Consumer<BlockAndItemTags> tags) {
+        tags.accept(new BlockAndItemTags() {
+            @Override
+            public void add(BlockItemTagId tag, DeferredBlock<?>... blocks) {
+                ApeiraBlockTagsProvider.this.add(tag.block(), blocks);
+            }
+
+            @Override
+            public void addTag(BlockItemTagId tag, BlockItemTagId child) {
+                tag(tag.block()).addTag(child.block());
+            }
+        });
     }
 }

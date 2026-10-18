@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "apeira:block/bayou_planks",
+    "side": "apeira:block/bayou_planks",
+    "top": "apeira:block/bayou_planks"
+  }
+}

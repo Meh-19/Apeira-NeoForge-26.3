@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "group": "wooden_button",
+  "ingredients": [
+    "apeira:baobab_planks"
+  ],
+  "result": {
+    "id": "apeira:baobab_button"
+  }
+}

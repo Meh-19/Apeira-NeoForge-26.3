@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "apeira:acacia_beam"
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:acacia_planks"
+  }
+}

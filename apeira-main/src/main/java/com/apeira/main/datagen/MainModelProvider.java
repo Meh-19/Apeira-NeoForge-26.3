@@ -7,13 +7,15 @@ import com.apeira.decor.client.PaintTintSource;
 import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainItems;
 
+import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.world.item.ItemDisplayContext;
 
 /**
- * Item models for {@link MainItems}, each a flat sprite from {@code item/<name>}.
+ * Item models for {@link MainItems}, each a flat sprite from {@code item/<name>} (tools held like a sword, armour
+ * showing its trims), and for the cosmetics.
  *
  * <p>Core's {@code ApeiraModelProvider} is the final vanilla model provider that runs every module's model providers,
  * so module item models extend {@link ApeiraItemModelProvider} instead.
@@ -21,11 +23,13 @@ import net.minecraft.world.item.ItemDisplayContext;
 public final class MainModelProvider extends ApeiraItemModelProvider {
     @Override
     protected void registerModels() {
-        simpleItem(MainItems.APEIRA_INGOT);
-        simpleItem(MainItems.APEIRA_GEM);
-        simpleItem(MainItems.APEIRA_RATION);
-        simpleItem(MainItems.EMBER_SHARD);
-        simpleItem(MainItems.MOSS_CLUMP);
+        simpleItem(MainItems.PLATINUM);
+        simpleItem(MainItems.RUBY);
+        MainItems.tools().forEach(this::toolItem);
+        trimmableArmor(MainItems.PLATINUM_HELMET, ItemModelGenerators.TRIM_PREFIX_HELMET);
+        trimmableArmor(MainItems.PLATINUM_CHESTPLATE, ItemModelGenerators.TRIM_PREFIX_CHESTPLATE);
+        trimmableArmor(MainItems.PLATINUM_LEGGINGS, ItemModelGenerators.TRIM_PREFIX_LEGGINGS);
+        trimmableArmor(MainItems.PLATINUM_BOOTS, ItemModelGenerators.TRIM_PREFIX_BOOTS);
 
         MainCosmetics.all().forEach(this::cosmetic);
     }

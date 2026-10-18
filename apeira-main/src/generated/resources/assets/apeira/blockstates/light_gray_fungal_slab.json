@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/light_gray_fungal_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/light_gray_fungal_planks"
+    },
+    "type=top": {
+      "model": "apeira:block/light_gray_fungal_slab_top"
+    }
+  }
+}

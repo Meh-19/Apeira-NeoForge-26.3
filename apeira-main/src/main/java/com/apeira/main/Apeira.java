@@ -10,6 +10,7 @@ import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCreativeTabs;
 import com.apeira.main.registry.MainItems;
+import com.apeira.main.registry.MainWoods;
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
@@ -28,7 +29,7 @@ public final class Apeira {
 
     public Apeira(IEventBus modEventBus, ModContainer modContainer) {
         // Content holder classes (blocks, items, ...) are passed here as they are added.
-        REGISTRAR.register(modEventBus, MainBlocks::init, MainItems::init, MainCosmetics::init, MainCrates::init,
+        REGISTRAR.register(modEventBus, MainItems::init, MainBlocks::init, MainWoods::init, MainCosmetics::init, MainCrates::init,
                 MainCreativeTabs::init);
         // Data holder classes (models, recipes, ...) are passed here as they are added.
         DATA.register(modEventBus, MainData::init);

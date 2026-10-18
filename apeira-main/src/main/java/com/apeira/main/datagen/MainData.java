@@ -13,6 +13,8 @@ public final class MainData {
                 .language(MainLanguageProvider::new)
                 .recipes(MainRecipeProvider::new)
                 .blockLoot(MainBlockLootSubProvider::new)
-                .blockTags(MainBlockTagProvider::new);
+                .blockTags(MainBlockTagProvider::new)
+                .itemTags(MainItemTagProvider::new)
+                .dataMaps(MainDataMapProvider::new);
     }
 }

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "apeira:crimson_beam"
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:crimson_planks"
+  }
+}

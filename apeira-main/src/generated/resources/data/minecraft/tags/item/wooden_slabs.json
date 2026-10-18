@@ -1,0 +1,28 @@
+{
+  "values": [
+    "apeira:maple_slab",
+    "apeira:bleak_slab",
+    "apeira:fir_slab",
+    "apeira:palm_slab",
+    "apeira:bayou_slab",
+    "apeira:wisteria_slab",
+    "apeira:baobab_slab",
+    "apeira:fungal_slab",
+    "apeira:white_fungal_slab",
+    "apeira:light_gray_fungal_slab",
+    "apeira:gray_fungal_slab",
+    "apeira:black_fungal_slab",
+    "apeira:brown_fungal_slab",
+    "apeira:red_fungal_slab",
+    "apeira:orange_fungal_slab",
+    "apeira:yellow_fungal_slab",
+    "apeira:lime_fungal_slab",
+    "apeira:green_fungal_slab",
+    "apeira:cyan_fungal_slab",
+    "apeira:light_blue_fungal_slab",
+    "apeira:blue_fungal_slab",
+    "apeira:purple_fungal_slab",
+    "apeira:magenta_fungal_slab",
+    "apeira:pink_fungal_slab"
+  ]
+}

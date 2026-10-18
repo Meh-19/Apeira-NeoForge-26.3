@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "apeira:block/fungal_planks",
+    "side": "apeira:block/fungal_planks",
+    "top": "apeira:block/fungal_planks"
+  }
+}

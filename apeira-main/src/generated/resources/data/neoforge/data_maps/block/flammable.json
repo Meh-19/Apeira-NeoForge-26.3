@@ -1,0 +1,824 @@
+{
+  "values": {
+    "apeira:acacia_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:acacia_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:baobab_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:baobab_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:baobab_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:baobab_leaves": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:baobab_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:baobab_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:baobab_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:baobab_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:baobab_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:baobab_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:bayou_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:bayou_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bayou_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bayou_leaves": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:bayou_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:bayou_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bayou_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bayou_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bayou_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bayou_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:birch_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:birch_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:black_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:black_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:black_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:black_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:black_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bleak_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:bleak_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bleak_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bleak_leaves": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:bleak_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:bleak_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bleak_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bleak_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bleak_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:bleak_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:blue_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:blue_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:blue_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:blue_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:blue_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:brown_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:brown_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:brown_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:brown_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:brown_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:cherry_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:cherry_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:crimson_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:crimson_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:cyan_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:cyan_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:cyan_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:cyan_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:cyan_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:dark_oak_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:dark_oak_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fir_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:fir_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fir_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fir_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:fir_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fir_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fir_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fir_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fir_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fungal_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:gray_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:gray_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:gray_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:gray_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:gray_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:green_fir_leaves": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:green_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:green_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:green_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:green_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:green_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:jungle_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:jungle_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_blue_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_blue_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_blue_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_blue_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_blue_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_gray_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_gray_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_gray_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_gray_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:light_gray_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:lime_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:lime_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:lime_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:lime_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:lime_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:magenta_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:magenta_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:magenta_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:magenta_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:magenta_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:mangrove_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:mangrove_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:maple_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:maple_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:maple_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:maple_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:maple_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:maple_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:maple_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:maple_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:maple_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:oak_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:oak_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:orange_fir_leaves": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:orange_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:orange_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:orange_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:orange_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:orange_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:orange_maple_leaves": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:palm_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:palm_crown": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:palm_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:palm_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:palm_leaves": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:palm_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:palm_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:palm_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:palm_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:palm_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:palm_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:pink_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:pink_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:pink_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:pink_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:pink_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:purple_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:purple_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:purple_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:purple_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:purple_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:red_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:red_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:red_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:red_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:red_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:red_maple_leaves": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:spruce_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:spruce_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_baobab_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_baobab_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_bayou_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_bayou_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_bleak_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_bleak_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_fir_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_fir_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_maple_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_maple_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_palm_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_palm_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_wisteria_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:stripped_wisteria_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_baobab_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_bayou_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_bleak_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_fir_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_maple_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_palm_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_wisteria_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:warped_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:warped_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:white_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:white_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:white_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:white_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:white_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:wisteria_beam": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:wisteria_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:wisteria_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:wisteria_flowers_blue": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:wisteria_flowers_pink": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:wisteria_flowers_purple": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:wisteria_flowers_white": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:wisteria_leaves": {
+      "burn_odds": 60,
+      "ignite_odds": 30
+    },
+    "apeira:wisteria_log": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:wisteria_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:wisteria_planks_carved": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:wisteria_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:wisteria_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:wisteria_wood": {
+      "burn_odds": 5,
+      "ignite_odds": 5
+    },
+    "apeira:yellow_fungal_fence": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:yellow_fungal_fence_gate": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:yellow_fungal_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:yellow_fungal_slab": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:yellow_fungal_stairs": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    }
+  }
+}

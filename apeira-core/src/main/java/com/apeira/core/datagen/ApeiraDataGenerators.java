@@ -172,6 +172,11 @@ public final class ApeiraDataGenerators {
         return server(factory::apply);
     }
 
+    /** Adds item tags, such as tool repair materials or the item half of {@link BlockAndItemTags}. */
+    public ApeiraDataGenerators itemTags(Function<Context, ? extends ApeiraItemTagsProvider> factory) {
+        return server(factory::apply);
+    }
+
     /**
      * Adds block loot tables. Loot tables are datapack registry entries in 26.x, so they are generated through
      * {@link DatapackRegistryGatherer#lootTable} like {@linkplain #recipes recipes}.

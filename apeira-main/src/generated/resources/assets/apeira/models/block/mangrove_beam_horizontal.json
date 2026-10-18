@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "end": "apeira:block/mangrove_beam_top",
+    "side": "apeira:block/mangrove_beam"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_bayou_slab": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:bayou_slab"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:bayou_planks_carved"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_bayou_slab"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:bayou_planks_carved"
+    ]
+  }
+}

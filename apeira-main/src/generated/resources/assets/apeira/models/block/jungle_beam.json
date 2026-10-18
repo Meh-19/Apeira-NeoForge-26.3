@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "apeira:block/jungle_beam_top",
+    "side": "apeira:block/jungle_beam"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_platinum": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:platinum"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:platinum_sword"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_platinum"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:platinum_sword"
+    ]
+  }
+}

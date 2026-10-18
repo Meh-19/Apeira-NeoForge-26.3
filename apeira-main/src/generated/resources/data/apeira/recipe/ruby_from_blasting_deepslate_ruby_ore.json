@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:blasting",
+  "cookingtime": 100,
+  "experience": 1.0,
+  "ingredient": "apeira:deepslate_ruby_ore",
+  "result": {
+    "id": "apeira:ruby"
+  }
+}

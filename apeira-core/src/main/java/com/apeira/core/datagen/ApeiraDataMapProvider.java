@@ -13,6 +13,7 @@ import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import net.neoforged.neoforge.registries.datamaps.builtin.Flammable;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import net.neoforged.neoforge.registries.datamaps.builtin.Transformable;
 import net.neoforged.neoforge.registries.datamaps.builtin.VillagerCompostable;
 
 /**
@@ -70,6 +71,11 @@ public abstract class ApeiraDataMapProvider extends DataMapProvider {
     /** Makes {@code block} catch fire ({@code igniteOdds}) and burn away ({@code burnOdds}); planks use 5 and 20. */
     protected void flammable(Block block, int igniteOdds, int burnOdds) {
         block(NeoForgeDataMaps.FLAMMABLE, block, new Flammable(igniteOdds, burnOdds));
+    }
+
+    /** Lets axes strip {@code log} into {@code stripped}, keeping its axis, as vanilla logs are stripped. */
+    protected void strippable(Block log, Block stripped) {
+        block(NeoForgeDataMaps.TRANSFORMABLES, log, Transformable.stripping(log, stripped));
     }
 
     private static Holder<Item> holder(ItemLike item) {
