@@ -23,6 +23,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -176,6 +177,19 @@ public final class ApeiraRegistrar {
     /** Registers a block with default properties together with a plain block item of the same name. */
     public <B extends Block> DeferredBlock<B> blockWithItem(String name, Function<BlockBehaviour.Properties, ? extends B> factory) {
         return blockWithItem(name, factory, UnaryOperator.identity());
+    }
+
+    /**
+     * Registers a block whose properties start from {@code properties} (for example
+     * {@code () -> BlockBehaviour.Properties.ofLegacyCopy(Blocks.OAK_PLANKS)}) together with a block item of the same
+     * name built from {@code itemProperties}, which can make it a fuel or compostable. The supplier is called once,
+     * when the block is registered, so it may copy another block of the same register registered before it.
+     */
+    public <B extends Block> DeferredBlock<B> blockWithItem(String name, Function<BlockBehaviour.Properties, ? extends B> factory,
+            Supplier<BlockBehaviour.Properties> properties, UnaryOperator<Item.Properties> itemProperties) {
+        DeferredBlock<B> block = blocks.registerBlock(name, factory, properties);
+        items.registerSimpleBlockItem(block, itemProperties);
+        return block;
     }
 
     /** Registers an item data component type; see {@link DataComponentType.Builder} for codecs and syncing. */

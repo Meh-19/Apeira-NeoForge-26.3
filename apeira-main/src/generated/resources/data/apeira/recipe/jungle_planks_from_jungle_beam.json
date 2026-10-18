@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "apeira:jungle_beam"
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:jungle_planks"
+  }
+}

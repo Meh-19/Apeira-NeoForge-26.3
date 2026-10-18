@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "apeira:block/blue_fungal_planks"
+  }
+}

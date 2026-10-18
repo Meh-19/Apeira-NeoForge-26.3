@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    "#apeira:wisteria_logs"
+  ],
+  "result": {
+    "count": 4,
+    "id": "apeira:wisteria_planks"
+  }
+}

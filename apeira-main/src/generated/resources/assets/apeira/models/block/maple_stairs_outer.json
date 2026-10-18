@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "apeira:block/maple_planks",
+    "side": "apeira:block/maple_planks",
+    "top": "apeira:block/maple_planks"
+  }
+}

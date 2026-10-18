@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    "#apeira:maple_logs"
+  ],
+  "result": {
+    "count": 4,
+    "id": "apeira:maple_planks"
+  }
+}

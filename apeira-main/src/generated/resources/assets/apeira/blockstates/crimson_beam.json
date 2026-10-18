@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "apeira:block/crimson_beam_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "apeira:block/crimson_beam"
+    },
+    "axis=z": {
+      "model": "apeira:block/crimson_beam_horizontal",
+      "x": 90
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/bayou_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/bayou_planks"
+    },
+    "type=top": {
+      "model": "apeira:block/bayou_slab_top"
+    }
+  }
+}

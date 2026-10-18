@@ -1,6 +1,15 @@
 {
   "values": [
-    "apeira:carved_apeira_stone",
-    "apeira:apeira_brick"
+    "apeira:platinum_block",
+    "apeira:platinum_bricks",
+    "apeira:platinum_pillar",
+    "apeira:platinum_ore",
+    "apeira:deepslate_platinum_ore",
+    "apeira:ruby_block",
+    "apeira:ruby_bricks",
+    "apeira:ruby_pillar",
+    "apeira:ruby_ore",
+    "apeira:deepslate_ruby_ore",
+    "apeira:diamond_brick"
   ]
 }

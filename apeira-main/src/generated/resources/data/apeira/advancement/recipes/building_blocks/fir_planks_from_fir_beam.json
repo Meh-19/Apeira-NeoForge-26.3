@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_fir_beam": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:fir_beam"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:fir_planks_from_fir_beam"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_fir_beam"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:fir_planks_from_fir_beam"
+    ]
+  }
+}

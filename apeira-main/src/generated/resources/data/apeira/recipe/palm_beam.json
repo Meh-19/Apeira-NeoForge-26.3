@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "apeira:palm_log"
+  },
+  "pattern": [
+    "##"
+  ],
+  "result": {
+    "count": 2,
+    "id": "apeira:palm_beam"
+  }
+}

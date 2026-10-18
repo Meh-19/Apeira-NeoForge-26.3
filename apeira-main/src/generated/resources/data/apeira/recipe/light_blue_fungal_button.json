@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "group": "wooden_button",
+  "ingredients": [
+    "apeira:light_blue_fungal_planks"
+  ],
+  "result": {
+    "id": "apeira:light_blue_fungal_button"
+  }
+}

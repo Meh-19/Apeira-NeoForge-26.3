@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "apeira:platinum_block"
+  ],
+  "result": {
+    "count": 9,
+    "id": "apeira:platinum"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_acacia_beam": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:acacia_beam"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:acacia_planks_from_acacia_beam"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_acacia_beam"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:acacia_planks_from_acacia_beam"
+    ]
+  }
+}

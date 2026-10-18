@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    "#apeira:bleak_logs"
+  ],
+  "result": {
+    "count": 4,
+    "id": "apeira:bleak_planks"
+  }
+}

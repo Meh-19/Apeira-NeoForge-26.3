@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "apeira:block/purple_fungal_planks",
+    "side": "apeira:block/purple_fungal_planks",
+    "top": "apeira:block/purple_fungal_planks"
+  }
+}

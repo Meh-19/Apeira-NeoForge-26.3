@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "group": "wooden_pressure_plate",
+  "key": {
+    "#": "apeira:light_blue_fungal_planks"
+  },
+  "pattern": [
+    "##"
+  ],
+  "result": {
+    "id": "apeira:light_blue_fungal_pressure_plate"
+  }
+}

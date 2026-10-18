@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": "apeira:block/wisteria_flowers_white"
+  }
+}

@@ -5,19 +5,38 @@ import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainItems;
+import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.data.PackOutput;
 
 /** English names for Apeira's blocks, items and creative tabs. */
 public final class MainLanguageProvider extends ApeiraLanguageProvider {
+    private static final String CARVED = "_planks_carved";
+    private static final String FLOWERS = "wisteria_flowers_";
+
     public MainLanguageProvider(PackOutput output, String namespace) {
         super(output, namespace);
     }
 
     @Override
     protected void addTranslations() {
-        block(MainBlocks.CARVED_APEIRA_STONE, "Carved Apeira Stone");
-        block(MainBlocks.APEIRA_BRICK, "Apeira Brick");
+        // ORForged's names.
+        item(MainItems.PLATINUM, "Platinum");
+        item(MainItems.RUBY, "Ruby");
+        MainItems.tools().forEach(tool -> item(tool, title(tool.getId().getPath())));
+        MainItems.armor().forEach(armor -> item(armor, title(armor.getId().getPath())));
+        block(MainBlocks.PLATINUM_BLOCK, "Block of Platinum");
+        block(MainBlocks.PLATINUM_BRICKS, "Platinum Bricks");
+        block(MainBlocks.PLATINUM_PILLAR, "Platinum Pillar");
+        block(MainBlocks.PLATINUM_ORE, "Platinum Ore");
+        block(MainBlocks.DEEPSLATE_PLATINUM_ORE, "Deepslate Platinum Ore");
+        block(MainBlocks.RUBY_BLOCK, "Block of Ruby");
+        block(MainBlocks.RUBY_BRICKS, "Ruby Bricks");
+        block(MainBlocks.RUBY_PILLAR, "Ruby Pillar");
+        block(MainBlocks.RUBY_ORE, "Ruby Ore");
+        block(MainBlocks.DEEPSLATE_RUBY_ORE, "Deepslate Ruby Ore");
+        block(MainBlocks.DIAMOND_BRICK, "Diamond Brick");
+        woods();
 
         // The Crates mod's crate names.
         block(MainCrates.AETHER_CRATE, "Aether Crate");
@@ -35,16 +54,41 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         block(MainCrates.FUN_FAIR_CRATE, "Fun Fair Crate");
         block(MainCrates.ZODIAC_CRATE, "Zodiac Crate");
 
-        item(MainItems.APEIRA_INGOT, "Apeira Ingot");
-        item(MainItems.APEIRA_GEM, "Apeira Gem");
-        item(MainItems.APEIRA_RATION, "Apeira Ration");
-        item(MainItems.EMBER_SHARD, "Ember Shard");
-        item(MainItems.MOSS_CLUMP, "Moss Clump");
-
         creativeTab("content", "Apeira Content");
         creativeTab("cosmetics", "Cosmetics");
 
         cosmetics();
+    }
+
+    /**
+     * The woods' names, ORForged's: each block's name in title case, except carved planks ("Carved Maple Planks") and
+     * wisteria flowers ("Blue Wisteria Flowers").
+     */
+    private void woods() {
+        for (var block : MainWoods.all()) {
+            String path = block.getId().getPath();
+            String name;
+            if (path.endsWith(CARVED)) {
+                name = "Carved " + title(path.substring(0, path.length() - CARVED.length())) + " Planks";
+            } else if (path.startsWith(FLOWERS)) {
+                name = title(path.substring(FLOWERS.length())) + " Wisteria Flowers";
+            } else {
+                name = title(path);
+            }
+            block(block, name);
+        }
+    }
+
+    /** {@code dark_oak_beam} as {@code Dark Oak Beam}. */
+    private static String title(String path) {
+        StringBuilder title = new StringBuilder();
+        for (String word : path.split("_")) {
+            if (!title.isEmpty()) {
+                title.append(' ');
+            }
+            title.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+        return title.toString();
     }
 
     /** The cosmetics' names (the Crates mod's) and the crate each is exclusive to. */

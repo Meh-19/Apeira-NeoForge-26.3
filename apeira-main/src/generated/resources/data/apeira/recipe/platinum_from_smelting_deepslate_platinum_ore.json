@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 1.0,
+  "ingredient": "apeira:deepslate_platinum_ore",
+  "result": {
+    "id": "apeira:platinum"
+  }
+}

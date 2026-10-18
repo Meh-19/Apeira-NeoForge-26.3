@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "apeira:block/ruby_pillar_top",
+    "side": "apeira:block/ruby_pillar"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/maple_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/maple_planks"
+    },
+    "type=top": {
+      "model": "apeira:block/maple_slab_top"
+    }
+  }
+}

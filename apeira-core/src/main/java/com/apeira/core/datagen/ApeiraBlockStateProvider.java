@@ -16,6 +16,7 @@ import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
+import net.minecraft.data.BlockFamily;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -105,6 +106,30 @@ public abstract class ApeiraBlockStateProvider {
         simpleBlock(block, modelOf(block));
     }
 
+    /** Leaves using the texture {@code block/<name>}, drawn like vanilla leaves (with tint index 0). */
+    protected void leaves(Block block) {
+        generators().createTrivialBlock(block, TexturedModel.LEAVES);
+    }
+
+    // Wood and block families
+
+    /**
+     * A log and its six-sided wood, like vanilla oak: the log has {@code block/<log>} sides and {@code block/<log>_top}
+     * ends and its own model when lying down; the wood uses the log's side texture all round. Works for stripped logs
+     * too.
+     */
+    protected void log(Block log, Block wood) {
+        generators().woodProvider(log).logWithHorizontal(log).wood(wood);
+    }
+
+    /**
+     * Every block of a vanilla {@link BlockFamily} (stairs, slab, fence, button, ...), textured with its base block's
+     * texture {@code block/<base>}. The base block gets a plain cube.
+     */
+    protected void family(BlockFamily family) {
+        generators().family(family.getBaseBlock()).generateFor(family);
+    }
+
     // Directional blocks
 
     /**
@@ -130,6 +155,14 @@ public abstract class ApeiraBlockStateProvider {
     /** A pillar along {@link BlockStateProperties#AXIS}, with {@code block/<name>} sides and {@code block/<name>_top} ends. */
     protected void axisBlock(Block block) {
         generators().createAxisAlignedPillarBlock(block, TexturedModel.COLUMN);
+    }
+
+    /**
+     * A pillar textured like a log, {@code block/<name>} on the sides and {@code block/<name>_top} on the ends, with a
+     * model of its own when lying down, as vanilla logs have, so the side texture stays upright on every face.
+     */
+    protected void pillar(Block block) {
+        generators().createRotatedPillarWithHorizontalVariant(block, TexturedModel.COLUMN_ALT, TexturedModel.COLUMN_HORIZONTAL_ALT);
     }
 
     // Furniture

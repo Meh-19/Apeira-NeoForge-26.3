@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_jungle_beam": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:jungle_beam"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:jungle_planks_from_jungle_beam"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_jungle_beam"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:jungle_planks_from_jungle_beam"
+    ]
+  }
+}

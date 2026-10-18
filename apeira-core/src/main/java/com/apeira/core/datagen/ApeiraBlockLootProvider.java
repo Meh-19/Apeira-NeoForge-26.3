@@ -7,7 +7,16 @@ import com.apeira.core.registry.ApeiraRegistrar;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
+import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 /**
@@ -35,12 +44,29 @@ import net.neoforged.neoforge.registries.DeferredHolder;
  * that drop nothing), and other modules' blocks are left to their own providers.
  */
 public abstract class ApeiraBlockLootProvider extends BlockLootSubProvider {
+    /** Vanilla's chance of sticks from leaves at each Fortune level. */
+    private static final float[] LEAVES_STICK_CHANCES = {0.02F, 0.022222223F, 0.025F, 0.033333335F, 0.1F};
+
     private final ApeiraRegistrar registrar;
 
     protected ApeiraBlockLootProvider(LootTableSubProvider.Context context, ApeiraRegistrar registrar) {
         // No block is explosion resistant: every drop must survive the explosion that broke the block.
         super(Set.of(), FeatureFlags.REGISTRY.allFlags(), context);
         this.registrar = registrar;
+    }
+
+    /**
+     * Leaves of a tree with no sapling: themselves with shears or Silk Touch, otherwise sometimes one or two sticks,
+     * with vanilla's chances.
+     */
+    protected LootTable.Builder createLeavesDropsWithoutSapling(Block leaves) {
+        return createShearsOrSilkTouchOnlyDrop(leaves).withPool(LootPool.lootPool()
+                .setRolls(ContextIntProviders.exactly(1))
+                .when(new AnyOfCondition.Builder().or(hasShears()).or(hasSilkTouch()).invert())
+                .add(applyExplosionDecay(leaves, LootItem.lootTableItem(Items.STICK)
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2))))
+                        .when(BonusLevelTableCondition.bonusLevelFlatChance(enchantments.getOrThrow(Enchantments.FORTUNE),
+                                LEAVES_STICK_CHANCES))));
     }
 
     @Override

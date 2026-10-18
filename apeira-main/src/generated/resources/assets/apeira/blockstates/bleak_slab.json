@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/bleak_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/bleak_planks"
+    },
+    "type=top": {
+      "model": "apeira:block/bleak_slab_top"
+    }
+  }
+}

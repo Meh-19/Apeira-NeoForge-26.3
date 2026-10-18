@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/wisteria_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/wisteria_planks"
+    },
+    "type=top": {
+      "model": "apeira:block/wisteria_slab_top"
+    }
+  }
+}
