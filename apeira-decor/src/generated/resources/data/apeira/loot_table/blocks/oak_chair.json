@@ -8,6 +8,15 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "apeira:paint"
+              ],
+              "source": "block_entity"
+            }
+          ],
           "name": "apeira:oak_chair"
         }
       ],

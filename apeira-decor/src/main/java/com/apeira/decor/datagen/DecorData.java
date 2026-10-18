@@ -9,7 +9,9 @@ public final class DecorData {
     public static void init(ApeiraDataGenerators data) {
         // A lambda rather than a constructor reference, so the client-only model classes are not loaded on a dedicated server.
         data.blockStates(() -> new DecorBlockStateProvider())
+                .itemModels(() -> new DecorItemModelProvider())
                 .language(DecorLanguageProvider::new)
+                .recipes(DecorRecipeProvider::new)
                 .blockLoot(DecorBlockLootSubProvider::new)
                 .blockTags(DecorBlockTagProvider::new);
     }

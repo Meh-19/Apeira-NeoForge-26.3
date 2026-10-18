@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": "minecraft:feather",
+    "I": "minecraft:copper_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "F",
+    "I",
+    "S"
+  ],
+  "result": {
+    "id": "apeira:paintbrush"
+  }
+}
