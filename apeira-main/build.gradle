@@ -42,6 +42,15 @@ neoForge {
                     '--existing', file('src/main/resources/').absolutePath
         }
 
+        // apeira-decor's blocks (furniture) and entities, written to that module's own generated resources.
+        decorData {
+            clientData()
+            def decor = project(':apeira-decor')
+            programArguments.addAll '--mod', decor.property('mod_id'), '--all',
+                    '--output', decor.file('src/generated/resources/').absolutePath,
+                    '--existing', decor.file('src/main/resources/').absolutePath
+        }
+
         configureEach {
             systemProperty 'neoforge.enabledGameTestNamespaces', allMods.keySet().join(',')
             systemProperty 'forge.logging.markers', 'REGISTRIES'

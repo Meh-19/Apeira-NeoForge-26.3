@@ -1,5 +1,7 @@
 // Library module. Shared configuration comes from the root build.gradle.
-// Runs are configured in apeira-main, which loads every Apeira module together.
+// Runs are configured in apeira-main, which loads every Apeira module together; its decorData run writes this
+// module's generated resources to src/generated/resources.
 
 dependencies {
+    implementation project(':apeira-core')
 }

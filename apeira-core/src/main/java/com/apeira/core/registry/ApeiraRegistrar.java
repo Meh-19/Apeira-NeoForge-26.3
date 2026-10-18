@@ -19,6 +19,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -49,6 +52,7 @@ public final class ApeiraRegistrar {
     private final DeferredRegister.Items items;
     private final DeferredRegister.DataComponents dataComponents;
     private final DeferredRegister<BlockEntityType<?>> blockEntityTypes;
+    private final DeferredRegister.Entities entityTypes;
     private final DeferredRegister<FluidType> fluidTypes;
     private final DeferredRegister<Fluid> fluids;
     private final DeferredRegister<CreativeModeTab> creativeTabs;
@@ -62,6 +66,7 @@ public final class ApeiraRegistrar {
         this.items = track(DeferredRegister.createItems(namespace));
         this.dataComponents = track(DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, namespace));
         this.blockEntityTypes = track(DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, namespace));
+        this.entityTypes = track(DeferredRegister.createEntities(namespace));
         this.fluidTypes = track(DeferredRegister.create(NeoForgeRegistries.Keys.FLUID_TYPES, namespace));
         this.fluids = track(DeferredRegister.create(Registries.FLUID, namespace));
         this.creativeTabs = track(DeferredRegister.create(Registries.CREATIVE_MODE_TAB, namespace));
@@ -139,6 +144,10 @@ public final class ApeiraRegistrar {
         return blockEntityTypes;
     }
 
+    public DeferredRegister.Entities entityTypes() {
+        return entityTypes;
+    }
+
     public DeferredRegister<FluidType> fluidTypes() {
         return fluidTypes;
     }
@@ -189,6 +198,15 @@ public final class ApeiraRegistrar {
             }
             return new BlockEntityType<T>(factory, Set.copyOf(resolved));
         });
+    }
+
+    /**
+     * Registers an entity type. The builder sets its size, tracking range and other options; entity renderers are
+     * registered separately, on the client.
+     */
+    public <E extends Entity> DeferredHolder<EntityType<?>, EntityType<E>> entityType(String name, EntityType.EntityFactory<E> factory,
+            MobCategory category, UnaryOperator<EntityType.Builder<E>> builder) {
+        return entityTypes.registerEntityType(name, factory, category, builder);
     }
 
     /** Registers a NeoForge fluid type (the physical and visual properties shared by a source and flowing fluid). */

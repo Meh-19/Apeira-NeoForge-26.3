@@ -1,6 +1,9 @@
 package com.apeira.main.registry;
 
+import java.util.stream.Stream;
+
 import com.apeira.core.registry.ApeiraRegistrar;
+import com.apeira.decor.ApeiraDecor;
 import com.apeira.main.Apeira;
 
 import net.minecraft.world.item.CreativeModeTab;
@@ -10,10 +13,13 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 public final class MainCreativeTabs {
     private static final ApeiraRegistrar R = Apeira.REGISTRAR;
 
-    /** "Apeira Content": every block and item of the main module, in registration order (blocks first). */
+    /**
+     * "Apeira Content": every block and item of the main module, in registration order (blocks first), followed by the
+     * decor module's furniture.
+     */
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CONTENT = R.creativeTab("content", tab -> tab
             .icon(MainItems.APEIRA_GEM::toStack)
-            .displayItems(R.items().getEntries()));
+            .displayItems(Stream.concat(R.items().getEntries().stream(), ApeiraDecor.REGISTRAR.items().getEntries().stream()).toList()));
 
     private MainCreativeTabs() {}
 
