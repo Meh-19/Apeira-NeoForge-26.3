@@ -1,4 +1,4 @@
-# Generated into the jar by the generateModMetadata task; ${...} values come from gradle.properties.
+# Generated into the jar by the generateModMetadata task; placeholder values come from gradle.properties.
 license="${mod_license}"
 #issueTrackerURL="" #optional
 
