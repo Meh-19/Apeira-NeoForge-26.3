@@ -1,0 +1,17 @@
+{
+  "common": [
+    "apeira:spartan_helmet",
+    "apeira:lightning_bolt",
+    "apeira:blitz_aura"
+  ],
+  "rare": [
+    "apeira:spartan_robe",
+    "apeira:cloud_wings",
+    "apeira:lyre"
+  ],
+  "epic": [
+    "apeira:solar_staff"
+  ],
+  "legendary": [],
+  "limited": []
+}

@@ -1,0 +1,15 @@
+{
+  "common": [
+    "apeira:flashlight"
+  ],
+  "rare": [
+    "apeira:log_bundle"
+  ],
+  "epic": [
+    "apeira:chainsaw"
+  ],
+  "legendary": [
+    "apeira:cuckoo_clock"
+  ],
+  "limited": []
+}

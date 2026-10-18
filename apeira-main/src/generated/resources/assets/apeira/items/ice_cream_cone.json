@@ -1,0 +1,32 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:item/cosmetic/ice_cream_cone",
+          "tints": [
+            {
+              "type": "minecraft:constant",
+              "value": -1
+            },
+            {
+              "type": "apeira:paint"
+            }
+          ]
+        },
+        "when": [
+          "head",
+          "thirdperson_lefthand",
+          "thirdperson_righthand"
+        ]
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/common_hand_token"
+    },
+    "property": "minecraft:display_context"
+  }
+}

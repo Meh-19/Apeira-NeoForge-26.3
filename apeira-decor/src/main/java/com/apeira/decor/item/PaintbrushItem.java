@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -18,8 +19,10 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 /**
- * Paints {@link PaintableBlock}s. The brush gets its paint in the painting table; right-clicking a paintable block
- * paints it and uses up one durability point. Sneak-right-clicking a painted block copies its paint onto the brush.
+ * Paints {@link PaintableBlock}s and paintable cosmetics. The brush gets its paint in the painting table;
+ * right-clicking a paintable block paints it and uses up one durability point. Sneak-right-clicking a painted block
+ * copies its paint onto the brush. Right-clicking the air does the same to a paintable cosmetic held in the other hand
+ * (CosmoLib's brush only painted blocks; its cosmetics were painted in the table).
  *
  * <p>The brush acts before the block's own right-click (NeoForge's {@code onItemUseFirst}), so painting a chair does
  * not sit the player down.
@@ -45,11 +48,7 @@ public class PaintbrushItem extends Item {
                 return InteractionResult.PASS;
             }
             if (!level.isClientSide()) {
-                Paint.set(stack, copied);
-                level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.6F, 1.4F);
-                Component description = Paint.describe(copied);
-                player.sendOverlayMessage(Component.translatable("message.apeira.paint_copied",
-                        description != null ? description : Component.literal(String.format("#%06X", copied))));
+                copyPaint(level, player, stack, copied, pos);
             }
             return InteractionResult.SUCCESS;
         }
@@ -68,5 +67,45 @@ public class PaintbrushItem extends Item {
         }
         level.playSound(player, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        ItemStack brush = player.getItemInHand(hand);
+        ItemStack cosmetic = player.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
+        if (!Paint.isPaintableCosmetic(cosmetic)) {
+            return InteractionResult.PASS;
+        }
+        BlockPos pos = player.blockPosition();
+
+        if (player.isSecondaryUseActive()) {
+            Integer copied = Paint.get(cosmetic);
+            if (copied == null) {
+                return InteractionResult.PASS;
+            }
+            if (!level.isClientSide()) {
+                copyPaint(level, player, brush, copied, pos);
+            }
+            return InteractionResult.SUCCESS;
+        }
+
+        Integer paint = Paint.get(brush);
+        if (paint == null || paint.equals(Paint.get(cosmetic))) {
+            return InteractionResult.PASS;
+        }
+        if (!level.isClientSide()) {
+            Paint.set(cosmetic, paint);
+            brush.hurtAndBreak(1, player, hand);
+        }
+        level.playSound(player, pos, SoundEvents.DYE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+        return InteractionResult.SUCCESS;
+    }
+
+    private static void copyPaint(Level level, Player player, ItemStack brush, int paint, BlockPos pos) {
+        Paint.set(brush, paint);
+        level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.6F, 1.4F);
+        Component description = Paint.describe(paint);
+        player.sendOverlayMessage(Component.translatable("message.apeira.paint_copied",
+                description != null ? description : Component.literal(String.format("#%06X", paint))));
     }
 }

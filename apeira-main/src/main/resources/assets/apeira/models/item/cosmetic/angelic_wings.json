@@ -1,0 +1,131 @@
+{
+  "credit": "Made with Blockbench",
+  "texture_size": [
+    32,
+    32
+  ],
+  "textures": {
+    "0": "apeira:item/angelic_wings",
+    "particle": "apeira:item/angelic_wings"
+  },
+  "elements": [
+    {
+      "from": [
+        -0.48999977,
+        -3.0208855,
+        3.8333812
+      ],
+      "to": [
+        8.0,
+        5.8228645,
+        3.8333812
+      ],
+      "rotation": {
+        "angle": 22.5,
+        "axis": "y",
+        "origin": [
+          8.0,
+          2.8159895,
+          3.8333812
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            12,
+            0,
+            0,
+            12.5
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            12,
+            12.5
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "from": [
+        8.0,
+        -3.0208855,
+        3.8333812
+      ],
+      "to": [
+        16.49,
+        5.8228645,
+        3.8333812
+      ],
+      "rotation": {
+        "angle": -22.5,
+        "axis": "y",
+        "origin": [
+          8.0,
+          2.8159895,
+          3.8333812
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            12,
+            12.5
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            12,
+            0,
+            0,
+            12.5
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        }
+      }
+    }
+  ],
+  "gui_light": "front",
+  "display": {
+    "gui": {
+      "translation": [
+        0,
+        1.25,
+        0
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "head": {
+      "rotation": [
+        -14,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        -80.0,
+        14.5
+      ],
+      "scale": [
+        4.0,
+        4.0,
+        4.0
+      ]
+    }
+  }
+}

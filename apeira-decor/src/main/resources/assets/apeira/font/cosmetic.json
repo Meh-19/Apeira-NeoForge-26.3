@@ -1,0 +1,58 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/lore_common.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꑲ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/lore_rare.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꑳ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/lore_epic.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꑴ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/lore_legendary.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꑵ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/lore_limited.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꑶ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/lore_paintable.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꑞ"
+      ]
+    }
+  ]
+}

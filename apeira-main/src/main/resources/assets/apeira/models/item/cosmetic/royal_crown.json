@@ -1,0 +1,306 @@
+{
+  "credit": "Made with Blockbench",
+  "texture_size": [
+    32,
+    32
+  ],
+  "textures": {
+    "0": "apeira:item/royal_crown",
+    "particle": "apeira:item/royal_crown"
+  },
+  "elements": [
+    {
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        8,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0,
+            4,
+            5,
+            9
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "cube inverted",
+      "from": [
+        13,
+        8,
+        13
+      ],
+      "to": [
+        3,
+        0,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            5,
+            4,
+            0,
+            9
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        8,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            0,
+            10,
+            4
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "east": {
+          "uv": [
+            5,
+            0,
+            10,
+            4
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            5,
+            0,
+            10,
+            4
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "west": {
+          "uv": [
+            5,
+            0,
+            10,
+            4
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "cube inverted",
+      "from": [
+        13,
+        8,
+        13
+      ],
+      "to": [
+        3,
+        0,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            4,
+            10,
+            0
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "east": {
+          "uv": [
+            5,
+            4,
+            10,
+            0
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            5,
+            4,
+            10,
+            0
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "west": {
+          "uv": [
+            5,
+            4,
+            10,
+            0
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        }
+      }
+    }
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        96.0,
+        0,
+        0
+      ],
+      "translation": [
+        -1.0,
+        -2.625,
+        21.953125
+      ],
+      "scale": [
+        0.87890625,
+        0.87890625,
+        0.87890625
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        -45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.52,
+        0.52,
+        0.52
+      ]
+    },
+    "gui": {
+      "rotation": [
+        30,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        3.5,
+        0
+      ]
+    },
+    "head": {
+      "rotation": [
+        6,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        14,
+        1
+      ],
+      "scale": [
+        1.5,
+        1.5,
+        1.5
+      ]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "common": [
+    "apeira:life_ring",
+    "apeira:shark_tail",
+    "apeira:anchor",
+    "apeira:jellyfish_hat",
+    "apeira:fish_hand"
+  ],
+  "rare": [
+    "apeira:diver_helmet",
+    "apeira:shark_hat",
+    "apeira:crab_claw"
+  ],
+  "epic": [],
+  "legendary": [],
+  "limited": []
+}
