@@ -38,3 +38,8 @@ run/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
+
+### Asset scripts ###
+__pycache__/
+# The server resource pack is third-party reference material: keep it out of git.
+reference_code/server_resource_pack/
