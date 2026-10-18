@@ -70,9 +70,9 @@ Implements actual items, blocks, custom biomes, dimensions, recipes, foods, furn
 4. Feature Roadmap & Execution Tree
 Development follows a strict Dependency Tree to prevent feature bloat and burnout:
 
-Phase 1: Foundation & Pipeline → Registries, Datagens, and Python automation.
+Phase 1: Foundation & Pipeline → Registries, Datagens, and Python automation. (Done)
 
-Phase 2: Core Content → Blocks, items, foods (food data components), shaped/shapeless recipes.
+Phase 2: Core Content → Blocks, items, foods (food data components), shaped/shapeless recipes. (In progress, see section 7)
 
 Phase 3: Furniture & Seating → Directional VoxelShapes, Mount Entities, network payloads.
 
@@ -111,3 +111,16 @@ process_server_pack.py: Converts the custom models of the Origin Realms server p
 flatten_textures.py: Moves every texture under `assets/apeira/textures/` up to its first folder (`item/`, `block/`, ...; the atlases load sprites by those folders, so they stay) and renames files to lowercase snake_case, carrying `.png.mcmeta` files along and updating texture references in `assets/apeira/models/`. Two files that would get the same name are reported and left in place (exit code 1), or with `--on-collision prefix` get their parent folder names as a prefix.
 
 parse_blockbench_hitboxes.py: Reads `.bbmodel` or Java model JSON files and prints `VoxelShape` constants built from `Block.box(x1, y1, z1, x2, y2, z2)` in pixel coordinates, for apeira-decor furniture. Flat cubes are dropped, contained cubes removed and aligned cubes merged; rotated cubes use the box around their corners. A Blockbench outliner group named `hitbox` or `collision` is used on its own when present. `--facings` adds east, south and west versions of a north-facing model, `--bounds` gives one box, `--min-size` drops small details, `--clamp` cuts boxes to the block, and `-o` writes to a file.
+
+7. Content Layout (`apeira-main`)
+Content lives in holder classes under `com.apeira.main.registry`, each with a static `init(ApeiraRegistrar)` that `Apeira`'s constructor passes to `REGISTRAR.register(...)` as a `RegistryModule`. Data providers live under `com.apeira.main.datagen` and are added in `MainData.init`, which `Apeira` passes to `DATA.register(...)`.
+
+MainBlocks: `carved_apeira_stone` and `apeira_brick`, stone-like blocks registered with `blockWithItem`, so each has a plain block item.
+
+MainItems: crafting materials `apeira_ingot` and `apeira_gem`; `apeira_ration` (food: 10 nutrition, saturation modifier 1.0); `ember_shard` (fuel: `cookingFuel(ContextIntProviders.COOKING_TIME_BLAZE_ROD)`, 12 items); `moss_clump` (compostable: `compostable(ContextIntProviders.COMPOSTABLE_MEDIUM)`, 65%). Names and values are placeholders.
+
+Datagen: `MainBlockStateProvider` (block states and cube models, `block/<name>` texture), `MainModelProvider` (flat item models, `item/<name>` texture), `MainRecipeProvider` (shaped, shapeless and stonecutting recipes) and `MainLanguageProvider` (en_us names). Core's `ApeiraModelProvider` is final and runs every model provider of a module, so module model providers extend `ApeiraBlockStateProvider` or `ApeiraItemModelProvider`. Register client-only providers (block states, item models) in `MainData` with lambdas, not constructor references, so a dedicated server never loads their classes.
+
+Generated resources: `./gradlew :apeira-main:runData` writes to `apeira-main/src/generated/resources/`, which is committed. CI runs it and fails when the committed files are out of date. The language file is generated, so `assets/apeira/lang/en_us.json` must not also exist in `src/main/resources`.
+
+Not yet added: textures, block loot tables, mineable tool tags and a creative tab.

@@ -23,3 +23,11 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: Run data generation
+        run: ./gradlew :apeira-main:runData
+
+      - name: Check generated resources are committed
+        run: |
+          git add --intent-to-add apeira-main/src/generated
+          git diff --exit-code -- apeira-main/src/generated

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:bread",
+    "minecraft:cooked_beef",
+    "minecraft:apple"
+  ],
+  "result": {
+    "id": "apeira:apeira_ration"
+  }
+}

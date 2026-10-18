@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:carved_apeira_stone",
+  "result": {
+    "id": "apeira:apeira_brick"
+  }
+}
