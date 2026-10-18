@@ -3,6 +3,7 @@ package com.apeira.main.datagen;
 import com.apeira.core.datagen.ApeiraLanguageProvider;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainCosmetics;
+import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainItems;
 
 import net.minecraft.data.PackOutput;
@@ -17,6 +18,22 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
     protected void addTranslations() {
         block(MainBlocks.CARVED_APEIRA_STONE, "Carved Apeira Stone");
         block(MainBlocks.APEIRA_BRICK, "Apeira Brick");
+
+        // The Crates mod's crate names.
+        block(MainCrates.AETHER_CRATE, "Aether Crate");
+        block(MainCrates.ANIMAL_CRATE, "Animal Crate");
+        block(MainCrates.AQUATIC_CRATE, "Aquatic Crate");
+        block(MainCrates.ATLANTIS_CRATE, "Atlantis Crate");
+        block(MainCrates.BATHROOM_CRATE, "Bathroom Crate");
+        block(MainCrates.BEACH_CRATE, "Beach Crate");
+        block(MainCrates.BUSINESS_CRATE, "Business Crate");
+        block(MainCrates.CAMPING_CRATE, "Camping Crate");
+        block(MainCrates.CONSTRUCTION_CRATE, "Construction Crate");
+        block(MainCrates.EASTER_CRATE, "Easter Crate");
+        block(MainCrates.FAST_FOOD_CRATE, "Fast Food Crate");
+        block(MainCrates.FESTIVE_CRATE, "Festive Crate");
+        block(MainCrates.FUN_FAIR_CRATE, "Fun Fair Crate");
+        block(MainCrates.ZODIAC_CRATE, "Zodiac Crate");
 
         item(MainItems.APEIRA_INGOT, "Apeira Ingot");
         item(MainItems.APEIRA_GEM, "Apeira Gem");

@@ -4,7 +4,7 @@ import java.util.Locale;
 
 /**
  * A cosmetic's rarity: the coloured name and the rarity badge in front of it. Crates roll rarities with the weights in
- * {@code CrateRarityWeights}.
+ * {@link com.apeira.decor.crate.CrateLoot}.
  */
 public enum CosmeticRarity {
     COMMON('ꑲ', 0xAAAAAA),

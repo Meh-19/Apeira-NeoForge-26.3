@@ -1,0 +1,17 @@
+{
+  "common": [
+    "apeira:christmas_lights_arm",
+    "apeira:candy_cane_staff",
+    "apeira:reindeer_antlers",
+    "apeira:santa_hat",
+    "apeira:elf_hat",
+    "apeira:festive_candle"
+  ],
+  "rare": [
+    "apeira:christmas_tree_hat",
+    "apeira:festive_bells"
+  ],
+  "epic": [],
+  "legendary": [],
+  "limited": []
+}

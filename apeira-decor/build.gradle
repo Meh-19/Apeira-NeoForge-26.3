@@ -4,4 +4,7 @@
 
 dependencies {
     implementation project(':apeira-core')
+    // Animates and draws the crates. An api dependency, so apeira-main compiles against the crate block entity.
+    // ModDevGradle applies GeckoLib's published interface injections (GeoRenderState on vanilla render states).
+    api "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 }

@@ -8,5 +8,8 @@ public final class DecorPayloads {
 
     public static void init(ApeiraNetwork network) {
         network.toServer(OpenWardrobePayload.TYPE, OpenWardrobePayload::handle);
+        // Handled in client/ApeiraDecorClient.
+        network.toClient(CrateOpenPayload.TYPE);
+        network.toClient(CrateUnlockPayload.TYPE);
     }
 }

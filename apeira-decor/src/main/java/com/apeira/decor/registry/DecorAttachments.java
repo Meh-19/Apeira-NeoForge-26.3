@@ -3,6 +3,7 @@ package com.apeira.decor.registry;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.ApeiraDecor;
 import com.apeira.decor.cosmetic.Wardrobe;
+import com.mojang.serialization.Codec;
 
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -21,6 +22,16 @@ public final class DecorAttachments {
                     .serialize(Wardrobe.MAP_CODEC, wardrobe -> !wardrobe.isEmpty())
                     .copyOnDeath()
                     .sync(Wardrobe.STREAM_CODEC)
+                    .build());
+
+    /**
+     * {@code apeira:crate_luck}: a player's {@link com.apeira.decor.crate.CrateLuck crate luck}, 0 to 60. Saved (when
+     * not 0) and kept on death. Only the server reads it, so it is not synced.
+     */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Float>> CRATE_LUCK = R.forRegistry(
+            NeoForgeRegistries.Keys.ATTACHMENT_TYPES).register("crate_luck", () -> AttachmentType.builder(() -> 0.0F)
+                    .serialize(Codec.FLOAT.fieldOf("luck"), luck -> luck != 0.0F)
+                    .copyOnDeath()
                     .build());
 
     private DecorAttachments() {}

@@ -36,7 +36,11 @@ subprojects {
         maven {
             name = 'GeckoLib'
             url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-            content { includeGroupByRegex 'software\\.bernie.*' }
+            // GeckoLib 5 (Minecraft 26.x) is published as com.geckolib, older versions as software.bernie.geckolib.
+            content {
+                includeGroup 'com.geckolib'
+                includeGroupByRegex 'software\\.bernie.*'
+            }
         }
         maven {
             name = 'Curios'
@@ -84,6 +88,7 @@ subprojects {
                 mod_license            : mod_license,
                 mod_version            : mod_version,
                 mod_authors            : mod_authors,
+                geckolib_version       : geckolib_version,
         ]
         inputs.properties replaceProperties
         expand replaceProperties

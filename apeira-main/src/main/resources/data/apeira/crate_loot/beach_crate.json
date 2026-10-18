@@ -1,0 +1,16 @@
+{
+  "common": [
+    "apeira:ice_cream_cone",
+    "apeira:froggy_hat",
+    "apeira:fruit_crown"
+  ],
+  "rare": [
+    "apeira:surfboard",
+    "apeira:flamingo_floaty"
+  ],
+  "epic": [
+    "apeira:beach_pack"
+  ],
+  "legendary": [],
+  "limited": []
+}

@@ -4,10 +4,16 @@ import java.util.List;
 
 import com.apeira.core.network.client.ApeiraClientNetwork;
 import com.apeira.decor.ApeiraDecor;
+import com.apeira.decor.client.crate.CrateCamera;
+import com.apeira.decor.client.crate.CrateHud;
+import com.apeira.decor.client.crate.CrateRenderer;
 import com.apeira.decor.cosmetic.CosmeticItem;
+import com.apeira.decor.network.CrateOpenPayload;
+import com.apeira.decor.network.CrateUnlockPayload;
 import com.apeira.decor.network.OpenWardrobePayload;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.decor.paint.Paint;
+import com.apeira.decor.registry.DecorBlockEntities;
 import com.apeira.decor.registry.DecorBlocks;
 import com.apeira.decor.registry.DecorEntities;
 import com.apeira.decor.registry.DecorMenus;
@@ -49,11 +55,20 @@ public final class ApeiraDecorClient {
         modEventBus.addListener(ApeiraDecorClient::registerItemTints);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addPaintTooltip);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::openWardrobe);
+        NeoForge.EVENT_BUS.addListener(CrateCamera::onClientTick);
+        NeoForge.EVENT_BUS.addListener(CrateCamera::onComputeCameraAngles);
+        NeoForge.EVENT_BUS.addListener(CrateCamera::onMouseScroll);
+        NeoForge.EVENT_BUS.addListener(CrateHud::onRenderGui);
+        ApeiraClientNetwork.create()
+                .handle(CrateOpenPayload.TYPE, CrateCamera::onOpen)
+                .handle(CrateUnlockPayload.TYPE, CrateCamera::onUnlock)
+                .register(modEventBus);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         // Every entity type needs a renderer, even an invisible one: the game crashes rendering an entity without one.
         event.registerEntityRenderer(DecorEntities.SEAT.get(), NoopRenderer::new);
+        event.registerBlockEntityRenderer(DecorBlockEntities.CRATE.get(), CrateRenderer::new);
     }
 
     /** Worn cosmetics, on players and mannequins of both skin models. */

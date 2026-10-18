@@ -28,6 +28,13 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
         container("painting_table", "Painting Table");
         container("wardrobe", "Wardrobe");
         addId("key", "open_wardrobe", "Open Wardrobe");
+
+        // Crate opening hints (client/crate/CrateHud), CosmoLib's wording.
+        message("crate.opening", "Opening crate...");
+        message("crate.collect", "Crouch to collect rewards!");
+        message("crate.reroll", "Punch to re-roll %s");
+        message("crate.rerolls_left", "(%s Remaining)");
+        message("crate.no_rerolls", "No Rerolls Remaining");
         tooltip("paint.color", "Painted %s, Shade %s");
         tooltip("paint.finish", "%s Finish");
         message("paint_copied", "Copied: %s");
