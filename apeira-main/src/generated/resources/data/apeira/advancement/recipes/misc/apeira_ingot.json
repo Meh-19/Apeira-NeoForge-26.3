@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_apeira_gem": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:apeira_gem"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:apeira_ingot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_apeira_gem"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:apeira_ingot"
+    ]
+  }
+}

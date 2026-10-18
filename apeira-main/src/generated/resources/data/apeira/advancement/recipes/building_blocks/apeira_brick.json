@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_carved_apeira_stone": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:carved_apeira_stone"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:apeira_brick"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_carved_apeira_stone"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:apeira_brick"
+    ]
+  }
+}
