@@ -1,0 +1,50 @@
+{
+  "ambientocclusion": false,
+  "texture_size": [32, 32],
+  "textures": {
+    "0": "apeira:block/tall_dry_bush",
+    "particle": "apeira:block/tall_dry_bush"
+  },
+  "elements": [
+    {
+      "from": [8, 0, -2],
+      "to": [8, 16, 18],
+      "shade": false,
+      "rotation": {
+        "angle": -45,
+        "axis": "y",
+        "origin": [8, 8, 8]
+      },
+      "faces": {
+        "east": {
+          "uv": [8, 8, 16, 16],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [8, 8, 16, 16],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "from": [-2, 0, 8],
+      "to": [18, 16, 8],
+      "shade": false,
+      "rotation": {
+        "angle": -45,
+        "axis": "y",
+        "origin": [8, 8, 8]
+      },
+      "faces": {
+        "north": {
+          "uv": [8, 8, 16, 16],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [8, 8, 16, 16],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}

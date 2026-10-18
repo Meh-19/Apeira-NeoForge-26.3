@@ -5,6 +5,7 @@ import com.apeira.decor.client.PaintTintSource;
 import com.apeira.decor.client.WornCosmetic;
 import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainItems;
+import com.apeira.main.registry.MainMaterials;
 
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
@@ -27,6 +28,12 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
         trimmableArmor(MainItems.PLATINUM_CHESTPLATE, ItemModelGenerators.TRIM_PREFIX_CHESTPLATE);
         trimmableArmor(MainItems.PLATINUM_LEGGINGS, ItemModelGenerators.TRIM_PREFIX_LEGGINGS);
         trimmableArmor(MainItems.PLATINUM_BOOTS, ItemModelGenerators.TRIM_PREFIX_BOOTS);
+
+        // Xenon's items, with its own item models.
+        existingModel(MainMaterials.BLIGHT_ESSENCE);
+        existingModel(MainMaterials.DOLOMITE_DUST);
+        existingModel(MainMaterials.RAW_TURKEY);
+        existingModel(MainMaterials.COOKED_TURKEY);
 
         MainCosmetics.all().forEach(this::cosmetic);
     }

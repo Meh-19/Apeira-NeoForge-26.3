@@ -1,0 +1,109 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "0": "apeira:block/rocks",
+    "particle": "apeira:block/rocks"
+  },
+  "elements": [
+    {
+      "from": [9, 1, 12],
+      "to": [15, 7, 18],
+      "rotation": {
+        "axis": "x",
+        "angle": 22.5,
+        "origin": [8, 8, 8]
+      },
+      "faces": {
+        "north": {
+          "uv": [0, 0, 3, 3],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [0, 0, 3, 3],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [0, 0, 3, 3],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [0, 0, 3, 3],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [3, 0, 6, 3],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [14.5, 0, 15.5, 1],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "from": [0, -3, 3],
+      "to": [6, 3, 9],
+      "rotation": {
+        "axis": "y",
+        "angle": -22.5,
+        "origin": [8, 8, 8]
+      },
+      "faces": {
+        "north": {
+          "uv": [0, 0, 3, 3],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [0, 0, 3, 3],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [0, 0, 3, 3],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [0, 0, 3, 3],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [3, 0, 6, 3],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [14.5, 0, 15.5, 1],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "from": [3, 0, 3],
+      "to": [13, 10, 13],
+      "faces": {
+        "north": {
+          "uv": [0, 4, 5, 9],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [0, 4, 5, 9],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [0, 4, 5, 9],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [0, 4, 5, 9],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [5, 4, 10, 9],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [14.5, 0, 15.5, 1],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}

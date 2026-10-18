@@ -1,5 +1,6 @@
 package com.apeira.main.registry;
 
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
@@ -107,5 +108,104 @@ final class MainBlockProperties {
 
     static BlockBehaviour.Properties packedDirt() {
         return BlockBehaviour.Properties.of().strength(0.5F, 0.5F).sound(SoundType.GRAVEL);
+    }
+
+    /** Stone bricks: needs a pickaxe. */
+    static BlockBehaviour.Properties stoneBricks() {
+        return BlockBehaviour.Properties.of().requiresCorrectToolForDrops().instrument(NoteBlockInstrument.BASEDRUM).strength(1.5F, 6.0F)
+                .sound(SoundType.STONE);
+    }
+
+    /** Leaves, which Xenon gave no random ticks: they never decay on their own. */
+    static BlockBehaviour.Properties leaves() {
+        return BlockBehaviour.Properties.of().ignitedByLava().strength(0.2F).instrument(NoteBlockInstrument.HAT).sound(SoundType.GRASS)
+                .noOcclusion();
+    }
+
+    /** Grasses, bushes and flowers: no collision, broken at once, offset like vanilla grass. */
+    static BlockBehaviour.Properties plants() {
+        return plantsNoOffset().offsetType(BlockBehaviour.OffsetType.XZ);
+    }
+
+    static BlockBehaviour.Properties plantsNoOffset() {
+        return BlockBehaviour.Properties.of().noCollision().noOcclusion().instabreak().sound(SoundType.GRASS).ignitedByLava()
+                .pushReaction(PushReaction.POPPED);
+    }
+
+    static BlockBehaviour.Properties smallLily() {
+        return BlockBehaviour.Properties.of().noCollision().mapColor(MapColor.PLANT).instabreak().sound(SoundType.GRASS).noOcclusion()
+                .pushReaction(PushReaction.POPPED);
+    }
+
+    static BlockBehaviour.Properties bramble() {
+        return plants().randomTicks();
+    }
+
+    static BlockBehaviour.Properties vines() {
+        return BlockBehaviour.Properties.of().noCollision().instabreak().randomTicks().sound(SoundType.CAVE_VINES).noOcclusion();
+    }
+
+    static BlockBehaviour.Properties mossHang() {
+        return vines().pushReaction(PushReaction.POPPED);
+    }
+
+    static BlockBehaviour.Properties mossCover() {
+        return BlockBehaviour.Properties.of().strength(0.1F).sound(SoundType.MOSS).pushReaction(PushReaction.POPPED).noCollision()
+                .noOcclusion();
+    }
+
+    static BlockBehaviour.Properties stickPlaceable() {
+        return BlockBehaviour.Properties.of().noCollision().noOcclusion().instabreak().sound(SoundType.WOOD);
+    }
+
+    static BlockBehaviour.Properties ash() {
+        return BlockBehaviour.Properties.of().strength(0.1F).sound(SoundType.SOUL_SAND).pushReaction(PushReaction.POPPED).noCollision()
+                .noOcclusion();
+    }
+
+    /** Xenon's frost hid the faces under it through its block class; here that is {@code noOcclusion()}. */
+    static BlockBehaviour.Properties frost() {
+        return BlockBehaviour.Properties.of().instrument(NoteBlockInstrument.BASEDRUM).strength(0.1F).noCollision().sound(SoundType.SNOW)
+                .pushReaction(PushReaction.POPPED).noOcclusion();
+    }
+
+    /** Rocks and pebbles. */
+    static BlockBehaviour.Properties rockItem() {
+        return BlockBehaviour.Properties.of().strength(0.0F).noCollision().offsetType(BlockBehaviour.OffsetType.XZ).sound(SoundType.STONE)
+                .noOcclusion();
+    }
+
+    static BlockBehaviour.Properties echoGlass() {
+        return BlockBehaviour.Properties.of().pushReaction(PushReaction.IMMOVEABLE).instrument(NoteBlockInstrument.HAT).strength(0.3F)
+                .sound(SoundType.STONE).isValidSpawn(Blocks::never).isRedstoneConductor((state, level, pos) -> false).noOcclusion()
+                .isSuffocating((state, level, pos) -> false);
+    }
+
+    static BlockBehaviour.Properties aquaGlass() {
+        return BlockBehaviour.Properties.of().mapColor(MapColor.NONE).noOcclusion().isValidSpawn(Blocks::never)
+                .isRedstoneConductor((state, level, pos) -> false).isSuffocating((state, level, pos) -> false).strength(0.3F)
+                .sound(SoundType.GLASS);
+    }
+
+    static BlockBehaviour.Properties mushroom() {
+        return BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).instrument(NoteBlockInstrument.BASS).strength(0.2F).sound(SoundType.WOOD)
+                .ignitedByLava();
+    }
+
+    /** Leaf litter. */
+    static BlockBehaviour.Properties natural() {
+        return BlockBehaviour.Properties.of().noCollision().instabreak().sound(SoundType.GRASS).pushReaction(PushReaction.POPPED);
+    }
+
+    static BlockBehaviour.Properties naturalMushroom() {
+        return BlockBehaviour.Properties.of().noCollision().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.POPPED);
+    }
+
+    static BlockBehaviour.Properties turkey() {
+        return BlockBehaviour.Properties.of().noCollision().strength(0.3F).sound(SoundType.STONE).pushReaction(PushReaction.POPPED);
+    }
+
+    static BlockBehaviour.Properties turkeySkeleton() {
+        return BlockBehaviour.Properties.of().noCollision().instabreak().sound(SoundType.BONE_BLOCK).pushReaction(PushReaction.POPPED);
     }
 }

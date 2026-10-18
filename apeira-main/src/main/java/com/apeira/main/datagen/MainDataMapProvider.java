@@ -5,6 +5,7 @@ import java.util.List;
 import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.core.datagen.ApeiraDataMapProvider;
 import com.apeira.core.registry.PlankSet;
+import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.core.HolderLookup;
@@ -36,6 +37,8 @@ public final class MainDataMapProvider extends ApeiraDataMapProvider {
         MainWoods.carvedPlanks().forEach(carved -> flammable(carved.get(), 5, 20));
         MainWoods.beams().forEach(beam -> flammable(beam.get(), 5, 5));
         MainWoods.VANILLA_VERTICAL_PLANKS.forEach(vertical -> flammable(vertical.vertical().get(), 5, 20));
+        // Xenon had a stripped mycena stem but never registered the stripping; axes strip it here so it can be had.
+        strippable(MainSpecialBlocks.MYCENA_MUSHROOM_STEM.get(), MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM.get());
     }
 
     private void planks(PlankSet planks) {

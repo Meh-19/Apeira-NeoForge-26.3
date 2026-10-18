@@ -1,0 +1,27 @@
+{
+  "textures": {
+    "0": "apeira:block/stick_0",
+    "particle": "apeira:block/stick_0"
+  },
+  "elements": [
+    {
+      "from": [0, 0.5, 0],
+      "to": [16, 0.5, 16],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [0, 0.5, 0]
+      },
+      "faces": {
+        "up": {
+          "uv": [0, 0, 16, 16],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [0, 16, 16, 0],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}

@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.main.datagen.MainData;
+import com.apeira.main.event.StickPlacement;
+import com.apeira.main.registry.MainBlockEntities;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCosmetics;
@@ -14,7 +16,10 @@ import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainMaterials;
+import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 import com.mojang.logging.LogUtils;
@@ -22,6 +27,7 @@ import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
 
 /** Entrypoint for the Apeira module. */
 @Mod(Apeira.MOD_ID)
@@ -36,10 +42,12 @@ public final class Apeira {
     public Apeira(IEventBus modEventBus, ModContainer modContainer) {
         // Content holder classes (blocks, items, ...) are passed here as they are added.
         REGISTRAR.register(modEventBus, MainItems::init, MainBlocks::init, MainWoods::init, MainStones::init, MainLanterns::init,
-                MainRocks::init, MainDyedBlocks::init, MainCrystals::init, MainBuildingBlocks::init, MainCosmetics::init, MainCrates::init,
+                MainRocks::init, MainDyedBlocks::init, MainCrystals::init, MainBuildingBlocks::init, MainPlants::init,
+                MainSpecialBlocks::init, MainMaterials::init, MainBlockEntities::init, MainCosmetics::init, MainCrates::init,
                 MainCreativeTabs::init);
         // Data holder classes (models, recipes, ...) are passed here as they are added.
         DATA.register(modEventBus, MainData::init);
+        NeoForge.EVENT_BUS.addListener(StickPlacement::onUseItemOnBlock);
         LOGGER.info("{} initialized", MOD_ID);
     }
 }

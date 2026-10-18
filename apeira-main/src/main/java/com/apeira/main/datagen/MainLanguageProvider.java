@@ -10,7 +10,10 @@ import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainMaterials;
+import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
@@ -100,7 +103,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
 
     /**
      * Xenon's names: each block's id in title case, except the coloured blocks, which put their colour first ("White
-     * Concrete Bricks Stairs"). Xenon misspelled its orange crystal bricks "Orange Crystal sBricks".
+     * Concrete Bricks Stairs"). Xenon misspelled its orange crystal bricks "Orange Crystal sBricks", and named its tall frosted grass "Cotton Grass".
      */
     private void xenon() {
         MainRocks.all().forEach(this::titled);
@@ -117,6 +120,13 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         }
         MainCrystals.all().forEach(this::titled);
         MainBuildingBlocks.all().forEach(this::titled);
+        MainPlants.all().stream().filter(plant -> plant != MainPlants.TALL_FROSTED_GRASS).forEach(this::titled);
+        block(MainPlants.TALL_FROSTED_GRASS, "Cotton Grass");
+        MainSpecialBlocks.all().forEach(this::titled);
+        item(MainMaterials.BLIGHT_ESSENCE, "Blight Essence");
+        item(MainMaterials.DOLOMITE_DUST, "Dolomite Dust");
+        item(MainMaterials.RAW_TURKEY, "Raw Turkey");
+        item(MainMaterials.COOKED_TURKEY, "Cooked Turkey");
     }
 
     /** A coloured block and its shapes as {@code <Colour> <name>} and {@code <Colour> <name> Stairs}. */
