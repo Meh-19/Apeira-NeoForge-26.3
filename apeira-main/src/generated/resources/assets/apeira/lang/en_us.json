@@ -5,5 +5,6 @@
   "item.apeira.apeira_ingot": "Apeira Ingot",
   "item.apeira.apeira_ration": "Apeira Ration",
   "item.apeira.ember_shard": "Ember Shard",
-  "item.apeira.moss_clump": "Moss Clump"
+  "item.apeira.moss_clump": "Moss Clump",
+  "itemGroup.apeira.content": "Apeira Content"
 }
