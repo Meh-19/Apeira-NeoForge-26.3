@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "bottom": "apeira:block/painting_table_bottom",
+    "front": "apeira:block/painting_table_front",
+    "side": "apeira:block/painting_table_side",
+    "top": "apeira:block/painting_table_top"
+  }
+}

@@ -15,7 +15,7 @@ public final class DecorBlockTagProvider extends ApeiraBlockTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider registries) {
-        // Wooden furniture: mined fastest with an axe, like planks, and drops with any tool or none.
-        add(BlockTags.MINEABLE_WITH_AXE, DecorBlocks.OAK_CHAIR);
+        // Wooden furniture and the painting table: mined fastest with an axe, like planks, and drops with any tool or none.
+        add(BlockTags.MINEABLE_WITH_AXE, DecorBlocks.OAK_CHAIR, DecorBlocks.PAINTING_TABLE);
     }
 }
