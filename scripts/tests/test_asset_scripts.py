@@ -13,6 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import flatten_textures  # noqa: E402
+import make_placeholder_textures as placeholders  # noqa: E402
 import parse_blockbench_hitboxes as hitboxes  # noqa: E402
 import process_server_pack  # noqa: E402
 from asset_common import to_snake_case  # noqa: E402
@@ -243,6 +244,36 @@ class HitboxTest(TempDirTest):
         output = write(self.root / "out.java", b"keep")
         with self.assertRaises(hitboxes.ScriptError):
             hitboxes.main([str(model), "-o", str(output)])
+
+
+class PlaceholderTexturesTest(TempDirTest):
+    def setUp(self):
+        super().setUp()
+        self.models = self.root / "models"
+        self.assets = self.root / "assets"
+        write(self.models / "block/brick.json", {"parent": "minecraft:block/cube_all", "textures": {"all": "apeira:block/brick"}})
+        write(self.models / "item/gem.json", {"parent": "minecraft:item/generated", "textures": {
+            "layer0": "apeira:item/gem", "layer1": "#layer0", "particle": "minecraft:item/stick"}})
+        write(self.assets / "textures/item/gem.png", PNG)
+
+    def run_script(self, *extra) -> int:
+        code, _ = quietly(placeholders.main, ["--models", str(self.models), "--assets", str(self.assets), *extra])
+        return code
+
+    def test_draws_missing_textures_only(self):
+        self.assertEqual(placeholders.model_textures(self.models, "apeira"), ["block/brick", "item/gem"])
+        self.assertEqual(self.run_script(), 0)
+        brick = (self.assets / "textures/block/brick.png").read_bytes()
+        self.assertTrue(brick.startswith(PNG))
+        self.assertEqual(brick, placeholders.placeholder("block/brick"))
+        self.assertEqual((self.assets / "textures/item/gem.png").read_bytes(), PNG)
+
+    def test_force_and_dry_run(self):
+        self.assertEqual(self.run_script("--dry-run", "--force"), 0)
+        self.assertEqual((self.assets / "textures/item/gem.png").read_bytes(), PNG)
+        self.assertFalse((self.assets / "textures/block/brick.png").exists())
+        self.assertEqual(self.run_script("--force"), 0)
+        self.assertEqual((self.assets / "textures/item/gem.png").read_bytes(), placeholders.placeholder("item/gem"))
 
 
 if __name__ == "__main__":

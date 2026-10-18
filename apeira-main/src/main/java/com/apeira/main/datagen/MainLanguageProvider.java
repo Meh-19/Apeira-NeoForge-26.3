@@ -6,7 +6,7 @@ import com.apeira.main.registry.MainItems;
 
 import net.minecraft.data.PackOutput;
 
-/** English names for Apeira's blocks and items. */
+/** English names for Apeira's blocks, items and creative tabs. */
 public final class MainLanguageProvider extends ApeiraLanguageProvider {
     public MainLanguageProvider(PackOutput output, String namespace) {
         super(output, namespace);
@@ -22,5 +22,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         item(MainItems.APEIRA_RATION, "Apeira Ration");
         item(MainItems.EMBER_SHARD, "Ember Shard");
         item(MainItems.MOSS_CLUMP, "Moss Clump");
+
+        creativeTab("content", "Apeira Content");
     }
 }
