@@ -684,6 +684,14 @@
       "burn_odds": 5,
       "ignite_odds": 5
     },
+    "apeira:vertical_acacia_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_bamboo_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
     "apeira:vertical_baobab_planks": {
       "burn_odds": 20,
       "ignite_odds": 5
@@ -692,7 +700,23 @@
       "burn_odds": 20,
       "ignite_odds": 5
     },
+    "apeira:vertical_birch_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
     "apeira:vertical_bleak_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_cherry_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_crimson_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_dark_oak_planks": {
       "burn_odds": 20,
       "ignite_odds": 5
     },
@@ -704,11 +728,31 @@
       "burn_odds": 20,
       "ignite_odds": 5
     },
+    "apeira:vertical_jungle_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_mangrove_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
     "apeira:vertical_maple_planks": {
       "burn_odds": 20,
       "ignite_odds": 5
     },
+    "apeira:vertical_oak_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
     "apeira:vertical_palm_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_spruce_planks": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "apeira:vertical_warped_planks": {
       "burn_odds": 20,
       "ignite_odds": 5
     },

@@ -34,6 +34,8 @@ final class MainBlockItemTags {
         tags.add(BlockItemTags.PLANKS, MainWoods.VERTICAL_FUNGAL_PLANKS);
         tags.add(BlockItemTags.PLANKS, MainWoods.carvedPlanks().toArray(DeferredBlock<?>[]::new));
         tags.add(BlockItemTags.PLANKS, MainWoods.beams().toArray(DeferredBlock<?>[]::new));
+        tags.add(BlockItemTags.PLANKS, MainWoods.VANILLA_VERTICAL_PLANKS.stream().map(MainWoods.VanillaVerticalPlanks::vertical)
+                .toArray(DeferredBlock<?>[]::new));
     }
 
     private static void shapes(BlockAndItemTags tags, PlankSet planks) {

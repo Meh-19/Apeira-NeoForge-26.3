@@ -1,6 +1,20 @@
 {
   "values": [
     "apeira:platinum_ore",
-    "apeira:ruby_ore"
+    "apeira:ruby_ore",
+    "apeira:andesite_bricks",
+    "apeira:chiseled_andesite",
+    "apeira:slate",
+    "apeira:slate_bricks",
+    "apeira:chiseled_slate",
+    "apeira:polished_slate",
+    "apeira:dried_silt",
+    "apeira:silt_bricks",
+    "apeira:chiseled_silt_bricks",
+    "apeira:polished_silt",
+    "apeira:soul_bricks",
+    "apeira:polished_soul_sand",
+    "apeira:chiseled_soul_bricks",
+    "apeira:possessed_chiseled_soul_bricks"
   ]
 }

@@ -6,12 +6,14 @@ import com.apeira.core.registry.PlankSet;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainItems;
+import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.data.loot.LootTableSubProvider;
 
 /**
- * Loot tables for {@link MainBlocks}, {@link MainWoods} and {@link MainCrates}. Every Apeira block needs one, or data
+ * Loot tables for {@link MainBlocks}, {@link MainWoods}, {@link MainStones}, {@link MainLanterns} and {@link MainCrates}. Every Apeira block needs one, or data
  * generation fails.
  */
 public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
@@ -27,7 +29,10 @@ public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
         dropSelf(MainBlocks.RUBY_BLOCK.get());
         dropSelf(MainBlocks.RUBY_BRICKS.get());
         dropSelf(MainBlocks.RUBY_PILLAR.get());
-        dropSelf(MainBlocks.DIAMOND_BRICK.get());
+        for (MainBlocks.Mineral mineral : MainBlocks.vanillaMinerals()) {
+            dropSelf(mineral.brick().get());
+            dropSelf(mineral.pillar().get());
+        }
         // Ores drop their material, more with Fortune, or themselves with Silk Touch.
         add(MainBlocks.PLATINUM_ORE.get(), createOreDrop(MainBlocks.PLATINUM_ORE.get(), MainItems.PLATINUM.get()));
         add(MainBlocks.DEEPSLATE_PLATINUM_ORE.get(), createOreDrop(MainBlocks.DEEPSLATE_PLATINUM_ORE.get(), MainItems.PLATINUM.get()));
@@ -46,6 +51,9 @@ public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
         dropSelf(MainWoods.VERTICAL_FUNGAL_PLANKS.get());
         MainWoods.carvedPlanks().forEach(carved -> dropSelf(carved.get()));
         MainWoods.beams().forEach(beam -> dropSelf(beam.get()));
+        MainWoods.VANILLA_VERTICAL_PLANKS.forEach(vertical -> dropSelf(vertical.vertical().get()));
+        MainStones.all().forEach(stone -> dropSelf(stone.get()));
+        MainLanterns.all().forEach(lantern -> dropSelf(lantern.block().get()));
 
         // A closed crate drops itself; an open one cannot be broken.
         MainCrates.all().forEach(crate -> dropSelf(crate.get()));

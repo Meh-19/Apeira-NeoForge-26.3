@@ -66,6 +66,17 @@
     "apeira:mangrove_beam",
     "apeira:cherry_beam",
     "apeira:crimson_beam",
-    "apeira:warped_beam"
+    "apeira:warped_beam",
+    "apeira:vertical_oak_planks",
+    "apeira:vertical_spruce_planks",
+    "apeira:vertical_birch_planks",
+    "apeira:vertical_jungle_planks",
+    "apeira:vertical_acacia_planks",
+    "apeira:vertical_dark_oak_planks",
+    "apeira:vertical_mangrove_planks",
+    "apeira:vertical_cherry_planks",
+    "apeira:vertical_crimson_planks",
+    "apeira:vertical_warped_planks",
+    "apeira:vertical_bamboo_planks"
   ]
 }

@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "minecraft:dirt",
+  "result": {
+    "id": "apeira:packed_dirt"
+  }
+}

@@ -35,6 +35,7 @@ public final class MainDataMapProvider extends ApeiraDataMapProvider {
         flammable(MainWoods.VERTICAL_FUNGAL_PLANKS.get(), 5, 20);
         MainWoods.carvedPlanks().forEach(carved -> flammable(carved.get(), 5, 20));
         MainWoods.beams().forEach(beam -> flammable(beam.get(), 5, 5));
+        MainWoods.VANILLA_VERTICAL_PLANKS.forEach(vertical -> flammable(vertical.vertical().get(), 5, 20));
     }
 
     private void planks(PlankSet planks) {
