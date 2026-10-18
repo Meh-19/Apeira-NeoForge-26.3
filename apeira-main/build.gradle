@@ -1,0 +1,51 @@
+// Content module. Shared configuration comes from the root build.gradle.
+
+def libraryModules = [':apeira-core', ':apeira-decor', ':apeira-story']
+
+dependencies {
+    libraryModules.each { implementation project(it) }
+}
+
+// Every Apeira mod id, used to bind sources to mods and to enable their gametests.
+def allMods = [(mod_id): project] + libraryModules.collectEntries { path ->
+    def p = project(path)
+    [(p.property('mod_id')): p]
+}
+
+neoForge {
+    // Tell NeoForge which source sets belong to which mod so all four load as separate mods in dev runs.
+    mods {
+        allMods.each { id, p ->
+            register(id) { sourceSet(p.sourceSets.main) }
+        }
+    }
+
+    runs {
+        client {
+            client()
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+        }
+
+        // Runs all registered gametests, then exits.
+        gameTestServer {
+            type = 'gameTestServer'
+        }
+
+        data {
+            clientData()
+            programArguments.addAll '--mod', mod_id, '--all',
+                    '--output', file('src/generated/resources/').absolutePath,
+                    '--existing', file('src/main/resources/').absolutePath
+        }
+
+        configureEach {
+            systemProperty 'neoforge.enabledGameTestNamespaces', allMods.keySet().join(',')
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+}

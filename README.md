@@ -1,25 +1,23 @@
+# Apeira
 
-Installation information
-=======
+Modular NeoForge mod for Minecraft 26.3. See [CLAUDE.md](CLAUDE.md) for the vision and architecture.
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+## Layout
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+| Module | Mod id | Package | Role |
+| --- | --- | --- | --- |
+| `apeira-core` | `apeira_core` | `com.apeira.core` | Registries, networking payloads, datagen bases |
+| `apeira-decor` | `apeira_decor` | `com.apeira.decor` | Furniture shapes, seating, painting, cosmetics |
+| `apeira-story` | `apeira_story` | `com.apeira.story` | Quests, NPC dialogue, boss state machines |
+| `apeira-main` | `apeira` | `com.apeira.main` | Game content; depends on the three libraries |
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+Shared build logic lives in the root `build.gradle`; versions are in the root `gradle.properties`
+and each module's own `gradle.properties` holds its mod id, name and description.
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+## Building and running
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+Requires JDK 25 (Minecraft 26.x runs on Java 25). Gradle downloads it automatically if it is missing.
+
+- `./gradlew build` builds all four mod jars.
+- Run configurations live in `apeira-main` and load all four mods: `runClient`, `runServer`,
+  `runGameTestServer` and `runData`. IntelliJ picks them up after a Gradle sync.
