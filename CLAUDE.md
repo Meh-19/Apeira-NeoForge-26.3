@@ -74,7 +74,7 @@ Phase 1: Foundation & Pipeline → Registries, Datagens, and Python automation. 
 
 Phase 2: Core Content → Blocks, items, foods (food data components), shaped/shapeless recipes. (In progress, see section 7)
 
-Phase 3: Furniture & Seating → Directional VoxelShapes, Mount Entities, network payloads.
+Phase 3: Furniture & Seating → Directional VoxelShapes, Mount Entities, network payloads. (In progress, see section 8)
 
 Phase 4: Painting System → Canvas block entity, color palettes, custom dynamic textures.
 
@@ -127,4 +127,19 @@ Datagen: `MainBlockStateProvider` (block states and cube models, `block/<name>` 
 
 Generated resources: `./gradlew :apeira-main:runData` writes to `apeira-main/src/generated/resources/`, which is committed. CI runs it and fails when the committed files are out of date. The language file is generated, so `assets/apeira/lang/en_us.json` must not also exist in `src/main/resources`.
 
-Textures: `src/main/resources/assets/apeira/textures/{block,item}/<name>.png`. All seven are placeholders from `make_placeholder_textures.py` until real art replaces them.
+Textures: `src/main/resources/assets/apeira/textures/{block,item}/<name>.png`. All seven are placeholders from `make_placeholder_textures.py` until real art replaces them; the server pack has no textures under these names, so they stay placeholders until the entries are renamed after real pack items.
+
+Creative tab: the `Apeira Content` tab also lists the decor module's items (furniture), after the main module's.
+
+8. Furniture & Seating (`apeira-decor`)
+apeira-decor depends on apeira-core and has its own `ApeiraRegistrar` (`ApeiraDecor.REGISTRAR`, shared `apeira` namespace; entity types use `ApeiraRegistrar#entityType`) and `ApeiraDataGenerators` (`ApeiraDecor.DATA`). Holder classes are under `com.apeira.decor.registry`, data providers under `com.apeira.decor.datagen` (added in `DecorData.init`).
+
+Blocks (`com.apeira.decor.block`): `ApeiraFurnitureBlock` is the abstract base: a `HorizontalDirectionalBlock` (`FACING`) that faces the placing player and takes its shape facing north, turned for the other facings with `Shapes.rotateHorizontal`. Shapes and models are authored facing north (the front, where a sitter looks out, on the north side); build the shape with `parse_blockbench_hitboxes.py` from the model. `ApeiraChairBlock` adds right-click sitting and a seat height in pixels; sneaking players and players already riding don't sit. Minecraft 26.x blocks have no codecs, so subclasses only need a `(Properties)` constructor. Furniture blocks need `noOcclusion()`.
+
+Seating (`com.apeira.decor.entity`): `ApeiraSeatEntity` (`apeira:seat`, `DecorEntities.SEAT`) is an invisible, zero-size entity spawned at the chair centre at seat height, so its block position is the chair's. One seat per chair: sitting reuses an empty seat and fails if someone already sits there. Its tick does nothing but discard it when it has no passenger or its block is no longer a chair, and it discards itself when its passenger dismounts; riding is forced, so the dismount cooldown does not block getting back up. Players stand up in front of the chair (else beside, behind, then on top). It is saved with the chunk because vanilla only lets players ride savable entities, which also reseats a player who logged out sitting. Every entity type needs a client renderer even when invisible: `client/ApeiraDecorClient` (`@Mod(dist = Dist.CLIENT)`) registers a `NoopRenderer`.
+
+DecorBlocks: `oak_chair` (`OakChairBlock`), wooden properties (oak planks' strength and sound, flammable). Mined with an axe (`minecraft:mineable/axe`), since it is wooden furniture; drops itself. Model and texture are the server pack's `custom/furniture/western/saloon_chair`, converted with `process_server_pack.py --base-item firework_star --match 'furniture/western/saloon_chair$' --copy-textures --output apeira-decor/src/main/resources/assets/apeira` and `flatten_textures.py --assets apeira-decor/src/main/resources/assets/apeira`, then moved to `models/block/oak_chair.json` and `textures/block/oak_chair.png`. Furniture models are hand-made resources in `apeira-decor/src/main/resources/assets/apeira/models/block/`; datagen writes only their block states (`ApeiraBlockStateProvider#furniture`), and block items use the block model.
+
+Datagen: `./gradlew :apeira-main:runDecorData` (the `decorData` run in apeira-main, `--mod apeira_decor`) writes to `apeira-decor/src/generated/resources/`, which is committed; CI runs it after `runData` and checks both folders. Each module's run only writes its own mod's providers, so a new decor block needs its block state, language, loot and tag entries in the decor providers, not the main ones.
+
+Server pack: furniture models are in the pack's `assets/minecraft/items/firework_star.json` (`custom/furniture/...`), decorations and blocks in `paper.json`. Pack models for display entities are often offset (for example 8 pixels down); check that a model's cubes lie in 0-16 (backrests may reach higher) before using it as a block model.
