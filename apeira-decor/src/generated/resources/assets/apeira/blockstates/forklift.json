@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/forklift",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/forklift"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/forklift",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/forklift",
+      "y": 270
+    }
+  }
+}

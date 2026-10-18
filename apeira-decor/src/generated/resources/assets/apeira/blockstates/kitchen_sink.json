@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/kitchen_sink",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/kitchen_sink"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/kitchen_sink",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/kitchen_sink",
+      "y": 270
+    }
+  }
+}

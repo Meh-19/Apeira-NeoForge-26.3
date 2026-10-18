@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/tube_light",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/tube_light"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/tube_light",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/tube_light",
+      "y": 270
+    }
+  }
+}

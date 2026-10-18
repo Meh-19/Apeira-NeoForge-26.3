@@ -1,0 +1,1 @@
+{"parent":"minecraft:block/block","textures":{"0":"apeira:block/furniture/cosmolib/cosmo_rug","particle":"apeira:block/furniture/cosmolib/cosmo_rug"},"elements":[{"from":[-16.0,0.0,-16.0],"to":[32.0,0.0,32.0],"faces":{"up":{"uv":[0,0,12,12],"texture":"#0","tintindex":0},"down":{"uv":[0,0,12,12],"texture":"#0","tintindex":0}}}]}

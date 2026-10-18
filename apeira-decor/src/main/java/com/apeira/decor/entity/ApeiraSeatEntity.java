@@ -2,7 +2,7 @@ package com.apeira.decor.entity;
 
 import java.util.List;
 
-import com.apeira.decor.block.ApeiraChairBlock;
+import com.apeira.decor.block.SeatBlock;
 import com.apeira.decor.registry.DecorEntities;
 
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The invisible entity a player rides while sitting on an {@link ApeiraChairBlock}.
+ * The invisible entity a player rides while sitting on a {@link SeatBlock}.
  *
  * <p>A seat sits at the centre of its chair, at the height of the chair's seat, so its block position is the chair's.
  * It has no size, physics, sound or save data of its own, and its tick only checks that it still has a passenger and
@@ -48,7 +48,7 @@ public class ApeiraSeatEntity extends Entity {
      * @return whether the player sat down; false when someone else already sits on the chair
      */
     public static boolean sit(Level level, BlockPos pos, BlockState state, LivingEntity player) {
-        if (!(state.getBlock() instanceof ApeiraChairBlock chair)) {
+        if (!(state.getBlock() instanceof SeatBlock chair)) {
             return false;
         }
         List<ApeiraSeatEntity> seats = level.getEntitiesOfClass(ApeiraSeatEntity.class, new AABB(pos), Entity::isAlive);
@@ -79,7 +79,7 @@ public class ApeiraSeatEntity extends Entity {
     @Override
     public void tick() {
         // No physics, fire or fluid checks: a seat only has to notice when it is no longer needed.
-        if (!level().isClientSide() && (!isVehicle() || !(level().getBlockState(blockPosition()).getBlock() instanceof ApeiraChairBlock))) {
+        if (!level().isClientSide() && (!isVehicle() || !(level().getBlockState(blockPosition()).getBlock() instanceof SeatBlock))) {
             discard();
         }
     }

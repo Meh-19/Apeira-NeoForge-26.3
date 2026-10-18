@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/royal_throne",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/royal_throne"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/royal_throne",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/royal_throne",
+      "y": 270
+    }
+  }
+}

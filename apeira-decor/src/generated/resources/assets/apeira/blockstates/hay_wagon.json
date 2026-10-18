@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/hay_wagon",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/hay_wagon"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/hay_wagon",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/hay_wagon",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/sandbox",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

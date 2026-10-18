@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/donut_box",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

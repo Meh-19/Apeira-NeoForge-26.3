@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/giraffe_plushie",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

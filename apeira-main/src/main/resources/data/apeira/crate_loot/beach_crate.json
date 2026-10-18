@@ -2,14 +2,23 @@
   "common": [
     "apeira:ice_cream_cone",
     "apeira:froggy_hat",
-    "apeira:fruit_crown"
+    "apeira:fruit_crown",
+    "apeira:beach_umbrella",
+    "apeira:sandbox",
+    "apeira:potted_palm_tree",
+    "apeira:volleyball_net",
+    "apeira:ice_cream_signage",
+    "apeira:slushy_signage"
   ],
   "rare": [
     "apeira:surfboard",
-    "apeira:flamingo_floaty"
+    "apeira:flamingo_floaty",
+    "apeira:tiki_statue",
+    "apeira:moai_statue"
   ],
   "epic": [
-    "apeira:beach_pack"
+    "apeira:beach_pack",
+    "apeira:food_truck"
   ],
   "legendary": [],
   "limited": []

@@ -2,12 +2,14 @@
   "common": [
     "apeira:spartan_helmet",
     "apeira:lightning_bolt",
-    "apeira:blitz_aura"
+    "apeira:blitz_aura",
+    "apeira:sheepuff_plushie"
   ],
   "rare": [
     "apeira:spartan_robe",
     "apeira:cloud_wings",
-    "apeira:lyre"
+    "apeira:lyre",
+    "apeira:zeus_statue"
   ],
   "epic": [
     "apeira:solar_staff"

@@ -1,7 +1,5 @@
 package com.apeira.decor.block;
 
-import com.apeira.decor.entity.ApeiraSeatEntity;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -12,11 +10,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * Furniture a player sits on by right-clicking it. Sitting mounts the player on an {@link ApeiraSeatEntity} at the
- * centre of the chair, at the height of its seat; the seat removes itself when the player gets up or the chair is
- * broken. A chair seats one player at a time, and sneaking players don't sit down, so they can place blocks against it.
+ * Furniture a player sits on by right-clicking it. Sitting mounts the player on an
+ * {@link com.apeira.decor.entity.ApeiraSeatEntity} at the centre of the chair, at the height of its seat; the seat
+ * removes itself when the player gets up or the chair is broken. A chair seats one player at a time, and sneaking players don't sit down, so they can place blocks against it.
  */
-public abstract class ApeiraChairBlock extends ApeiraFurnitureBlock {
+public abstract class ApeiraChairBlock extends ApeiraFurnitureBlock implements SeatBlock {
     private final double seatHeight;
 
     /**
@@ -31,19 +29,13 @@ public abstract class ApeiraChairBlock extends ApeiraFurnitureBlock {
         this.seatHeight = seatHeight / 16.0;
     }
 
-    /** The height of the top of the seat above the bottom of the block, in blocks. */
+    @Override
     public double seatHeight() {
         return seatHeight;
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (player.isSecondaryUseActive() || player.isPassenger()) {
-            return InteractionResult.PASS;
-        }
-        if (level.isClientSide()) {
-            return InteractionResult.SUCCESS;
-        }
-        return ApeiraSeatEntity.sit(level, pos, state, player) ? InteractionResult.SUCCESS_SERVER : InteractionResult.PASS;
+        return SeatBlock.use(state, level, pos, player);
     }
 }

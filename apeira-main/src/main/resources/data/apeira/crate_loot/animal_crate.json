@@ -1,5 +1,12 @@
 {
-  "common": [],
+  "common": [
+    "apeira:capybara_plushie",
+    "apeira:cat_plushie",
+    "apeira:dog_plushie",
+    "apeira:froggy_chair",
+    "apeira:giraffe_plushie",
+    "apeira:cat_clock"
+  ],
   "rare": [
     "apeira:moose_antlers",
     "apeira:gorilla_mask",
@@ -7,7 +14,8 @@
   ],
   "epic": [
     "apeira:monkey_backswag",
-    "apeira:giraffe_helmet"
+    "apeira:giraffe_helmet",
+    "apeira:elephant_inflatable"
   ],
   "legendary": [],
   "limited": []

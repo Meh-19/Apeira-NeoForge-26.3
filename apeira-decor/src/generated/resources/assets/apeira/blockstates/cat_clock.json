@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/cat_clock",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/cat_clock"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/cat_clock",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/cat_clock",
+      "y": 270
+    }
+  }
+}

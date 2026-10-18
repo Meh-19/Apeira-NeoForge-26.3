@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/poseidon_statue",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/poseidon_statue"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/poseidon_statue",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/poseidon_statue",
+      "y": 270
+    }
+  }
+}

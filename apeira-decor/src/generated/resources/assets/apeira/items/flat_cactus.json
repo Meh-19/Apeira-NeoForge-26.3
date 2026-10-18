@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/flat_cactus",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

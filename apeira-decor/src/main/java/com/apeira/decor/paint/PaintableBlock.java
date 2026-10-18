@@ -16,6 +16,14 @@ import net.minecraft.world.level.block.state.BlockState;
  * {@code apeira:paint} tint source. Unpainted faces keep their texture's colours.
  */
 public interface PaintableBlock extends EntityBlock {
+    /**
+     * Whether this block takes paint. A block family that shares one class, such as the furniture, implements this
+     * interface for all its blocks and answers here for each one.
+     */
+    default boolean takesPaint() {
+        return true;
+    }
+
     @Override
     default @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new PaintBlockEntity(pos, state);

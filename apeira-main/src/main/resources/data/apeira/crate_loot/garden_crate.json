@@ -1,0 +1,22 @@
+{
+  "common": [
+    "apeira:garden_bench",
+    "apeira:garden_chair",
+    "apeira:garden_table",
+    "apeira:garden_tools",
+    "apeira:yard_gnome",
+    "apeira:hydrangea_bush",
+    "apeira:push_mower"
+  ],
+  "rare": [
+    "apeira:tall_hedge",
+    "apeira:young_tree",
+    "apeira:ivy_trellis"
+  ],
+  "epic": [
+    "apeira:ivy_pergola",
+    "apeira:garden_fountain"
+  ],
+  "legendary": [],
+  "limited": []
+}

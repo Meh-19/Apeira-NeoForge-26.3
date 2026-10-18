@@ -1,10 +1,14 @@
 {
   "common": [
     "apeira:dragon_float_cloak",
-    "apeira:dragon_float_helmet"
+    "apeira:dragon_float_helmet",
+    "apeira:koi_pond",
+    "apeira:zodiac_tapestry",
+    "apeira:carp_streamers"
   ],
   "rare": [
-    "apeira:panda_backpack"
+    "apeira:panda_backpack",
+    "apeira:lunar_horse_statue"
   ],
   "epic": [
     "apeira:lucky_cat"

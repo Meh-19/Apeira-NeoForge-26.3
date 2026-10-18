@@ -1,10 +1,19 @@
 {
-  "common": [],
+  "common": [
+    "apeira:atlantean_chair",
+    "apeira:atlantean_table",
+    "apeira:atlantean_lantern"
+  ],
   "rare": [
     "apeira:poseidons_crown",
-    "apeira:poseidons_robe"
+    "apeira:poseidons_robe",
+    "apeira:atlantean_pillar",
+    "apeira:atlantean_throne"
   ],
-  "epic": [],
+  "epic": [
+    "apeira:poseidon_statue",
+    "apeira:atlantean_shrine"
+  ],
   "legendary": [
     "apeira:poseidons_trident"
   ],

@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/potted_glowshroom",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

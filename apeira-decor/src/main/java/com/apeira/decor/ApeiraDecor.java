@@ -13,6 +13,7 @@ import com.apeira.decor.registry.DecorBlockEntities;
 import com.apeira.decor.registry.DecorBlocks;
 import com.apeira.decor.registry.DecorDataComponents;
 import com.apeira.decor.registry.DecorEntities;
+import com.apeira.decor.registry.DecorFurniture;
 import com.apeira.decor.registry.DecorItems;
 import com.apeira.decor.registry.DecorMenus;
 import com.mojang.logging.LogUtils;
@@ -35,8 +36,8 @@ public final class ApeiraDecor {
     public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("1");
 
     public ApeiraDecor(IEventBus modEventBus, ModContainer modContainer) {
-        REGISTRAR.register(modEventBus, DecorDataComponents::init, DecorBlocks::init, DecorItems::init, DecorBlockEntities::init,
-                DecorEntities::init, DecorMenus::init, DecorAttachments::init);
+        REGISTRAR.register(modEventBus, DecorDataComponents::init, DecorBlocks::init, DecorFurniture::init, DecorItems::init,
+                DecorBlockEntities::init, DecorEntities::init, DecorMenus::init, DecorAttachments::init);
         NETWORK.register(modEventBus, DecorPayloads::init);
         DATA.register(modEventBus, DecorData::init);
         CrateEvents.register(NeoForge.EVENT_BUS);

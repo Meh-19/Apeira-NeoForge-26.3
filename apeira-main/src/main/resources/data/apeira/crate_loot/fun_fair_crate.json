@@ -1,9 +1,19 @@
 {
   "common": [
-    "apeira:party_hat"
+    "apeira:party_hat",
+    "apeira:cotton_candy_tray",
+    "apeira:circus_podium",
+    "apeira:popcorn_bucket",
+    "apeira:balloon_bundle"
   ],
-  "rare": [],
-  "epic": [],
+  "rare": [
+    "apeira:food_stall",
+    "apeira:bumper_car",
+    "apeira:high_striker"
+  ],
+  "epic": [
+    "apeira:circus_tent"
+  ],
   "legendary": [],
   "limited": []
 }

@@ -4,14 +4,19 @@
     "apeira:shark_tail",
     "apeira:anchor",
     "apeira:jellyfish_hat",
-    "apeira:fish_hand"
+    "apeira:fish_hand",
+    "apeira:giant_oyster"
   ],
   "rare": [
     "apeira:diver_helmet",
     "apeira:shark_hat",
-    "apeira:crab_claw"
+    "apeira:crab_claw",
+    "apeira:fishing_boat",
+    "apeira:large_jellyfish"
   ],
-  "epic": [],
+  "epic": [
+    "apeira:fishing_dock"
+  ],
   "legendary": [],
   "limited": []
 }

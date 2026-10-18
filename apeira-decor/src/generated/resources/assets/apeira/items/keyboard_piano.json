@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/keyboard_piano",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

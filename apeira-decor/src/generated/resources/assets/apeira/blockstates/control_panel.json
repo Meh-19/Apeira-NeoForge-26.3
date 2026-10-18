@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/control_panel",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/control_panel"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/control_panel",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/control_panel",
+      "y": 270
+    }
+  }
+}

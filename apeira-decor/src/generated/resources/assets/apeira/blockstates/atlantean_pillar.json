@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/atlantean_pillar",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/atlantean_pillar"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/atlantean_pillar",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/atlantean_pillar",
+      "y": 270
+    }
+  }
+}

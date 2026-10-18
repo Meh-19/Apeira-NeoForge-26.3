@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/washing_machine",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/washing_machine"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/washing_machine",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/washing_machine",
+      "y": 270
+    }
+  }
+}

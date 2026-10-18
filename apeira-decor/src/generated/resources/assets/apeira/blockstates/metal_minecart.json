@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apeira:block/furniture/metal_minecart",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/furniture/metal_minecart"
+    },
+    "facing=south": {
+      "model": "apeira:block/furniture/metal_minecart",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "apeira:block/furniture/metal_minecart",
+      "y": 270
+    }
+  }
+}

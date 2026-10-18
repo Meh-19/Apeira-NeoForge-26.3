@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/atlantean_lantern",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}

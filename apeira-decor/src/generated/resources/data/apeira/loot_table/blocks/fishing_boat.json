@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:copy_components",
+            "include": [
+              "apeira:paint"
+            ],
+            "source": "block_entity"
+          },
+          "name": "apeira:fishing_boat"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "apeira:blocks/fishing_boat"
+}

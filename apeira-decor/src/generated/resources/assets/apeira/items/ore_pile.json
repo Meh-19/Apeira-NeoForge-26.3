@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/ore_pile",
+    "tints": [
+      {
+        "type": "apeira:paint"
+      }
+    ]
+  }
+}
