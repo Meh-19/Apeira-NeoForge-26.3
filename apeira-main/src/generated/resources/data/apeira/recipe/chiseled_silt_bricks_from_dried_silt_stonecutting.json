@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:dried_silt",
+  "result": {
+    "id": "apeira:chiseled_silt_bricks"
+  }
+}

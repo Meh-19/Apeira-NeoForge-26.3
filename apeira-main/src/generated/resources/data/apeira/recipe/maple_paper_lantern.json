@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": "apeira:maple_planks",
+    "P": "minecraft:paper",
+    "T": "minecraft:torch"
+  },
+  "pattern": [
+    "#P#",
+    "PTP",
+    "#P#"
+  ],
+  "result": {
+    "id": "apeira:maple_paper_lantern"
+  }
+}

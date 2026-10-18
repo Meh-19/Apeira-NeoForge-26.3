@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": "minecraft:mangrove_planks",
+    "P": "minecraft:paper",
+    "T": "minecraft:torch"
+  },
+  "pattern": [
+    "#P#",
+    "PTP",
+    "#P#"
+  ],
+  "result": {
+    "id": "apeira:mangrove_paper_lantern"
+  }
+}

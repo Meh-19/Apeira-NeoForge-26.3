@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": "minecraft:dark_oak_planks",
+    "P": "minecraft:paper",
+    "T": "minecraft:torch"
+  },
+  "pattern": [
+    "#P#",
+    "PTP",
+    "#P#"
+  ],
+  "result": {
+    "id": "apeira:dark_oak_paper_lantern"
+  }
+}

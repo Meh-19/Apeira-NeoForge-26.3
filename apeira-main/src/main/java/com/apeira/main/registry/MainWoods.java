@@ -24,7 +24,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 
 /**
  * The legacy ORForged mod's woods: seven trees with their building blocks, fungal planks in every dye colour, and the
- * beams and carved planks it added for vanilla woods.
+ * beams, vertical planks and carved planks it added for vanilla woods.
  *
  * <p>Everything here is plain vanilla behaviour: logs and beams are {@link RotatedPillarBlock}s, leaves are vanilla
  * {@link LeavesBlock}s (decay by their {@code distance} state, no ticking of their own), and stripping and burning
@@ -82,6 +82,18 @@ public final class MainWoods {
             vanillaCarved("acacia", Blocks.ACACIA_PLANKS), vanillaCarved("dark_oak", Blocks.DARK_OAK_PLANKS),
             vanillaCarved("mangrove", Blocks.MANGROVE_PLANKS), vanillaCarved("cherry", Blocks.CHERRY_PLANKS),
             vanillaCarved("crimson", Blocks.CRIMSON_PLANKS), vanillaCarved("warped", Blocks.WARPED_PLANKS));
+
+    /**
+     * ORForged's vertical planks for vanilla woods. ORForged had no texture for them; the Origin Realms server pack draws
+     * its vertical planks with the wood's own planks texture turned on its side ({@code block/vertical_planks}).
+     */
+    public static final List<VanillaVerticalPlanks> VANILLA_VERTICAL_PLANKS = List.of(
+            vanillaVertical("oak", Blocks.OAK_PLANKS), vanillaVertical("spruce", Blocks.SPRUCE_PLANKS),
+            vanillaVertical("birch", Blocks.BIRCH_PLANKS), vanillaVertical("jungle", Blocks.JUNGLE_PLANKS),
+            vanillaVertical("acacia", Blocks.ACACIA_PLANKS), vanillaVertical("dark_oak", Blocks.DARK_OAK_PLANKS),
+            vanillaVertical("mangrove", Blocks.MANGROVE_PLANKS), vanillaVertical("cherry", Blocks.CHERRY_PLANKS),
+            vanillaVertical("crimson", Blocks.CRIMSON_PLANKS), vanillaVertical("warped", Blocks.WARPED_PLANKS),
+            vanillaVertical("bamboo", Blocks.BAMBOO_PLANKS));
 
     private MainWoods() {}
 
@@ -193,6 +205,10 @@ public final class MainWoods {
         return new VanillaCarvedPlanks(carvedPlanks(wood), planks);
     }
 
+    private static VanillaVerticalPlanks vanillaVertical(String wood, Block planks) {
+        return new VanillaVerticalPlanks(plankVariant("vertical_" + wood + "_planks"), planks);
+    }
+
     private static List<DyedPlanks> dyedFungal() {
         List<DyedPlanks> dyed = new ArrayList<>();
         for (DyeColor color : List.of(DyeColor.WHITE, DyeColor.LIGHT_GRAY, DyeColor.GRAY, DyeColor.BLACK, DyeColor.BROWN, DyeColor.RED,
@@ -224,4 +240,7 @@ public final class MainWoods {
 
     /** Carved planks of a vanilla wood. */
     public record VanillaCarvedPlanks(DeferredBlock<Block> carved, Block planks) {}
+
+    /** Vertical planks of a vanilla wood. */
+    public record VanillaVerticalPlanks(DeferredBlock<Block> vertical, Block planks) {}
 }

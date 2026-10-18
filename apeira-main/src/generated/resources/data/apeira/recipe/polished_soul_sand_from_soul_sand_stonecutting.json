@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "minecraft:soul_sand",
+  "result": {
+    "id": "apeira:polished_soul_sand"
+  }
+}

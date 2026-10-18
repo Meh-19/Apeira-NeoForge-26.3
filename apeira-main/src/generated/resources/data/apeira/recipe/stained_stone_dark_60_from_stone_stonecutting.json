@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "minecraft:stone",
+  "result": {
+    "id": "apeira:stained_stone_dark_60"
+  }
+}

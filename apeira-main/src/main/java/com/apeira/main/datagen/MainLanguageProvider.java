@@ -5,9 +5,12 @@ import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainItems;
+import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.data.PackOutput;
+import net.neoforged.neoforge.registries.DeferredBlock;
 
 /** English names for Apeira's blocks, items and creative tabs. */
 public final class MainLanguageProvider extends ApeiraLanguageProvider {
@@ -36,7 +39,16 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         block(MainBlocks.RUBY_ORE, "Ruby Ore");
         block(MainBlocks.DEEPSLATE_RUBY_ORE, "Deepslate Ruby Ore");
         block(MainBlocks.DIAMOND_BRICK, "Diamond Brick");
+        for (MainBlocks.Mineral mineral : MainBlocks.vanillaMinerals()) {
+            if (mineral.brick() != MainBlocks.DIAMOND_BRICK) {
+                titled(mineral.brick());
+            }
+            titled(mineral.pillar());
+        }
         woods();
+        // ORForged named its stained stone "Stone", like vanilla's; the ids' names keep them apart.
+        MainStones.all().forEach(this::titled);
+        MainLanterns.all().forEach(lantern -> titled(lantern.block()));
 
         // The Crates mod's crate names.
         block(MainCrates.AETHER_CRATE, "Aether Crate");
@@ -78,6 +90,11 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
             }
             block(block, name);
         }
+    }
+
+    /** Names a block after its id, in title case. */
+    private void titled(DeferredBlock<?> block) {
+        block(block, title(block.getId().getPath()));
     }
 
     /** {@code dark_oak_beam} as {@code Dark Oak Beam}. */

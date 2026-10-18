@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "apeira:block/palm_paper_lantern_top",
+    "side": "apeira:block/palm_paper_lantern"
+  }
+}

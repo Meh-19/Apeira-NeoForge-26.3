@@ -14,6 +14,25 @@
     "apeira:festive_crate",
     "apeira:fun_fair_crate",
     "apeira:garden_crate",
-    "apeira:zodiac_crate"
+    "apeira:zodiac_crate",
+    "apeira:oak_paper_lantern",
+    "apeira:spruce_paper_lantern",
+    "apeira:birch_paper_lantern",
+    "apeira:jungle_paper_lantern",
+    "apeira:acacia_paper_lantern",
+    "apeira:dark_oak_paper_lantern",
+    "apeira:mangrove_paper_lantern",
+    "apeira:cherry_paper_lantern",
+    "apeira:crimson_shroom_lantern",
+    "apeira:warped_shroom_lantern",
+    "apeira:maple_paper_lantern",
+    "apeira:bleak_paper_lantern",
+    "apeira:fir_paper_lantern",
+    "apeira:palm_paper_lantern",
+    "apeira:bayou_paper_lantern",
+    "apeira:wisteria_paper_lantern",
+    "apeira:baobab_paper_lantern",
+    "apeira:fungal_paper_lantern",
+    "apeira:bamboo_paper_lantern"
   ]
 }

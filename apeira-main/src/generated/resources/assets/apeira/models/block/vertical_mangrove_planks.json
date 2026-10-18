@@ -1,0 +1,6 @@
+{
+  "parent": "apeira:block/vertical_planks",
+  "textures": {
+    "all": "minecraft:block/mangrove_planks"
+  }
+}
