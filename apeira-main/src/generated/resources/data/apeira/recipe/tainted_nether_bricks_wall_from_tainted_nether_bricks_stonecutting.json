@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:tainted_nether_bricks",
+  "result": {
+    "id": "apeira:tainted_nether_bricks_wall"
+  }
+}

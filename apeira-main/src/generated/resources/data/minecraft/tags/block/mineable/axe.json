@@ -33,6 +33,21 @@
     "apeira:wisteria_paper_lantern",
     "apeira:baobab_paper_lantern",
     "apeira:fungal_paper_lantern",
-    "apeira:bamboo_paper_lantern"
+    "apeira:bamboo_paper_lantern",
+    "apeira:framed_wooden_crate",
+    "apeira:closed_wooden_crate",
+    "apeira:slatted_wooden_crate",
+    "apeira:enforced_wooden_crate",
+    "apeira:potato_crate",
+    "apeira:carrot_crate",
+    "apeira:beet_crate",
+    "apeira:apple_basket",
+    "apeira:berry_basket",
+    "apeira:bamboo_bundle",
+    "apeira:cactus_bundle",
+    "apeira:sugar_cane_bundle",
+    "apeira:stick_bundle",
+    "apeira:shoji",
+    "apeira:salvaging_table"
   ]
 }

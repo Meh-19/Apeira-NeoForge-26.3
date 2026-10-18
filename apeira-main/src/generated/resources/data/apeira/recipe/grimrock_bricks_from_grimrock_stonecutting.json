@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:grimrock",
+  "result": {
+    "id": "apeira:grimrock_bricks"
+  }
+}

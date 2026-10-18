@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_grimrock_bricks": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:grimrock_bricks"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:cracked_grimrock_bricks"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_grimrock_bricks"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:cracked_grimrock_bricks"
+    ]
+  }
+}

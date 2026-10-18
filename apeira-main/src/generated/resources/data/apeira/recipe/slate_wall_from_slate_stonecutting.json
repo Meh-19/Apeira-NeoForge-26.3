@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:slate",
+  "result": {
+    "id": "apeira:slate_wall"
+  }
+}

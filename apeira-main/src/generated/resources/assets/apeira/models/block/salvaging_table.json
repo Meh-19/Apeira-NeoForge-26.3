@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "bottom": "apeira:block/salvaging_table_bottom",
+    "front": "apeira:block/salvaging_table_front",
+    "side": "apeira:block/salvaging_table_side",
+    "top": "apeira:block/salvaging_table_top"
+  }
+}

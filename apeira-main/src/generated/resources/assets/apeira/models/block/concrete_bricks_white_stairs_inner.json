@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "apeira:block/concrete_bricks_white",
+    "side": "apeira:block/concrete_bricks_white",
+    "top": "apeira:block/concrete_bricks_white"
+  }
+}

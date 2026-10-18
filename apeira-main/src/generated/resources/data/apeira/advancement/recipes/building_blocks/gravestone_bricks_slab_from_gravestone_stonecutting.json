@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_gravestone": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:gravestone"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:gravestone_bricks_slab_from_gravestone_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_gravestone"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:gravestone_bricks_slab_from_gravestone_stonecutting"
+    ]
+  }
+}

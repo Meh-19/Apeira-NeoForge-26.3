@@ -3,6 +3,15 @@
     "apeira:packed_dirt",
     "apeira:packed_sand",
     "apeira:packed_red_sand",
-    "apeira:silt"
+    "apeira:silt",
+    "apeira:ashen_sand",
+    "apeira:packed_ashen_sand",
+    "apeira:loam",
+    "apeira:permafrost",
+    "apeira:packed_dirt_slab",
+    "apeira:damp_moss_block",
+    "apeira:grimoss_block",
+    "apeira:grimweed_block",
+    "apeira:pale_grimweed_block"
   ]
 }

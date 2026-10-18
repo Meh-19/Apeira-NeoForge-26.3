@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_terracotta_shingles_orange": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:terracotta_shingles_orange"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:terracotta_shingles_orange_slab"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_terracotta_shingles_orange"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:terracotta_shingles_orange_slab"
+    ]
+  }
+}

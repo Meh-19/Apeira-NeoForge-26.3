@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "apeira:block/limestone",
+    "side": "apeira:block/limestone",
+    "top": "apeira:block/limestone"
+  }
+}

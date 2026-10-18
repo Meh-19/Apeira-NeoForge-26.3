@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:scoria",
+  "result": {
+    "id": "apeira:molten_scoria_bricks"
+  }
+}

@@ -3,6 +3,7 @@ package com.apeira.core.datagen;
 import java.util.Set;
 
 import com.apeira.core.registry.ApeiraRegistrar;
+import com.apeira.core.registry.ShapeSet;
 
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.data.loot.LootTableSubProvider;
@@ -67,6 +68,19 @@ public abstract class ApeiraBlockLootProvider extends BlockLootSubProvider {
                         .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2))))
                         .when(BonusLevelTableCondition.bonusLevelFlatChance(enchantments.getOrThrow(Enchantments.FORTUNE),
                                 LEAVES_STICK_CHANCES))));
+    }
+
+    /** The shapes of a {@link ShapeSet} drop themselves; a double slab drops two slabs. */
+    protected void dropShapes(ShapeSet shapes) {
+        if (shapes.stairs() != null) {
+            dropSelf(shapes.stairs().get());
+        }
+        if (shapes.slab() != null) {
+            add(shapes.slab().get(), createSlabItemTable(shapes.slab().get()));
+        }
+        if (shapes.wall() != null) {
+            dropSelf(shapes.wall().get());
+        }
     }
 
     @Override

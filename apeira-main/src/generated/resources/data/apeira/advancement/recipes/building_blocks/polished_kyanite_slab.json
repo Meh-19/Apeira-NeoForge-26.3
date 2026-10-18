@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_polished_kyanite": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:polished_kyanite"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:polished_kyanite_slab"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_polished_kyanite"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:polished_kyanite_slab"
+    ]
+  }
+}

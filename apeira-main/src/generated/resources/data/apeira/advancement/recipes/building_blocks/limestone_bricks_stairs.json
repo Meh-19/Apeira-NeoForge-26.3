@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_limestone_bricks": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:limestone_bricks"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:limestone_bricks_stairs"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_limestone_bricks"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:limestone_bricks_stairs"
+    ]
+  }
+}

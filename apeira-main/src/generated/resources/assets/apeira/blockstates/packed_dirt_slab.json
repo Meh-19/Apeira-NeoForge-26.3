@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/packed_dirt_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/packed_dirt"
+    },
+    "type=top": {
+      "model": "apeira:block/packed_dirt_slab_top"
+    }
+  }
+}

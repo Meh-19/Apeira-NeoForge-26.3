@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_rhyolite": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:rhyolite"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:rhyolite_bricks_from_rhyolite_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_rhyolite"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:rhyolite_bricks_from_rhyolite_stonecutting"
+    ]
+  }
+}

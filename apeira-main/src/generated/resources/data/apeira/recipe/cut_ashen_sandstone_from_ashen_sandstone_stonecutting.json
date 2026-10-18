@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:ashen_sandstone",
+  "result": {
+    "id": "apeira:cut_ashen_sandstone"
+  }
+}

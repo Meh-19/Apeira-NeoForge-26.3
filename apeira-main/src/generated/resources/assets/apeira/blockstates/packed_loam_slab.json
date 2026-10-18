@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/packed_loam_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/packed_loam"
+    },
+    "type=top": {
+      "model": "apeira:block/packed_loam_slab_top"
+    }
+  }
+}

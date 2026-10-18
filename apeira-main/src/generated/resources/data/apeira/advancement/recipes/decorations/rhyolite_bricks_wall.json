@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_rhyolite_bricks": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:rhyolite_bricks"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:rhyolite_bricks_wall"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_rhyolite_bricks"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:rhyolite_bricks_wall"
+    ]
+  }
+}

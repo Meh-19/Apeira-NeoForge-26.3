@@ -6,6 +6,7 @@ import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.registry.ApeiraIds;
+import com.apeira.core.registry.ShapeSet;
 
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
@@ -128,6 +129,23 @@ public abstract class ApeiraBlockStateProvider {
      */
     protected void family(BlockFamily family) {
         generators().family(family.getBaseBlock()).generateFor(family);
+    }
+
+    /**
+     * The stairs, slab and wall of a {@link ShapeSet}, textured with the base block's texture {@code block/<base>}. The
+     * base block's own model is left to the caller; a double slab shows it.
+     */
+    protected void shapes(ShapeSet shapes) {
+        BlockModelGenerators.BlockFamilyProvider family = generators().familyWithExistingFullBlock(shapes.base().get());
+        if (shapes.stairs() != null) {
+            family.stairs(shapes.stairs().get());
+        }
+        if (shapes.slab() != null) {
+            family.slab(shapes.slab().get());
+        }
+        if (shapes.wall() != null) {
+            family.wall(shapes.wall().get());
+        }
     }
 
     // Directional blocks

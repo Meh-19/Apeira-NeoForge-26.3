@@ -2,9 +2,12 @@ package com.apeira.main.datagen;
 
 import com.apeira.core.datagen.ApeiraRecipeProvider;
 import com.apeira.core.registry.PlankSet;
+import com.apeira.core.registry.ShapeSet;
 import com.apeira.main.registry.MainBlocks;
+import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainRocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
@@ -32,7 +35,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
  * recipes, so the rest are vanilla's for the same kind of block: wood families (planks from logs, wood from logs,
  * stairs, slabs, ...), storage blocks, ore smelting, tools and armour. Bricks and pillars are made like vanilla's
  * from four and two blocks, carved planks like chiseled blocks, from two slabs, stone variants as {@link #stones()}
- * says, and lanterns like vanilla's.
+ * says, Xenon's blocks as {@link #xenon()} says, and lanterns like vanilla's.
  */
 public final class MainRecipeProvider extends ApeiraRecipeProvider {
     public MainRecipeProvider(BootstrapContext<Recipe<?>> recipes, BootstrapContext<Advancement> advancements, String namespace) {
@@ -97,9 +100,129 @@ public final class MainRecipeProvider extends ApeiraRecipeProvider {
         }
 
         stones();
+        xenon();
         for (MainLanterns.Lantern lantern : MainLanterns.all()) {
             lantern(lantern.block(), lantern.planks());
         }
+    }
+
+    /**
+     * Xenon's stone families, with Xenon's recipes: every block of a family is cut in a stonecutter from the family's
+     * stone (two slabs from one), stairs, slabs and walls are also crafted from their block, bricks are cut from the
+     * polished stone, cracked bricks are smelted bricks, and mossy blocks are their block with a vine. Xenon had no
+     * recipes for its other blocks; like ORForged's stones, its concrete bricks, shingles, packed snow, packed ashen
+     * sand and polished nether bricks are cut from the vanilla block they are made of, quilted wool is crafted from four
+     * wool like bricks, and ashen sandstone is made like sandstone. Xenon's natural stones (rhyolite, kyanite, grimrock,
+     * packed loam, strata, dolomite, gravestone, scoria, ashen sand, loam and permafrost) have none, and nor do its
+     * crystals, crates, baskets, bundles, bone, moss and grimweed blocks, shoji and salvaging table.
+     */
+    private void xenon() {
+        cut(MainStones.LIMESTONE.get(), MainRocks.LIMESTONE_SHAPES, MainRocks.POLISHED_LIMESTONE_SHAPES, MainRocks.LIMESTONE_BRICKS_SHAPES,
+                MainRocks.SANDY_LIMESTONE_BRICKS_SHAPES);
+        cut(MainRocks.RHYOLITE.get(), MainRocks.MOSSY_RHYOLITE, MainRocks.RHYOLITE_PILLAR, MainRocks.RHYOLITE_BRICKS, MainRocks.CHISELED_RHYOLITE,
+                MainRocks.CRACKED_RHYOLITE_BRICKS, MainRocks.MOSSY_RHYOLITE_BRICKS);
+        cut(MainRocks.RHYOLITE.get(), MainRocks.RHYOLITE_SHAPES, MainRocks.MOSSY_RHYOLITE_SHAPES, MainRocks.RHYOLITE_BRICKS_SHAPES,
+                MainRocks.CRACKED_RHYOLITE_BRICKS_SHAPES, MainRocks.MOSSY_RHYOLITE_BRICKS_SHAPES);
+        cracked(MainRocks.CRACKED_RHYOLITE_BRICKS, MainRocks.RHYOLITE_BRICKS);
+        mossy(MainRocks.MOSSY_RHYOLITE_BRICKS, MainRocks.RHYOLITE_BRICKS);
+        mossy(MainRocks.MOSSY_RHYOLITE, MainRocks.RHYOLITE);
+        cut(MainRocks.KYANITE.get(), MainRocks.POLISHED_KYANITE, MainRocks.KYANITE_BRICKS, MainRocks.CHISELED_KYANITE);
+        cut(MainRocks.KYANITE.get(), MainRocks.KYANITE_SHAPES, MainRocks.POLISHED_KYANITE_SHAPES, MainRocks.KYANITE_BRICKS_SHAPES);
+        cut(MainRocks.POLISHED_KYANITE.get(), MainRocks.KYANITE_BRICKS);
+        cut(MainRocks.GRIMROCK.get(), MainRocks.POLISHED_GRIMROCK, MainRocks.GRIMROCK_BRICKS, MainRocks.CHISELED_GRIMROCK,
+                MainRocks.CRACKED_GRIMROCK_BRICKS, MainRocks.MOSSY_GRIMROCK_BRICKS, MainRocks.COBBLED_GRIMROCK);
+        cut(MainRocks.GRIMROCK.get(), MainRocks.GRIMROCK_SHAPES, MainRocks.POLISHED_GRIMROCK_SHAPES, MainRocks.GRIMROCK_BRICKS_SHAPES,
+                MainRocks.CRACKED_GRIMROCK_BRICKS_SHAPES, MainRocks.MOSSY_GRIMROCK_BRICKS_SHAPES, MainRocks.COBBLED_GRIMROCK_SHAPES);
+        cut(MainRocks.POLISHED_GRIMROCK.get(), MainRocks.GRIMROCK_BRICKS);
+        cracked(MainRocks.CRACKED_GRIMROCK_BRICKS, MainRocks.GRIMROCK_BRICKS);
+        mossy(MainRocks.MOSSY_GRIMROCK_BRICKS, MainRocks.GRIMROCK_BRICKS);
+        cut(MainRocks.PACKED_LOAM.get(), MainRocks.PACKED_LOAM_BRICKS, MainRocks.CHISELED_PACKED_LOAM, MainRocks.MOSSY_PACKED_LOAM_BRICKS);
+        cut(MainRocks.PACKED_LOAM.get(), MainRocks.PACKED_LOAM_SHAPES, MainRocks.PACKED_LOAM_BRICKS_SHAPES, MainRocks.MOSSY_PACKED_LOAM_BRICKS_SHAPES);
+        mossy(MainRocks.MOSSY_PACKED_LOAM_BRICKS, MainRocks.PACKED_LOAM_BRICKS);
+        cut(MainStones.DRIED_SILT.get(), MainRocks.DRIED_SILT_SHAPES, MainRocks.POLISHED_SILT_SHAPES, MainRocks.SILT_BRICKS_SHAPES);
+        cut(MainStones.SLATE.get(), MainRocks.SLATE_SHAPES, MainRocks.POLISHED_SLATE_SHAPES, MainRocks.SLATE_BRICKS_SHAPES);
+        cut(MainRocks.STRATA.get(), MainRocks.POLISHED_STRATA, MainRocks.STRATA_BRICKS, MainRocks.CHISELED_STRATA);
+        cut(MainRocks.STRATA.get(), MainRocks.STRATA_SHAPES, MainRocks.POLISHED_STRATA_SHAPES, MainRocks.STRATA_BRICKS_SHAPES);
+        cut(MainRocks.POLISHED_STRATA.get(), MainRocks.STRATA_BRICKS);
+        cut(MainRocks.DOLOMITE.get(), MainRocks.DOLOMITE_PILLAR, MainRocks.POLISHED_DOLOMITE, MainRocks.DOLOMITE_BRICKS, MainRocks.CHISELED_DOLOMITE,
+                MainRocks.POROUS_DOLOMITE);
+        cut(MainRocks.DOLOMITE.get(), MainRocks.DOLOMITE_SHAPES, MainRocks.POLISHED_DOLOMITE_SHAPES, MainRocks.DOLOMITE_BRICKS_SHAPES);
+        cut(MainRocks.POLISHED_DOLOMITE.get(), MainRocks.DOLOMITE_BRICKS);
+        cut(MainRocks.GRAVESTONE.get(), MainRocks.POLISHED_GRAVESTONE, MainRocks.GRAVESTONE_BRICKS, MainRocks.CHISELED_GRAVESTONE);
+        cut(MainRocks.GRAVESTONE.get(), MainRocks.GRAVESTONE_SHAPES, MainRocks.POLISHED_GRAVESTONE_SHAPES, MainRocks.GRAVESTONE_BRICKS_SHAPES);
+        cut(MainRocks.POLISHED_GRAVESTONE.get(), MainRocks.GRAVESTONE_BRICKS);
+        cut(MainRocks.SCORIA.get(), MainRocks.SCORIA_BRICKS, MainRocks.CHISELED_SCORIA, MainRocks.MOLTEN_SCORIA, MainRocks.CHISELED_MOLTEN_SCORIA,
+                MainRocks.MOLTEN_SCORIA_BRICKS);
+        cut(MainRocks.SCORIA.get(), MainRocks.SCORIA_BRICKS_SHAPES, MainRocks.MOLTEN_SCORIA_BRICKS_SHAPES);
+        cut(Blocks.DRIPSTONE_BLOCK, MainRocks.POLISHED_DRIPSTONE_SHAPES, MainRocks.DRIPSTONE_BRICKS_SHAPES);
+        cut(Blocks.POLISHED_BASALT, MainRocks.POLISHED_BASALT_BRICKS_SHAPES, MainRocks.POLISHED_BASALT_TILES_SHAPES,
+                MainRocks.CUT_POLISHED_BASALT_SHAPES);
+        cut(MainStones.BLUE_NETHER_BRICKS.get(), MainRocks.BLUE_NETHER_BRICKS_SHAPES);
+        cut(MainStones.TAINTED_NETHER_BRICKS.get(), MainRocks.TAINTED_NETHER_BRICKS_SHAPES);
+        cut(Blocks.SOUL_SAND, MainRocks.POLISHED_SOUL_SAND_SHAPES, MainRocks.SOUL_BRICKS_SHAPES);
+        cut(MainRocks.PACKED_SNOW.get(), MainRocks.SNOW_BRICKS, MainRocks.CHISELED_SNOW_BRICKS);
+        cut(MainRocks.PACKED_SNOW.get(), MainRocks.PACKED_SNOW_SHAPES, MainRocks.SNOW_BRICKS_SHAPES);
+        cut(Blocks.PACKED_ICE, MainRocks.POLISHED_PACKED_ICE, MainRocks.PACKED_ICE_BRICKS, MainRocks.CHISELED_PACKED_ICE_BRICKS);
+        cut(Blocks.PACKED_ICE, MainRocks.POLISHED_PACKED_ICE_SHAPES, MainRocks.PACKED_ICE_BRICKS_SHAPES);
+        cut(MainRocks.POLISHED_PACKED_ICE.get(), MainRocks.PACKED_ICE_BRICKS);
+        cut(Blocks.PRISMARINE, MainRocks.PRISMARINE_PILLAR, MainRocks.POLISHED_PRISMARINE, MainRocks.PRISMARINE_TILES, MainRocks.CHISELED_PRISMARINE);
+        cut(Blocks.PRISMARINE, MainRocks.POLISHED_PRISMARINE_SHAPES, MainRocks.PRISMARINE_TILES_SHAPES);
+        MainRocks.shapes().forEach(shapes -> generateRecipes(shapes.family(), FeatureFlags.VANILLA_SET));
+
+        // Xenon's blocks without recipes of their own, made like vanilla's.
+        cut(Blocks.SNOW_BLOCK, MainRocks.PACKED_SNOW);
+        cut(Blocks.NETHER_BRICKS, MainRocks.POLISHED_NETHER_BRICKS);
+        cut(MainRocks.ASHEN_SAND.get(), MainRocks.PACKED_ASHEN_SAND);
+        bricks(MainRocks.ASHEN_SANDSTONE.get(), MainRocks.ASHEN_SAND.get());
+        smeltingResultFromBase(MainRocks.SMOOTH_ASHEN_SANDSTONE, MainRocks.ASHEN_SANDSTONE);
+        cut(MainRocks.ASHEN_SANDSTONE.get(), MainRocks.CUT_ASHEN_SANDSTONE, MainRocks.CHISELED_ASHEN_SANDSTONE);
+        for (MainDyedBlocks.Dyed dyed : MainDyedBlocks.CONCRETE_BRICKS) {
+            Block concrete = vanillaBlock(dyed.colour().getSerializedName() + "_concrete");
+            cut(concrete, dyed.block());
+            cut(concrete, dyed.shapes());
+        }
+        cut(Blocks.TERRACOTTA, MainDyedBlocks.TERRACOTTA_SHINGLES);
+        cut(Blocks.TERRACOTTA, MainDyedBlocks.TERRACOTTA_SHINGLES_SHAPES);
+        for (MainDyedBlocks.Dyed dyed : MainDyedBlocks.TERRACOTTA_SHINGLES_COLOURS) {
+            Block terracotta = vanillaBlock(dyed.colour().getSerializedName() + "_terracotta");
+            cut(terracotta, dyed.block());
+            cut(terracotta, dyed.shapes());
+        }
+        MainDyedBlocks.shapes().forEach(shapes -> generateRecipes(shapes.family(), FeatureFlags.VANILLA_SET));
+        for (MainDyedBlocks.Dyed dyed : MainDyedBlocks.QUILTED_WOOL) {
+            bricks(dyed.block().get(), vanillaBlock(dyed.colour().getSerializedName() + "_wool"));
+        }
+    }
+
+    /** Cuts each of {@code blocks} from {@code input} in a stonecutter. */
+    private void cut(ItemLike input, DeferredBlock<?>... blocks) {
+        for (DeferredBlock<?> block : blocks) {
+            stonecutting(RecipeCategory.BUILDING_BLOCKS, block, input, 1);
+        }
+    }
+
+    /** Cuts the stairs, slab and wall of each of {@code sets} from {@code input}: two slabs from one block. */
+    private void cut(ItemLike input, ShapeSet... sets) {
+        for (ShapeSet set : sets) {
+            for (DeferredBlock<? extends Block> shape : set.shapes()) {
+                stonecutting(RecipeCategory.BUILDING_BLOCKS, shape, input, shape == set.slab() ? 2 : 1);
+            }
+        }
+    }
+
+    /** Cracked bricks are smelted bricks, as in vanilla. */
+    private void cracked(ItemLike cracked, ItemLike bricks) {
+        smeltingResultFromBase(cracked, bricks);
+    }
+
+    /** A mossy block is its block with a vine, as in vanilla. */
+    private void mossy(ItemLike mossy, ItemLike block) {
+        save(shapeless(RecipeCategory.BUILDING_BLOCKS, mossy).requires(block).requires(Blocks.VINE)
+                .unlockedBy(getHasName(Blocks.VINE), has(Blocks.VINE)), getItemName(mossy) + "_from_vine");
+    }
+
+    private static Block vanillaBlock(String name) {
+        return BuiltInRegistries.BLOCK.getValue(Identifier.withDefaultNamespace(name));
     }
 
     /**

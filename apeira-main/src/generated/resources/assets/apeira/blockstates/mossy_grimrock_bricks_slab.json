@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/mossy_grimrock_bricks_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/mossy_grimrock_bricks"
+    },
+    "type=top": {
+      "model": "apeira:block/mossy_grimrock_bricks_slab_top"
+    }
+  }
+}

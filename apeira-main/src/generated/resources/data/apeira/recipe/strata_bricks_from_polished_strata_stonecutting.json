@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:polished_strata",
+  "result": {
+    "id": "apeira:strata_bricks"
+  }
+}

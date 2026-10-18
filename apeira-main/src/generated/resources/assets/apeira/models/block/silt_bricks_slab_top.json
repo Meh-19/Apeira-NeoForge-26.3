@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "apeira:block/silt_bricks",
+    "side": "apeira:block/silt_bricks",
+    "top": "apeira:block/silt_bricks"
+  }
+}

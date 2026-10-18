@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/dolomite_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/dolomite"
+    },
+    "type=top": {
+      "model": "apeira:block/dolomite_slab_top"
+    }
+  }
+}

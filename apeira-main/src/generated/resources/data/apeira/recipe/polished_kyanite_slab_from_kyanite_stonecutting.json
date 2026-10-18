@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:kyanite",
+  "result": {
+    "count": 2,
+    "id": "apeira:polished_kyanite_slab"
+  }
+}

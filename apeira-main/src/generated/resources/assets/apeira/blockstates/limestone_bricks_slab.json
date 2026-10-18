@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/limestone_bricks_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/limestone_bricks"
+    },
+    "type=top": {
+      "model": "apeira:block/limestone_bricks_slab_top"
+    }
+  }
+}

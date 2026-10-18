@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:rhyolite",
+  "result": {
+    "id": "apeira:rhyolite_bricks"
+  }
+}

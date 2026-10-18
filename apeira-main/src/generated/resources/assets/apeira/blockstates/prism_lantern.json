@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "apeira:block/prism_lantern"
+    },
+    "lit=true": {
+      "model": "apeira:block/prism_lantern_lit"
+    }
+  }
+}

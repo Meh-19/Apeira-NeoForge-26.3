@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "apeira:block/blighted_bone_block_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "apeira:block/blighted_bone_block"
+    },
+    "axis=z": {
+      "model": "apeira:block/blighted_bone_block_horizontal",
+      "x": 90
+    }
+  }
+}

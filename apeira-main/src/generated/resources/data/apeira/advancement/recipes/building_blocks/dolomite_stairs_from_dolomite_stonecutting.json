@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_dolomite": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:dolomite"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:dolomite_stairs_from_dolomite_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_dolomite"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:dolomite_stairs_from_dolomite_stonecutting"
+    ]
+  }
+}

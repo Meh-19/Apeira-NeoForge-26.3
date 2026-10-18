@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:grimrock",
+  "result": {
+    "id": "apeira:mossy_grimrock_bricks_stairs"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "apeira:block/grimrock_bricks",
+    "side": "apeira:block/grimrock_bricks",
+    "top": "apeira:block/grimrock_bricks"
+  }
+}

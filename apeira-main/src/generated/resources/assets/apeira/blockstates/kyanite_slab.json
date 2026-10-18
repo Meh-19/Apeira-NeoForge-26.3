@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/kyanite_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/kyanite"
+    },
+    "type=top": {
+      "model": "apeira:block/kyanite_slab_top"
+    }
+  }
+}

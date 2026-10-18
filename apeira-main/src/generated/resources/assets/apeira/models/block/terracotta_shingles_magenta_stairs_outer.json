@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "apeira:block/terracotta_shingles_magenta",
+    "side": "apeira:block/terracotta_shingles_magenta",
+    "top": "apeira:block/terracotta_shingles_magenta"
+  }
+}

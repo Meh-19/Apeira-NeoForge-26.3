@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "apeira:block/chiseled_orange_crystal_bricks_top",
+    "side": "apeira:block/chiseled_orange_crystal_bricks"
+  }
+}

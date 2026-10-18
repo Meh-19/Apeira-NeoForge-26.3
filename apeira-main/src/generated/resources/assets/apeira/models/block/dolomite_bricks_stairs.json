@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "apeira:block/dolomite_bricks",
+    "side": "apeira:block/dolomite_bricks",
+    "top": "apeira:block/dolomite_bricks"
+  }
+}

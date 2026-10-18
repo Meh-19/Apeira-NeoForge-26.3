@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ashen_sandstone": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:ashen_sandstone"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:chiseled_ashen_sandstone_from_ashen_sandstone_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ashen_sandstone"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:chiseled_ashen_sandstone_from_ashen_sandstone_stonecutting"
+    ]
+  }
+}

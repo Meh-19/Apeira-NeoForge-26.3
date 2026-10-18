@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "apeira:block/polished_slate",
+    "side": "apeira:block/polished_slate",
+    "top": "apeira:block/polished_slate"
+  }
+}

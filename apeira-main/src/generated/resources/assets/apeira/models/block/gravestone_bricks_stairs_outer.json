@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "apeira:block/gravestone_bricks",
+    "side": "apeira:block/gravestone_bricks",
+    "top": "apeira:block/gravestone_bricks"
+  }
+}

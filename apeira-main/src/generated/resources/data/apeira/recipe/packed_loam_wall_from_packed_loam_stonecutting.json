@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:packed_loam",
+  "result": {
+    "id": "apeira:packed_loam_wall"
+  }
+}

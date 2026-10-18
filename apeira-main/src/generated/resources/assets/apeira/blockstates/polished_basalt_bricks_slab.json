@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/polished_basalt_bricks_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/polished_basalt_bricks"
+    },
+    "type=top": {
+      "model": "apeira:block/polished_basalt_bricks_slab_top"
+    }
+  }
+}

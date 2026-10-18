@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "apeira:block/white_crystal",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "apeira:block/white_crystal",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "apeira:block/white_crystal",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "apeira:block/white_crystal",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "apeira:block/white_crystal"
+    },
+    "facing=west": {
+      "model": "apeira:block/white_crystal",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

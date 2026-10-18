@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "apeira:block/cobbled_grimrock",
+    "side": "apeira:block/cobbled_grimrock",
+    "top": "apeira:block/cobbled_grimrock"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_strata_bricks": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:strata_bricks"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:strata_bricks_stairs"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_strata_bricks"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:strata_bricks_stairs"
+    ]
+  }
+}

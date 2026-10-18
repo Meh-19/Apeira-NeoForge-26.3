@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "end": "apeira:block/molten_scoria_top",
+    "side": "apeira:block/molten_scoria"
+  }
+}

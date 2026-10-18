@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:packed_snow",
+  "result": {
+    "id": "apeira:snow_bricks_wall"
+  }
+}

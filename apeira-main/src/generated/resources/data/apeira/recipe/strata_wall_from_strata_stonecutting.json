@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:strata",
+  "result": {
+    "id": "apeira:strata_wall"
+  }
+}
