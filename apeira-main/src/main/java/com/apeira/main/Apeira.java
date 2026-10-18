@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 
 import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.core.registry.ApeiraRegistrar;
+import com.apeira.main.datagen.MainData;
+import com.apeira.main.registry.MainBlocks;
+import com.apeira.main.registry.MainItems;
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
@@ -22,9 +25,9 @@ public final class Apeira {
 
     public Apeira(IEventBus modEventBus, ModContainer modContainer) {
         // Content holder classes (blocks, items, ...) are passed here as they are added.
-        REGISTRAR.register(modEventBus);
+        REGISTRAR.register(modEventBus, MainBlocks::init, MainItems::init);
         // Data holder classes (models, recipes, ...) are passed here as they are added.
-        DATA.register(modEventBus);
+        DATA.register(modEventBus, MainData::init);
         LOGGER.info("{} initialized", MOD_ID);
     }
 }
