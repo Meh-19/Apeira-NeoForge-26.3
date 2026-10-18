@@ -1,11 +1,16 @@
 package com.apeira.main.datagen;
 
 import com.apeira.core.datagen.ApeiraLanguageProvider;
+import com.apeira.core.registry.ShapeSet;
 import com.apeira.main.registry.MainBlocks;
+import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainCrates;
+import com.apeira.main.registry.MainCrystals;
+import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainRocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
@@ -49,6 +54,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         // ORForged named its stained stone "Stone", like vanilla's; the ids' names keep them apart.
         MainStones.all().forEach(this::titled);
         MainLanterns.all().forEach(lantern -> titled(lantern.block()));
+        xenon();
 
         // The Crates mod's crate names.
         block(MainCrates.AETHER_CRATE, "Aether Crate");
@@ -89,6 +95,43 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
                 name = title(path);
             }
             block(block, name);
+        }
+    }
+
+    /**
+     * Xenon's names: each block's id in title case, except the coloured blocks, which put their colour first ("White
+     * Concrete Bricks Stairs"). Xenon misspelled its orange crystal bricks "Orange Crystal sBricks".
+     */
+    private void xenon() {
+        MainRocks.all().forEach(this::titled);
+        titled(MainDyedBlocks.TERRACOTTA_SHINGLES);
+        MainDyedBlocks.TERRACOTTA_SHINGLES_SHAPES.shapes().forEach(this::titled);
+        for (var dyed : MainDyedBlocks.CONCRETE_BRICKS) {
+            dyed(dyed, "Concrete Bricks");
+        }
+        for (var dyed : MainDyedBlocks.TERRACOTTA_SHINGLES_COLOURS) {
+            dyed(dyed, "Terracotta Shingles");
+        }
+        for (var dyed : MainDyedBlocks.QUILTED_WOOL) {
+            dyed(dyed, "Quilted Wool");
+        }
+        MainCrystals.all().forEach(this::titled);
+        MainBuildingBlocks.all().forEach(this::titled);
+    }
+
+    /** A coloured block and its shapes as {@code <Colour> <name>} and {@code <Colour> <name> Stairs}. */
+    private void dyed(MainDyedBlocks.Dyed dyed, String name) {
+        String colour = title(dyed.colour().getSerializedName());
+        block(dyed.block(), colour + " " + name);
+        ShapeSet shapes = dyed.shapes();
+        if (shapes.stairs() != null) {
+            block(shapes.stairs(), colour + " " + name + " Stairs");
+        }
+        if (shapes.slab() != null) {
+            block(shapes.slab(), colour + " " + name + " Slab");
+        }
+        if (shapes.wall() != null) {
+            block(shapes.wall(), colour + " " + name + " Wall");
         }
     }
 

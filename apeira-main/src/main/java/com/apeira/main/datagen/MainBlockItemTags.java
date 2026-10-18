@@ -1,14 +1,20 @@
 package com.apeira.main.datagen;
 
+import java.util.stream.Stream;
+
 import com.apeira.core.datagen.BlockAndItemTags;
 import com.apeira.core.registry.PlankSet;
+import com.apeira.core.registry.ShapeSet;
+import com.apeira.main.registry.MainBuildingBlocks;
+import com.apeira.main.registry.MainDyedBlocks;
+import com.apeira.main.registry.MainRocks;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.tags.BlockItemTags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 /**
- * The wood tags shared by Apeira's blocks and their items, written by both {@link MainBlockTagProvider} and
+ * The tags shared by Apeira's blocks and their items (the wood tags, and Xenon's in {@link #addXenon}), written by both {@link MainBlockTagProvider} and
  * {@link MainItemTagProvider}. Vanilla's tags make the woods behave like vanilla wood: axes mine them, logs keep
  * leaves from decaying, fences connect, and recipes asking for any planks or logs accept them.
  *
@@ -36,6 +42,27 @@ final class MainBlockItemTags {
         tags.add(BlockItemTags.PLANKS, MainWoods.beams().toArray(DeferredBlock<?>[]::new));
         tags.add(BlockItemTags.PLANKS, MainWoods.VANILLA_VERTICAL_PLANKS.stream().map(MainWoods.VanillaVerticalPlanks::vertical)
                 .toArray(DeferredBlock<?>[]::new));
+        addXenon(tags);
+    }
+
+    /**
+     * Xenon's tags: stairs, slabs and walls in vanilla's shape tags, quilted wool as wool, and grimweed blocks as dirt,
+     * on which plants grow.
+     */
+    static void addXenon(BlockAndItemTags tags) {
+        for (ShapeSet shapes : Stream.concat(MainRocks.shapes().stream(), MainDyedBlocks.shapes().stream()).toList()) {
+            if (shapes.stairs() != null) {
+                tags.add(BlockItemTags.STAIRS, shapes.stairs());
+            }
+            if (shapes.slab() != null) {
+                tags.add(BlockItemTags.SLABS, shapes.slab());
+            }
+            if (shapes.wall() != null) {
+                tags.add(BlockItemTags.WALLS, shapes.wall());
+            }
+        }
+        tags.add(BlockItemTags.WOOL, MainDyedBlocks.QUILTED_WOOL.stream().map(MainDyedBlocks.Dyed::block).toArray(DeferredBlock<?>[]::new));
+        tags.add(BlockItemTags.DIRT, MainBuildingBlocks.GRIMWEED_BLOCK, MainBuildingBlocks.PALE_GRIMWEED_BLOCK);
     }
 
     private static void shapes(BlockAndItemTags tags, PlankSet planks) {

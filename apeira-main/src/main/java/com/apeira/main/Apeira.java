@@ -6,11 +6,15 @@ import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.main.datagen.MainData;
 import com.apeira.main.registry.MainBlocks;
+import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCreativeTabs;
+import com.apeira.main.registry.MainCrystals;
+import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainRocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 import com.mojang.logging.LogUtils;
@@ -32,7 +36,8 @@ public final class Apeira {
     public Apeira(IEventBus modEventBus, ModContainer modContainer) {
         // Content holder classes (blocks, items, ...) are passed here as they are added.
         REGISTRAR.register(modEventBus, MainItems::init, MainBlocks::init, MainWoods::init, MainStones::init, MainLanterns::init,
-                MainCosmetics::init, MainCrates::init, MainCreativeTabs::init);
+                MainRocks::init, MainDyedBlocks::init, MainCrystals::init, MainBuildingBlocks::init, MainCosmetics::init, MainCrates::init,
+                MainCreativeTabs::init);
         // Data holder classes (models, recipes, ...) are passed here as they are added.
         DATA.register(modEventBus, MainData::init);
         LOGGER.info("{} initialized", MOD_ID);

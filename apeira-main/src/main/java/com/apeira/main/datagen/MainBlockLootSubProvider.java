@@ -1,20 +1,30 @@
 package com.apeira.main.datagen;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.apeira.core.datagen.ApeiraBlockLootProvider;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.core.registry.PlankSet;
 import com.apeira.main.registry.MainBlocks;
+import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCrates;
+import com.apeira.main.registry.MainCrystals;
+import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
+import com.apeira.main.registry.MainRocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.data.loot.LootTableSubProvider;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 /**
- * Loot tables for {@link MainBlocks}, {@link MainWoods}, {@link MainStones}, {@link MainLanterns} and {@link MainCrates}. Every Apeira block needs one, or data
- * generation fails.
+ * Loot tables for {@link MainBlocks}, {@link MainWoods}, {@link MainStones}, {@link MainLanterns}, Xenon's blocks
+ * ({@link MainRocks}, {@link MainDyedBlocks}, {@link MainCrystals}, {@link MainBuildingBlocks}) and {@link MainCrates}.
+ * Every Apeira block needs one, or data generation fails.
  */
 public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
     public MainBlockLootSubProvider(LootTableSubProvider.Context context, ApeiraRegistrar registrar) {
@@ -54,6 +64,25 @@ public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
         MainWoods.VANILLA_VERTICAL_PLANKS.forEach(vertical -> dropSelf(vertical.vertical().get()));
         MainStones.all().forEach(stone -> dropSelf(stone.get()));
         MainLanterns.all().forEach(lantern -> dropSelf(lantern.block().get()));
+
+        // Xenon's blocks drop themselves, double slabs two slabs; permafrost drops dirt without Silk Touch, as in Xenon.
+        Set<Block> shapes = new HashSet<>();
+        MainRocks.shapes().forEach(set -> set.shapes().forEach(shape -> shapes.add(shape.get())));
+        for (var rock : MainRocks.all()) {
+            if (rock == MainRocks.PERMAFROST) {
+                add(rock.get(), createSingleItemTableWithSilkTouch(rock.get(), Blocks.DIRT));
+            } else if (!shapes.contains(rock.get())) {
+                dropSelf(rock.get());
+            }
+        }
+        MainRocks.shapes().forEach(this::dropShapes);
+        MainDyedBlocks.CONCRETE_BRICKS.forEach(dyed -> dropSelf(dyed.block().get()));
+        dropSelf(MainDyedBlocks.TERRACOTTA_SHINGLES.get());
+        MainDyedBlocks.TERRACOTTA_SHINGLES_COLOURS.forEach(dyed -> dropSelf(dyed.block().get()));
+        MainDyedBlocks.QUILTED_WOOL.forEach(dyed -> dropSelf(dyed.block().get()));
+        MainDyedBlocks.shapes().forEach(this::dropShapes);
+        MainCrystals.all().forEach(crystal -> dropSelf(crystal.get()));
+        MainBuildingBlocks.all().forEach(block -> dropSelf(block.get()));
 
         // A closed crate drops itself; an open one cannot be broken.
         MainCrates.all().forEach(crate -> dropSelf(crate.get()));
