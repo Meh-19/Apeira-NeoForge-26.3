@@ -32,6 +32,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
@@ -53,6 +54,7 @@ public final class ApeiraDecorClient {
         modEventBus.addListener(ApeiraDecorClient::registerScreens);
         modEventBus.addListener(ApeiraDecorClient::registerBlockTints);
         modEventBus.addListener(ApeiraDecorClient::registerItemTints);
+        modEventBus.addListener(ApeiraDecorClient::registerItemConditions);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addPaintTooltip);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::openWardrobe);
         NeoForge.EVENT_BUS.addListener(CrateCamera::onClientTick);
@@ -112,6 +114,11 @@ public final class ApeiraDecorClient {
     /** {@code apeira:paint}, which item definitions use to show an item's paint. Also needed by the data run. */
     private static void registerItemTints(RegisterColorHandlersEvent.ItemTintSources event) {
         event.register(ApeiraDecor.REGISTRAR.id("paint"), PaintTintSource.MAP_CODEC);
+    }
+
+    /** {@code apeira:worn_cosmetic}, which cosmetic item definitions use to show their 3D model only when worn. */
+    private static void registerItemConditions(RegisterConditionalItemModelPropertyEvent event) {
+        event.register(ApeiraDecor.REGISTRAR.id("worn_cosmetic"), WornCosmetic.MAP_CODEC);
     }
 
     /**
