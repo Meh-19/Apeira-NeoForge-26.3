@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 0.35,
+  "group": "turkey",
+  "ingredient": "apeira:raw_turkey",
+  "result": {
+    "id": "apeira:cooked_turkey"
+  }
+}
