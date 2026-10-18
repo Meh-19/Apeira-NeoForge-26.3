@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/grimrock_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/grimrock"
+    },
+    "type=top": {
+      "model": "apeira:block/grimrock_slab_top"
+    }
+  }
+}

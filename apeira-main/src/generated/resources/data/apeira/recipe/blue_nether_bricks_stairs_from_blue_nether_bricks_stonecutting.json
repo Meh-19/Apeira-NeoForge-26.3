@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:blue_nether_bricks",
+  "result": {
+    "id": "apeira:blue_nether_bricks_stairs"
+  }
+}

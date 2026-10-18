@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "apeira:block/apple_basket_top",
+    "side": "apeira:block/apple_basket"
+  }
+}

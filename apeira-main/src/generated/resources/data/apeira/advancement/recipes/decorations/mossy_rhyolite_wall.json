@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_mossy_rhyolite": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:mossy_rhyolite"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:mossy_rhyolite_wall"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_mossy_rhyolite"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:mossy_rhyolite_wall"
+    ]
+  }
+}

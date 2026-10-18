@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/prismarine_tiles_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/prismarine_tiles"
+    },
+    "type=top": {
+      "model": "apeira:block/prismarine_tiles_slab_top"
+    }
+  }
+}

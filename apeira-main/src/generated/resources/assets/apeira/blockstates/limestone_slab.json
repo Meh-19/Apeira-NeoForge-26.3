@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/limestone_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/limestone"
+    },
+    "type=top": {
+      "model": "apeira:block/limestone_slab_top"
+    }
+  }
+}

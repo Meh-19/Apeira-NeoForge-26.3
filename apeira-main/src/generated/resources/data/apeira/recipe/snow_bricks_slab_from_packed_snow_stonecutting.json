@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:packed_snow",
+  "result": {
+    "count": 2,
+    "id": "apeira:snow_bricks_slab"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:dried_silt",
+  "result": {
+    "count": 2,
+    "id": "apeira:silt_bricks_slab"
+  }
+}

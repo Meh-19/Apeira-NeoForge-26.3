@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "apeira:grimrock_bricks",
+    "minecraft:vine"
+  ],
+  "result": {
+    "id": "apeira:mossy_grimrock_bricks"
+  }
+}

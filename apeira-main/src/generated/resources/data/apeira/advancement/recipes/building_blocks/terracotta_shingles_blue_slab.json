@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_terracotta_shingles_blue": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:terracotta_shingles_blue"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:terracotta_shingles_blue_slab"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_terracotta_shingles_blue"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:terracotta_shingles_blue_slab"
+    ]
+  }
+}

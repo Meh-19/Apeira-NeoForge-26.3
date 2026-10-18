@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/slate_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/slate"
+    },
+    "type=top": {
+      "model": "apeira:block/slate_slab_top"
+    }
+  }
+}

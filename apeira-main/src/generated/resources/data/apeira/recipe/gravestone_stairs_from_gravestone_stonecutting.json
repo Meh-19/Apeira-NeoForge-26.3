@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:gravestone",
+  "result": {
+    "id": "apeira:gravestone_stairs"
+  }
+}

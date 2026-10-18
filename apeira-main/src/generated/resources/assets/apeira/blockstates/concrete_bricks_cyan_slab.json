@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/concrete_bricks_cyan_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/concrete_bricks_cyan"
+    },
+    "type=top": {
+      "model": "apeira:block/concrete_bricks_cyan_slab_top"
+    }
+  }
+}

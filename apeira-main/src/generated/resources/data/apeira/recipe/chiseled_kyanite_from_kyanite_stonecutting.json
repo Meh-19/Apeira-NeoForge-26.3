@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:kyanite",
+  "result": {
+    "id": "apeira:chiseled_kyanite"
+  }
+}

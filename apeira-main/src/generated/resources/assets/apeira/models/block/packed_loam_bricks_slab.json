@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "apeira:block/packed_loam_bricks",
+    "side": "apeira:block/packed_loam_bricks",
+    "top": "apeira:block/packed_loam_bricks"
+  }
+}

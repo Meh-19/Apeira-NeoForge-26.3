@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:kyanite",
+  "result": {
+    "id": "apeira:polished_kyanite_wall"
+  }
+}

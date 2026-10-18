@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_strata": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:strata"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:strata_bricks_from_strata_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_strata"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:strata_bricks_from_strata_stonecutting"
+    ]
+  }
+}

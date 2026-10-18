@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "minecraft:block/dirt",
+    "side": "apeira:block/permafrost",
+    "top": "apeira:block/permafrost_top"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "apeira:block/terracotta_shingles_light_blue",
+    "side": "apeira:block/terracotta_shingles_light_blue",
+    "top": "apeira:block/terracotta_shingles_light_blue"
+  }
+}

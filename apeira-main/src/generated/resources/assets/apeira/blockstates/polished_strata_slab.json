@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/polished_strata_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/polished_strata"
+    },
+    "type=top": {
+      "model": "apeira:block/polished_strata_slab_top"
+    }
+  }
+}

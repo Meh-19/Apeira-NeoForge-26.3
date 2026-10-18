@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "apeira:block/beet_crate_top",
+    "side": "apeira:block/beet_crate"
+  }
+}

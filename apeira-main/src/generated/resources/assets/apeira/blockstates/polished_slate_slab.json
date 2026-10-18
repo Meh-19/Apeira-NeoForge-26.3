@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/polished_slate_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/polished_slate"
+    },
+    "type=top": {
+      "model": "apeira:block/polished_slate_slab_top"
+    }
+  }
+}

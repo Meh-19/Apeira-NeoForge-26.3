@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:packed_loam",
+  "result": {
+    "id": "apeira:mossy_packed_loam_bricks"
+  }
+}

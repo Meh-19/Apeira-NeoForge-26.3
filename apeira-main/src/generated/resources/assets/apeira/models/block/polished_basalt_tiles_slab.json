@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "apeira:block/polished_basalt_tiles",
+    "side": "apeira:block/polished_basalt_tiles",
+    "top": "apeira:block/polished_basalt_tiles"
+  }
+}

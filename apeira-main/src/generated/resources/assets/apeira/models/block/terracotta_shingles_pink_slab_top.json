@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "apeira:block/terracotta_shingles_pink",
+    "side": "apeira:block/terracotta_shingles_pink",
+    "top": "apeira:block/terracotta_shingles_pink"
+  }
+}

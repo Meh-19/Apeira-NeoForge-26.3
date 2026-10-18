@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "apeira:block/cactus_bundle_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "apeira:block/cactus_bundle"
+    },
+    "axis=z": {
+      "model": "apeira:block/cactus_bundle_horizontal",
+      "x": 90
+    }
+  }
+}

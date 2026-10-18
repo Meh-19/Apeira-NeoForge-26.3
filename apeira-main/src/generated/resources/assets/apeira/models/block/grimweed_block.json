@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "apeira:block/loam",
+    "side": "apeira:block/grimweed_block",
+    "top": "apeira:block/grimweed_block_top"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_concrete_bricks_lime": {
+      "conditions": {
+        "items": [
+          {
+            "items": "apeira:concrete_bricks_lime"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "apeira:concrete_bricks_lime_stairs"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_concrete_bricks_lime"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "apeira:concrete_bricks_lime_stairs"
+    ]
+  }
+}

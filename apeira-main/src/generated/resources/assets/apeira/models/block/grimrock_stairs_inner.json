@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "apeira:block/grimrock",
+    "side": "apeira:block/grimrock",
+    "top": "apeira:block/grimrock"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:scoria",
+  "result": {
+    "id": "apeira:scoria_bricks_wall"
+  }
+}

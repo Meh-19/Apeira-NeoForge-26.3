@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:dolomite",
+  "result": {
+    "count": 2,
+    "id": "apeira:dolomite_slab"
+  }
+}

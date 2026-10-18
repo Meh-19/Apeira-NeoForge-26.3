@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/terracotta_shingles_blue_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/terracotta_shingles_blue"
+    },
+    "type=top": {
+      "model": "apeira:block/terracotta_shingles_blue_slab_top"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/soul_bricks_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/soul_bricks"
+    },
+    "type=top": {
+      "model": "apeira:block/soul_bricks_slab_top"
+    }
+  }
+}

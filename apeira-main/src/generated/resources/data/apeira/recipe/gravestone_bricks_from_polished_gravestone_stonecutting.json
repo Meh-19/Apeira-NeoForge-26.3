@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "apeira:polished_gravestone",
+  "result": {
+    "id": "apeira:gravestone_bricks"
+  }
+}

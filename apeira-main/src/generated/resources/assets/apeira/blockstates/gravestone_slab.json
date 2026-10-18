@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "apeira:block/gravestone_slab"
+    },
+    "type=double": {
+      "model": "apeira:block/gravestone"
+    },
+    "type=top": {
+      "model": "apeira:block/gravestone_slab_top"
+    }
+  }
+}
