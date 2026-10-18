@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": "minecraft:tool/can_shear",
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": 2
+          },
+          "name": "apeira:cattail"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "apeira:blocks/cattail"
+}

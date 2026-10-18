@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": "minecraft:tool/can_shear",
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "apeira:cold_leaf_litter"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "apeira:blocks/cold_leaf_litter"
+}

@@ -1,0 +1,56 @@
+{
+  "variants": {
+    "facing=down,spikes_out=false": {
+      "model": "apeira:block/spike_trap",
+      "x": 180
+    },
+    "facing=down,spikes_out=true": {
+      "model": "apeira:block/spike_trap_active",
+      "x": 180
+    },
+    "facing=east,spikes_out=false": {
+      "model": "apeira:block/spike_trap",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,spikes_out=true": {
+      "model": "apeira:block/spike_trap_active",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north,spikes_out=false": {
+      "model": "apeira:block/spike_trap",
+      "x": 90
+    },
+    "facing=north,spikes_out=true": {
+      "model": "apeira:block/spike_trap_active",
+      "x": 90
+    },
+    "facing=south,spikes_out=false": {
+      "model": "apeira:block/spike_trap",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,spikes_out=true": {
+      "model": "apeira:block/spike_trap_active",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up,spikes_out=false": {
+      "model": "apeira:block/spike_trap"
+    },
+    "facing=up,spikes_out=true": {
+      "model": "apeira:block/spike_trap_active"
+    },
+    "facing=west,spikes_out=false": {
+      "model": "apeira:block/spike_trap",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,spikes_out=true": {
+      "model": "apeira:block/spike_trap_active",
+      "x": 90,
+      "y": 270
+    }
+  }
+}
