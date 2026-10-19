@@ -44,6 +44,8 @@ public final class MainBlockTagProvider extends ApeiraBlockTagsProvider {
         add(BlockTags.NEEDS_STONE_TOOL, MainBlocks.PLATINUM_ORE, MainBlocks.RUBY_ORE);
         add(BlockTags.NEEDS_IRON_TOOL, MainBlocks.DEEPSLATE_PLATINUM_ORE, MainBlocks.DEEPSLATE_RUBY_ORE);
         blockItemTags(MainBlockItemTags::addTo);
+        // Empty, as Xenon's was: shadow tools harvest everything.
+        tag(MainTags.INCORRECT_FOR_SHADOW_TOOL);
         // Crates are wooden: mined with an axe.
         add(BlockTags.MINEABLE_WITH_AXE, MainCrates.all().toArray(DeferredBlock<?>[]::new));
 

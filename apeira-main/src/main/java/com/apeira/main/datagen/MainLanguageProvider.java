@@ -8,6 +8,7 @@ import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
+import com.apeira.main.registry.MainEffects;
 import com.apeira.main.registry.MainEntities;
 import com.apeira.main.registry.MainGear;
 import com.apeira.main.registry.MainItems;
@@ -150,6 +151,19 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("tooltip.apeira.capture_net.1", "Collect and drop off");
         add("tooltip.apeira.capture_net.2", "mobs where you please");
         add("message.apeira.capture_net.weaken", "This mob must be weakened in order to be captured!");
+        MainGear.shadowTools().forEach(tool -> item(tool, title(tool.getId().getPath())));
+        MainGear.shadowArmor().forEach(armor -> item(armor, title(armor.getId().getPath())));
+        tooltip("shadow_gear", "Shadow Gear");
+        tooltip("shadow_sword.1", "1.5× damage to unaware enemies");
+        tooltip("shadow_sword.2", "Stacks with Shadow Mode & Backstab");
+        tooltip("shadow_armor.detection", "Reduces mob detection range by %s blocks");
+        tooltip("shadow_armor.set", "Full set: enter Shadow Mode when hit");
+        addEffect(MainEffects.SHADOW_MODE, "Shadow Mode");
+        item(MainGear.ROCKET_BOOTS, "Rocket Boots");
+        tooltip("rocket_boots.1", "Double-jump to fly");
+        tooltip("rocket_boots.2", "Creative-style flight");
+        tooltip("rocket_boots.fuel", "Fuel: %s min");
+        message("rocket_boots.low_fuel", "⚠ Rocket boots fuel is running low!");
     }
 
     /** A coloured block and its shapes as {@code <Colour> <name>} and {@code <Colour> <name> Stairs}. */

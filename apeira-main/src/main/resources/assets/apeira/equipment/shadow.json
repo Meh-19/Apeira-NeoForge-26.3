@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "apeira:shadow"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "apeira:shadow"
+      }
+    ]
+  }
+}
