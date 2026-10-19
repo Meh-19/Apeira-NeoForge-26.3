@@ -8,7 +8,11 @@ import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Tints a placed paintable block's {@code tintindex} 0 faces with the paint in its {@link PaintBlockEntity}. */
+/**
+ * Tints a placed paintable block's {@code tintindex} 0 faces with the paint in its {@link PaintBlockEntity}. A block
+ * painted with a finish is drawn by {@link PaintFinishRenderer} instead, so this only gives finishes their
+ * representative colour.
+ */
 public final class PaintBlockTint implements BlockTintSource {
     public static final PaintBlockTint INSTANCE = new PaintBlockTint();
 

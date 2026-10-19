@@ -11,8 +11,9 @@ description='''
 ${mod_description}
 '''
 
-#[[mixins]]
-#config="${mod_id}.mixins.json"
+# Client mixins that draw paint finishes on items (com.apeira.decor.mixin).
+[[mixins]]
+config="${mod_id}.mixins.json"
 
 [[dependencies.${mod_id}]]
     modId="neoforge"

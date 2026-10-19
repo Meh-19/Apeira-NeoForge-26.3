@@ -76,7 +76,7 @@ Phase 2: Core Content → Blocks, items, foods (food data components), shaped/sh
 
 Phase 3: Furniture & Seating → Directional VoxelShapes, Mount Entities, network payloads. (In progress: 198 legacy furniture pieces ported, 15 of them seats, see section 8)
 
-Phase 4: Painting System → Canvas block entity, color palettes, custom dynamic textures. (In progress: painting table, paintbrush and paintable furniture ported from CosmoLib, see section 9)
+Phase 4: Painting System → Canvas block entity, color palettes, custom dynamic textures. (In progress: painting table, paintbrush, paintable furniture and finish shaders ported from CosmoLib, see section 9)
 
 Phase 5: Cosmetics & Crates → Player model layers, Crate block entity, client-side roll animations. (In progress: CosmoLib's cosmetics, wardrobe and crates and the Crates mod's cosmetics, furniture and 15 crates ported, see sections 8, 10 and 11)
 
@@ -196,7 +196,7 @@ Paintable blocks: implement `PaintableBlock` (an `EntityBlock` whose block entit
 `paintbrush` (`PaintbrushItem`, 300 durability; recipe: feather, copper ingot, stick, stacked): gets its paint in the painting table. Right-clicking a paintable block paints it and costs one durability; sneak-right-clicking a painted block copies its paint onto the brush. It acts in `onItemUseFirst`, before the block's own right-click, so painting a chair does not sit on it. Model and textures are CosmoLib's Blockbench brush (`models/item/paintbrush.json`, `textures/item/paintbrush.png` and the animated `paintbrush_paint.png`, whose drip is `tintindex` 0).
 
 Not ported, or changed:
-- Finish effects: CosmoLib drew finishes with replacement core shaders (`assets/minecraft/shaders/core/rendertype_entity_*`, `rendertype_gui`, a finish atlas bound to `Sampler3`). 26.x renders through `RenderPipeline`s and has no `RenderSystem.setShaderTexture`, so finishes are drawn in their representative colour for now, and the screen names each finish on hover. The GUI-only `finish_preview` item is gone with them.
+- Finish effects are CosmoLib's shaders ported to render pipelines (`client/FinishRenderTypes`): `Paint#itemTint` gives an item a finish's paint value with alpha 254, and `mixin/ItemFeatureRendererMixin` (apeira-decor's `apeira_decor.mixins.json`) draws quads with that tint with the `apeira:pipeline/finish_item_cutout` or `_translucent` pipeline (with an OIT set). They use `shaders/core/finish_item.{vsh,fsh}` (vanilla's item shaders plus CosmoLib's finish code in `shaders/include/finish/`), which read the finish id from the vertex colour and sample `textures/misc/finish_atlas.png` as `FinishSampler`. Finishes show on every item path (GUI, hands, the ground, worn cosmetics, large furniture); `mixin/ItemModelResolverMixin` marks finished items as animated so the GUI redraws them. A placed small furniture piece with a finish leaves the chunk mesh (`client/FinishBlockModel`, `ModelEvent.ModifyBakingResult`) and is drawn by `client/PaintFinishRenderer` with item lighting, without smooth lighting. Enchanted (glint) items show the finish's representative colour (`Paint#tint`), and the GUI-only `finish_preview` item is gone.
 - The `cosmolib:paintable` block tag (empty in CosmoLib, and a block without a `PaintBlockEntity` has nowhere to keep paint). Paintable cosmetics are ported (section 10).
 - Fixed from CosmoLib: the menu lost its input item when closed, shift-clicking the output gave a painted copy without using up the input, and `stillValid` was always true.
 
@@ -216,7 +216,7 @@ Content: 177 cosmetics in `MainCosmetics`, with the Crates mod's slots, rarities
 Not ported, or changed:
 - No Curios: CosmoLib kept its own wardrobe, and so does Apeira, as an attachment.
 - Tool skins are not ported yet. The Crates mod's furniture is in apeira-decor (section 8).
-- Finish effects are not drawn on cosmetics either (section 9); finishes show their representative colour.
+- Finish effects are drawn on worn and held cosmetics as on other items (section 9).
 - CosmoLib's per-cosmetic back offset config is dropped; back cosmetics use one fixed offset.
 
 11. Crates (`apeira-decor` framework, `apeira-main` content)

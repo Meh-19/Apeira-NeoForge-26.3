@@ -13,8 +13,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * The {@code apeira:paint} item tint source: tints an item model's {@code tintindex} faces with the item's paint, or
- * with {@code default} (white, which leaves the texture as it is) when it is unpainted. Item definitions use it as
+ * The {@code apeira:paint} item tint source: tints an item model's {@code tintindex} faces with the item's paint
+ * ({@link Paint#itemTint}, which draws a finish as its effect), or with {@code default} (white, which leaves the
+ * texture as it is) when it is unpainted. Item definitions use it as
  * {@code {"type": "apeira:paint"}}.
  */
 public record PaintTintSource(int defaultColor) implements ItemTintSource {
@@ -30,7 +31,7 @@ public record PaintTintSource(int defaultColor) implements ItemTintSource {
     @Override
     public int calculate(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity owner) {
         Integer paint = Paint.get(stack);
-        return paint != null ? Paint.tint(paint) : defaultColor;
+        return paint != null ? Paint.itemTint(paint) : defaultColor;
     }
 
     @Override
