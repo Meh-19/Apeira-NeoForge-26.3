@@ -5,6 +5,7 @@
     64
   ],
   "textures": {
+    "particle": "apeira:block/archaeology/dolomite_pillar",
     "1": "apeira:block/archaeology/dolomite_pillar"
   },
   "elements": [

@@ -6,6 +6,7 @@
     128
   ],
   "textures": {
+    "particle": "apeira:block/archaeology/gray_ancestor_statue",
     "0": "apeira:block/archaeology/gray_ancestor_statue"
   },
   "elements": [

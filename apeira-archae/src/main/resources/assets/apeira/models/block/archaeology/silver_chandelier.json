@@ -6,6 +6,7 @@
     64
   ],
   "textures": {
+    "particle": "apeira:block/archaeology/silver_chandelier",
     "0": "apeira:block/archaeology/silver_chandelier",
     "1": "apeira:block/archaeology/candle_flame"
   },

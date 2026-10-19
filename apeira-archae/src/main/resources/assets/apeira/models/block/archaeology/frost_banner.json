@@ -5,6 +5,7 @@
     128
   ],
   "textures": {
+    "particle": "apeira:block/archaeology/frost_banners",
     "1": "apeira:block/archaeology/frost_banners"
   },
   "elements": [

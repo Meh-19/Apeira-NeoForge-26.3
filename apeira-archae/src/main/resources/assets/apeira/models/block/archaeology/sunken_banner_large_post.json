@@ -6,6 +6,7 @@
     128
   ],
   "textures": {
+    "particle": "apeira:block/archaeology/sunken_banner",
     "0": "apeira:block/archaeology/sunken_banner"
   },
   "elements": [

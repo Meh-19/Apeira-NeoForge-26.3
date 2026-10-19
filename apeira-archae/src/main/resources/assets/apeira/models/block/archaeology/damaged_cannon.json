@@ -55,7 +55,7 @@
             3.25,
             3.25
           ],
-          "texture": "#missing"
+          "texture": "#0"
         },
         "west": {
           "uv": [
@@ -432,7 +432,7 @@
             2.75,
             2.75
           ],
-          "texture": "#missing"
+          "texture": "#0"
         },
         "east": {
           "uv": [
@@ -450,7 +450,7 @@
             2.75,
             2.75
           ],
-          "texture": "#missing"
+          "texture": "#0"
         },
         "west": {
           "uv": [
@@ -511,7 +511,7 @@
             2.75,
             2.75
           ],
-          "texture": "#missing"
+          "texture": "#0"
         },
         "east": {
           "uv": [
