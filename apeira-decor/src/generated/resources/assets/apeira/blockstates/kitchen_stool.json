@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/kitchen_stool",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/kitchen_stool"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/kitchen_stool",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/kitchen_stool",
-      "y": 270
     }
   }
 }

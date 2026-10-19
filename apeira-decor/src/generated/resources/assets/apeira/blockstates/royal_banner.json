@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/royal_banner",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/royal_banner"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/royal_banner",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/royal_banner",
-      "y": 270
     }
   }
 }

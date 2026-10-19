@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/reindeer_rocker",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/reindeer_rocker"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/reindeer_rocker",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/reindeer_rocker",
-      "y": 270
     }
   }
 }

@@ -13,7 +13,8 @@ import com.apeira.core.registry.ApeiraIds;
  *
  * <p>Each finish is an animated effect, CosmoLib's finish shaders, drawn on painted items by
  * {@link com.apeira.decor.client.FinishRenderTypes}; the shaders tell finishes apart by their {@link #id() id}. Placed
- * blocks show a finish in its {@link #color() representative colour}.
+ * furniture and artifacts are drawn as items, so they show the effect too; enchanted items and particles show a
+ * finish in its {@link #color() representative colour}.
  */
 public enum FinishType {
     RAINBOW(1, 0xFF4444),

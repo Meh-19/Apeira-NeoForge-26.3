@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/yard_gnome",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/yard_gnome"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/yard_gnome",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/yard_gnome",
-      "y": 270
     }
   }
 }

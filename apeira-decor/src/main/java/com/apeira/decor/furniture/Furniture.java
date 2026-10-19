@@ -13,9 +13,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * {@link com.apeira.decor.registry.DecorFurniture} registers a {@link FurnitureBlock} for each.
  *
  * <p>Its block model is {@code models/block/furniture/<name>.json} and its item model
- * {@code models/item/furniture/<name>.json}, both converted from the legacy model and facing north. A {@linkplain #large()
- * large} piece reaches further than a block model may (-16 to 32 pixels), so its block model only gives the breaking
- * particles and {@code FurnitureRenderer} draws its {@code models/item/furniture/<name>_placed.json} at full size.
+ * {@code models/item/furniture/<name>.json}, both converted from the legacy model and facing north. Placed pieces are
+ * drawn by {@code FurnitureRenderer}, as CosmoLib drew its furniture: its item definition shows the block model in the
+ * {@code none} display context, or for a {@linkplain #large() large} piece, which reaches further than a block model
+ * may (-16 to 32 pixels), {@code models/item/furniture/<name>_placed.json} at full size.
  *
  * @param name         the block's id path
  * @param crate        the crate it is exclusive to ({@code tooltip.apeira.exclusive.<crate>}), or {@code null}
@@ -24,7 +25,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * @param defaultPaint the paint a new item has, or {@code null}
  * @param collision    whether it has a collision shape (a rug has none)
  * @param seatHeight   the top of its seat in pixels, or a negative number if it has no seat
- * @param large        how {@code FurnitureRenderer} draws it, or {@code null} for a baked block model
+ * @param large        how {@code FurnitureRenderer} draws its {@code _placed} model, or {@code null} to draw its block model
  * @param shape        its shape facing north
  */
 public record Furniture(String name, @Nullable String crate, boolean paintable, @Nullable Integer defaultPaint, boolean collision,
@@ -39,7 +40,10 @@ public record Furniture(String name, @Nullable String crate, boolean paintable, 
      * How a large piece is drawn: its {@code _placed} model, in the legacy model's units, scaled by {@code scale} about
      * the centre of the block, with its bottom ({@code modelBottom}, in pixels) moved to {@code bottom} pixels up.
      */
-    public record Large(float scale, float modelBottom, float bottom) {}
+    public record Large(float scale, float modelBottom, float bottom) {
+        /** A piece drawn with its block model, which is already at its size and stands on the floor. */
+        public static final Large BLOCK_MODEL = new Large(1.0F, 0.0F, 0.0F);
+    }
 
     /** Starts a piece with a full-block shape, unpaintable, solid and without a seat. */
     static Builder piece(String name, @Nullable String crate) {

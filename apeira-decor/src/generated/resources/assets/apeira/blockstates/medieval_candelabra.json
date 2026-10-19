@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/medieval_candelabra",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/medieval_candelabra"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/medieval_candelabra",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/medieval_candelabra",
-      "y": 270
     }
   }
 }

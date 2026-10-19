@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/push_mower",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/push_mower"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/push_mower",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/push_mower",
-      "y": 270
     }
   }
 }

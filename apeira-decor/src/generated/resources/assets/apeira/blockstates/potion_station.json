@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/potion_station",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/potion_station"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/potion_station",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/potion_station",
-      "y": 270
     }
   }
 }

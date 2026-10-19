@@ -30,19 +30,19 @@ public final class DecorBlockStateProvider extends ApeiraBlockStateProvider {
     }
 
     /**
-     * A furniture piece's block state, turning {@code block/furniture/<name>}, and its item definition:
-     * {@code item/furniture/<name>}, or for a large piece {@code item/furniture/<name>_placed} in the {@code none} display
-     * context, which {@code FurnitureRenderer} draws. Paintable pieces show their paint on tint index 0.
+     * A furniture piece's block state, one for every rotation, since its block model only gives the breaking particles,
+     * and its item definition: {@code item/furniture/<name>}, and in the {@code none} display context, which
+     * {@code FurnitureRenderer} draws, {@code block/furniture/<name>}, or for a large piece
+     * {@code item/furniture/<name>_placed}. Paintable pieces show their paint on tint index 0.
      */
     private void furniture(FurnitureBlock block) {
         Furniture furniture = block.furniture();
         Identifier id = modelOf(block);
-        furniture(block, id.withPath(path -> "block/furniture/" + furniture.name()));
-        ItemModel.Unbaked item = model(id.withPath(path -> "item/furniture/" + furniture.name()), furniture);
-        if (furniture.large() != null) {
-            item = ItemModelUtils.select(new DisplayContext(), item, ItemModelUtils.when(ItemDisplayContext.NONE,
-                    model(id.withPath(path -> "item/furniture/" + furniture.name() + "_placed"), furniture)));
-        }
+        Identifier blockModel = id.withPath(path -> "block/furniture/" + furniture.name());
+        simpleBlock(block, blockModel);
+        Identifier placed = furniture.large() != null ? id.withPath(path -> "item/furniture/" + furniture.name() + "_placed") : blockModel;
+        ItemModel.Unbaked item = ItemModelUtils.select(new DisplayContext(), model(id.withPath(path -> "item/furniture/" + furniture.name()),
+                furniture), ItemModelUtils.when(ItemDisplayContext.NONE, model(placed, furniture)));
         generators().itemModelOutput.accept(block.asItem(), item);
     }
 

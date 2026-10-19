@@ -23,17 +23,16 @@ public final class DecorBlockEntities {
     private static final ApeiraRegistrar R = ApeiraDecor.REGISTRAR;
 
     /**
-     * {@code apeira:paint}: the paint of a paintable block. Add every new {@code PaintableBlock} here; for now they are
-     * the paintable furniture with a baked block model.
+     * {@code apeira:paint}: the paint of a paintable block that has no block entity of its own. Add every such
+     * {@code PaintableBlock} here; there are none yet, since furniture and artifacts keep their paint in their own
+     * block entities.
      */
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PaintBlockEntity>> PAINT = R.blockEntityTypes().register(
-            "paint", () -> new BlockEntityType<>(PaintBlockEntity::new,
-                    blocks(DecorFurniture.matching(furniture -> furniture.paintable() && furniture.large() == null))));
+            "paint", () -> new BlockEntityType<>(PaintBlockEntity::new, Set.of()));
 
-    /** {@code apeira:furniture}: large furniture, drawn by {@code FurnitureRenderer}, and its paint. */
+    /** {@code apeira:furniture}: every furniture piece, drawn by {@code FurnitureRenderer}, and its paint. */
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FurnitureBlockEntity>> FURNITURE = R.blockEntityTypes().register(
-            "furniture", () -> new BlockEntityType<>(FurnitureBlockEntity::new,
-                    blocks(DecorFurniture.matching(furniture -> furniture.large() != null))));
+            "furniture", () -> new BlockEntityType<>(FurnitureBlockEntity::new, blocks(DecorFurniture.all())));
 
     /**
      * {@code apeira:crate}: a crate's opening. Valid for every {@link CrateBlock}, of any module: the blocks are

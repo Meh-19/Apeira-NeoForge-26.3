@@ -1,11 +1,29 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "apeira:item/furniture/summoning_circle",
-    "tints": [
+    "type": "minecraft:select",
+    "cases": [
       {
-        "type": "apeira:paint"
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:block/furniture/summoning_circle",
+          "tints": [
+            {
+              "type": "apeira:paint"
+            }
+          ]
+        },
+        "when": "none"
       }
-    ]
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/furniture/summoning_circle",
+      "tints": [
+        {
+          "type": "apeira:paint"
+        }
+      ]
+    },
+    "property": "minecraft:display_context"
   }
 }

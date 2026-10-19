@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/bonfire",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/bonfire"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/bonfire",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/bonfire",
-      "y": 270
     }
   }
 }

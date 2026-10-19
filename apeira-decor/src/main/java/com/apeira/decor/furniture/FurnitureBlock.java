@@ -4,8 +4,6 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.decor.block.ApeiraFurnitureBlock;
 import com.apeira.decor.block.SeatBlock;
-import com.apeira.decor.paint.PaintBlockEntity;
-import com.apeira.decor.paint.PaintableBlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -17,11 +15,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * A furniture piece of {@link FurnitureCatalogue}: faces the player who placed it, with its catalogue shape turned to
- * match. Paintable pieces keep their paint in a {@link PaintBlockEntity}; large pieces in a
- * {@link FurnitureBlockEntity}, which {@code FurnitureRenderer} draws. Seats are {@link Seat}s.
+ * A furniture piece of {@link FurnitureCatalogue}, on CosmoLib's furniture system ({@link ApeiraFurnitureBlock}): turned
+ * in 45 degree steps to face the player who placed it, with its catalogue shape turned to match. Every piece has a
+ * {@link FurnitureBlockEntity}, which keeps its paint and which {@code FurnitureRenderer} draws. Seats are
+ * {@link Seat}s.
  */
-public class FurnitureBlock extends ApeiraFurnitureBlock implements PaintableBlock {
+public class FurnitureBlock extends ApeiraFurnitureBlock {
     private final Furniture furniture;
 
     public FurnitureBlock(BlockBehaviour.Properties properties, Furniture furniture) {
@@ -45,10 +44,7 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements PaintableBlo
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        if (furniture.large() != null) {
-            return new FurnitureBlockEntity(pos, state);
-        }
-        return furniture.paintable() ? new PaintBlockEntity(pos, state) : null;
+        return new FurnitureBlockEntity(pos, state);
     }
 
     /** Furniture with a seat: right-clicking it sits the player down. */

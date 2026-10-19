@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/balloon_bundle",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/balloon_bundle"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/balloon_bundle",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/balloon_bundle",
-      "y": 270
     }
   }
 }

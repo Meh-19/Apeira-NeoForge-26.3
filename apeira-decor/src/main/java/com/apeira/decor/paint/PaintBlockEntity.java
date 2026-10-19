@@ -24,7 +24,7 @@ import net.minecraft.world.level.storage.ValueOutput;
  * Holds the paint of a {@link PaintableBlock}. The paint is the block entity's {@code apeira:paint} component, so
  * placing a painted item paints the block, and the block's loot table and pick-block copy it back to the item.
  *
- * <p>Clients receive the paint with the chunk and with each change, and redraw the block when it changes.
+ * <p>Clients receive the paint with the chunk and with each change; the block's renderer draws it from there.
  */
 public class PaintBlockEntity extends BlockEntity {
     private static final String PAINT_TAG = "paint";
@@ -58,10 +58,6 @@ public class PaintBlockEntity extends BlockEntity {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         paint = input.getInt(PAINT_TAG).orElse(null);
-        if (level != null && level.isClientSide()) {
-            // The tint is baked into the chunk mesh, so the block's section must be rebuilt to show new paint.
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
     }
 
     @Override

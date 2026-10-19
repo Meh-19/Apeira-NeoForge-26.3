@@ -12,15 +12,22 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * The painting table's screen: a 3x3 grid of colours with a row of shades below, or, after clicking the paint icon,
  * the same row filled with finishes over two pages. Layout and textures are CosmoLib's.
+ *
+ * <p>Finish buttons are drawn as CosmoLib drew them: as an item painted with the finish, through the item pipeline,
+ * so each shows its finish's animated effect. The item is any stack whose {@code minecraft:item_model} is
+ * {@code apeira:finish_preview} (a flat paint button tinted by {@code apeira:paint}), so no item needs registering.
  */
 public class PaintingTableScreen extends AbstractContainerScreen<PaintingTableMenu> {
     private static final Identifier BACKGROUND = texture("painting_table");
@@ -55,6 +62,8 @@ public class PaintingTableScreen extends AbstractContainerScreen<PaintingTableMe
     private static final int ARROW_WIDTH = 10;
     private static final int ARROW_HEIGHT = 16;
     private static final int BUTTON_SIZE = 16;
+    /** The item definition of a finish button, {@code assets/apeira/items/finish_preview.json}. */
+    private static final Identifier FINISH_PREVIEW = ApeiraIds.id("finish_preview");
 
     public PaintingTableScreen(PaintingTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, WIDTH, HEIGHT);
@@ -114,17 +123,31 @@ public class PaintingTableScreen extends AbstractContainerScreen<PaintingTableMe
             }
             int x = leftPos + ROW_X[i];
             int y = topPos + ROW_Y;
-            // Finish effects are not drawn on 26.x yet, so each finish shows its representative colour and its name.
-            button(graphics, x, y, finish.color(), i == menu.selectedFinishSlot());
+            if (i == menu.selectedFinishSlot()) {
+                selection(graphics, x, y);
+            }
+            graphics.item(finishPreview(finish), x, y);
             if (isOver(mouseX, mouseY, x, y, BUTTON_SIZE, BUTTON_SIZE)) {
                 graphics.setTooltipForNextFrame(font, Paint.describe(finish.paintValue()), mouseX, mouseY);
             }
         }
     }
 
+    /** A paint button painted with {@code finish}, which the item renderer draws with the finish's effect. */
+    private static ItemStack finishPreview(FinishType finish) {
+        ItemStack stack = new ItemStack(Items.PAPER);
+        stack.set(DataComponents.ITEM_MODEL, FINISH_PREVIEW);
+        Paint.set(stack, finish.paintValue());
+        return stack;
+    }
+
+    private static void selection(GuiGraphicsExtractor graphics, int x, int y) {
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SELECTED, x - 2, y - 2, 0.0F, 0.0F, 20, 20, 20, 20);
+    }
+
     private void button(GuiGraphicsExtractor graphics, int x, int y, int rgb, boolean selected) {
         if (selected) {
-            graphics.blit(RenderPipelines.GUI_TEXTURED, SELECTED, x - 2, y - 2, 0.0F, 0.0F, 20, 20, 20, 20);
+            selection(graphics, x, y);
         }
         graphics.blit(RenderPipelines.GUI_TEXTURED, PAINT, x, y, 0.0F, 0.0F, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE,
                 ARGB.opaque(rgb));

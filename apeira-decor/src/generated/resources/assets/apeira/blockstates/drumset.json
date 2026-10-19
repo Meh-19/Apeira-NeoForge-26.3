@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/drumset",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/drumset"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/drumset",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/drumset",
-      "y": 270
     }
   }
 }
