@@ -1,5 +1,7 @@
 package com.apeira.main.block;
 
+import com.apeira.main.registry.MainTags;
+
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -37,12 +39,24 @@ public class XenonPlantBlock extends VegetationBlock implements BonemealableBloc
     private final VoxelShape shape;
     private final @Nullable Supplier<? extends Block> grownInto;
     private final boolean thorny;
+    private boolean netherSoil;
 
     public XenonPlantBlock(Properties properties, VoxelShape shape, @Nullable Supplier<? extends Block> grownInto, boolean thorny) {
         super(properties);
         this.shape = shape;
         this.grownInto = grownInto;
         this.thorny = thorny;
+    }
+
+    /** Lets the plant grow on {@code #apeira:nether_plant_soil} as well as dirt; call it when constructing. */
+    public XenonPlantBlock onNetherSoil() {
+        netherSoil = true;
+        return this;
+    }
+
+    @Override
+    protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
+        return super.mayPlaceOn(state, level, pos) || netherSoil && state.is(MainTags.NETHER_PLANT_SOIL);
     }
 
     /** A short plant that bone meal turns into {@code tall}. */

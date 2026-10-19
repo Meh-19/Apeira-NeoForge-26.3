@@ -21,6 +21,8 @@ public final class MainTags {
      * soul sand and soul soil.
      */
     public static final TagKey<Block> WETLAND_PLANT_SOIL = block("wetland_plant_soil");
+    /** Nether floors that hogweed, soul stalks and the oculus orchid grow on too: netherrack, soul sand and soil, nylium. */
+    public static final TagKey<Block> NETHER_PLANT_SOIL = block("nether_plant_soil");
 
     /** What keeps a coral next to it alive out of water, as Xenon's dolomite did: dolomite and its shapes. */
     public static final TagKey<Block> KEEPS_CORAL_ALIVE = block("keeps_coral_alive");

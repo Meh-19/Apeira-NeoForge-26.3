@@ -16,9 +16,11 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * Xenon's damp moss and grimoss: a one-pixel cover on a full face. Placed under a ceiling or a hanging vine of the
- * same moss, it becomes that vine's tip instead, so the item places both.
+ * Xenon's damp moss and grimoss: a one-pixel cover on a full face, and the one item of its moss. Placed against the
+ * underside of a block or of a hanging vine of the same moss, it becomes that vine's tip; placed on a top face, the
+ * cover. Clicking another face places whichever of the two can stay there, the cover first.
  */
+@SuppressWarnings("null")
 public class MossCoverBlock extends Block {
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 1, 16);
     private final Supplier<? extends Block> hanging;
@@ -34,10 +36,14 @@ public class MossCoverBlock extends Block {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState hangingState = hanging.get().defaultBlockState();
-        if (hangingState.canSurvive(context.getLevel(), context.getClickedPos())) {
+        boolean hangs = hangingState.canSurvive(context.getLevel(), context.getClickedPos());
+        if (context.getClickedFace() == Direction.DOWN && hangs) {
             return hangingState;
         }
-        return defaultBlockState();
+        if (defaultBlockState().canSurvive(context.getLevel(), context.getClickedPos())) {
+            return defaultBlockState();
+        }
+        return hangs ? hangingState : null;
     }
 
     @Override

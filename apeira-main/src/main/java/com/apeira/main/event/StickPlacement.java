@@ -15,7 +15,7 @@ import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 
 /**
  * Xenon's stick placement: right-clicking a block with a vanilla stick, when the block itself does nothing with it,
- * lays the stick down as a {@code apeira:stick} block where a block would be placed.
+ * lays the stick down as an {@code apeira:twig} block where a block would be placed.
  */
 public final class StickPlacement {
     private StickPlacement() {}
@@ -28,7 +28,7 @@ public final class StickPlacement {
         BlockPlaceContext context = new BlockPlaceContext(event.getUseOnContext());
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        BlockState state = MainPlants.STICK.get().getStateForPlacement(context);
+        BlockState state = MainPlants.TWIG.get().getStateForPlacement(context);
         if (!context.canPlace() || state == null || !state.canSurvive(level, pos)) {
             return;
         }

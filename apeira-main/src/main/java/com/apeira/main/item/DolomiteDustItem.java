@@ -1,6 +1,5 @@
 package com.apeira.main.item;
 
-import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.world.CoralStabilization;
 
 import net.minecraft.core.BlockPos;
@@ -14,8 +13,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 
 /**
- * Xenon's dolomite dust, used like honeycomb: on echo glass it makes aquarium glass, and on a living coral it keeps
- * that coral alive out of water ({@link CoralStabilization}). Each use costs one dust.
+ * Xenon's dolomite dust, used like honeycomb: on a living coral it keeps that coral alive out of water ({@link CoralStabilization}). Each use costs one dust.
  */
 public class DolomiteDustItem extends Item {
     public DolomiteDustItem(Properties properties) {
@@ -28,9 +26,7 @@ public class DolomiteDustItem extends Item {
             return InteractionResult.SUCCESS;
         }
         BlockPos pos = context.getClickedPos();
-        if (level.getBlockState(pos).is(MainSpecialBlocks.ECHO_GLASS.get())) {
-            level.setBlock(pos, MainSpecialBlocks.AQUARIUM_GLASS.get().defaultBlockState(), Block.UPDATE_ALL);
-        } else if (CoralStabilization.isLivingCoral(level.getBlockState(pos))) {
+        if (CoralStabilization.isLivingCoral(level.getBlockState(pos))) {
             CoralStabilization stabilization = CoralStabilization.get(level);
             if (stabilization.isStabilized(pos)) {
                 return InteractionResult.PASS;
