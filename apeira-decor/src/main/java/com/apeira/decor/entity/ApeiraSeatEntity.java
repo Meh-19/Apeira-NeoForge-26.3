@@ -15,7 +15,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.ValueInput;
@@ -58,7 +57,7 @@ public class ApeiraSeatEntity extends Entity {
         }
         if (seat == null) {
             seat = new ApeiraSeatEntity(DecorEntities.SEAT.get(), level);
-            float yaw = state.getValue(HorizontalDirectionalBlock.FACING).toYRot();
+            float yaw = chair.seatYaw(state, player);
             seat.snapTo(pos.getX() + 0.5, pos.getY() + chair.seatHeight(), pos.getZ() + 0.5, yaw, 0.0F);
             level.addFreshEntity(seat);
         }

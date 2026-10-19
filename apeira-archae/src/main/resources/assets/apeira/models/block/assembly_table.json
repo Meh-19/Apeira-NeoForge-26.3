@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "bottom": "apeira:block/archaeology/assembly_table_bottom",
+    "front": "apeira:block/archaeology/assembly_table_front",
+    "side": "apeira:block/archaeology/assembly_table_side",
+    "top": "apeira:block/archaeology/assembly_table_top"
+  }
+}

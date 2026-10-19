@@ -4,18 +4,28 @@ import com.apeira.decor.entity.ApeiraSeatEntity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * A block a player can sit on through {@link com.apeira.decor.entity.ApeiraSeatEntity}: furniture facing one of the
- * four horizontal directions ({@link net.minecraft.world.level.block.HorizontalDirectionalBlock#FACING}), with a seat
- * at its centre. The sitter looks out of its front.
+ * four horizontal directions ({@link HorizontalDirectionalBlock#FACING}), with a seat at its centre. The sitter looks
+ * out of its front, unless the block gives another {@link #seatYaw}.
  */
 public interface SeatBlock {
     /** The height of the top of the seat above the bottom of the block, in blocks. */
     double seatHeight();
+
+    /**
+     * The way the sitter faces, in degrees: out of the front of a block with a horizontal {@code FACING}. Blocks that
+     * turn some other way, such as Argon's eight-way artifacts, answer here.
+     */
+    default float seatYaw(BlockState state, Entity sitter) {
+        return state.getValue(HorizontalDirectionalBlock.FACING).toYRot();
+    }
 
     /**
      * Right-clicking a seat sits the player down. Sneaking players and players already riding don't sit, so they can

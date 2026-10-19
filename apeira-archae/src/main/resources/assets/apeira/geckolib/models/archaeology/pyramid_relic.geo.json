@@ -1,0 +1,194 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.pyramid_relic",
+				"texture_width": 256,
+				"texture_height": 256,
+				"visible_bounds_width": 9,
+				"visible_bounds_height": 8.5,
+				"visible_bounds_offset": [0, 3.75, 0]
+			},
+			"bones": [
+				{
+					"name": "obelisk",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{
+							"origin": [-24, 42, -24],
+							"size": [48, 6, 48],
+							"uv": {
+								"north": {"uv": [176, 48], "uv_size": [48, 6]},
+								"east": {"uv": [176, 48], "uv_size": [48, 6]},
+								"south": {"uv": [176, 48], "uv_size": [48, 6]},
+								"west": {"uv": [176, 48], "uv_size": [48, 6]},
+								"up": {"uv": [224, 48], "uv_size": [-48, -48]},
+								"down": {"uv": [256, 128], "uv_size": [-48, -48]}
+							}
+						},
+						{
+							"origin": [-4, 12, -4],
+							"size": [8, 6, 8],
+							"uv": {
+								"north": {"uv": [176, 78], "uv_size": [8, 6]},
+								"east": {"uv": [176, 78], "uv_size": [8, 6]},
+								"south": {"uv": [176, 78], "uv_size": [8, 6]},
+								"west": {"uv": [176, 78], "uv_size": [8, 6]},
+								"down": {"uv": [236, 108], "uv_size": [-8, -8]}
+							}
+						},
+						{
+							"origin": [-8, 18, -8],
+							"size": [16, 6, 16],
+							"uv": {
+								"north": {"uv": [176, 72], "uv_size": [16, 6]},
+								"east": {"uv": [176, 72], "uv_size": [16, 6]},
+								"south": {"uv": [176, 72], "uv_size": [16, 6]},
+								"west": {"uv": [176, 72], "uv_size": [16, 6]},
+								"down": {"uv": [240, 112], "uv_size": [-16, -16]}
+							}
+						},
+						{
+							"origin": [-12, 24, -12],
+							"size": [24, 6, 24],
+							"uv": {
+								"north": {"uv": [176, 66], "uv_size": [24, 6]},
+								"east": {"uv": [176, 66], "uv_size": [24, 6]},
+								"south": {"uv": [176, 66], "uv_size": [24, 6]},
+								"west": {"uv": [176, 66], "uv_size": [24, 6]},
+								"down": {"uv": [244, 116], "uv_size": [-24, -24]}
+							}
+						},
+						{
+							"origin": [-16, 30, -16],
+							"size": [32, 6, 32],
+							"uv": {
+								"north": {"uv": [176, 60], "uv_size": [32, 6]},
+								"east": {"uv": [176, 60], "uv_size": [32, 6]},
+								"south": {"uv": [176, 60], "uv_size": [32, 6]},
+								"west": {"uv": [176, 60], "uv_size": [32, 6]},
+								"down": {"uv": [248, 120], "uv_size": [-32, -32]}
+							}
+						},
+						{
+							"origin": [-20, 36, -20],
+							"size": [40, 6, 40],
+							"uv": {
+								"north": {"uv": [176, 54], "uv_size": [40, 6]},
+								"east": {"uv": [176, 54], "uv_size": [40, 6]},
+								"south": {"uv": [176, 54], "uv_size": [40, 6]},
+								"west": {"uv": [176, 54], "uv_size": [40, 6]},
+								"down": {"uv": [252, 124], "uv_size": [-40, -40]}
+							}
+						}
+					]
+				},
+				{
+					"name": "base",
+					"pivot": [0, -0.5, 0],
+					"cubes": [
+						{
+							"origin": [-24, 0, -24],
+							"size": [48, 10, 48],
+							"uv": {
+								"north": {"uv": [0, 48], "uv_size": [48, 10]},
+								"east": {"uv": [0, 48], "uv_size": [48, 10]},
+								"south": {"uv": [0, 48], "uv_size": [48, 10]},
+								"west": {"uv": [0, 48], "uv_size": [48, 10]},
+								"up": {"uv": [48, 48], "uv_size": [-48, -48]},
+								"down": {"uv": [48, 106], "uv_size": [-48, -48]}
+							}
+						}
+					]
+				},
+				{
+					"name": "obelisk_tintable",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{
+							"origin": [-3.99, 12.01, -3.99],
+							"size": [7.98, 5.98, 7.98],
+							"uv": {
+								"north": {"uv": [0, 206], "uv_size": [8, 6]},
+								"east": {"uv": [0, 206], "uv_size": [8, 6]},
+								"south": {"uv": [0, 206], "uv_size": [8, 6]},
+								"west": {"uv": [0, 206], "uv_size": [8, 6]},
+								"down": {"uv": [76, 156], "uv_size": [-8, -8]}
+							}
+						},
+						{
+							"origin": [-7.99, 18.01, -7.99],
+							"size": [15.98, 5.98, 15.98],
+							"uv": {
+								"north": {"uv": [0, 200], "uv_size": [16, 6]},
+								"east": {"uv": [0, 200], "uv_size": [16, 6]},
+								"south": {"uv": [0, 200], "uv_size": [16, 6]},
+								"west": {"uv": [0, 200], "uv_size": [16, 6]},
+								"down": {"uv": [80, 160], "uv_size": [-16, -16]}
+							}
+						},
+						{
+							"origin": [-11.99, 24.01, -11.99],
+							"size": [23.98, 5.98, 23.98],
+							"uv": {
+								"north": {"uv": [0, 194], "uv_size": [24, 6]},
+								"east": {"uv": [0, 194], "uv_size": [24, 6]},
+								"south": {"uv": [0, 194], "uv_size": [24, 6]},
+								"west": {"uv": [0, 194], "uv_size": [24, 6]},
+								"down": {"uv": [84, 164], "uv_size": [-24, -24]}
+							}
+						},
+						{
+							"origin": [-15.99, 30.01, -15.99],
+							"size": [31.98, 5.98, 31.98],
+							"uv": {
+								"north": {"uv": [0, 188], "uv_size": [32, 6]},
+								"east": {"uv": [0, 188], "uv_size": [32, 6]},
+								"south": {"uv": [0, 188], "uv_size": [32, 6]},
+								"west": {"uv": [0, 188], "uv_size": [32, 6]},
+								"down": {"uv": [88, 168], "uv_size": [-32, -32]}
+							}
+						},
+						{
+							"origin": [-19.99, 36.01, -19.99],
+							"size": [39.98, 5.98, 39.98],
+							"uv": {
+								"north": {"uv": [0, 182], "uv_size": [40, 6]},
+								"east": {"uv": [0, 182], "uv_size": [40, 6]},
+								"south": {"uv": [0, 182], "uv_size": [40, 6]},
+								"west": {"uv": [0, 182], "uv_size": [40, 6]},
+								"down": {"uv": [92, 172], "uv_size": [-40, -40]}
+							}
+						},
+						{
+							"origin": [-23.99, 42.01, -23.99],
+							"size": [47.98, 5.98, 47.98],
+							"uv": {
+								"north": {"uv": [0, 176], "uv_size": [48, 6]},
+								"east": {"uv": [0, 176], "uv_size": [48, 6]},
+								"south": {"uv": [0, 176], "uv_size": [48, 6]},
+								"west": {"uv": [0, 176], "uv_size": [48, 6]},
+								"up": {"uv": [48, 176], "uv_size": [-48, -48]},
+								"down": {"uv": [96, 176], "uv_size": [-48, -48]}
+							}
+						}
+					]
+				},
+				{
+					"name": "base_tintable",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{
+							"origin": [-9, 10, -9],
+							"size": [18, 0, 18],
+							"uv": {
+								"up": {"uv": [66, 18], "uv_size": [-18, -18]}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

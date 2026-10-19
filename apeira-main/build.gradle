@@ -1,19 +1,23 @@
 // Content module. Shared configuration comes from the root build.gradle.
 
 def libraryModules = [':apeira-core', ':apeira-decor', ':apeira-story']
+// Content modules this module does not compile against, only loads in its runs.
+def contentModules = [':apeira-archae']
 
 dependencies {
     libraryModules.each { implementation project(it) }
+    contentModules.each { localRuntime project(it) }
 }
 
 // Every Apeira mod id, used to bind sources to mods and to enable their gametests.
-def allMods = [(mod_id): project] + libraryModules.collectEntries { path ->
+def allMods = [(mod_id): project] + (libraryModules + contentModules).collectEntries { path ->
     def p = project(path)
     [(p.property('mod_id')): p]
 }
 
-// apeira-decor generates its resources from this module's decorData run.
+// apeira-decor and apeira-archae generate their resources from this module's decorData and archaeData runs.
 def decorProject = project(':apeira-decor')
+def archaeProject = project(':apeira-archae')
 
 neoForge {
     // GeckoLib's interface injections, so the entity renderers compile (see apeira-decor).
@@ -21,7 +25,7 @@ neoForge {
         from decorProject.file('geckolib_interface_injections.json')
     }
 
-    // Tell NeoForge which source sets belong to which mod so all four load as separate mods in dev runs.
+    // Tell NeoForge which source sets belong to which mod so all five load as separate mods in dev runs.
     mods {
         allMods.each { id, p ->
             register(id) { sourceSet(p.sourceSets.main) }
@@ -56,6 +60,14 @@ neoForge {
             programArguments.addAll '--mod', decorProject.property('mod_id'), '--all',
                     '--output', decorProject.file('src/generated/resources/').absolutePath,
                     '--existing', decorProject.file('src/main/resources/').absolutePath
+        }
+
+        // apeira-archae's artifacts, fragments and assembly table, written to that module's own generated resources.
+        archaeData {
+            clientData()
+            programArguments.addAll '--mod', archaeProject.property('mod_id'), '--all',
+                    '--output', archaeProject.file('src/generated/resources/').absolutePath,
+                    '--existing', archaeProject.file('src/main/resources/').absolutePath
         }
 
         configureEach {

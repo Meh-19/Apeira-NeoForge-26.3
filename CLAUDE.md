@@ -36,6 +36,12 @@ Apeira uses a Gradle multi-project layout. Every module serves a specific, isola
 │  apeira-core │                  │ apeira-decor │                  │ apeira-story │
 │  (Framework) │                  │ (Render/UI)  │                  │ (Quest/NPC)  │
 └──────────────┘                  └──────────────┘                  └──────────────┘
+        ▲                                 ▲
+        └────────────────┬────────────────┘
+                 ┌───────┴───────┐
+                 │ apeira-archae │
+                 │ (Archaeology) │
+                 └───────────────┘
 
 apeira-core (Foundation & Registry Library):
 
@@ -66,6 +72,10 @@ Boss AI state engine and arena trigger blocks.
 apeira-main (The Content Mod):
 
 Implements actual items, blocks, custom biomes, dimensions, recipes, foods, furniture, crates, cosmetics, mobs, and bosses using the underlying libraries.
+
+apeira-archae (Archaeology Content):
+
+The legacy Argon mod's archaeology (fragments, the assembly table, artifacts), kept out of apeira-main and apeira-decor; it depends on apeira-core and apeira-decor, not on apeira-main, which only loads it in its runs (see section 12).
 
 4. Feature Roadmap & Execution Tree
 Development follows a strict Dependency Tree to prevent feature bloat and burnout:
@@ -151,7 +161,7 @@ MainCosmetics and MainCrates: the Crates mod's cosmetics and crates, see section
 
 Datagen: `MainBlockStateProvider` (block states and models: cubes with a `block/<name>` texture; pillars, logs and beams with `block/<name>` sides and `block/<name>_top` ends and a horizontal model; woods with their log's side texture; wood families through vanilla's `BlockModelGenerators#family`), `MainModelProvider` (flat and handheld item models, `item/<name>` texture), `MainRecipeProvider` (shaped, shapeless, smelting and blasting recipes; wood families through vanilla's `RecipeProvider#generateRecipes`), `MainBlockLootSubProvider` (block loot tables), `MainBlockTagProvider` and `MainItemTagProvider` (tool, armour, wood and mining tags), `MainDataMapProvider` (stripping and flammability) and `MainLanguageProvider` (en_us names and the tab titles). Core helpers for these: `ApeiraRegistrar#blockWithItem(name, factory, Supplier<Properties>, itemProperties)` (copied properties and fuel items), `PlankSet`, `ShapeSet` (stairs, slab and wall of a block), `ApeiraBlockStateProvider#log/family/pillar/leaves/shapes`, `ApeiraBlockLootProvider#dropShapes`, `ApeiraItemTagsProvider` (`ApeiraDataGenerators#itemTags`), `BlockAndItemTags` for tags written to both registries, and `ApeiraDataMapProvider#strippable/flammable`. Loot tables are datapack registry entries in 26.x like recipes: core's `ApeiraBlockLootProvider` extends vanilla's `BlockLootSubProvider`, `ApeiraDataGenerators#blockLoot` runs it through `GatherDataRegistryEntriesEvent`, and it only checks the registrar's own blocks, so every new block needs a loot table (or `noDrop()`) or the data run fails. Block tags extend core's `ApeiraBlockTagsProvider` (NeoForge's `BlockTagsProvider`) and are added with `ApeiraDataGenerators#blockTags`; in 26.x tag appenders take `ResourceKey`s, which its `add(tag, blocks...)` helper takes from each `DeferredBlock`. Core's `ApeiraModelProvider` is final and runs every model provider of a module, so module model providers extend `ApeiraBlockStateProvider` or `ApeiraItemModelProvider`. Register client-only providers (block states, item models) in `MainData` with lambdas, not constructor references, so a dedicated server never loads their classes.
 
-Generated resources: `./gradlew :apeira-main:runData` writes to `apeira-main/src/generated/resources/`, which is committed. CI runs it and fails when the committed files are out of date. The language file is generated, so `assets/apeira/lang/en_us.json` must not also exist in `src/main/resources`.
+Generated resources: `./gradlew :apeira-main:runData` writes to `apeira-main/src/generated/resources/`, which is committed. CI runs it and fails when the committed files are out of date. The other modules' data runs are apeira-main's too: `runDecorData` (section 8) and `runArchaeData` (section 12); CI runs all three and checks each module's `src/generated`. The language file is generated, so `assets/apeira/lang/en_us.json` must not also exist in `src/main/resources`.
 
 Textures: `src/main/resources/assets/apeira/textures/{block,item}/<name>.png`, ORForged's (or the server pack's, for the blocks above that ORForged had none for, renamed `<name>` and `<name>_top`), copied as they are except `<x>_pillar_side` (now `<x>_pillar`) and `<wood>_planks_carved_top` (now `<wood>_planks_carved`, used on every side, the only carved texture ORForged has). The ores and the crimson and warped beams are animated (`.png.mcmeta`).
 
@@ -242,3 +252,25 @@ Content: 15 crates in `MainCrates` (aether, animal, aquatic, atlantis, bathroom,
 Not ported:
 - The other 19 Crates mod crates (gothic, harvest, kitchen, lovely, lunar, medieval, mining, muerte, music, palace, paradise, shamrock, space, spooky, spring, toy, western, winter, wizardry) have no geo model in the reference. `badger_crate.geo.json` has no crate type.
 - CosmoLib's two-hit break with wobble (an entity behaviour): a closed crate breaks like a block.
+
+12. Archaeology (`apeira-archae`)
+Ported from the legacy Fabric mod Argon (`net.meh.argon`): its fragments, artifacts and assembly table, with Argon's ids, names, properties, models and textures. Argon's cosmetics (`net/meh/argon/cosmetic`) are not ported yet; they will use apeira-decor's cosmetic framework (section 10), which the module already depends on.
+
+Module: mod id `apeira_archae`, `com.apeira.archae.ApeiraArchae` with its own `ApeiraRegistrar` (shared `apeira` namespace), `ApeiraDataGenerators` and `ApeiraNetwork`; client entrypoint `client/ApeiraArchaeClient`. It depends on apeira-core and apeira-decor (paint, seats, GeckoLib; it passes decor's GeckoLib interface injections to `interfaceInjectionData`). apeira-main adds it as `localRuntime`, so its runs load it without compiling against it. Holder classes are under `com.apeira.archae.registry`, data providers under `com.apeira.archae.datagen` (`ArchaeData.init`). Datagen: `./gradlew :apeira-main:runArchaeData` (the `archaeData` run, `--mod apeira_archae`) writes `apeira-archae/src/generated/resources/`, which is committed and checked by CI.
+
+Fragments (`ArchaeItems`, `item/FragmentItem`): Argon's 106 (`ethereal_shard` keeps Argon's id), flat items from `textures/item/archaeology/<name>.png`. The tooltip shows Argon's fragment badge (the `apeira:archaeology` font, `font/archaeology.json`, `textures/gui/lore_fragment.png`) and "Bring to an Assembly Table / to assemble Artifacts". `#apeira:fragments` (what the assembly table takes) holds the 104 fragments artifacts are made from, as Argon's tag did.
+
+Artifacts (`ArchaeArtifacts`, a table in Argon's order and regions; `ArtifactProperties` is Argon's `BlockBuilders`): 298 artifacts, each made from a fragment, and 88 wall, ceiling and water variants, which have items but no recipe or tab entry and drop their base artifact. Each has an `item/ArtifactBlockItem` (paintable badge for the 145 paintable ones, gold "Archeology Exclusive", `tooltip.apeira.exclusive.archaeology`).
+- Blocks (`com.apeira.archae.block`): `ArtifactBlock` (`ROTATION` 0-7, eight 45 degree turns facing the placer; a `Form` is Argon's furniture class as a display mode and an outline; clicking the side or the bottom of a block places the wall or ceiling variant), `FacingArtifactBlock` (adds `FACING`; its display mode comes from the id as in Argon: `wall` drawn on the wall, `side` on the floor), `CeilingArtifactBlock` (only under a block), `WaterloggedArtifactBlock` (placed in water as the `_water` variant), `SeatArtifactBlock` (a decor `SeatBlock` facing the sitter's own yaw, `SeatBlock#seatYaw`) and `AnimatedArtifactBlock`.
+- Rendering: every artifact renders `INVISIBLE` (the block model gives breaking particles) and keeps its paint in an `ArtifactBlockEntity` (a decor `PaintBlockEntity`, `apeira:artifact_display`). `client/ArtifactRenderer` draws the block's item, painted, in the `fixed` display context at half size, laid in by its `DisplayMode` (`TOP_FACE`, `FLOOR`, `WALL`, `BLOCK_UP`) with Argon's transforms. Models are `models/block/archaeology/<name>.json`, item definitions show the same model with the paint on tint index 1, textures are in `textures/block/archaeology/`. Finishes show through decor's item rendering.
+- Animated (16: the flags, echo bell, elysian apparatus and prism, pyramid relic, small and large wall gears): `AnimatedArtifactBlockEntity` (`apeira:generic_animated_furniture`, GeckoLib) loops Argon's clip; `client/AnimatedArtifactRenderer` draws `geckolib/models/archaeology/<name>.geo.json` with `textures/block/archaeology/<name>.png`, translucent, turned by `ROTATION`, painting bones named `*_tintable` and their children (a finish shows its representative colour). The pyramid relic's item shows `inverted_pyramid_statue_full` (`models/item/archaeology/pyramid_relic.json`, Argon's).
+- Loot: each artifact drops its (base) item with its paint (`copy_components`), as Argon's `afterBreak` did. No mining tags, as in Argon.
+
+Assembly table (`assembly/`, `ArchaeBlocks.ASSEMBLY_TABLE`: wood, strength 2/3, one state, Argon's `orientable_with_bottom` model, drops itself; no recipe, as in Argon): opens `AssemblyTableMenu` (`ArchaeMenus.ASSEMBLY_TABLE`, screen `client/AssemblyTableScreen` on `textures/gui/assembly_table.png`). Put fragments in, pick one of their artifacts in the grid (three per row; greyed out when there are too few; "Cost: N" with the fragment's icon over a tile, `FragmentCostTooltip`), take it, which uses up its cost and plays `apeira:take_result`. Picks are menu button clicks synced back through a data slot. Recipes (`AssemblyRecipe`: `{"fragment", "result", "cost"}`, Argon's format) are loaded by `AssemblyRecipes` from `data/<namespace>/assembly/` and sent to clients on login and `/reload` (`network/AssemblyRecipesPayload`); both sides order a fragment's recipes by result id. Datagen (`AssemblyRecipeProvider`) writes one per artifact, 298.
+
+Creative tab: `Argon Archaeology` (`apeira:archaeology`, assembly table icon): the assembly table, decor's painting table and paintbrush, the fragments, then the artifacts without variants (Argon's two tabs of that name in one).
+
+Not ported, or changed:
+- Duplicates of decor: Argon's painting table, paintbrush, paint and finish system (shaders, `finish_atlas.png`) and its `ruby_lose` sound; decor's are used.
+- Argon's `male_mph` sound (unused), its 51 unused block models, the boulder and pebble entity animations (no entity code) and the `fragile` property and tags (never set in Argon). The `paintable` tag is the blocks' `takesPaint()`.
+- Fixed from Argon: the illager banner's ceiling variant dropped the aged banner; taking fragments out of the input slot crafted an artifact; shift-clicking did nothing; `stillValid` was always true; a recipe's place in the grid changed between loads. Explosions drop artifacts (Argon dropped nothing without a player); a seat on the block's top (the rugged stand) is 0.1 pixel lower; topping up the same fragment keeps the picked recipe.

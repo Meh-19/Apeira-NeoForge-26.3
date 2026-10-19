@@ -1,0 +1,16 @@
+// Content module for archaeology (the legacy Argon mod). Shared configuration comes from the root build.gradle.
+// Runs are configured in apeira-main, which loads every Apeira module together; its archaeData run writes this
+// module's generated resources to src/generated/resources.
+
+dependencies {
+    implementation project(':apeira-core')
+    // Paint, seats and the cosmetic framework; brings GeckoLib with it as an api dependency.
+    implementation project(':apeira-decor')
+}
+
+neoForge {
+    // GeckoLib's interface injections (see apeira-decor), so the animated artifact renderer compiles.
+    interfaceInjectionData {
+        from project(':apeira-decor').file('geckolib_interface_injections.json')
+    }
+}

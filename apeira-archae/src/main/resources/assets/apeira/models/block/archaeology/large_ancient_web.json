@@ -1,0 +1,169 @@
+{
+  "format_version": "1.21.11",
+  "credit": "Made with Blockbench",
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "0": "apeira:block/archaeology/ancient_silk",
+    "particle": "apeira:block/archaeology/ancient_silk"
+  },
+  "elements": [
+    {
+      "from": [
+        -16,
+        -16,
+        8
+      ],
+      "to": [
+        32,
+        32,
+        8
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          32,
+          8
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            12,
+            12
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            12,
+            12
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        }
+      }
+    }
+  ],
+  "gui_light": "front",
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        45,
+        12,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -0.5
+      ],
+      "scale": [
+        0.13,
+        0.13,
+        0.13
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        45,
+        12,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -0.5
+      ],
+      "scale": [
+        0.13,
+        0.13,
+        0.13
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        -45,
+        -43,
+        0
+      ],
+      "translation": [
+        5,
+        0,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        -45,
+        -43,
+        0
+      ],
+      "translation": [
+        5,
+        0,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ]
+    },
+    "gui": {
+      "translation": [
+        0,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.32,
+        0.32,
+        0.32
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        -90,
+        0,
+        -180
+      ],
+      "translation": [
+        0,
+        -15.75,
+        -44
+      ],
+      "scale": [
+        2,
+        2,
+        2
+      ]
+    }
+  }
+}

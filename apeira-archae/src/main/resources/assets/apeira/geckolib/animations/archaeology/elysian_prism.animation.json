@@ -1,0 +1,39 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"obelisk_rotating": {
+			"loop": true,
+			"animation_length": 24,
+			"bones": {
+				"group2": {
+					"scale": {
+						"vector": [1.8, 1.8, 1.8]
+					}
+				},
+				"prism": {
+					"rotation": {
+						"vector": ["-math.sin(query.anim_time * 45 + 45) * 4", "-query.anim_time * -45", 0]
+					},
+					"position": {
+						"vector": [0, "math.sin(query.anim_time * 45) * 1", 0]
+					},
+					"scale": {
+						"vector": [1.8, 1.8, 1.8]
+					}
+				},
+				"effects": {
+					"rotation": {
+						"vector": ["-math.sin(query.anim_time * 45 + 45) * 2", "-query.anim_time * 60", 0]
+					},
+					"position": {
+						"vector": [0, "math.sin(query.anim_time * 90) * 1", 0]
+					},
+					"scale": {
+						"vector": [1.8, 1.8, 1.8]
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

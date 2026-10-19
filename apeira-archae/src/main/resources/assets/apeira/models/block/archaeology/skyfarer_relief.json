@@ -1,0 +1,187 @@
+{
+  "credit": "Made with Blockbench",
+  "texture_size": [
+    128,
+    128
+  ],
+  "textures": {
+    "0": "apeira:block/archaeology/skyfarer_relief",
+    "particle": "apeira:block/archaeology/skyfarer_relief"
+  },
+  "elements": [
+    {
+      "from": [
+        -12,
+        0,
+        4
+      ],
+      "to": [
+        28,
+        24,
+        12
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          -12,
+          0,
+          4
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            2,
+            10,
+            8
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            10,
+            2,
+            12,
+            8
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0,
+            2,
+            10,
+            8
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            10,
+            2,
+            12,
+            8
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            10,
+            2,
+            0,
+            0
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            10,
+            2,
+            0,
+            0
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ],
+  "gui_light": "front",
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        52,
+        -20,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.24,
+        0.24,
+        0.24
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        52,
+        -20,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.24,
+        0.24,
+        0.24
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        -180,
+        30,
+        -180
+      ],
+      "translation": [
+        21,
+        -8,
+        -30
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        -180,
+        30,
+        -180
+      ],
+      "translation": [
+        21,
+        -8,
+        -30
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        6,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "gui": {
+      "translation": [
+        0,
+        -1,
+        0
+      ],
+      "scale": [
+        0.38,
+        0.38,
+        0.3
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "scale": [
+        4,
+        4,
+        4
+      ]
+    }
+  }
+}

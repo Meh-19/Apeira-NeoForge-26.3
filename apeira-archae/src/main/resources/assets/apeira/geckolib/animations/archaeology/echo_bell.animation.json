@@ -1,0 +1,21 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"bell_sway": {
+			"loop": true,
+			"animation_length": 15,
+			"bones": {
+				"bell": {
+					"rotation": {
+						"vector": ["-math.sin(query.anim_time * 100) * 35 * math.pow(0.6, query.anim_time)", 0, 0]
+					}
+				},
+				"clapper": {
+					"rotation": {
+						"vector": ["-math.sin(query.anim_time * 125) * 45 * math.pow(0.5, query.anim_time)", 0, 0]
+					}
+				}
+			}
+		}
+	}
+}

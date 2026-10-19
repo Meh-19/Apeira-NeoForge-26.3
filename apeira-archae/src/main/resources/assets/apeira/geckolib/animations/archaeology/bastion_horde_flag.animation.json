@@ -1,0 +1,21 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"flag_sway": {
+			"loop": true,
+			"bones": {
+				"post": {
+					"scale": 2
+				},
+				"flag_tintable": {
+					"rotation": [0, "-(math.sin(query.anim_time * 45) * 5)- (math.sin(query.anim_time * 45) * 1.2)", 0],
+					"scale": 2
+				},
+				"flag": {
+					"rotation": [0, "-(math.sin(query.anim_time * 45) * 5)- (math.sin(query.anim_time * 45) * 1.2)", 0],
+					"scale": 2
+				}
+			}
+		}
+	}
+}

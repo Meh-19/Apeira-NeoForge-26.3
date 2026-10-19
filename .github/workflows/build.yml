@@ -25,9 +25,9 @@ jobs:
         run: ./gradlew build
 
       - name: Run data generation
-        run: ./gradlew :apeira-main:runData :apeira-main:runDecorData
+        run: ./gradlew :apeira-main:runData :apeira-main:runDecorData :apeira-main:runArchaeData
 
       - name: Check generated resources are committed
         run: |
-          git add --intent-to-add apeira-main/src/generated apeira-decor/src/generated
-          git diff --exit-code -- apeira-main/src/generated apeira-decor/src/generated
+          git add --intent-to-add apeira-main/src/generated apeira-decor/src/generated apeira-archae/src/generated
+          git diff --exit-code -- apeira-main/src/generated apeira-decor/src/generated apeira-archae/src/generated
