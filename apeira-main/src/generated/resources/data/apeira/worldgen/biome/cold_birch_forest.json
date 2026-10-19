@@ -1,0 +1,202 @@
+{
+  "attributes": {
+    "minecraft:audio/ambient_sounds": {
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:gameplay/creature_world_gen_spawn_probability": 0.1,
+    "minecraft:gameplay/natural_mob_spawns": {
+      "argument": {
+        "spawn_costs": {},
+        "spawns_by_category": {
+          "ambient": [
+            {
+              "type": "minecraft:bat",
+              "count": 8,
+              "weight": 10
+            }
+          ],
+          "creature": [
+            {
+              "type": "minecraft:sheep",
+              "count": 4,
+              "weight": 12
+            },
+            {
+              "type": "minecraft:pig",
+              "count": 4,
+              "weight": 10
+            },
+            {
+              "type": "minecraft:chicken",
+              "count": 4,
+              "weight": 10
+            },
+            {
+              "type": "minecraft:cow",
+              "count": 4,
+              "weight": 8
+            },
+            {
+              "type": "minecraft:fox",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 2
+              },
+              "weight": 5
+            },
+            {
+              "type": "minecraft:rabbit",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 2
+              },
+              "weight": 4
+            },
+            {
+              "type": "minecraft:bee",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 3,
+                "min_inclusive": 2
+              },
+              "weight": 3
+            }
+          ],
+          "monster": [
+            {
+              "type": "minecraft:spider",
+              "count": 4,
+              "weight": 100
+            },
+            {
+              "type": "minecraft:zombie",
+              "count": 4,
+              "weight": 95
+            },
+            {
+              "type": "minecraft:zombie_villager",
+              "count": 1,
+              "weight": 5
+            },
+            {
+              "type": "minecraft:skeleton",
+              "count": 4,
+              "weight": 100
+            },
+            {
+              "type": "minecraft:creeper",
+              "count": 4,
+              "weight": 100
+            },
+            {
+              "type": "minecraft:slime",
+              "count": 4,
+              "weight": 100
+            },
+            {
+              "type": "minecraft:enderman",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 10
+            },
+            {
+              "type": "minecraft:witch",
+              "count": 1,
+              "weight": 5
+            }
+          ],
+          "underground_water_creature": [
+            {
+              "type": "minecraft:glow_squid",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 6,
+                "min_inclusive": 4
+              },
+              "weight": 10
+            }
+          ]
+        }
+      },
+      "modifier": "overlay"
+    },
+    "minecraft:visual/fog_color": "#ebdaa6",
+    "minecraft:visual/sky_color": "#9fb5f2",
+    "minecraft:visual/water_fog_color": "#050533"
+  },
+  "carvers": [
+    "minecraft:cave",
+    "minecraft:cave_extra_underground",
+    "minecraft:canyon"
+  ],
+  "downfall": 0.0,
+  "effects": {
+    "foliage_color": "#a3c247",
+    "grass_color": "#9db545",
+    "water_color": "#3f76e4"
+  },
+  "features": [
+    [],
+    [
+      "minecraft:lake_lava_underground",
+      "minecraft:lake_lava_surface"
+    ],
+    [
+      "apeira:andesite_mound",
+      "apeira:diorite_mound",
+      "apeira:foothills_pond",
+      "apeira:granite_mound",
+      "apeira:pumpkin_patch"
+    ],
+    [],
+    [],
+    [],
+    [
+      "apeira:platinum_ore_placed",
+      "apeira:ruby_ore_placed",
+      "apeira:slate_sheet"
+    ],
+    [],
+    [],
+    [
+      "apeira:allium_patch",
+      "apeira:cattails",
+      "apeira:clover_patch",
+      "apeira:cold_birch_trees",
+      "apeira:damp_moss_cluster",
+      "apeira:dandelion_patch",
+      "apeira:dry_grass_patch",
+      "apeira:fallen_birch_log",
+      "apeira:fallen_oak_log",
+      "apeira:foothills_slate_mound",
+      "apeira:highland_flower_patch",
+      "apeira:leaf_litter_patch",
+      "apeira:lily_pad_patch",
+      "apeira:mushroom_patch",
+      "apeira:mycena_patch",
+      "apeira:oak_bushes",
+      "apeira:shelf_fungus_cluster",
+      "apeira:short_grass_patch",
+      "apeira:small_lily_patch",
+      "apeira:stick_patch",
+      "apeira:sunflower_patch",
+      "apeira:underwater_silt_patch"
+    ],
+    [
+      "apeira:surface_patch",
+      "apeira:water_silt_disk"
+    ]
+  ],
+  "has_precipitation": true,
+  "temperature": 0.6
+}

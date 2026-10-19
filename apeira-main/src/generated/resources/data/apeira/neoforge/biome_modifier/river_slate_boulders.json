@@ -1,0 +1,9 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "minecraft:river",
+    "minecraft:frozen_river"
+  ],
+  "features": "apeira:river_slate_boulder",
+  "step": "vegetal_decoration"
+}

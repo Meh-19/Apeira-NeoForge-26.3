@@ -1,0 +1,6 @@
+{
+  "type": "apeira:stone_mound",
+  "decorations": true,
+  "stone_state": "minecraft:granite",
+  "waterlogged": false
+}
