@@ -1,0 +1,15 @@
+{
+  "values": [
+    "minecraft:elder_guardian",
+    "minecraft:enderman",
+    "minecraft:guardian",
+    "minecraft:iron_golem",
+    "minecraft:piglin_brute",
+    "minecraft:ravager",
+    "minecraft:warden",
+    "minecraft:wither",
+    "minecraft:ender_dragon",
+    "minecraft:breeze",
+    "apeira:grizzly_bear"
+  ]
+}

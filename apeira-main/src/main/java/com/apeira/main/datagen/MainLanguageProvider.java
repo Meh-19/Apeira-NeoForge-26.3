@@ -8,6 +8,8 @@ import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
+import com.apeira.main.registry.MainEntities;
+import com.apeira.main.registry.MainGear;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainMaterials;
@@ -127,6 +129,27 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         item(MainMaterials.DOLOMITE_DUST, "Dolomite Dust");
         item(MainMaterials.RAW_TURKEY, "Raw Turkey");
         item(MainMaterials.COOKED_TURKEY, "Cooked Turkey");
+        item(MainMaterials.CROCODILE_TOOTH, "Crocodile Tooth");
+        mobs();
+    }
+
+    /** Xenon's mobs, their subtitles (Xenon's, for the wraith), and the capture net with Xenon's tooltip text. */
+    private void mobs() {
+        add(MainEntities.TURKEY.get(), "Turkey");
+        add(MainEntities.GRIZZLY_BEAR.get(), "Grizzly Bear");
+        add(MainEntities.CROCODILE.get(), "Crocodile");
+        add(MainEntities.WRAITH.get(), "Wraith");
+        add("subtitles.apeira.entity.wraith.ambient", "Wraith whispers");
+        add("subtitles.apeira.entity.wraith.target", "Wraith notices you");
+        add("subtitles.apeira.entity.wraith.hurt", "Wraith hurts");
+        add("subtitles.apeira.entity.wraith.death", "Wraith dies");
+        add("subtitles.apeira.entity.wraith.bite", "Wraith bites");
+        add("subtitles.apeira.entity.wraith.apparate", "Wraith vanishes");
+        item(MainGear.CAPTURE_NET, "Capture Net");
+        add("tooltip.apeira.capture_net.mob", "Mob: %s");
+        add("tooltip.apeira.capture_net.1", "Collect and drop off");
+        add("tooltip.apeira.capture_net.2", "mobs where you please");
+        add("message.apeira.capture_net.weaken", "This mob must be weakened in order to be captured!");
     }
 
     /** A coloured block and its shapes as {@code <Colour> <name>} and {@code <Colour> <name> Stairs}. */

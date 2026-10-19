@@ -5,6 +5,7 @@ import com.apeira.core.registry.ApeiraIds;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -29,6 +30,15 @@ public final class MainTags {
     /** The logs and woods of one tree, like vanilla's {@code oak_logs}: {@code apeira:<wood>_logs}. */
     public static BlockItemTagId logs(String wood) {
         return BlockItemTagId.create(ApeiraIds.id(wood + "_logs"), ApeiraIds.id(wood + "_logs"));
+    }
+
+    /** Mobs a capture net catches (Xenon's {@code xenon:capturable}). */
+    public static final TagKey<EntityType<?>> CAPTURABLE = entity("capturable");
+    /** Mobs a capture net catches only while they have Weakness. */
+    public static final TagKey<EntityType<?>> CAPTURABLE_WHEN_WEAKENED = entity("capturable_when_weakened");
+
+    private static TagKey<EntityType<?>> entity(String name) {
+        return TagKey.create(Registries.ENTITY_TYPE, ApeiraIds.id(name));
     }
 
     private static TagKey<Block> block(String name) {

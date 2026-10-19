@@ -1,0 +1,581 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "component": "apeira:captured_mob",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "apeira:item/capture_net"
+    },
+    "on_true": {
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/allay"
+          },
+          "when": "minecraft:allay"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/armadillo"
+          },
+          "when": "minecraft:armadillo"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/axolotl"
+          },
+          "when": "minecraft:axolotl"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/bat"
+          },
+          "when": "minecraft:bat"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/bee"
+          },
+          "when": "minecraft:bee"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/blaze"
+          },
+          "when": "minecraft:blaze"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/camel"
+          },
+          "when": "minecraft:camel"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/cat"
+          },
+          "when": "minecraft:cat"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/cave_spider"
+          },
+          "when": "minecraft:cave_spider"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/chicken"
+          },
+          "when": "minecraft:chicken"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/cod"
+          },
+          "when": "minecraft:cod"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/copper_golem"
+          },
+          "when": "minecraft:copper_golem"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/cow"
+          },
+          "when": "minecraft:cow"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/creeper"
+          },
+          "when": "minecraft:creeper"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/dolphin"
+          },
+          "when": "minecraft:dolphin"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/donkey"
+          },
+          "when": "minecraft:donkey"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/drowned"
+          },
+          "when": "minecraft:drowned"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/elder_guardian"
+          },
+          "when": "minecraft:elder_guardian"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/enderman"
+          },
+          "when": "minecraft:enderman"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/endermite"
+          },
+          "when": "minecraft:endermite"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/evoker"
+          },
+          "when": "minecraft:evoker"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/fox"
+          },
+          "when": "minecraft:fox"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/frog"
+          },
+          "when": "minecraft:frog"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/ghast"
+          },
+          "when": "minecraft:ghast"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/glow_squid"
+          },
+          "when": "minecraft:glow_squid"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/goat"
+          },
+          "when": "minecraft:goat"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/guardian"
+          },
+          "when": "minecraft:guardian"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/hoglin"
+          },
+          "when": "minecraft:hoglin"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/horse"
+          },
+          "when": "minecraft:horse"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/husk"
+          },
+          "when": "minecraft:husk"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/illusioner"
+          },
+          "when": "minecraft:illusioner"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/llama"
+          },
+          "when": "minecraft:llama"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/magma_cube"
+          },
+          "when": "minecraft:magma_cube"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/mooshroom"
+          },
+          "when": "minecraft:mooshroom"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/mule"
+          },
+          "when": "minecraft:mule"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/ocelot"
+          },
+          "when": "minecraft:ocelot"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/panda"
+          },
+          "when": "minecraft:panda"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/parrot"
+          },
+          "when": "minecraft:parrot"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/phantom"
+          },
+          "when": "minecraft:phantom"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/pig"
+          },
+          "when": "minecraft:pig"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/piglin"
+          },
+          "when": "minecraft:piglin"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/piglin_brute"
+          },
+          "when": "minecraft:piglin_brute"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/pillager"
+          },
+          "when": "minecraft:pillager"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/polar_bear"
+          },
+          "when": "minecraft:polar_bear"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/pufferfish"
+          },
+          "when": "minecraft:pufferfish"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/rabbit"
+          },
+          "when": "minecraft:rabbit"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/ravager"
+          },
+          "when": "minecraft:ravager"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/salmon"
+          },
+          "when": "minecraft:salmon"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/sheep"
+          },
+          "when": "minecraft:sheep"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/shulker"
+          },
+          "when": "minecraft:shulker"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/silverfish"
+          },
+          "when": "minecraft:silverfish"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/skeleton"
+          },
+          "when": "minecraft:skeleton"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/skeleton_horse"
+          },
+          "when": "minecraft:skeleton_horse"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/slime"
+          },
+          "when": "minecraft:slime"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/sniffer"
+          },
+          "when": "minecraft:sniffer"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/spider"
+          },
+          "when": "minecraft:spider"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/squid"
+          },
+          "when": "minecraft:squid"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/stray"
+          },
+          "when": "minecraft:stray"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/strider"
+          },
+          "when": "minecraft:strider"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/tadpole"
+          },
+          "when": "minecraft:tadpole"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/trader_llama"
+          },
+          "when": "minecraft:trader_llama"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/tropical_fish"
+          },
+          "when": "minecraft:tropical_fish"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/turtle"
+          },
+          "when": "minecraft:turtle"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/vex"
+          },
+          "when": "minecraft:vex"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/villager"
+          },
+          "when": "minecraft:villager"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/vindicator"
+          },
+          "when": "minecraft:vindicator"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/wandering_trader"
+          },
+          "when": "minecraft:wandering_trader"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/warden"
+          },
+          "when": "minecraft:warden"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/witch"
+          },
+          "when": "minecraft:witch"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/wither_skeleton"
+          },
+          "when": "minecraft:wither_skeleton"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/wolf"
+          },
+          "when": "minecraft:wolf"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/zoglin"
+          },
+          "when": "minecraft:zoglin"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/zombie"
+          },
+          "when": "minecraft:zombie"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/zombie_horse"
+          },
+          "when": "minecraft:zombie_horse"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/zombie_villager"
+          },
+          "when": "minecraft:zombie_villager"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/zombified_piglin"
+          },
+          "when": "minecraft:zombified_piglin"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/crocodile"
+          },
+          "when": "apeira:crocodile"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/grizzly_bear"
+          },
+          "when": "apeira:grizzly_bear"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/turkey"
+          },
+          "when": "apeira:turkey"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/capture_net_mob/wraith"
+          },
+          "when": "apeira:wraith"
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "apeira:item/capture_net_filled"
+      },
+      "property": "apeira:captured_mob"
+    },
+    "property": "minecraft:has_component"
+  }
+}
