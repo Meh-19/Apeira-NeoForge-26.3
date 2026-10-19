@@ -8,6 +8,7 @@ import com.apeira.archae.network.ArchaePayloads;
 import com.apeira.archae.registry.ArchaeArtifacts;
 import com.apeira.archae.registry.ArchaeBlockEntities;
 import com.apeira.archae.registry.ArchaeBlocks;
+import com.apeira.archae.registry.ArchaeCosmetics;
 import com.apeira.archae.registry.ArchaeCreativeTabs;
 import com.apeira.archae.registry.ArchaeItems;
 import com.apeira.archae.registry.ArchaeMenus;
@@ -36,7 +37,7 @@ public final class ApeiraArchae {
 
     public ApeiraArchae(IEventBus modEventBus, ModContainer modContainer) {
         // Fragments come first: artifacts name the fragment they are made from.
-        REGISTRAR.register(modEventBus, ArchaeItems::init, ArchaeBlocks::init, ArchaeArtifacts::init, ArchaeBlockEntities::init,
+        REGISTRAR.register(modEventBus, ArchaeItems::init, ArchaeBlocks::init, ArchaeArtifacts::init, ArchaeCosmetics::init, ArchaeBlockEntities::init,
                 ArchaeMenus::init, ArchaeSounds::init, ArchaeCreativeTabs::init);
         NETWORK.register(modEventBus, ArchaePayloads::init);
         DATA.register(modEventBus, ArchaeData::init);

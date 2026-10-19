@@ -8,7 +8,7 @@ The goal of Apeira is to bring the rich, custom, interactive survival server exp
 ### Why Apeira Exists:
 * **Eliminate Server-Side Hackiness & Entity Lag:** Traditional custom servers rely heavily on display entities, invisible armor stands, complex resource pack hacks, and plugin overhead. This creates massive server TPS drop, entity tick lag, and rendering stutters.
 * **Native Modded Performance:** Apeira replaces command blocks, plugins, and armor-stand tricks with clean, data-driven NeoForge blocks, VoxelShapes, custom client-side block entity renderers, and payload-driven UI networks.
-* **Modular Architecture:** Rather than building a single monolithic mod file, Apeira is split into **three foundational library subprojects** (`apeira-core`, `apeira-decor`, `apeira-story`) and **one main content module** (`apeira-main`).
+* **Modular Architecture:** Rather than building a single monolithic mod file, Apeira is split into **three foundational library subprojects** (`apeira-core`, `apeira-decor`, `apeira-story`), **one main content module** (`apeira-main`) and **one archaeology content module** (`apeira-archae`).
 
 ---
 
@@ -226,7 +226,7 @@ Wardrobe: the `apeira:wardrobe` player attachment (`DecorAttachments.WARDROBE`, 
 
 Render layer: `client/CosmeticLayer` is added to player and mannequin renderers of both skins (`EntityRenderersEvent.AddLayers`); `CosmeticLayer.MODIFIER` (a render state modifier) resolves the worn stacks into the avatar render state. The hat is drawn on the head as vanilla's head items, the back cosmetic on the body, the hand cosmetic in the off hand when it is empty, each with the item model's `head` (hat, back) or third-person hand display. Nothing is drawn for invisible players.
 
-Content: 177 cosmetics in `MainCosmetics`, with the Crates mod's slots, rarities, paintability, default paints and crates. 127 have the mod's 3-D model (`models/item/cosmetic/<name>.json`, textures in `textures/item/`); their item definitions (`MainModelProvider#cosmetic`) show it only when worn, through the `apeira:worn_cosmetic` item model condition (`client/WornCosmetic`, true while `CosmeticLayer` resolves the wardrobe's models), and the rarity token (`item/<rarity>_<slot>_token`) everywhere else: inventories, hands, item frames, the ground. The other 50 had no model in the Crates mod and show only the token. Names and exclusive lines are in `MainLanguageProvider`.
+Content: 177 cosmetics in `MainCosmetics`, with the Crates mod's slots, rarities, paintability, default paints and crates. 127 have the mod's 3-D model (`models/item/cosmetic/<name>.json`, textures in `textures/item/`); their item definitions (`MainModelProvider#cosmetic`) show it only when worn, through the `apeira:worn_cosmetic` item model condition (`client/WornCosmetic`, true while `CosmeticLayer` resolves the wardrobe's models), and the rarity token (`item/<rarity>_<slot>_token`, apeira-decor's resources, shared with apeira-archae) everywhere else: inventories, hands, item frames, the ground. The other 50 had no model in the Crates mod and show only the token. Names and exclusive lines are in `MainLanguageProvider`.
 
 Not ported, or changed:
 - No Curios: CosmoLib kept its own wardrobe, and so does Apeira, as an attachment.
@@ -254,7 +254,7 @@ Not ported:
 - CosmoLib's two-hit break with wobble (an entity behaviour): a closed crate breaks like a block.
 
 12. Archaeology (`apeira-archae`)
-Ported from the legacy Fabric mod Argon (`net.meh.argon`): its fragments, artifacts and assembly table, with Argon's ids, names, properties, models and textures. Argon's cosmetics (`net/meh/argon/cosmetic`) are not ported yet; they will use apeira-decor's cosmetic framework (section 10), which the module already depends on.
+Ported from the legacy Fabric mod Argon (`net.meh.argon`): its fragments, artifacts, cosmetics and assembly table, with Argon's ids, names, properties, models and textures.
 
 Module: mod id `apeira_archae`, `com.apeira.archae.ApeiraArchae` with its own `ApeiraRegistrar` (shared `apeira` namespace), `ApeiraDataGenerators` and `ApeiraNetwork`; client entrypoint `client/ApeiraArchaeClient`. It depends on apeira-core and apeira-decor (paint, seats, GeckoLib; it passes decor's GeckoLib interface injections to `interfaceInjectionData`). apeira-main adds it as `localRuntime`, so its runs load it without compiling against it. Holder classes are under `com.apeira.archae.registry`, data providers under `com.apeira.archae.datagen` (`ArchaeData.init`). Datagen: `./gradlew :apeira-main:runArchaeData` (the `archaeData` run, `--mod apeira_archae`) writes `apeira-archae/src/generated/resources/`, which is committed and checked by CI.
 
@@ -268,7 +268,9 @@ Artifacts (`ArchaeArtifacts`, a table in Argon's order and regions; `ArtifactPro
 
 Assembly table (`assembly/`, `ArchaeBlocks.ASSEMBLY_TABLE`: wood, strength 2/3, one state, Argon's `orientable_with_bottom` model, drops itself; no recipe, as in Argon): opens `AssemblyTableMenu` (`ArchaeMenus.ASSEMBLY_TABLE`, screen `client/AssemblyTableScreen` on `textures/gui/assembly_table.png`). Put fragments in, pick one of their artifacts in the grid (three per row; greyed out when there are too few; "Cost: N" with the fragment's icon over a tile, `FragmentCostTooltip`), take it, which uses up its cost and plays `apeira:take_result`. Picks are menu button clicks synced back through a data slot. Recipes (`AssemblyRecipe`: `{"fragment", "result", "cost"}`, Argon's format) are loaded by `AssemblyRecipes` from `data/<namespace>/assembly/` and sent to clients on login and `/reload` (`network/AssemblyRecipesPayload`); both sides order a fragment's recipes by result id. Datagen (`AssemblyRecipeProvider`) writes one per artifact, 298.
 
-Creative tab: `Argon Archaeology` (`apeira:archaeology`, assembly table icon): the assembly table, decor's painting table and paintbrush, the fragments, then the artifacts without variants (Argon's two tabs of that name in one).
+Cosmetics (`ArchaeCosmetics`, Argon's `ModCosmeticItems`): Argon's 25, decor `CosmeticItem`s (section 10) with Argon's slots, rarities and paintability (Argon gave none a default paint) and the "Archeology Exclusive" line; names are the ids in title case (Argon had none). Each is assembled from its fragment at Argon's cost (`AssemblyRecipeProvider` writes these 25 recipes after the 298 artifacts'). Models are Argon's (`models/item/cosmetic/<name>.json`, paint on tint index 1, textures in `textures/item/cosmetics/archaeology/`, Argon's path), shown when worn through `apeira:worn_cosmetic` (`ArchaeItemModelProvider#cosmetic`), the rarity token elsewhere. Not ported: Argon's own wardrobe, screen, attachment and payloads (decor's are used), its unused `glorified_gauntlet_left` model, and its Accessories/Trinkets tags.
+
+Creative tab: `Argon Archaeology` (`apeira:archaeology`, assembly table icon): the assembly table, decor's painting table and paintbrush, the fragments, the artifacts without variants, then the cosmetics (Argon's two tabs of that name and its "Argon Cosmetics" tab in one).
 
 Not ported, or changed:
 - Duplicates of decor: Argon's painting table, paintbrush, paint and finish system (shaders, `finish_atlas.png`) and its `ruby_lose` sound; decor's are used.

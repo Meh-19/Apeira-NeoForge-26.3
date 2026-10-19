@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import com.apeira.archae.assembly.AssemblyRecipe;
 import com.apeira.archae.assembly.AssemblyRecipes;
 import com.apeira.archae.registry.ArchaeArtifacts;
+import com.apeira.archae.registry.ArchaeCosmetics;
 
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -15,7 +16,8 @@ import net.minecraft.resources.Identifier;
 
 /**
  * Writes an assembly table recipe ({@code data/apeira/assembly/<artifact>.json}) for every artifact made from a
- * fragment, as Argon's {@code ModAssemblyRecipeProvider} did: {@code cost} of the fragment make the artifact.
+ * fragment and for every cosmetic ({@code <cosmetic>.json}), as Argon's {@code ModAssemblyRecipeProvider} did:
+ * {@code cost} of the fragment make the artifact or cosmetic.
  */
 public final class AssemblyRecipeProvider implements DataProvider {
     private final PackOutput.PathProvider paths;
@@ -31,6 +33,9 @@ public final class AssemblyRecipeProvider implements DataProvider {
             if (artifact.fragment() != null) {
                 recipes.put(artifact.block().getId(), new AssemblyRecipe(artifact.fragment().get(), artifact.item().get(), artifact.cost()));
             }
+        }
+        for (ArchaeCosmetics.Cosmetic cosmetic : ArchaeCosmetics.all()) {
+            recipes.put(cosmetic.item().getId(), new AssemblyRecipe(cosmetic.fragment().get(), cosmetic.item().get(), cosmetic.cost()));
         }
         return DataProvider.saveAll(output, AssemblyRecipe.CODEC, paths, recipes);
     }
