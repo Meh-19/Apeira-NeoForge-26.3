@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.apeira.decor.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ItemFeatureRendererMixin",
+    "ItemModelResolverMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

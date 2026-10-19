@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "apeira:item/damp_moss"
+    "layer0": "apeira:block/twig_0"
   }
 }

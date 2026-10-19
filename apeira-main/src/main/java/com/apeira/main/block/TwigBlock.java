@@ -17,15 +17,16 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * Xenon's stick lying on the ground, placed by right-clicking the top of a block with a vanilla stick
- * ({@code StickPlacement}). It faces a random way and its block state picks one of four models at random; it needs a
- * full face under it and drops a stick.
+ * The twig, Xenon's stick lying on the ground: placed by its own item or by right-clicking the top of a block with a
+ * vanilla stick ({@code StickPlacement}). Its facing comes from the block position ({@link RandomRotationBlock#turnAt})
+ * and its block state picks one of four models by position, so it never jumps when placed; it needs a full face under
+ * it and drops a stick.
  */
-public class PlacedStickBlock extends Block {
+public class TwigBlock extends Block {
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 1, 16);
 
-    public PlacedStickBlock(Properties properties) {
+    public TwigBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
@@ -47,7 +48,7 @@ public class PlacedStickBlock extends Block {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(FACING, Direction.Plane.HORIZONTAL.getRandomDirection(context.getLevel().getRandom()));
+        return defaultBlockState().setValue(FACING, Direction.from2DDataValue(RandomRotationBlock.turnAt(context.getClickedPos())));
     }
 
     @Override

@@ -48,12 +48,21 @@ public final class Paint {
     }
 
     /**
-     * The opaque ARGB tint that draws {@code paint}: the colour itself, or a finish's representative colour, since
-     * finish effects are not drawn on 26.x yet.
+     * The opaque ARGB tint that draws {@code paint} where finish effects are not drawn (placed blocks, particles): the
+     * colour itself, or a finish's representative colour.
      */
     public static int tint(int paint) {
         FinishType finish = FinishType.fromPaint(paint);
         return ARGB.opaque(finish != null ? finish.color() : paint);
+    }
+
+    /**
+     * The ARGB tint of an item painted {@code paint}: the opaque colour, or for a finish its paint value with alpha
+     * {@link com.apeira.decor.client.FinishRenderTypes#TINT_ALPHA 254}, which the item renderer draws as the finish.
+     */
+    public static int itemTint(int paint) {
+        FinishType finish = FinishType.fromPaint(paint);
+        return finish != null ? ARGB.color(0xFE, finish.paintValue()) : ARGB.opaque(paint);
     }
 
     /**

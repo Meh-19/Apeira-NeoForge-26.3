@@ -181,12 +181,6 @@ final class MainBlockProperties {
                 .isSuffocating((state, level, pos) -> false);
     }
 
-    static BlockBehaviour.Properties aquaGlass() {
-        return BlockBehaviour.Properties.of().mapColor(MapColor.NONE).noOcclusion().isValidSpawn(Blocks::never)
-                .isRedstoneConductor((state, level, pos) -> false).isSuffocating((state, level, pos) -> false).strength(0.3F)
-                .sound(SoundType.GLASS);
-    }
-
     static BlockBehaviour.Properties mushroom() {
         return BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).instrument(NoteBlockInstrument.BASS).strength(0.2F).sound(SoundType.WOOD)
                 .ignitedByLava();

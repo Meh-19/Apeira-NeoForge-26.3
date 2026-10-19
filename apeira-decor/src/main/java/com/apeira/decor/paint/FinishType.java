@@ -11,9 +11,9 @@ import com.apeira.core.registry.ApeiraIds;
  * blue are 255 and green is {@code (id - 1) * 2}, the legacy CosmoLib encoding, so finish paint carried over from it is
  * still recognised.
  *
- * <p>In CosmoLib each finish was an animated effect drawn by replacement entity shaders. Minecraft 26.x renders through
- * render pipelines, which those shaders do not fit, so for now a finish is drawn in its {@link #color() representative
- * colour}.
+ * <p>Each finish is an animated effect, CosmoLib's finish shaders, drawn on painted items by
+ * {@link com.apeira.decor.client.FinishRenderTypes}; the shaders tell finishes apart by their {@link #id() id}. Placed
+ * blocks show a finish in its {@link #color() representative colour}.
  */
 public enum FinishType {
     RAINBOW(1, 0xFF4444),

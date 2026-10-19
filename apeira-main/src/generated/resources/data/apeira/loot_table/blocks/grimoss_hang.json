@@ -2,11 +2,13 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "condition": "minecraft:tool/can_shear",
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "apeira:grimoss_hang"
+          "name": "apeira:grimoss"
         }
       ],
       "rolls": 1

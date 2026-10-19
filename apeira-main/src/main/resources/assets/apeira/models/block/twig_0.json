@@ -1,7 +1,7 @@
 {
   "textures": {
-    "0": "apeira:block/stick_2",
-    "particle": "apeira:block/stick_2"
+    "0": "apeira:block/twig_0",
+    "particle": "apeira:block/twig_0"
   },
   "elements": [
     {

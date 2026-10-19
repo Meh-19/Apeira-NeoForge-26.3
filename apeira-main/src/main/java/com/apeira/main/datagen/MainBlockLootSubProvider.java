@@ -9,6 +9,8 @@ import com.apeira.core.datagen.ApeiraBlockLootProvider;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.core.registry.PlankSet;
 import com.apeira.main.block.DecorationBlock;
+import com.apeira.main.block.HangingVineBlock;
+import com.apeira.main.block.HangingVinePlantBlock;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCrates;
@@ -25,6 +27,7 @@ import com.apeira.main.registry.MainWoods;
 import net.minecraft.advancements.predicates.StatePropertiesPredicate;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -106,21 +109,26 @@ public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
     }
 
     /**
-     * Xenon's plants drop only to shears (Xenon's intent: its {@code dropsWithShears} tables were never added), the
-     * placed stick a stick, rocks and pebbles one item per stone, and the covers themselves, except frost, which drops
-     * nothing as in Xenon. Placed turkeys drop nothing; echo and aquarium glass need Silk Touch, like glass.
+     * Xenon's plants drop only to shears (Xenon's intent: its {@code dropsWithShears} tables were never added), vines
+     * their one item ({@link HangingVineBlock#item()}; the moss hangs drop the moss cover without shears, like the cover), the twig a stick, rocks and pebbles
+     * one item per stone, and the covers themselves, except frost, which drops nothing as in Xenon. Placed turkeys and
+     * their skeleton drop nothing; echo glass needs Silk Touch, like glass.
      */
     private void xenonPlants() {
         List<Block> shearsOnly = new ArrayList<>();
         MainPlants.grasses().forEach(plant -> shearsOnly.add(plant.get()));
-        MainPlants.vines().forEach(vine -> shearsOnly.add(vine.get()));
         MainPlants.litter().forEach(litter -> shearsOnly.add(litter.get()));
         shearsOnly.addAll(List.of(MainPlants.OCULUS_ORCHID.get(), MainPlants.HIBISCUS.get(), MainPlants.CLOVER.get(), MainPlants.SMALL_LILY.get(),
                 MainPlants.ORANGE_MYCENA.get(), MainPlants.TALL_ORANGE_MYCENA.get()));
         shearsOnly.forEach(block -> add(block, createShearsOnlyDrop(block)));
+        for (var vine : MainPlants.vines()) {
+            ItemLike item = vine.get() instanceof HangingVineBlock tip ? tip.item() : ((HangingVinePlantBlock) vine.get()).item();
+            boolean moss = item == MainPlants.GRIMOSS.get() || item == MainPlants.DAMP_MOSS.get();
+            add(vine.get(), moss ? createSingleItemTable(item) : createShearsOnlyDrop(item));
+        }
         add(MainPlants.CATTAIL.get(), createDoublePlantShearsDrop(MainPlants.CATTAIL.get()));
         MainPlants.aubrietas().forEach(aubrieta -> dropSelf(aubrieta.get()));
-        add(MainPlants.STICK.get(), createSingleItemTable(Items.STICK));
+        add(MainPlants.TWIG.get(), createSingleItemTable(Items.STICK));
         add(MainPlants.ROCK.get(), createCountDrops(MainPlants.ROCK.get()));
         add(MainPlants.PEBBLES.get(), createCountDrops(MainPlants.PEBBLES.get()));
         dropSelf(MainPlants.ASH.get());
@@ -132,13 +140,12 @@ public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
         add(MainSpecialBlocks.YELLOW_BIRCH_LEAVES.get(), createLeavesDrops(MainSpecialBlocks.YELLOW_BIRCH_LEAVES.get(), Blocks.BIRCH_SAPLING,
                 NORMAL_LEAVES_SAPLING_CHANCES));
         add(MainSpecialBlocks.ECHO_GLASS.get(), createSilkTouchOnlyTable(MainSpecialBlocks.ECHO_GLASS.get()));
-        add(MainSpecialBlocks.AQUARIUM_GLASS.get(), createSilkTouchOnlyTable(MainSpecialBlocks.AQUARIUM_GLASS.get()));
         dropSelf(MainSpecialBlocks.MYCENA_MUSHROOM_STEM.get());
         dropSelf(MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM.get());
         dropSelf(MainSpecialBlocks.MYCENA_MUSHROOM_BLOCK.get());
         add(MainSpecialBlocks.RAW_TURKEY_BLOCK.get(), noDrop());
         add(MainSpecialBlocks.COOKED_TURKEY_BLOCK.get(), noDrop());
-        dropSelf(MainSpecialBlocks.TURKEY_SKELETON.get());
+        add(MainSpecialBlocks.TURKEY_SKELETON.get(), noDrop());
     }
 
     /** One item for each of a {@link DecorationBlock}'s stones, like candles. */

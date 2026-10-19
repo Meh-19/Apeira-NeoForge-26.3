@@ -8,8 +8,9 @@ import java.util.Set;
 
 import com.apeira.core.datagen.ApeiraBlockStateProvider;
 import com.apeira.core.registry.PlankSet;
+import com.apeira.main.block.CloverBlock;
 import com.apeira.main.block.DecorationBlock;
-import com.apeira.main.block.PlacedStickBlock;
+import com.apeira.main.block.TwigBlock;
 import com.apeira.main.block.RandomRotationBlock;
 import com.apeira.main.block.SpikeTrapBlock;
 import com.apeira.main.block.TurkeyMeatBlock;
@@ -196,15 +197,25 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
         List<Block> plain = new ArrayList<>();
         MainPlants.grasses().forEach(plant -> plain.add(plant.get()));
         plain.addAll(List.of(MainPlants.OCULUS_ORCHID.get(), MainPlants.HIBISCUS.get(), MainPlants.SMALL_LILY.get(), MainPlants.ORANGE_MYCENA.get(),
-                MainPlants.TALL_ORANGE_MYCENA.get(), MainPlants.CLOVER.get(), MainPlants.ASH.get(), MainPlants.FROST.get(), MainPlants.DAMP_MOSS.get(),
-                MainPlants.GRIMOSS.get(), MainSpecialBlocks.ECHO_GLASS.get(), MainSpecialBlocks.TURKEY_SKELETON.get()));
+                MainPlants.TALL_ORANGE_MYCENA.get(), MainPlants.ASH.get(), MainPlants.FROST.get(), MainPlants.DAMP_MOSS.get(),
+                MainPlants.GRIMOSS.get(), MainSpecialBlocks.ECHO_GLASS.get()));
         for (Block block : plain) {
             existingModelBlock(block);
             flatXenonItem(block);
         }
+        existingModelBlock(MainSpecialBlocks.TURKEY_SKELETON.get());
+
+        // Clover under water is drawn with Xenon's water clover, its leaves floating at the surface; one item for both.
+        Block clover = MainPlants.CLOVER.get();
+        generators().blockStateOutput.accept(MultiVariantGenerator.dispatch(clover).with(BlockModelGenerators.createBooleanModelDispatch(
+                CloverBlock.WATERLOGGED, variant(blockModel("water_clover")), variant(blockModel("clover")))));
+        flatXenonItem(clover);
         // Xenon's vine tips are drawn with its "_bottom"/"_end" models and the rest of the vine with the plain ones.
+        // Sculk vines and warped veil have one item, the tip's; the moss hangs none (the moss covers' items place them).
         vine(MainPlants.SCULK_VINES.get(), "sculk_vines_end", MainPlants.SCULK_VINES_END.get(), "sculk_vines");
         vine(MainPlants.WARPED_VEIL.get(), "warped_veil_bottom", MainPlants.WARPED_VEIL_BOTTOM.get(), "warped_veil");
+        flatXenonItem(MainPlants.SCULK_VINES.get());
+        flatXenonItem(MainPlants.WARPED_VEIL.get());
         vine(MainPlants.GRIMOSS_HANG.get(), "grimoss_hang_bottom", MainPlants.GRIMOSS_HANG_BOTTOM.get(), "grimoss_hang");
         vine(MainPlants.DAMP_MOSS_HANG.get(), "damp_moss_hang_bottom", MainPlants.DAMP_MOSS_HANG_BOTTOM.get(), "damp_moss_hang");
 
@@ -224,13 +235,13 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
             flatXenonItem(block);
         }
 
-        // The placed stick: one of four models at random, turned to its facing.
-        Block stick = MainPlants.STICK.get();
-        generators().blockStateOutput.accept(MultiVariantGenerator.dispatch(stick, BlockModelGenerators.variants(
-                BlockModelGenerators.plainModel(blockModel("stick_0")), BlockModelGenerators.plainModel(blockModel("stick_1")),
-                BlockModelGenerators.plainModel(blockModel("stick_2")), BlockModelGenerators.plainModel(blockModel("stick_3"))))
-                .with(rotationFor(PlacedStickBlock.FACING)));
-        flatXenonItem(stick);
+        // The twig: one of four models, picked by position like any random variant, turned to its facing.
+        Block twig = MainPlants.TWIG.get();
+        generators().blockStateOutput.accept(MultiVariantGenerator.dispatch(twig, BlockModelGenerators.variants(
+                BlockModelGenerators.plainModel(blockModel("twig_0")), BlockModelGenerators.plainModel(blockModel("twig_1")),
+                BlockModelGenerators.plainModel(blockModel("twig_2")), BlockModelGenerators.plainModel(blockModel("twig_3"))))
+                .with(rotationFor(TwigBlock.FACING)));
+        flatXenonItem(twig);
 
         for (Block block : List.of(MainPlants.ROCK.get(), MainPlants.PEBBLES.get())) {
             String name = modelOf(block).getPath();
@@ -248,31 +259,27 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
         blockItemModel(spikeTrap, modLoc("item/spike_trap"));
         blockItemModel(MainSpecialBlocks.ECHO_GLASS.get(), modLoc("item/echo_glass"));
 
-        simpleBlock(MainSpecialBlocks.AQUARIUM_GLASS.get());
         simpleBlock(MainSpecialBlocks.YELLOW_BIRCH_LEAVES.get());
         simpleBlock(MainSpecialBlocks.MYCENA_MUSHROOM_BLOCK.get());
         pillar(MainSpecialBlocks.MYCENA_MUSHROOM_STEM.get());
         pillar(MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM.get());
     }
 
-    /** A vine's tip and the rest of it, each with one model and Xenon's flat item. */
+    /** A vine's tip and the rest of it, each with one model. */
     private void vine(Block tip, String tipModel, Block body, String bodyModel) {
         simpleBlock(tip, blockModel(tipModel));
         simpleBlock(body, blockModel(bodyModel));
-        flatXenonItem(tip);
-        flatXenonItem(body);
     }
 
-    /** A placed turkey, one model per bite: {@code block/<model>_<bites>}. */
+    /** A placed turkey, one model per bite: {@code block/<model>_<bites>}. It has no item: the turkey items place it. */
     private void turkey(Block block, String model) {
         generators().blockStateOutput.accept(MultiVariantGenerator.dispatch(block).with(PropertyDispatch.initial(TurkeyMeatBlock.BITES)
                 .generate(bites -> variant(blockModel(model + "_" + bites)))));
-        flatXenonItem(block);
     }
 
     /** Gives a block's item Xenon's item model, {@code item/<name>}. */
     private void flatXenonItem(Block block) {
-        if (block != MainSpecialBlocks.TURKEY_SKELETON.get() && block != MainSpecialBlocks.ECHO_GLASS.get()) {
+        if (block != MainSpecialBlocks.ECHO_GLASS.get()) {
             blockItemModel(block, modLoc("item/" + modelOf(block).getPath().substring("block/".length())));
         }
     }

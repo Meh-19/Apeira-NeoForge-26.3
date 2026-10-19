@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "apeira:warped_veil_bottom"
+          "name": "apeira:warped_veil"
         }
       ],
       "rolls": 1
