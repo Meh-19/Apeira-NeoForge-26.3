@@ -2,11 +2,13 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "condition": "minecraft:tool/can_shear",
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "apeira:damp_moss_hang_bottom"
+          "name": "apeira:damp_moss"
         }
       ],
       "rolls": 1

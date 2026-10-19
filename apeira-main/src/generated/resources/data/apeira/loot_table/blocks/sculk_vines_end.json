@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "apeira:sculk_vines_end"
+          "name": "apeira:sculk_vines"
         }
       ],
       "rolls": 1

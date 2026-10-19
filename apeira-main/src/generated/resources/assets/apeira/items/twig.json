@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "apeira:block/turkey_skeleton"
+    "model": "apeira:item/twig"
   }
 }

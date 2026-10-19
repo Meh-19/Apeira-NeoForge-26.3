@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "waterlogged=false": {
       "model": "apeira:block/clover"
+    },
+    "waterlogged=true": {
+      "model": "apeira:block/water_clover"
     }
   }
 }

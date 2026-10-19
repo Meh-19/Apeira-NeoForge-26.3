@@ -1,0 +1,72 @@
+{
+  "variants": {
+    "facing=east": [
+      {
+        "model": "apeira:block/twig_0",
+        "y": 90
+      },
+      {
+        "model": "apeira:block/twig_1",
+        "y": 90
+      },
+      {
+        "model": "apeira:block/twig_2",
+        "y": 90
+      },
+      {
+        "model": "apeira:block/twig_3",
+        "y": 90
+      }
+    ],
+    "facing=north": [
+      {
+        "model": "apeira:block/twig_0"
+      },
+      {
+        "model": "apeira:block/twig_1"
+      },
+      {
+        "model": "apeira:block/twig_2"
+      },
+      {
+        "model": "apeira:block/twig_3"
+      }
+    ],
+    "facing=south": [
+      {
+        "model": "apeira:block/twig_0",
+        "y": 180
+      },
+      {
+        "model": "apeira:block/twig_1",
+        "y": 180
+      },
+      {
+        "model": "apeira:block/twig_2",
+        "y": 180
+      },
+      {
+        "model": "apeira:block/twig_3",
+        "y": 180
+      }
+    ],
+    "facing=west": [
+      {
+        "model": "apeira:block/twig_0",
+        "y": 270
+      },
+      {
+        "model": "apeira:block/twig_1",
+        "y": 270
+      },
+      {
+        "model": "apeira:block/twig_2",
+        "y": 270
+      },
+      {
+        "model": "apeira:block/twig_3",
+        "y": 270
+      }
+    ]
+  }
+}
