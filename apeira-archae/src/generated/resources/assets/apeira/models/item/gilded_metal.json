@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "apeira:item/archaeology/gilded_metal"
+  }
+}
