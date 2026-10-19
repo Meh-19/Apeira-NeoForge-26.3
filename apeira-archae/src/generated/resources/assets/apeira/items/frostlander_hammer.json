@@ -1,0 +1,23 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "apeira:item/legendary_hand_token"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "apeira:item/cosmetic/frostlander_hammer",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": -1
+        },
+        {
+          "type": "apeira:paint"
+        }
+      ]
+    },
+    "property": "apeira:worn_cosmetic"
+  }
+}

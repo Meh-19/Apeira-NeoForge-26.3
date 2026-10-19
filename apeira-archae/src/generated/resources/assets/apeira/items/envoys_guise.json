@@ -1,0 +1,23 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "apeira:item/rare_hat_token"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "apeira:item/cosmetic/envoys_guise",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": -1
+        },
+        {
+          "type": "apeira:paint"
+        }
+      ]
+    },
+    "property": "apeira:worn_cosmetic"
+  }
+}

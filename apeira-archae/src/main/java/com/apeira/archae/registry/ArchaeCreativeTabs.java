@@ -18,7 +18,8 @@ public final class ArchaeCreativeTabs {
     /**
      * "Argon Archaeology" ({@code apeira:archaeology}): Argon's two tabs of that name in one, in their order. The
      * assembly table, the decor module's painting table and paintbrush (Argon's own copies of them are not ported), the
-     * fragments, then the artifacts without their wall, ceiling and water variants.
+     * fragments, the artifacts without their wall, ceiling and water variants, then the cosmetics (Argon's "Argon
+     * Cosmetics" tab).
      */
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ARCHAEOLOGY = ApeiraArchae.REGISTRAR.creativeTab("archaeology",
             tab -> tab.icon(ArchaeBlocks.ASSEMBLY_TABLE::toStack).displayItems(contents()));
@@ -32,6 +33,7 @@ public final class ArchaeCreativeTabs {
         items.add(DecorItems.PAINTBRUSH);
         items.addAll(ArchaeItems.all());
         ArchaeArtifacts.all().stream().filter(artifact -> !artifact.variant()).forEach(artifact -> items.add(artifact.item()));
+        ArchaeCosmetics.all().forEach(cosmetic -> items.add(cosmetic.item()));
         return items;
     }
 

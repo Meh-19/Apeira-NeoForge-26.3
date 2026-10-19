@@ -5,6 +5,7 @@ import java.util.Locale;
 import com.apeira.archae.item.FragmentItem;
 import com.apeira.archae.registry.ArchaeArtifacts;
 import com.apeira.archae.registry.ArchaeBlocks;
+import com.apeira.archae.registry.ArchaeCosmetics;
 import com.apeira.archae.registry.ArchaeItems;
 import com.apeira.core.datagen.ApeiraLanguageProvider;
 
@@ -12,8 +13,8 @@ import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 /**
- * English names and texts of the archae module, Argon's wording. Argon named only a few of its blocks and items, all
- * as their id in title case, so every name here is the id in title case.
+ * English names and texts of the archae module, Argon's wording. Argon named only a few of its blocks and items (and
+ * none of its cosmetics), all as their id in title case, so every name here is the id in title case.
  */
 public final class ArchaeLanguageProvider extends ApeiraLanguageProvider {
     public ArchaeLanguageProvider(PackOutput output, String namespace) {
@@ -28,6 +29,9 @@ public final class ArchaeLanguageProvider extends ApeiraLanguageProvider {
         }
         for (ArchaeArtifacts.Artifact artifact : ArchaeArtifacts.all()) {
             block(artifact.block(), title(artifact.block().getId().getPath()));
+        }
+        for (ArchaeCosmetics.Cosmetic cosmetic : ArchaeCosmetics.all()) {
+            item(cosmetic.item(), title(cosmetic.item().getId().getPath()));
         }
 
         creativeTab("archaeology", "Argon Archaeology");

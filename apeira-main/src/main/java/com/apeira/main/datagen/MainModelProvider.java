@@ -88,7 +88,7 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
     }
 
     /**
-     * A cosmetic shows its rarity token ({@code item/<rarity>_<slot>_token}, CosmoLib's) everywhere (inventories, hands,
+     * A cosmetic shows its rarity token ({@code item/<rarity>_<slot>_token}, CosmoLib's, in apeira-decor's resources) everywhere (inventories, hands,
      * item frames, the ground) except when worn, where the {@code apeira:worn_cosmetic} condition shows its 3-D model
      * ({@code item/cosmetic/<name>}) instead. Tint index 1 of the model is the paint, as in CosmoLib; tint index 0 keeps its texture.
      */
