@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "apeira:item/capture_net_closed",
+    "layer1": "apeira:item/capture_net_mob/drowned"
+  }
+}

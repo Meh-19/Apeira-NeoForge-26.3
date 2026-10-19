@@ -1,0 +1,143 @@
+{
+  "entity.turkey.idle1": {
+    "sounds": [
+      "apeira:entity/turkey/idle1"
+    ]
+  },
+  "entity.turkey.idle2": {
+    "sounds": [
+      "apeira:entity/turkey/idle2"
+    ]
+  },
+  "entity.turkey.hurt": {
+    "sounds": [
+      "apeira:entity/turkey/hurt"
+    ]
+  },
+  "entity.grizzly_bear.roar": {
+    "sounds": [
+      "apeira:entity/grizzly_bear/roar"
+    ]
+  },
+  "entity.wraith.idle": {
+    "subtitle": "subtitles.apeira.entity.wraith.ambient",
+    "sounds": [
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed1",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed2",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed3",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed4",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed5",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed6",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed7",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed8",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed9",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed10",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed11",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed12",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      },
+      {
+        "name": "minecraft:enchant/soulspeed/soulspeed13",
+        "attenuation_distance": 12,
+        "volume": 0.25
+      }
+    ]
+  },
+  "entity.wraith.target": {
+    "subtitle": "subtitles.apeira.entity.wraith.target",
+    "sounds": [
+      "minecraft:ambient/nether/soulsand_valley/mood3",
+      "minecraft:ambient/nether/soulsand_valley/mood4"
+    ]
+  },
+  "entity.wraith.hurt": {
+    "subtitle": "subtitles.apeira.entity.wraith.hurt",
+    "sounds": [
+      {
+        "name": "minecraft:mob/phantom/hurt1",
+        "volume": 0.75
+      },
+      {
+        "name": "minecraft:mob/phantom/hurt2",
+        "volume": 0.75
+      },
+      {
+        "name": "minecraft:mob/phantom/hurt3",
+        "volume": 0.75
+      }
+    ]
+  },
+  "entity.wraith.death": {
+    "subtitle": "subtitles.apeira.entity.wraith.death",
+    "sounds": [
+      "minecraft:mob/phantom/death1",
+      "minecraft:mob/phantom/death2",
+      "minecraft:mob/phantom/death3"
+    ]
+  },
+  "entity.wraith.bite": {
+    "subtitle": "subtitles.apeira.entity.wraith.bite",
+    "sounds": [
+      "minecraft:mob/phantom/bite1",
+      "minecraft:mob/phantom/bite2"
+    ]
+  },
+  "entity.wraith.apparate": {
+    "subtitle": "subtitles.apeira.entity.wraith.apparate",
+    "sounds": [
+      "minecraft:mob/evocation_illager/cast1",
+      "minecraft:mob/evocation_illager/cast2"
+    ]
+  },
+  "entity.wraith.appear": {
+    "sounds": [
+      "minecraft:mob/illusion_illager/prepare_blind"
+    ]
+  }
+}
