@@ -5,7 +5,8 @@
     64
   ],
   "textures": {
-    "1": "apeira:block/archaeology/terracotta_pottery"
+    "1": "apeira:block/archaeology/terracotta_pottery",
+    "particle": "apeira:block/archaeology/terracotta_pottery"
   },
   "elements": [
     {

@@ -5,7 +5,8 @@
     64
   ],
   "textures": {
-    "1": "apeira:block/archaeology/ancient_vessel"
+    "1": "apeira:block/archaeology/ancient_vessel",
+    "particle": "apeira:block/archaeology/ancient_vessel"
   },
   "elements": [
     {

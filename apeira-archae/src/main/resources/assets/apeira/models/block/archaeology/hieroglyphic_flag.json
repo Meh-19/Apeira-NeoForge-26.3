@@ -5,7 +5,8 @@
     128
   ],
   "textures": {
-    "0": "apeira:block/archaeology/hieroglyphic_banner"
+    "0": "apeira:block/archaeology/hieroglyphic_banner",
+    "particle": "apeira:block/archaeology/hieroglyphic_banner"
   },
   "elements": [
     {
