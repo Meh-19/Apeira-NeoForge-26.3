@@ -1,8 +1,10 @@
 package com.apeira.main.datagen;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.apeira.core.datagen.ApeiraBlockLootProvider;
@@ -30,6 +32,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -37,6 +41,7 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.MatchBlock;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
+import net.neoforged.neoforge.registries.DeferredBlock;
 
 /**
  * Loot tables for {@link MainBlocks}, {@link MainWoods}, {@link MainStones}, {@link MainLanterns}, Xenon's blocks
@@ -72,8 +77,16 @@ public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
             planks(wood.planks());
             dropSelf(wood.verticalPlanks().get());
         }
-        // ORForged's trees have no saplings: their leaves and wisteria's flowers drop sticks, or themselves with shears.
-        MainWoods.allLeaves().forEach(leaves -> add(leaves.get(), createLeavesDropsWithoutSapling(leaves.get())));
+        // Maple and fir leaves drop Xenon's saplings, at Xenon's flat 5% (Fortune does not raise it). ORForged's other
+        // trees have no saplings: their leaves and wisteria's flowers drop sticks, or themselves with shears.
+        Map<DeferredBlock<?>, SaplingBlock> saplings = new HashMap<>();
+        MainWoods.MAPLE.leaves().forEach(leaves -> saplings.put(leaves, MainWoods.MAPLE_SAPLING.get()));
+        MainWoods.FIR.leaves().forEach(leaves -> saplings.put(leaves, MainWoods.FIR_SAPLING.get()));
+        for (DeferredBlock<LeavesBlock> leaves : MainWoods.allLeaves()) {
+            SaplingBlock sapling = saplings.get(leaves);
+            add(leaves.get(), sapling != null ? createLeavesDrops(leaves.get(), sapling, 0.05F) : createLeavesDropsWithoutSapling(leaves.get()));
+        }
+        MainWoods.saplings().forEach(sapling -> dropSelf(sapling.get()));
         dropSelf(MainWoods.PALM_CROWN.get());
         MainWoods.fungalPlankSets().forEach(this::planks);
         dropSelf(MainWoods.VERTICAL_FUNGAL_PLANKS.get());

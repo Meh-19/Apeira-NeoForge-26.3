@@ -2,17 +2,41 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "condition": {
-        "type": "minecraft:any_of",
-        "terms": [
-          "minecraft:tool/can_shear",
-          "minecraft:tool/can_silk_touch"
-        ]
-      },
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "apeira:green_fir_leaves"
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "condition": {
+                "type": "minecraft:any_of",
+                "terms": [
+                  "minecraft:tool/can_shear",
+                  "minecraft:tool/can_silk_touch"
+                ]
+              },
+              "name": "apeira:green_fir_leaves"
+            },
+            {
+              "type": "minecraft:item",
+              "condition": {
+                "type": "minecraft:all_of",
+                "terms": [
+                  {
+                    "type": "minecraft:survives_explosion"
+                  },
+                  {
+                    "type": "minecraft:table_bonus",
+                    "chances": [
+                      0.05
+                    ],
+                    "enchantment": "minecraft:fortune"
+                  }
+                ]
+              },
+              "name": "apeira:fir_sapling"
+            }
+          ]
         }
       ],
       "rolls": 1

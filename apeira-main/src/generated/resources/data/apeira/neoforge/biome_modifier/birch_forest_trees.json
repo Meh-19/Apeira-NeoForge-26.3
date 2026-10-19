@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "minecraft:birch_forest",
+    "minecraft:old_growth_birch_forest"
+  ],
+  "features": [
+    "apeira:birch_forest_trees",
+    "apeira:yellow_birch_patch"
+  ],
+  "step": "vegetal_decoration"
+}

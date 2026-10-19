@@ -19,6 +19,7 @@ import com.apeira.main.registry.MainRocks;
 import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
+import com.apeira.main.world.MainBiomes;
 
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -61,6 +62,8 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         MainStones.all().forEach(this::titled);
         MainLanterns.all().forEach(lantern -> titled(lantern.block()));
         xenon();
+        // Xenon's biomes: the ids in title case (Xenon named only The Depths, the same way).
+        MainBiomes.ALL.forEach(biome -> add("biome.apeira." + biome.identifier().getPath(), title(biome.identifier().getPath())));
 
         // The Crates mod's crate names.
         block(MainCrates.AETHER_CRATE, "Aether Crate");

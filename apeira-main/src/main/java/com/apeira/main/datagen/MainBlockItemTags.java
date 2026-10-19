@@ -33,6 +33,7 @@ final class MainBlockItemTags {
             tags.add(BlockItemTags.LEAVES, wood.leaves().toArray(DeferredBlock<?>[]::new));
             shapes(tags, wood.planks());
         }
+        tags.add(BlockItemTags.SAPLINGS, MainWoods.saplings().toArray(DeferredBlock<?>[]::new));
         tags.add(BlockItemTags.LOGS_THAT_BURN, MainWoods.PALM_CROWN);
         tags.add(BlockItemTags.LEAVES, MainWoods.WISTERIA_FLOWERS.toArray(DeferredBlock<?>[]::new));
         for (PlankSet planks : MainWoods.fungalPlankSets()) {

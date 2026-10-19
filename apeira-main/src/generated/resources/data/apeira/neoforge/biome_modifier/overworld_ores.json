@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "apeira:platinum_ore_placed",
+    "apeira:ruby_ore_placed",
+    "apeira:slate_sheet"
+  ],
+  "step": "underground_ores"
+}

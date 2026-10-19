@@ -1,0 +1,6 @@
+{
+  "type": "apeira:stone_mound",
+  "decorations": false,
+  "stone_state": "apeira:slate",
+  "waterlogged": true
+}

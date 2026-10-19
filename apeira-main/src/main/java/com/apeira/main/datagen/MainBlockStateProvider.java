@@ -72,6 +72,9 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
             simpleBlock(wood.verticalPlanks().get());
             wood.leaves().forEach(leaves -> leaves(leaves.get()));
         }
+        // Xenon's saplings: a cross of block/<name>, with an item drawn from the same texture, as Xenon's were.
+        MainWoods.saplings().forEach(sapling -> generators().createCrossBlockWithDefaultItem(sapling.get(),
+                BlockModelGenerators.PlantType.NOT_TINTED));
         simpleBlock(MainWoods.PALM_CROWN.get());
         MainWoods.WISTERIA_FLOWERS.forEach(flowers -> leaves(flowers.get()));
         MainWoods.fungalPlankSets().stream().map(PlankSet::family).forEach(this::family);

@@ -1,0 +1,180 @@
+{
+  "attributes": {
+    "minecraft:audio/ambient_sounds": {
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:gameplay/creature_world_gen_spawn_probability": 0.1,
+    "minecraft:gameplay/natural_mob_spawns": {
+      "argument": {
+        "spawn_costs": {},
+        "spawns_by_category": {
+          "ambient": [
+            {
+              "type": "minecraft:bat",
+              "count": 8,
+              "weight": 10
+            }
+          ],
+          "creature": [
+            {
+              "type": "minecraft:sheep",
+              "count": 4,
+              "weight": 12
+            },
+            {
+              "type": "minecraft:pig",
+              "count": 4,
+              "weight": 10
+            },
+            {
+              "type": "minecraft:chicken",
+              "count": 4,
+              "weight": 10
+            },
+            {
+              "type": "minecraft:cow",
+              "count": 4,
+              "weight": 8
+            },
+            {
+              "type": "minecraft:wolf",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 2
+              },
+              "weight": 5
+            },
+            {
+              "type": "minecraft:fox",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 2
+              },
+              "weight": 6
+            }
+          ],
+          "monster": [
+            {
+              "type": "minecraft:spider",
+              "count": 4,
+              "weight": 100
+            },
+            {
+              "type": "minecraft:zombie",
+              "count": 4,
+              "weight": 95
+            },
+            {
+              "type": "minecraft:zombie_villager",
+              "count": 1,
+              "weight": 5
+            },
+            {
+              "type": "minecraft:skeleton",
+              "count": 4,
+              "weight": 100
+            },
+            {
+              "type": "minecraft:creeper",
+              "count": 4,
+              "weight": 100
+            },
+            {
+              "type": "minecraft:slime",
+              "count": 4,
+              "weight": 100
+            },
+            {
+              "type": "minecraft:enderman",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 10
+            },
+            {
+              "type": "minecraft:witch",
+              "count": 1,
+              "weight": 5
+            }
+          ],
+          "underground_water_creature": [
+            {
+              "type": "minecraft:glow_squid",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 6,
+                "min_inclusive": 4
+              },
+              "weight": 10
+            }
+          ]
+        }
+      },
+      "modifier": "overlay"
+    },
+    "minecraft:visual/fog_color": "#ebdaa6",
+    "minecraft:visual/sky_color": "#9fb5f2",
+    "minecraft:visual/water_fog_color": "#050533"
+  },
+  "carvers": [],
+  "downfall": 0.0,
+  "effects": {
+    "foliage_color": "#a1b243",
+    "grass_color": "#b1bf64",
+    "water_color": "#3f7ee4"
+  },
+  "features": [
+    [],
+    [],
+    [
+      "apeira:andesite_mound",
+      "apeira:diorite_mound",
+      "apeira:granite_mound",
+      "apeira:slate_water_mound"
+    ],
+    [],
+    [],
+    [],
+    [
+      "apeira:platinum_ore_placed",
+      "apeira:ruby_ore_placed",
+      "apeira:slate_sheet"
+    ],
+    [],
+    [],
+    [
+      "apeira:cattails",
+      "apeira:clover_patch",
+      "apeira:cold_berry_bush",
+      "apeira:cold_leaf_litter",
+      "apeira:cold_maple_spruce",
+      "apeira:dry_grass_patch",
+      "apeira:fallen_oak_log",
+      "apeira:flower_patch",
+      "apeira:foothills_slate_mound",
+      "apeira:lily_pad_patch",
+      "apeira:maple_bushes",
+      "apeira:maple_trees",
+      "apeira:mushroom_patch",
+      "apeira:mycena_patch",
+      "apeira:shelf_fungus_cluster",
+      "apeira:short_grass_patch",
+      "apeira:small_lily_patch"
+    ],
+    [
+      "apeira:surface_patch",
+      "apeira:water_silt_disk"
+    ]
+  ],
+  "has_precipitation": true,
+  "temperature": 0.7
+}
