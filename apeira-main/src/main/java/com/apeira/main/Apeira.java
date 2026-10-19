@@ -7,6 +7,7 @@ import com.apeira.core.network.ApeiraNetwork;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.main.datagen.MainData;
 import com.apeira.main.entity.MainEntityEvents;
+import com.apeira.main.event.BirchSaplingGrowth;
 import com.apeira.main.event.CaptureNetEvents;
 import com.apeira.main.event.RocketBootsSafety;
 import com.apeira.main.event.StickPlacement;
@@ -22,6 +23,7 @@ import com.apeira.main.registry.MainDataComponents;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainEffects;
 import com.apeira.main.registry.MainEntities;
+import com.apeira.main.registry.MainFeatures;
 import com.apeira.main.registry.MainGear;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
@@ -56,15 +58,17 @@ public final class Apeira {
         REGISTRAR.register(modEventBus, MainItems::init, MainBlocks::init, MainWoods::init, MainStones::init, MainLanterns::init,
                 MainRocks::init, MainDyedBlocks::init, MainCrystals::init, MainBuildingBlocks::init, MainPlants::init,
                 MainSpecialBlocks::init, MainMaterials::init, MainBlockEntities::init, MainDataComponents::init, MainEffects::init,
-                MainGear::init, MainSounds::init, MainEntities::init, MainCosmetics::init, MainCrates::init,
+                MainGear::init, MainSounds::init, MainFeatures::init, MainEntities::init, MainCosmetics::init, MainCrates::init,
                 MainCreativeTabs::init);
         NETWORK.register(modEventBus, MainPayloads::init);
         // Data holder classes (models, recipes, ...) are passed here as they are added.
         DATA.register(modEventBus, MainData::init);
         modEventBus.addListener(MainEntityEvents::registerAttributes);
+        modEventBus.addListener(MainEntityEvents::registerSpawnPlacements);
         NeoForge.EVENT_BUS.addListener(StickPlacement::onUseItemOnBlock);
         NeoForge.EVENT_BUS.addListener(CaptureNetEvents::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(RocketBootsSafety::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(BirchSaplingGrowth::onGrowFeature);
         LOGGER.info("{} initialized", MOD_ID);
     }
 }

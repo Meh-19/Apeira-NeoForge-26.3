@@ -5,8 +5,11 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "CoralMixin",
+    "DepthsTerrainMixin",
     "IllagerFleeGrizzlyMixin",
     "LivestockFleeCrocodileMixin",
+    "MultiNoiseBiomeSourceMixin",
+    "OverworldBiomesMixin",
     "ShadowAttackMixin",
     "ShadowDamageMixin",
     "ShadowDetectionMixin",

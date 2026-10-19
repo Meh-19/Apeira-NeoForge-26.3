@@ -7,7 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
-/** Xenon's mob sounds, with Xenon's names ({@code assets/apeira/sounds.json}). */
+/** Xenon's mob and biome sounds, with Xenon's names ({@code assets/apeira/sounds.json}). */
 public final class MainSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> TURKEY_IDLE_1 = sound("entity.turkey.idle1");
     public static final DeferredHolder<SoundEvent, SoundEvent> TURKEY_IDLE_2 = sound("entity.turkey.idle2");
@@ -20,6 +20,8 @@ public final class MainSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> WRAITH_BITE = sound("entity.wraith.bite");
     public static final DeferredHolder<SoundEvent, SoundEvent> WRAITH_APPARATE = sound("entity.wraith.apparate");
     public static final DeferredHolder<SoundEvent, SoundEvent> WRAITH_APPEAR = sound("entity.wraith.appear");
+    /** The Depths' ambient loop: the basalt deltas' ambience, slowed down. */
+    public static final DeferredHolder<SoundEvent, SoundEvent> DEPTHS_AMBIENT = sound("ambient.depths");
 
     private MainSounds() {}
 

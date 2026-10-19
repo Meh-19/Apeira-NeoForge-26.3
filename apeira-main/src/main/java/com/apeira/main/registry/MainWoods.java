@@ -7,18 +7,24 @@ import java.util.function.UnaryOperator;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.core.registry.PlankSet;
 import com.apeira.main.Apeira;
+import com.apeira.main.world.MainConfiguredFeatures;
 
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockItemTagId;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
@@ -28,8 +34,9 @@ import net.neoforged.neoforge.registries.DeferredBlock;
  *
  * <p>Everything here is plain vanilla behaviour: logs and beams are {@link RotatedPillarBlock}s, leaves are vanilla
  * {@link LeavesBlock}s (decay by their {@code distance} state, no ticking of their own), and stripping and burning
- * are the {@code neoforge:transformables} and {@code neoforge:flammable} data maps. ORForged's woods have no
- * saplings, so their leaves drop sticks rather than a sapling. Wooden items burn in furnaces like vanilla's.
+ * are the {@code neoforge:transformables} and {@code neoforge:flammable} data maps. Maple and fir have Xenon's
+ * saplings, which their leaves drop; ORForged's other woods have none, so their leaves drop sticks rather than a sapling.
+ * Wooden items burn in furnaces like vanilla's.
  */
 public final class MainWoods {
     private static final ApeiraRegistrar R = Apeira.REGISTRAR;
@@ -43,8 +50,12 @@ public final class MainWoods {
     private static final List<DeferredBlock<Block>> CARVED_PLANKS = new ArrayList<>();
 
     public static final Wood MAPLE = wood("maple", "orange_maple_leaves", "red_maple_leaves");
+    /** Xenon's maple sapling, which grows its maple tree ({@code apeira:maple_tree}). */
+    public static final DeferredBlock<SaplingBlock> MAPLE_SAPLING = sapling("maple", MainConfiguredFeatures.MAPLE_TREE);
     public static final Wood BLEAK = wood("bleak", "bleak_leaves");
     public static final Wood FIR = wood("fir", "green_fir_leaves", "orange_fir_leaves");
+    /** Xenon's fir sapling, which grows its fir tree ({@code apeira:fir_tree}). */
+    public static final DeferredBlock<SaplingBlock> FIR_SAPLING = sapling("fir", MainConfiguredFeatures.FIR_TREE);
     public static final Wood PALM = wood("palm", "palm_leaves");
     /** The block at the top of a palm trunk that its leaves grow from. Counts as a log, so palm leaves next to it stay. */
     public static final DeferredBlock<Block> PALM_CROWN = track(R.blockWithItem("palm_crown", Block::new,
@@ -110,6 +121,11 @@ public final class MainWoods {
     /** Every beam: the trees' first, then the vanilla woods'. */
     public static List<DeferredBlock<RotatedPillarBlock>> beams() {
         return List.copyOf(BEAMS);
+    }
+
+    /** Xenon's saplings: maple and fir. */
+    public static List<DeferredBlock<SaplingBlock>> saplings() {
+        return List.of(MAPLE_SAPLING, FIR_SAPLING);
     }
 
     /** Every carved planks block: the trees', fungal and the vanilla woods'. */
@@ -179,6 +195,14 @@ public final class MainWoods {
     private static DeferredBlock<LeavesBlock> leaves(String name) {
         return track(R.blockWithItem(name, p -> new LeavesBlock(AmbientLeavesBlockSoundPlayer.noAmbientSound(), p),
                 () -> BlockBehaviour.Properties.ofLegacyCopy(Blocks.OAK_LEAVES), UnaryOperator.identity()));
+    }
+
+    /** A sapling with oak's properties that grows {@code tree}, composting and burning like vanilla's. */
+    private static DeferredBlock<SaplingBlock> sapling(String wood, ResourceKey<Feature> tree) {
+        TreeGrower grower = new TreeGrower(R.id(wood).toString(), WeightedList.of(tree), WeightedList.of(), WeightedList.of(), null);
+        return track(R.blockWithItem(wood + "_sapling", p -> new SaplingBlock(grower, p),
+                () -> BlockBehaviour.Properties.ofLegacyCopy(Blocks.OAK_SAPLING),
+                p -> p.compostable(ContextIntProviders.COMPOSTABLE_LOW).cookingFuel(ContextIntProviders.COOKING_TIME_DRY_PLANTS)));
     }
 
     /** A beam of the wood whose log is {@code log}: its properties, but as soft as planks. */

@@ -18,6 +18,7 @@ import com.apeira.main.block.MossCoverBlock;
 import com.apeira.main.block.TwigBlock;
 import com.apeira.main.block.RandomRotationBlock;
 import com.apeira.main.block.SmallLilyBlock;
+import com.apeira.main.block.TallOrangeMycenaBlock;
 import com.apeira.main.block.XenonFlowerBlock;
 import com.apeira.main.block.XenonPlantBlock;
 
@@ -71,8 +72,9 @@ public final class MainPlants {
             MainBlockProperties::plants);
     public static final DeferredBlock<XenonPlantBlock> HOGWEED = block("hogweed", p -> XenonPlantBlock.growsInto(p, TALL_HOGWEED).onNetherSoil(),
             MainBlockProperties::plants);
-    /** Xenon's bone meal on it grew a mushroom tree (its worldgen feature), which is not ported yet. */
-    public static final DeferredBlock<XenonPlantBlock> TALL_ORANGE_MYCENA = tall("tall_orange_mycena");
+    /** Bone meal on it grows one of Xenon's orange mycena mushrooms ({@code OrangeMycenaFeature}). */
+    public static final DeferredBlock<TallOrangeMycenaBlock> TALL_ORANGE_MYCENA = block("tall_orange_mycena", TallOrangeMycenaBlock::new,
+            MainBlockProperties::plants);
     public static final DeferredBlock<XenonPlantBlock> ORANGE_MYCENA = growsInto("orange_mycena", TALL_ORANGE_MYCENA);
     public static final DeferredBlock<XenonPlantBlock> TALL_SOUL_STALKS = block("tall_soul_stalks", p -> XenonPlantBlock.tall(p).onNetherSoil(),
             MainBlockProperties::plants);
@@ -168,7 +170,7 @@ public final class MainPlants {
         return block(name, XenonPlantBlock::tall, MainBlockProperties::plants);
     }
 
-    private static DeferredBlock<XenonPlantBlock> growsInto(String name, DeferredBlock<XenonPlantBlock> tall) {
+    private static DeferredBlock<XenonPlantBlock> growsInto(String name, DeferredBlock<? extends XenonPlantBlock> tall) {
         return block(name, p -> XenonPlantBlock.growsInto(p, tall), MainBlockProperties::plants);
     }
 
