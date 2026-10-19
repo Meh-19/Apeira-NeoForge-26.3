@@ -6,6 +6,8 @@ import com.apeira.decor.block.ApeiraFurnitureBlock;
 import com.apeira.decor.furniture.Furniture;
 import com.apeira.decor.furniture.FurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlockEntity;
+import com.apeira.decor.furniture.FurnitureTuning;
+import com.apeira.decor.furniture.FurnitureTunings;
 import com.apeira.decor.paint.Paint;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -28,7 +30,8 @@ import net.minecraft.world.phys.Vec3;
  * the block, in the {@code none} display context, turned by the block's {@link ApeiraFurnitureBlock#ROTATION}. The
  * item definition shows the block model there, or for a large piece, one that reaches further than a block model may,
  * its {@code models/item/furniture/<name>_placed.json}, scaled and lifted as {@link Furniture.Large} says. Paint and
- * finishes show through the item's {@code apeira:paint} tint, as on any other item.
+ * finishes show through the item's {@code apeira:paint} tint, as on any other item. A {@linkplain FurnitureTunings tuned}
+ * piece is drawn at its tuning's scale and offset instead.
  */
 public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlockEntity, FurnitureRenderer.State> {
     private final ItemModelResolver itemModelResolver;
@@ -52,6 +55,12 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         }
         Furniture.Large large = block.furniture().large();
         state.large = large != null ? large : Furniture.Large.BLOCK_MODEL;
+        FurnitureTuning tuning = FurnitureTunings.get(block);
+        if (tuning != null) {
+            state.large = new Furniture.Large(tuning.scale(), state.large.modelBottom(), tuning.offsetY());
+        }
+        state.offsetX = tuning != null ? tuning.offsetX() : 0.0F;
+        state.offsetZ = tuning != null ? tuning.offsetZ() : 0.0F;
         state.yaw = ApeiraFurnitureBlock.yaw(blockEntity.getBlockState());
         ItemStack stack = new ItemStack(blockEntity.getBlockState().getBlock());
         if (blockEntity.paint() != null) {
@@ -71,6 +80,8 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         // A north-facing piece is turned by (yaw + 180) degrees clockwise, as its shape is.
         poseStack.translate(0.5F, large.bottom() / 16.0F, 0.5F);
         poseStack.rotateDegrees(Axis.YP, 180.0F - state.yaw);
+        // A tuning's sideways offset is in the north-facing model's frame, so it turns with the piece.
+        poseStack.translate(state.offsetX / 16.0F, 0.0F, state.offsetZ / 16.0F);
         poseStack.scale(large.scale(), large.scale(), large.scale());
         // Model space has the block's corner at the origin; items are drawn centred on it, so move back by half a block.
         poseStack.translate(0.0F, 0.5F - large.modelBottom() / 16.0F, 0.0F);
@@ -88,5 +99,7 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         final ItemStackRenderState item = new ItemStackRenderState();
         Furniture.Large large = Furniture.Large.BLOCK_MODEL;
         float yaw;
+        float offsetX;
+        float offsetZ;
     }
 }

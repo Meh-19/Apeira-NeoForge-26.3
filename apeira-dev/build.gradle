@@ -1,0 +1,7 @@
+// Dev-only tools module (the furniture dev wand). Shared configuration comes from the root build.gradle.
+// apeira-main loads it in its runs only (localRuntime), so it never ships with the content mods.
+
+dependencies {
+    implementation project(':apeira-core')
+    implementation project(':apeira-decor')
+}
