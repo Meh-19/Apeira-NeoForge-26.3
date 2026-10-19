@@ -15,6 +15,17 @@ public final class MainTags {
     public static final TagKey<Item> PLATINUM_TOOL_MATERIALS = item("platinum_tool_materials");
     /** What repairs platinum armour: platinum. */
     public static final TagKey<Item> REPAIRS_PLATINUM_ARMOR = item("repairs_platinum_armor");
+    /**
+     * Blocks shadow tools can't get drops from. Empty, as Xenon's {@code incorrect_for_shadow_tool} was, so shadow tools
+     * harvest everything.
+     */
+    public static final TagKey<Block> INCORRECT_FOR_SHADOW_TOOL = block("incorrect_for_shadow_tool");
+    /** What repairs shadow tools. Xenon's was the wraith rib, which is not ported (it has no texture), so it is empty. */
+    public static final TagKey<Item> SHADOW_TOOL_MATERIALS = item("shadow_tool_materials");
+    /** What repairs shadow armour: empty, like {@link #SHADOW_TOOL_MATERIALS}. */
+    public static final TagKey<Item> REPAIRS_SHADOW_ARMOR = item("repairs_shadow_armor");
+    /** What repairs rocket boots: nothing, as in Xenon. */
+    public static final TagKey<Item> REPAIRS_ROCKET_ARMOR = item("repairs_rocket_armor");
 
     /**
      * Where Xenon's cattails and clover grow: dirt, sand, red sand, gravel, clay, mud, muddy mangrove roots, moss, farmland,

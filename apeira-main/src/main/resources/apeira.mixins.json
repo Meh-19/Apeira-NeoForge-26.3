@@ -7,8 +7,16 @@
     "CoralMixin",
     "IllagerFleeGrizzlyMixin",
     "LivestockFleeCrocodileMixin",
+    "ShadowAttackMixin",
+    "ShadowDamageMixin",
+    "ShadowDetectionMixin",
+    "SilentBlockBreakMixin",
     "SkeletonFleeGrizzlyMixin",
     "ZombieFleeGrizzlyMixin"
+  ],
+  "client": [
+    "client.ShadowPlayerRenderMixin",
+    "client.ShadowVignetteMixin"
   ],
   "injectors": {
     "defaultRequire": 1

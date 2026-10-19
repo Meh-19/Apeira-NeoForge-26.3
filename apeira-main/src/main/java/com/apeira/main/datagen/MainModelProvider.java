@@ -51,6 +51,13 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
         existingModel(MainMaterials.CROCODILE_TOOTH);
 
         captureNet();
+        MainGear.shadowTools().forEach(this::toolItem);
+        trimmableArmor(MainGear.SHADOW_HELMET, ItemModelGenerators.TRIM_PREFIX_HELMET);
+        trimmableArmor(MainGear.SHADOW_CHESTPLATE, ItemModelGenerators.TRIM_PREFIX_CHESTPLATE);
+        trimmableArmor(MainGear.SHADOW_LEGGINGS, ItemModelGenerators.TRIM_PREFIX_LEGGINGS);
+        trimmableArmor(MainGear.SHADOW_BOOTS, ItemModelGenerators.TRIM_PREFIX_BOOTS);
+        // Xenon's own model; the boots take no trims, as in Xenon.
+        existingModel(MainGear.ROCKET_BOOTS);
 
         MainCosmetics.all().forEach(this::cosmetic);
     }
