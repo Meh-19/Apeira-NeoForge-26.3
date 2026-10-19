@@ -34,6 +34,6 @@ public abstract class OverworldBiomesMixin {
 
     @Unique
     private static boolean apeira$buildingVanillaRegistries() {
-        return StackWalker.getInstance().walk(frames -> frames.anyMatch(frame -> frame.getDeclaringClass() == VanillaRegistries.class));
+        return StackWalker.getInstance().walk(frames -> frames.anyMatch(frame -> frame.getClassName().equals("net.minecraft.data.registries.VanillaRegistries")));
     }
 }
