@@ -1,11 +1,29 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "apeira:item/furniture/cat_clock",
-    "tints": [
+    "type": "minecraft:select",
+    "cases": [
       {
-        "type": "apeira:paint"
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:block/furniture/cat_clock",
+          "tints": [
+            {
+              "type": "apeira:paint"
+            }
+          ]
+        },
+        "when": "none"
       }
-    ]
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/furniture/cat_clock",
+      "tints": [
+        {
+          "type": "apeira:paint"
+        }
+      ]
+    },
+    "property": "minecraft:display_context"
   }
 }

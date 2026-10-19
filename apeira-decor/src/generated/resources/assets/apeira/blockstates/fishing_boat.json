@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/fishing_boat",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/fishing_boat"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/fishing_boat",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/fishing_boat",
-      "y": 270
     }
   }
 }

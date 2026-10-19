@@ -1,7 +1,6 @@
 package com.apeira.decor.client;
 
 import java.util.List;
-import java.util.Map;
 
 import com.apeira.core.network.client.ApeiraClientNetwork;
 import com.apeira.decor.ApeiraDecor;
@@ -15,27 +14,22 @@ import com.apeira.decor.network.OpenWardrobePayload;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.decor.paint.Paint;
 import com.apeira.decor.registry.DecorBlockEntities;
-import com.apeira.decor.registry.DecorFurniture;
 import com.apeira.decor.registry.DecorEntities;
 import com.apeira.decor.registry.DecorMenus;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -43,7 +37,6 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
 
 /** Client entrypoint for the Apeira Decor module. */
 @Mod(value = ApeiraDecor.MOD_ID, dist = Dist.CLIENT)
@@ -58,11 +51,9 @@ public final class ApeiraDecorClient {
         modEventBus.addListener(ApeiraDecorClient::registerRenderStateModifiers);
         modEventBus.addListener(ApeiraDecorClient::registerKeys);
         modEventBus.addListener(ApeiraDecorClient::registerScreens);
-        modEventBus.addListener(ApeiraDecorClient::registerBlockTints);
         modEventBus.addListener(ApeiraDecorClient::registerItemTints);
         modEventBus.addListener(ApeiraDecorClient::registerItemConditions);
         modEventBus.addListener(FinishRenderTypes::registerPipelines);
-        modEventBus.addListener(ApeiraDecorClient::wrapPaintableBlockModels);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addPaintTooltip);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::openWardrobe);
         NeoForge.EVENT_BUS.addListener(CrateCamera::onClientTick);
@@ -80,7 +71,6 @@ public final class ApeiraDecorClient {
         event.registerEntityRenderer(DecorEntities.SEAT.get(), NoopRenderer::new);
         event.registerBlockEntityRenderer(DecorBlockEntities.CRATE.get(), CrateRenderer::new);
         event.registerBlockEntityRenderer(DecorBlockEntities.FURNITURE.get(), FurnitureRenderer::new);
-        event.registerBlockEntityRenderer(DecorBlockEntities.PAINT.get(), PaintFinishRenderer::new);
     }
 
     /** Worn cosmetics, on players and mannequins of both skin models. */
@@ -114,27 +104,6 @@ public final class ApeiraDecorClient {
     private static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(DecorMenus.PAINTING_TABLE.get(), PaintingTableScreen::new);
         event.register(DecorMenus.WARDROBE.get(), WardrobeScreen::new);
-    }
-
-    /** Paintable furniture with a block model: tint index 0 shows the block's paint. Large furniture tints its item. */
-    private static void registerBlockTints(RegisterColorHandlersEvent.BlockTintSources event) {
-        event.register(List.of(PaintBlockTint.INSTANCE), paintableBlockModels());
-    }
-
-    /** Paintable furniture with a block model leaves the chunk mesh while painted with a finish, see {@link FinishBlockModel}. */
-    private static void wrapPaintableBlockModels(ModelEvent.ModifyBakingResult event) {
-        Map<BlockState, BlockStateModel> models = event.getBakingResult().blockStateModels();
-        for (Block block : paintableBlockModels()) {
-            for (BlockState state : block.getStateDefinition().getPossibleStates()) {
-                models.computeIfPresent(state, (key, model) -> new FinishBlockModel(model));
-            }
-        }
-    }
-
-    /** The paintable blocks drawn by their block model, whose block entity is a plain {@code apeira:paint} one. */
-    private static Block[] paintableBlockModels() {
-        return DecorFurniture.matching(furniture -> furniture.paintable() && furniture.large() == null).stream()
-                .map(DeferredBlock::get).toArray(Block[]::new);
     }
 
     /** {@code apeira:paint}, which item definitions use to show an item's paint. Also needed by the data run. */

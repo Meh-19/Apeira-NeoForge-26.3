@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/circus_tent",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/circus_tent"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/circus_tent",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/circus_tent",
-      "y": 270
     }
   }
 }

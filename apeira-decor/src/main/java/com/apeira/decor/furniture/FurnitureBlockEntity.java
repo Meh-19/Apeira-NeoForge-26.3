@@ -7,8 +7,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * The block entity of a large {@link FurnitureBlock}, which {@code FurnitureRenderer} draws because the piece reaches
- * further than a block model may. It keeps the piece's paint like any {@link PaintBlockEntity}.
+ * The block entity of every {@link FurnitureBlock}, which {@code FurnitureRenderer} draws, as CosmoLib's furniture
+ * block entities were. It keeps the piece's paint like any {@link PaintBlockEntity}.
  */
 public class FurnitureBlockEntity extends PaintBlockEntity {
     public FurnitureBlockEntity(BlockPos pos, BlockState state) {

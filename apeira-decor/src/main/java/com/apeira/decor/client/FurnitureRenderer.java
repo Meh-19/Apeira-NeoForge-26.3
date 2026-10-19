@@ -2,6 +2,7 @@ package com.apeira.decor.client;
 
 import org.jspecify.annotations.Nullable;
 
+import com.apeira.decor.block.ApeiraFurnitureBlock;
 import com.apeira.decor.furniture.Furniture;
 import com.apeira.decor.furniture.FurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlockEntity;
@@ -18,16 +19,16 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Draws a large furniture piece, one that reaches further than a block model may, at its full size. The piece's item
- * definition shows its {@code models/item/furniture/<name>_placed.json} in the {@code none} display context, so the
- * renderer draws the piece's item, painted like the block, scaled and turned as {@link Furniture.Large} says.
+ * Draws a placed furniture piece, as CosmoLib's {@code FurnitureBlockEntityRenderer} did: the piece's item, painted like
+ * the block, in the {@code none} display context, turned by the block's {@link ApeiraFurnitureBlock#ROTATION}. The
+ * item definition shows the block model there, or for a large piece, one that reaches further than a block model may,
+ * its {@code models/item/furniture/<name>_placed.json}, scaled and lifted as {@link Furniture.Large} says. Paint and
+ * finishes show through the item's {@code apeira:paint} tint, as on any other item.
  */
 public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlockEntity, FurnitureRenderer.State> {
     private final ItemModelResolver itemModelResolver;
@@ -45,12 +46,13 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
     public void extractRenderState(FurnitureBlockEntity blockEntity, State state, float partialTicks, Vec3 cameraPosition,
             ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
-        state.large = blockEntity.getBlockState().getBlock() instanceof FurnitureBlock block ? block.furniture().large() : null;
-        state.facing = blockEntity.getBlockState().getValueOrElse(HorizontalDirectionalBlock.FACING, Direction.NORTH);
-        if (state.large == null) {
+        if (!(blockEntity.getBlockState().getBlock() instanceof FurnitureBlock block)) {
             state.item.clear();
             return;
         }
+        Furniture.Large large = block.furniture().large();
+        state.large = large != null ? large : Furniture.Large.BLOCK_MODEL;
+        state.yaw = ApeiraFurnitureBlock.yaw(blockEntity.getBlockState());
         ItemStack stack = new ItemStack(blockEntity.getBlockState().getBlock());
         if (blockEntity.paint() != null) {
             Paint.set(stack, blockEntity.paint());
@@ -62,13 +64,13 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
         Furniture.Large large = state.large;
-        if (large == null || state.item.isEmpty()) {
+        if (state.item.isEmpty()) {
             return;
         }
         poseStack.pushPose();
-        // The block model of a north-facing piece is turned by (facing + 180) degrees clockwise; turn the same way.
+        // A north-facing piece is turned by (yaw + 180) degrees clockwise, as its shape is.
         poseStack.translate(0.5F, large.bottom() / 16.0F, 0.5F);
-        poseStack.rotateDegrees(Axis.YP, 180.0F - state.facing.toYRot());
+        poseStack.rotateDegrees(Axis.YP, 180.0F - state.yaw);
         poseStack.scale(large.scale(), large.scale(), large.scale());
         // Model space has the block's corner at the origin; items are drawn centred on it, so move back by half a block.
         poseStack.translate(0.0F, 0.5F - large.modelBottom() / 16.0F, 0.0F);
@@ -76,7 +78,7 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         poseStack.popPose();
     }
 
-    /** Large pieces reach outside their block, so they are kept while the block itself is off screen. */
+    /** Large pieces reach outside their block, so pieces are kept while the block itself is off screen. */
     @Override
     public boolean shouldRenderOffScreen() {
         return true;
@@ -84,7 +86,7 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
 
     public static final class State extends BlockEntityRenderState {
         final ItemStackRenderState item = new ItemStackRenderState();
-        Furniture.@Nullable Large large;
-        Direction facing = Direction.NORTH;
+        Furniture.Large large = Furniture.Large.BLOCK_MODEL;
+        float yaw;
     }
 }

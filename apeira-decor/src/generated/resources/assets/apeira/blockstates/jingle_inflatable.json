@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/jingle_inflatable",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/jingle_inflatable"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/jingle_inflatable",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/jingle_inflatable",
-      "y": 270
     }
   }
 }

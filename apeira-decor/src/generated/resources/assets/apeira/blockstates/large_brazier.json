@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/large_brazier",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/large_brazier"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/large_brazier",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/large_brazier",
-      "y": 270
     }
   }
 }

@@ -9,11 +9,12 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * A block the paintbrush and the painting table can paint. Its paint is kept in a {@link PaintBlockEntity}, so the
- * block must also be one of the valid blocks of {@link com.apeira.decor.registry.DecorBlockEntities#PAINT}.
+ * block must also be one of the valid blocks of {@link com.apeira.decor.registry.DecorBlockEntities#PAINT}, or have a
+ * block entity type of its own, as furniture and artifacts do.
  *
- * <p>Paint tints the faces of the block's model with {@code "tintindex": 0}; the client registers the tint for each
- * paintable block in {@link com.apeira.decor.client.ApeiraDecorClient}, and the block item's model needs the
- * {@code apeira:paint} tint source. Unpainted faces keep their texture's colours.
+ * <p>Paint is drawn as CosmoLib drew it, through the item pipeline: a block entity renderer draws the block's item with
+ * the block's paint (see {@code FurnitureRenderer}), and the item definition's {@code apeira:paint} tint source tints
+ * its {@code tintindex} faces, or draws a finish's effect. Unpainted faces keep their texture's colours.
  */
 public interface PaintableBlock extends EntityBlock {
     /**

@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/young_cyprus",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/young_cyprus"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/young_cyprus",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/young_cyprus",
-      "y": 270
     }
   }
 }

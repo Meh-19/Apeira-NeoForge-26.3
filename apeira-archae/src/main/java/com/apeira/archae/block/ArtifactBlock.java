@@ -5,28 +5,24 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.archae.registry.ArchaeBlockEntities;
-import com.apeira.decor.paint.PaintableBlock;
+import com.apeira.decor.block.ApeiraFurnitureBlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * An artifact: a piece of Argon's archaeology furniture, turned in eight 45 degree steps ({@link #ROTATION}) to face
- * the player who placed it, as Argon's {@code AbstractFurnitureBlock} was.
+ * An artifact: a piece of Argon's archaeology furniture, on apeira-decor's {@link ApeiraFurnitureBlock} (CosmoLib's
+ * furniture system, which Argon's {@code AbstractFurnitureBlock} was): turned in eight 45 degree steps
+ * ({@link #ROTATION}) to face the player who placed it.
  *
  * <p>Artifacts are drawn by {@code ArtifactRenderer}, which lays the block's item model into the block as its
  * {@link Form#mode() display mode} says (Argon's models are Origin Realms display models that reach far past a block
@@ -36,12 +32,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * <p>An artifact may hand its placement to a wall or ceiling variant, a separate block placed when the player clicks
  * the side or the bottom of a block, and a variant drops its base artifact rather than itself.
  */
-public class ArtifactBlock extends Block implements PaintableBlock {
-    /** The artifact's turn, in 45 degree steps. */
-    public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 7);
-    /** Argon's models face the other way from the player at rotation 0, so placement adds half a turn. */
-    private static final int FACE_OFFSET = 4;
-
+public class ArtifactBlock extends ApeiraFurnitureBlock {
     private final boolean paintable;
     private final Form form;
     private final @Nullable Supplier<? extends Block> wall;
@@ -56,27 +47,16 @@ public class ArtifactBlock extends Block implements PaintableBlock {
      */
     public ArtifactBlock(BlockBehaviour.Properties properties, boolean paintable, Form form, @Nullable Supplier<? extends Block> wall,
             @Nullable Supplier<? extends Block> ceiling, @Nullable Supplier<? extends Block> drop) {
-        super(properties);
+        super(properties, form.shape());
         this.paintable = paintable;
         this.form = form;
         this.wall = wall;
         this.ceiling = ceiling;
         this.drop = drop;
-        registerDefaultState(stateDefinition.any().setValue(ROTATION, 0));
     }
 
     public ArtifactBlock(BlockBehaviour.Properties properties, boolean paintable, Form form) {
         this(properties, paintable, form, null, null, null);
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(ROTATION);
-    }
-
-    /** The rotation that turns an artifact to face the player placing it. */
-    protected static int rotation(BlockPlaceContext context) {
-        return Math.floorMod(Math.round(context.getRotation() / 45.0F) + FACE_OFFSET, 8);
     }
 
     @Override
@@ -111,24 +91,10 @@ public class ArtifactBlock extends Block implements PaintableBlock {
         return new ArtifactBlockEntity(ArchaeBlockEntities.ARTIFACT_DISPLAY.get(), pos, state);
     }
 
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
-    }
-
+    /** Argon's outlines are not turned with the artifact. */
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return form.shape();
-    }
-
-    @Override
-    protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(ROTATION, rotation.rotate(state.getValue(ROTATION), 8));
-    }
-
-    @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(ROTATION, mirror.mirror(state.getValue(ROTATION), 8));
     }
 
     /**

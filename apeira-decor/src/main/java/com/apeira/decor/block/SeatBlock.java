@@ -11,19 +11,23 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * A block a player can sit on through {@link com.apeira.decor.entity.ApeiraSeatEntity}: furniture facing one of the
- * four horizontal directions ({@link HorizontalDirectionalBlock#FACING}), with a seat at its centre. The sitter looks
- * out of its front, unless the block gives another {@link #seatYaw}.
+ * A block a player can sit on through {@link com.apeira.decor.entity.ApeiraSeatEntity}, with a seat at its centre:
+ * furniture turned by {@link ApeiraFurnitureBlock#ROTATION}, or any block with a horizontal
+ * {@link HorizontalDirectionalBlock#FACING}. The sitter looks out of its front, unless the block gives another
+ * {@link #seatYaw}.
  */
 public interface SeatBlock {
     /** The height of the top of the seat above the bottom of the block, in blocks. */
     double seatHeight();
 
     /**
-     * The way the sitter faces, in degrees: out of the front of a block with a horizontal {@code FACING}. Blocks that
-     * turn some other way, such as Argon's eight-way artifacts, answer here.
+     * The way the sitter faces, in degrees: out of the front of the furniture. Blocks that seat players some other way,
+     * such as Argon's artifacts, which keep the sitter's own look, answer here.
      */
     default float seatYaw(BlockState state, Entity sitter) {
+        if (state.hasProperty(ApeiraFurnitureBlock.ROTATION)) {
+            return ApeiraFurnitureBlock.yaw(state);
+        }
         return state.getValue(HorizontalDirectionalBlock.FACING).toYRot();
     }
 

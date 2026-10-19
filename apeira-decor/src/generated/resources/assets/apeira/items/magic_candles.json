@@ -1,6 +1,19 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "apeira:item/furniture/magic_candles"
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:block/furniture/magic_candles"
+        },
+        "when": "none"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/furniture/magic_candles"
+    },
+    "property": "minecraft:display_context"
   }
 }

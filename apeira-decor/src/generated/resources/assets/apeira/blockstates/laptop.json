@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/laptop",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/laptop"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/laptop",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/laptop",
-      "y": 270
     }
   }
 }

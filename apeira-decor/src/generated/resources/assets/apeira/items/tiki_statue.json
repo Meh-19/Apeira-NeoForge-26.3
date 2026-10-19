@@ -1,11 +1,29 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "apeira:item/furniture/tiki_statue",
-    "tints": [
+    "type": "minecraft:select",
+    "cases": [
       {
-        "type": "apeira:paint"
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:block/furniture/tiki_statue",
+          "tints": [
+            {
+              "type": "apeira:paint"
+            }
+          ]
+        },
+        "when": "none"
       }
-    ]
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/furniture/tiki_statue",
+      "tints": [
+        {
+          "type": "apeira:paint"
+        }
+      ]
+    },
+    "property": "minecraft:display_context"
   }
 }

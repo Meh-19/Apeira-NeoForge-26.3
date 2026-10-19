@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/food_truck",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/food_truck"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/food_truck",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/food_truck",
-      "y": 270
     }
   }
 }

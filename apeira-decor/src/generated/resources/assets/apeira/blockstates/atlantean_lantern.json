@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "apeira:block/furniture/atlantean_lantern",
-      "y": 90
-    },
-    "facing=north": {
+    "": {
       "model": "apeira:block/furniture/atlantean_lantern"
-    },
-    "facing=south": {
-      "model": "apeira:block/furniture/atlantean_lantern",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "apeira:block/furniture/atlantean_lantern",
-      "y": 270
     }
   }
 }
