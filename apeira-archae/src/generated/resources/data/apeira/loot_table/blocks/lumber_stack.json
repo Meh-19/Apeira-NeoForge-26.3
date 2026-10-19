@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:copy_components",
+            "include": [
+              "apeira:paint"
+            ],
+            "source": "block_entity"
+          },
+          "name": "apeira:lumber_stack"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "apeira:blocks/lumber_stack"
+}

@@ -1,0 +1,231 @@
+{
+  "credit": "Made with Blockbench",
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "0": "apeira:block/archaeology/terracotta_pottery",
+    "particle": "apeira:block/archaeology/terracotta_pottery"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        1,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            2.75,
+            3,
+            3
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0,
+            2.75,
+            3,
+            3
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0,
+            2.75,
+            3,
+            3
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0,
+            2.75,
+            3,
+            3
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            3,
+            3
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0,
+            3,
+            3,
+            0
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        1,
+        14
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            0,
+            3,
+            3,
+            6
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "down": {
+          "uv": [
+            0,
+            6,
+            3,
+            3
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        }
+      }
+    }
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        44.25,
+        -40,
+        0
+      ],
+      "translation": [
+        0,
+        4.25,
+        1.5
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        44.25,
+        -40,
+        0
+      ],
+      "translation": [
+        0,
+        4.25,
+        1.5
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        17.48,
+        -58.42,
+        11.94
+      ],
+      "translation": [
+        9,
+        2.5,
+        -6.75
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        17.48,
+        -58.42,
+        11.94
+      ],
+      "translation": [
+        9,
+        2.5,
+        -6.75
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        6,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "gui": {
+      "rotation": [
+        30,
+        -45,
+        0
+      ],
+      "translation": [
+        0,
+        5,
+        0
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -16
+      ],
+      "scale": [
+        2,
+        2,
+        2
+      ]
+    }
+  }
+}

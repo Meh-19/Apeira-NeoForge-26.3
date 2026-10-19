@@ -1,0 +1,272 @@
+{
+  "format_version": "1.21.11",
+  "credit": "Made with Blockbench",
+  "texture_size": [
+    128,
+    128
+  ],
+  "textures": {
+    "0": "apeira:block/archaeology/textile_grief",
+    "particle": "apeira:block/archaeology/textile_grief"
+  },
+  "elements": [
+    {
+      "from": [
+        -3.5,
+        -4,
+        8
+      ],
+      "to": [
+        19.5,
+        20,
+        8
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "x",
+        "origin": [
+          8,
+          8,
+          8
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            0.125,
+            6,
+            5.875,
+            12
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            5.875,
+            6,
+            0.125,
+            12
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "from": [
+        -3.5,
+        -4,
+        8
+      ],
+      "to": [
+        19.5,
+        20,
+        8
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "x",
+        "origin": [
+          8,
+          8,
+          8
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            6.125,
+            6,
+            11.875,
+            12
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            11.875,
+            6,
+            6.125,
+            12
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "from": [
+        -4,
+        20,
+        7.25
+      ],
+      "to": [
+        20,
+        21.5,
+        8.75
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          4,
+          11.25,
+          3.75
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            12,
+            6,
+            12.375
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            6.125,
+            12,
+            6.5,
+            12.375
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            6,
+            12.375,
+            0,
+            12
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            6.125,
+            12,
+            6.5,
+            12.375
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0,
+            12,
+            6,
+            12.375
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0,
+            12,
+            6,
+            12.375
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ],
+  "gui_light": "front",
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        57,
+        -5,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -0.75
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        57,
+        -5,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -0.75
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -39,
+        0
+      ],
+      "translation": [
+        18.5,
+        -7,
+        -18
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -39,
+        0
+      ],
+      "translation": [
+        18.5,
+        -7,
+        -18
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        6,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "gui": {
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        -0.25,
+        -54
+      ],
+      "scale": [
+        4,
+        4,
+        4
+      ]
+    }
+  }
+}

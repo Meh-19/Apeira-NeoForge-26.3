@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:copy_components",
+            "include": [
+              "apeira:paint"
+            ],
+            "source": "block_entity"
+          },
+          "name": "apeira:netherrack_urn_large"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "apeira:blocks/netherrack_urn_large"
+}

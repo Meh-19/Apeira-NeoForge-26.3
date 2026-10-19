@@ -1,0 +1,250 @@
+{
+  "format_version": "1.21.11",
+  "credit": "Made with Blockbench",
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "0": "apeira:block/archaeology/fur_pelt",
+    "particle": "apeira:block/archaeology/fur_pelt"
+  },
+  "elements": [
+    {
+      "from": [
+        -8,
+        -4,
+        8
+      ],
+      "to": [
+        24,
+        29,
+        8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            8,
+            8.25
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            8,
+            8.25
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "from": [
+        -8,
+        -4,
+        8
+      ],
+      "to": [
+        24,
+        29,
+        8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            0,
+            16,
+            8.25
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            8,
+            0,
+            16,
+            8.25
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "from": [
+        -7.95,
+        29.05,
+        6.55
+      ],
+      "to": [
+        24.05,
+        31.95,
+        9.45
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            12,
+            8,
+            12.75
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            8.25,
+            12,
+            9,
+            12.75
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0,
+            12,
+            8,
+            12.75
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            8.25,
+            12,
+            9,
+            12.75
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0,
+            12,
+            8,
+            12.75
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0,
+            12,
+            8,
+            12.75
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ],
+  "gui_light": "front",
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        57,
+        -5,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -0.75
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        57,
+        -5,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -0.75
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -39,
+        0
+      ],
+      "translation": [
+        24.75,
+        -12.5,
+        -18
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -39,
+        0
+      ],
+      "translation": [
+        24.75,
+        -12.5,
+        -18
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        5.25,
+        0
+      ],
+      "scale": [
+        0.28,
+        0.28,
+        0.28
+      ]
+    },
+    "gui": {
+      "translation": [
+        0,
+        -2.75,
+        0
+      ],
+      "scale": [
+        0.39,
+        0.39,
+        0.39
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        -0.25,
+        -48
+      ],
+      "scale": [
+        2,
+        2,
+        2
+      ]
+    }
+  }
+}

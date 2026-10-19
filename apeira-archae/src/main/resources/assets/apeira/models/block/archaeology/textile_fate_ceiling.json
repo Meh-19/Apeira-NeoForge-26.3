@@ -1,0 +1,289 @@
+{
+  "format_version": "1.21.11",
+  "credit": "Made with Blockbench",
+  "texture_size": [
+    128,
+    128
+  ],
+  "textures": {
+    "0": "apeira:block/archaeology/textile_fate",
+    "particle": "apeira:block/archaeology/textile_fate"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        -4,
+        8
+      ],
+      "to": [
+        16,
+        20.5,
+        8
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          4,
+          4,
+          4
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            4,
+            6.125
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            0,
+            6.125
+          ],
+          "texture": "#0",
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        -4,
+        8
+      ],
+      "to": [
+        16,
+        20.5,
+        8
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          4,
+          4,
+          4
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            0,
+            12,
+            6.125
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            12,
+            0,
+            8,
+            6.125
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        20.5,
+        7.25
+      ],
+      "to": [
+        16,
+        22,
+        8.75
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          4,
+          11.25,
+          3.75
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            8,
+            4,
+            8.375
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            4,
+            8,
+            4.375,
+            8.375
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            4,
+            8.375,
+            0,
+            8
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            4,
+            8,
+            4.375,
+            8.375
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0,
+            8,
+            4,
+            8.375
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            0,
+            8,
+            4,
+            8.375
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ],
+  "gui_light": "front",
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        57,
+        -5,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -0.75
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        57,
+        -5,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -0.75
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -39,
+        0
+      ],
+      "translation": [
+        18.5,
+        -7,
+        -18
+      ],
+      "scale": [
+        1.2,
+        1.2,
+        1.2
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -39,
+        0
+      ],
+      "translation": [
+        18.5,
+        -7,
+        -18
+      ],
+      "scale": [
+        1.2,
+        1.2,
+        1.2
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        5.25,
+        0
+      ],
+      "scale": [
+        0.56,
+        0.56,
+        0.56
+      ]
+    },
+    "gui": {
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "head": {
+      "scale": [
+        2,
+        2,
+        2
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -56
+      ],
+      "scale": [
+        4,
+        4,
+        4
+      ]
+    }
+  }
+}
