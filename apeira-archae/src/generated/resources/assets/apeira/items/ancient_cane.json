@@ -1,0 +1,23 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "apeira:item/rare_hand_token"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "apeira:item/cosmetic/ancient_cane",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": -1
+        },
+        {
+          "type": "apeira:paint"
+        }
+      ]
+    },
+    "property": "apeira:worn_cosmetic"
+  }
+}
