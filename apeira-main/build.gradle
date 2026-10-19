@@ -16,6 +16,11 @@ def allMods = [(mod_id): project] + libraryModules.collectEntries { path ->
 def decorProject = project(':apeira-decor')
 
 neoForge {
+    // GeckoLib's interface injections, so the entity renderers compile (see apeira-decor).
+    interfaceInjectionData {
+        from decorProject.file('geckolib_interface_injections.json')
+    }
+
     // Tell NeoForge which source sets belong to which mod so all four load as separate mods in dev runs.
     mods {
         allMods.each { id, p ->

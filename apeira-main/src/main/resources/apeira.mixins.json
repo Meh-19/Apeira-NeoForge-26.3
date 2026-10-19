@@ -4,7 +4,11 @@
   "package": "com.apeira.main.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "CoralMixin"
+    "CoralMixin",
+    "IllagerFleeGrizzlyMixin",
+    "LivestockFleeCrocodileMixin",
+    "SkeletonFleeGrizzlyMixin",
+    "ZombieFleeGrizzlyMixin"
   ],
   "injectors": {
     "defaultRequire": 1

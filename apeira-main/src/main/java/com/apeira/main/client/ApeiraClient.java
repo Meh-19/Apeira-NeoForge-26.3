@@ -1,7 +1,12 @@
 package com.apeira.main.client;
 
 import com.apeira.main.Apeira;
+import com.apeira.main.client.entity.CrocodileRenderer;
+import com.apeira.main.client.entity.GrizzlyBearRenderer;
+import com.apeira.main.client.entity.TurkeyRenderer;
+import com.apeira.main.client.entity.WraithRenderer;
 import com.apeira.main.registry.MainBlockEntities;
+import com.apeira.main.registry.MainEntities;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -19,6 +24,10 @@ public final class ApeiraClient {
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(MainBlockEntities.ECHO_GLASS.get(), EchoGlassRenderer::new);
+        event.registerEntityRenderer(MainEntities.TURKEY.get(), TurkeyRenderer::new);
+        event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
+        event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);
+        event.registerEntityRenderer(MainEntities.WRAITH.get(), WraithRenderer::new);
     }
 
     private static void registerItemProperties(RegisterSelectItemModelPropertyEvent event) {
