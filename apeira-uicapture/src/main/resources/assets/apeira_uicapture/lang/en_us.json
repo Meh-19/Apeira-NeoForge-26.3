@@ -1,0 +1,5 @@
+{
+  "key.apeira.capture_ui": "Capture UI Layout",
+  "message.apeira.ui_capture.done": "UI Layout Captured -> %s",
+  "message.apeira.ui_capture.failed": "UI capture failed: %s"
+}
