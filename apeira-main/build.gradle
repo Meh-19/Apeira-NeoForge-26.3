@@ -1,8 +1,8 @@
 // Content module. Shared configuration comes from the root build.gradle.
 
 def libraryModules = [':apeira-core', ':apeira-decor', ':apeira-story']
-// Modules this module does not compile against, only loads in its runs: archaeology content and the dev tools.
-def contentModules = [':apeira-archae', ':apeira-dev']
+// Modules this module does not compile against, only loads in its runs: archaeology content, the dev tools and the UI capture tool.
+def contentModules = [':apeira-archae', ':apeira-dev', ':apeira-uicapture']
 
 dependencies {
     libraryModules.each { implementation project(it) }
@@ -25,7 +25,7 @@ neoForge {
         from decorProject.file('geckolib_interface_injections.json')
     }
 
-    // Tell NeoForge which source sets belong to which mod so all six load as separate mods in dev runs.
+    // Tell NeoForge which source sets belong to which mod so all seven load as separate mods in dev runs.
     mods {
         allMods.each { id, p ->
             register(id) { sourceSet(p.sourceSets.main) }

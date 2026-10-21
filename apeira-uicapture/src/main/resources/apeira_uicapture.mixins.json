@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.apeira.uicapture.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "AbstractContainerScreenAccessor",
+    "GuiGraphicsExtractorMixin",
+    "GuiRenderStateMixin",
+    "GuiTextRenderStateAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
