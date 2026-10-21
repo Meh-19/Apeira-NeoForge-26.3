@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "apeira_uicapture",
+  "version": "${version}",
+  "name": "Apeira UI Capture",
+  "description": "Client-only dev tool: press F8 to dump the open screen's layout, textures, sprites, text glyphs, items and widgets to logs/apeira_ui_capture.json, with copies of every image it draws.",
+  "authors": ["Ren"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.apeira.uicapture.UiCaptureClient"]
+  },
+  "mixins": ["apeira_uicapture.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.17",
+    "fabric-api": "*",
+    "minecraft": "~1.21.11",
+    "java": ">=21"
+  }
+}
