@@ -3,6 +3,9 @@ package com.apeira.main.network;
 import com.apeira.core.network.ApeiraNetwork;
 import com.apeira.main.navigator.NavigatorActionPayload;
 import com.apeira.main.navigator.OpenNavigatorPayload;
+import com.apeira.main.realm.OpenOnboardingPayload;
+import com.apeira.main.realm.RealmCreatedPayload;
+import com.apeira.main.realm.SelectRealmPresetPayload;
 
 /** Payloads of the main module, passed to {@link com.apeira.main.Apeira#NETWORK}. */
 public final class MainPayloads {
@@ -11,7 +14,10 @@ public final class MainPayloads {
     public static void init(ApeiraNetwork network) {
         network.toServer(RocketTogglePayload.TYPE, RocketTogglePayload::handle);
         network.toServer(NavigatorActionPayload.TYPE, NavigatorActionPayload::handle);
+        network.toServer(SelectRealmPresetPayload.TYPE, SelectRealmPresetPayload::handle);
         // Handled in client/ApeiraClient.
         network.toClient(OpenNavigatorPayload.TYPE);
+        network.toClient(OpenOnboardingPayload.TYPE);
+        network.toClient(RealmCreatedPayload.TYPE);
     }
 }

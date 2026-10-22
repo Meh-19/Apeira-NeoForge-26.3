@@ -7,8 +7,11 @@ import com.apeira.main.client.entity.GrizzlyBearRenderer;
 import com.apeira.main.client.entity.TurkeyRenderer;
 import com.apeira.main.client.entity.WraithRenderer;
 import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
+import com.apeira.main.client.realm.OnboardingScreen;
 import com.apeira.main.registry.MainBlockEntities;
 import com.apeira.main.navigator.OpenNavigatorPayload;
+import com.apeira.main.realm.OpenOnboardingPayload;
+import com.apeira.main.realm.RealmCreatedPayload;
 import com.apeira.main.registry.MainEntities;
 
 import net.neoforged.api.distmarker.Dist;
@@ -25,6 +28,8 @@ public final class ApeiraClient {
         modEventBus.addListener(ApeiraClient::registerItemProperties);
         ApeiraClientNetwork.create()
                 .handle(OpenNavigatorPayload.TYPE, ApeiraNavigatorScreen::onOpen)
+                .handle(OpenOnboardingPayload.TYPE, OnboardingScreen::onOpen)
+                .handle(RealmCreatedPayload.TYPE, OnboardingScreen::onCreated)
                 .register(modEventBus);
     }
 
