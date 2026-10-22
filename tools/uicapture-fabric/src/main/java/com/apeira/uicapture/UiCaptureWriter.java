@@ -18,6 +18,7 @@ import java.util.TreeSet;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.uicapture.mixin.AbstractContainerScreenAccessor;
+import com.apeira.uicapture.mixin.ScreenAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -94,7 +95,7 @@ final class UiCaptureWriter {
             JsonArray widgets = new JsonArray();
             Set<Object> seen = Collections.newSetFromMap(new IdentityHashMap<>());
             screen.children().forEach(child -> widget(child, widgets, seen, ops, assets, 0));
-            screen.renderables.forEach(renderable -> widget(renderable, widgets, seen, ops, assets, 0));
+            ((ScreenAccessor) screen).apeira$renderables().forEach(renderable -> widget(renderable, widgets, seen, ops, assets, 0));
             root.add("widgets", widgets);
         } else {
             root.addProperty("screen", "hud");

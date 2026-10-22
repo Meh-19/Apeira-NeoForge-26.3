@@ -19,7 +19,7 @@ public abstract class GuiRenderStateMixin {
     @Inject(method = "submitText", at = @At("HEAD"))
     private void apeira$recordText(GuiTextRenderState textState, CallbackInfo ci) {
         if (UiCapture.recording()) {
-            UiCapture.text(textState.pose(), textState.text(), textState.x(), textState.y(), textState.color(), textState.dropShadow());
+            UiCapture.text(textState.pose, textState.text, textState.x, textState.y, textState.color, textState.dropShadow);
         }
     }
 }
