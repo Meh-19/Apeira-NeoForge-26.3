@@ -58,7 +58,9 @@ public final class UiCaptureClient implements ClientModInitializer {
                 }
             });
         });
-        LOGGER.info("{} loaded: press {} to capture a screen", MOD_ID, CAPTURE.getTranslatedKeyMessage().getString());
+        // The key's display name asks GLFW, which is not initialised yet and would fail the window's startup, so log the
+        // key's id instead.
+        LOGGER.info("{} loaded: press {} to capture a screen", MOD_ID, CAPTURE.getDefaultKey().getName());
     }
 
     private static void onClientTick(Minecraft minecraft) {
