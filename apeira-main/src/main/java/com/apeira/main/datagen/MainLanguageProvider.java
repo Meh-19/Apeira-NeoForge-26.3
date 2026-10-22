@@ -1,7 +1,10 @@
 package com.apeira.main.datagen;
 
+import java.util.Arrays;
+
 import com.apeira.core.datagen.ApeiraLanguageProvider;
 import com.apeira.core.registry.ShapeSet;
+import com.apeira.main.navigator.Navigator;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCosmetics;
@@ -154,6 +157,27 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("tooltip.apeira.capture_net.1", "Collect and drop off");
         add("tooltip.apeira.capture_net.2", "mobs where you please");
         add("message.apeira.capture_net.weaken", "This mob must be weakened in order to be captured!");
+        add("navigator.apeira.title", "Navigator");
+        add("navigator.apeira.realm", "Go to your personal realm or");
+        add("navigator.apeira.realm.description", "visit one you're invited to");
+        add("navigator.apeira.open_world", "Visit an open world, gathering");
+        add("navigator.apeira.open_world.description", "blocks, loot, and slaying mobs");
+        add("navigator.apeira.homes", "Create personal waypoints at the");
+        add("navigator.apeira.homes.description", "locations that mean the most");
+        add("navigator.apeira.spawn", "Teleport to your Realm's spawn");
+        add("navigator.apeira.spawn.description", "or the spawn you set");
+        add("navigator.apeira.back", "← Back");
+        add("navigator.apeira.realms", "Realms");
+        add("navigator.apeira.teleport", "Teleport to your Realm");
+        add("navigator.apeira.access", "Realm access");
+        add("navigator.apeira.settings", "Realm settings");
+        add("navigator.apeira.in_realm", "In Realm");
+        add("navigator.apeira.members", "Members");
+        add("navigator.apeira.open_worlds", "Open Worlds");
+        Arrays.stream(Navigator.OPEN_WORLDS).forEach(world -> add("navigator.apeira.open_world." + world, title(world) + " Open World"));
+        add("message.apeira.navigator.spawn", "Teleported to your Realm's spawn.");
+        add("message.apeira.navigator.homes_unavailable", "Homes are not added yet.");
+        add("message.apeira.navigator.open_world_unavailable", "The %s is not added yet.");
         MainGear.shadowTools().forEach(tool -> item(tool, title(tool.getId().getPath())));
         MainGear.shadowArmor().forEach(armor -> item(armor, title(armor.getId().getPath())));
         tooltip("shadow_gear", "Shadow Gear");

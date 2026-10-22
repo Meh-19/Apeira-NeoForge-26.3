@@ -8,5 +8,7 @@ public final class MainPayloads {
 
     public static void init(ApeiraNetwork network) {
         network.toServer(RocketTogglePayload.TYPE, RocketTogglePayload::handle);
+        network.toClient(OpenNavigatorPayload.TYPE);
+        network.toServer(NavigatorActionPayload.TYPE, NavigatorActionPayload::handle);
     }
 }

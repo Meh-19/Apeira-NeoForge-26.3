@@ -11,6 +11,7 @@ import com.apeira.main.event.BirchSaplingGrowth;
 import com.apeira.main.event.CaptureNetEvents;
 import com.apeira.main.event.RocketBootsSafety;
 import com.apeira.main.event.StickPlacement;
+import com.apeira.main.navigator.Navigator;
 import com.apeira.main.network.MainPayloads;
 import com.apeira.main.registry.MainBlockEntities;
 import com.apeira.main.registry.MainBlocks;
@@ -69,6 +70,7 @@ public final class Apeira {
         NeoForge.EVENT_BUS.addListener(CaptureNetEvents::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(RocketBootsSafety::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(BirchSaplingGrowth::onGrowFeature);
+        NeoForge.EVENT_BUS.addListener(Navigator::registerCommands);
         LOGGER.info("{} initialized", MOD_ID);
     }
 }
