@@ -168,6 +168,15 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         tooltip("rocket_boots.fuel", "Fuel: %s min");
         message("rocket_boots.low_fuel", "⚠ Rocket boots fuel is running low!");
         navigator();
+        realms();
+    }
+
+    /** The onboarding screen's title and the realm messages; the screen's cards are textures. */
+    private void realms() {
+        add("screen.apeira.onboarding", "Create Your Realm");
+        message("realm.home", "Welcome home!");
+        message("realm.exists", "You already have a Realm");
+        message("realm.none", "You don't have a Realm yet. Use /realm create to make one");
     }
 
     /** The navigator's title, its buttons' tooltips (Origin Realms' wording) and its messages. */

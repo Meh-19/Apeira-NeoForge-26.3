@@ -8,6 +8,7 @@
     "DepthsTerrainMixin",
     "IllagerFleeGrizzlyMixin",
     "LivestockFleeCrocodileMixin",
+    "MinecraftServerAccessor",
     "MultiNoiseBiomeSourceMixin",
     "OverworldBiomesMixin",
     "ShadowAttackMixin",
