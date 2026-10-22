@@ -167,6 +167,31 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         tooltip("rocket_boots.2", "Creative-style flight");
         tooltip("rocket_boots.fuel", "Fuel: %s min");
         message("rocket_boots.low_fuel", "⚠ Rocket boots fuel is running low!");
+        navigator();
+    }
+
+    /** The navigator's title, its buttons' tooltips (Origin Realms' wording) and its messages. */
+    private void navigator() {
+        add("screen.apeira.navigator", "Navigator");
+        addId("navigator", "realms", "Realm");
+        addId("navigator", "realms.desc", "Go to your personal realm or visit one you're invited to");
+        addId("navigator", "open_worlds", "Open World");
+        addId("navigator", "open_worlds.desc", "Visit an open world, gathering blocks, loot, and slaying mobs");
+        addId("navigator", "homes", "Homes");
+        addId("navigator", "homes.desc", "Create personal waypoints at the locations that mean the most");
+        addId("navigator", "spawn", "Spawn");
+        addId("navigator", "spawn.desc", "Teleport to your spawn point");
+        addId("navigator", "back", "← Back");
+        addId("navigator", "close", "Close");
+        addId("navigator", "realm_teleport", "Teleport to your Realm");
+        addId("navigator", "realm_access", "Realm access");
+        addId("navigator", "realm_settings", "Realm settings");
+        addId("navigator", "open_world", "Open World travel");
+        for (String colour : new String[] {"red", "orange", "yellow", "green", "blue", "purple"}) {
+            addId("navigator", "open_world." + colour, title(colour) + " Open World");
+        }
+        message("navigator.spawn", "Teleported to your spawn point");
+        message("navigator.unavailable", "%s is not available yet");
     }
 
     /** A coloured block and its shapes as {@code <Colour> <name>} and {@code <Colour> <name> Stairs}. */
