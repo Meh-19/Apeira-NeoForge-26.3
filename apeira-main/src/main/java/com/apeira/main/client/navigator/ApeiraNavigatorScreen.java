@@ -48,8 +48,8 @@ public final class ApeiraNavigatorScreen extends Screen {
     private static final String START = "";
     private static final String BACK = "";
     private static final String NAVIGATION = "" + BACK + "" + BACK + "" + BACK;
-    private static final Item[] OPEN_WORLD_ICONS = {Items.RED_WOOL, Items.ORANGE_WOOL, Items.YELLOW_WOOL, Items.LIME_WOOL,
-            Items.BLUE_WOOL, Items.PURPLE_WOOL};
+    private static final Item[] OPEN_WORLD_ICONS = {Items.WOOL.red(), Items.WOOL.orange(), Items.WOOL.yellow(),
+            Items.WOOL.lime(), Items.WOOL.blue(), Items.WOOL.purple()};
 
     private NavigatorPage page;
     private List<Region> regions = List.of();
@@ -65,10 +65,10 @@ public final class ApeiraNavigatorScreen extends Screen {
     /** Opens the navigator on the payload's page, or turns an open one to it. */
     public static void onOpen(OpenNavigatorPayload payload, IPayloadContext context) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.screen instanceof ApeiraNavigatorScreen screen) {
+        if (minecraft.gui.screen() instanceof ApeiraNavigatorScreen screen) {
             screen.setPage(payload.page());
         } else {
-            minecraft.setScreen(new ApeiraNavigatorScreen(payload.page()));
+            minecraft.gui.setScreen(new ApeiraNavigatorScreen(payload.page()));
         }
     }
 
