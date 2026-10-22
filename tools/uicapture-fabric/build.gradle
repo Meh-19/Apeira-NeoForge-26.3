@@ -1,0 +1,30 @@
+// The UI capture tool (apeira-uicapture) for Fabric 1.21.11, so it runs in the client Origin Realms is joined with.
+// It shares its capture code with the NeoForge module, adapted to 1.21.11's names (GuiGraphics, Gui#render).
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+}
+
+version = mod_version
+group = 'com.apeira'
+base { archivesName = 'apeira_uicapture-fabric' }
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+processResources {
+    inputs.property 'version', version
+    filesMatching('fabric.mod.json') { expand version: version }
+}

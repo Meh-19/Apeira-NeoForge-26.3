@@ -1,0 +1,10 @@
+// Standalone Fabric build of the UI capture tool, kept out of Apeira's NeoForge build.
+// Build from the repository root with: ./gradlew -p tools/uicapture-fabric build
+pluginManagement {
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'apeira-uicapture-fabric'
