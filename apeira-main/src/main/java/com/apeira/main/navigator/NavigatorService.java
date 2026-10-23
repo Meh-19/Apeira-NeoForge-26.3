@@ -17,9 +17,13 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.network.ApeiraPackets;
 import com.apeira.core.registry.ApeiraIds;
+import com.apeira.decor.cosmetic.Wardrobe;
+import com.apeira.decor.registry.DecorAttachments;
 import com.apeira.main.home.HomeData;
 import com.apeira.main.home.HomeService;
 import com.apeira.main.navigator.NavigatorActionPayload.Action;
+import com.apeira.main.party.Party;
+import com.apeira.main.party.PartyService;
 import com.apeira.main.realm.DummyPlayers;
 import com.apeira.main.realm.RealmAccess;
 import com.apeira.main.realm.RealmData;
@@ -36,6 +40,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -51,6 +57,8 @@ public final class NavigatorService {
     public static final int LABEL = 0xA7AEBA;
     public static final int VALUE = 0xFFFFFF;
     public static final int ACTION = 0x85CC16;
+    /** How long a player does nothing (no movement, chat or clicks) before their profile shows them AFK. */
+    public static final long AFK_MS = 5 * 60_000;
     /** The mouse-button glyphs in front of an action line (left, right, middle click). */
     private static final FontDescription KEYS = new FontDescription.Resource(ApeiraIds.id("tooltip_keys"));
     /** "September 05, 2022", the Created line of a home. */
@@ -71,6 +79,8 @@ public final class NavigatorService {
         int preset = -1;
         /** Opened straight on Realms home by {@code /realms}: its Back button is greyed out and does nothing. */
         boolean realmsRoot;
+        /** Where closing another player's profile goes: Social, the party roster, or {@link NavigatorPage#CLOSED} when it was opened from the world. */
+        NavigatorPage profileReturn = NavigatorPage.SOCIAL;
 
         void go(NavigatorPage to) {
             if (listPage(to) != listPage(page)) {
@@ -90,6 +100,23 @@ public final class NavigatorService {
     /** Opens Realms home as the navigator's root, as {@code /realms} does: there is no Back to the root menu. */
     public static void openRealms(ServerPlayer player) {
         open(player, NavigatorPage.REALMS, true);
+    }
+
+    /**
+     * Opens a profile from the world, as {@code /profile}, the profile key and a Shift-right-click on a player do: the
+     * viewer's own when {@code target} is null or the viewer, else {@code target}'s. Closing it closes the navigator.
+     */
+    public static void openProfile(ServerPlayer player, @Nullable UUID target) {
+        Session session = SESSIONS.computeIfAbsent(player.getUUID(), uuid -> new Session());
+        session.realmsRoot = false;
+        if (target == null || target.equals(player.getUUID())) {
+            session.go(NavigatorPage.PROFILE);
+        } else {
+            session.target = target;
+            session.profileReturn = NavigatorPage.CLOSED;
+            session.go(NavigatorPage.PROFILE_OTHER);
+        }
+        send(player, session);
     }
 
     private static void open(ServerPlayer player, NavigatorPage page, boolean realmsRoot) {
@@ -150,14 +177,14 @@ public final class NavigatorService {
                     return;
                 }
             }
-            case CLOSE_POPUP -> session.page = switch (page) {
-                case HOMES -> NavigatorPage.MAIN;
-                case PROFILE_OTHER -> NavigatorPage.SOCIAL;
-                case EDIT_PLAYER -> NavigatorPage.REALM_IN_REALM;
-                case EDIT_MEMBER -> NavigatorPage.REALM_MEMBERS;
-                case REALM_RESET, REALM_RESET_PRESET, REALM_RESET_CONFIRM -> NavigatorPage.REALM_SETTINGS;
-                default -> page;
-            };
+            case CLOSE_POPUP -> {
+                if (page == NavigatorPage.PARTY || page == NavigatorPage.PROFILE_OTHER && session.profileReturn == NavigatorPage.CLOSED) {
+                    // The roster's close button, and a profile opened from the world, have no page under them.
+                    close(player);
+                    return;
+                }
+                session.page = closePopup(session);
+            }
             case KICK -> {
                 if (page == NavigatorPage.EDIT_PLAYER && session.target != null && RealmService.kick(player, session.target)) {
                     session.page = NavigatorPage.REALM_IN_REALM;
@@ -243,6 +270,49 @@ public final class NavigatorService {
                     return;
                 }
             }
+            case PARTY -> {
+                if (page == NavigatorPage.SOCIAL) {
+                    if (PartyService.partyOf(player.getUUID()).isPresent()) {
+                        session.page = NavigatorPage.EDIT_PARTY;
+                    } else {
+                        PartyService.create(player);
+                    }
+                }
+            }
+            case PARTY_ENTRY -> payload.target().ifPresent(target -> partyEntry(player, session, target));
+            case PARTY_INVITE -> {
+                if (page == NavigatorPage.PROFILE_OTHER && session.target != null) {
+                    PartyService.invite(player, session.target);
+                }
+            }
+            case PARTY_CHAT -> {
+                if (page.isParty()) {
+                    PartyService.toggleChat(player);
+                }
+            }
+            case PARTY_LEAVE -> {
+                if (page.isParty()) {
+                    PartyService.leave(player);
+                }
+            }
+            case PARTY_DISBAND -> {
+                if (page.isParty()) {
+                    PartyService.disband(player);
+                }
+            }
+            case PARTY_KICK, PARTY_TRANSFER -> {
+                if ((page == NavigatorPage.PARTY_MEMBER || page == NavigatorPage.EDIT_PARTY_MEMBER) && session.target != null) {
+                    if (payload.action() == Action.PARTY_KICK) {
+                        PartyService.kick(player, session.target);
+                    } else {
+                        PartyService.transfer(player, session.target);
+                    }
+                    session.page = page == NavigatorPage.PARTY_MEMBER ? NavigatorPage.PARTY : NavigatorPage.SOCIAL;
+                }
+            }
+            case WARDROBE -> {
+                // The client opens the wardrobe itself, through decor's payload.
+            }
         }
         send(player, session);
     }
@@ -292,6 +362,7 @@ public final class NavigatorService {
                         friendAction(player, target, secondary, true);
                     } else {
                         session.target = target;
+                        session.profileReturn = NavigatorPage.SOCIAL;
                         session.page = NavigatorPage.PROFILE_OTHER;
                     }
                 }
@@ -299,6 +370,49 @@ public final class NavigatorService {
             default -> {}
         }
         return false;
+    }
+
+    /** The page under a popup, which closing it goes back to. */
+    private static NavigatorPage closePopup(Session session) {
+        return switch (session.page) {
+            case HOMES, OPEN_WORLDS -> NavigatorPage.PROFILE;
+            case PROFILE_OTHER -> session.profileReturn;
+            case PARTY_MEMBER -> NavigatorPage.PARTY;
+            case EDIT_PARTY, EDIT_PARTY_MEMBER -> NavigatorPage.SOCIAL;
+            case EDIT_PLAYER -> NavigatorPage.REALM_IN_REALM;
+            case EDIT_MEMBER -> NavigatorPage.REALM_MEMBERS;
+            case REALM_RESET, REALM_RESET_PRESET, REALM_RESET_CONFIRM -> NavigatorPage.REALM_SETTINGS;
+            default -> session.page;
+        };
+    }
+
+    /**
+     * A party head clicked on Social's party row or the roster. The leader picks a member (on the roster, the picked one
+     * again drops the pick) or takes back an invite; anyone else's click on a member opens that member's profile.
+     */
+    private static void partyEntry(ServerPlayer player, Session session, UUID target) {
+        NavigatorPage page = session.page;
+        Optional<Party> found = PartyService.partyOf(player.getUUID());
+        if (found.isEmpty() || !(page == NavigatorPage.SOCIAL || page == NavigatorPage.PARTY || page == NavigatorPage.PARTY_MEMBER)
+                || target.equals(player.getUUID())) {
+            return;
+        }
+        Party party = found.get();
+        boolean leader = party.isLeader(player.getUUID());
+        if (party.members().contains(target)) {
+            if (leader && page == NavigatorPage.PARTY_MEMBER && target.equals(session.target)) {
+                session.page = NavigatorPage.PARTY;
+            } else if (leader) {
+                session.target = target;
+                session.page = page == NavigatorPage.SOCIAL ? NavigatorPage.EDIT_PARTY_MEMBER : NavigatorPage.PARTY_MEMBER;
+            } else {
+                session.target = target;
+                session.profileReturn = page == NavigatorPage.SOCIAL ? NavigatorPage.SOCIAL : NavigatorPage.PARTY;
+                session.page = NavigatorPage.PROFILE_OTHER;
+            }
+        } else if (leader && party.isInvited(target)) {
+            PartyService.cancelInvite(player, target);
+        }
     }
 
     /**
@@ -357,7 +471,7 @@ public final class NavigatorService {
     /** Pages a client may ask for by name; popups and reset steps are reached only through their actions. */
     private static boolean isTab(NavigatorPage page) {
         return switch (page) {
-            case MAIN, REALMS, REALM_IN_REALM, REALM_MEMBERS, REALM_BANNED, REALM_SETTINGS, OPEN_WORLDS, HOMES, SOCIAL -> true;
+            case MAIN, REALMS, REALM_IN_REALM, REALM_MEMBERS, REALM_BANNED, REALM_SETTINGS, OPEN_WORLDS, HOMES, SOCIAL, PROFILE, PARTY -> true;
             default -> false;
         };
     }
@@ -375,7 +489,7 @@ public final class NavigatorService {
         return switch (page) {
             case EDIT_PLAYER -> NavigatorPage.REALM_IN_REALM;
             case EDIT_MEMBER -> NavigatorPage.REALM_MEMBERS;
-            case PROFILE_OTHER -> NavigatorPage.SOCIAL;
+            case PROFILE_OTHER, EDIT_PARTY, EDIT_PARTY_MEMBER -> NavigatorPage.SOCIAL;
             default -> page.isSettings() ? NavigatorPage.REALMS : page;
         };
     }
@@ -424,6 +538,15 @@ public final class NavigatorService {
         if (needsRealm(session.page) && !hasRealm) {
             session.go(NavigatorPage.MAIN);
         }
+        Optional<Party> party = PartyService.partyOf(self);
+        boolean leads = party.filter(theirs -> theirs.isLeader(self)).isPresent();
+        // A party popup or pick is dropped once the party, the lead or the picked member is gone.
+        boolean picked = session.target != null && party.filter(theirs -> theirs.members().contains(session.target)).isPresent();
+        if (session.page == NavigatorPage.EDIT_PARTY && party.isEmpty() || session.page == NavigatorPage.EDIT_PARTY_MEMBER && !(leads && picked)) {
+            session.page = NavigatorPage.SOCIAL;
+        } else if (session.page == NavigatorPage.PARTY_MEMBER && !(leads && picked)) {
+            session.page = NavigatorPage.PARTY;
+        }
         NavigatorPage page = session.page;
         List<NavigatorView.Entry> all = entries(player, data, access, listPage(page), session.filter, session.sort);
         int pageCount = Math.max(1, (all.size() + NavigatorView.PAGE_SIZE - 1) / NavigatorView.PAGE_SIZE);
@@ -432,6 +555,7 @@ public final class NavigatorService {
                 Math.min(all.size(), (session.pageIndex + 1) * NavigatorView.PAGE_SIZE));
 
         Optional<NavigatorView.Entry> target = Optional.empty();
+        Wardrobe cosmetics = Wardrobe.EMPTY;
         int flags = (hasRealm ? NavigatorView.HAS_REALM : 0) | (RealmService.canResetOverworld(player) ? NavigatorView.CAN_RESET_OVERWORLD : 0);
         if ((page == NavigatorPage.EDIT_PLAYER || page == NavigatorPage.EDIT_MEMBER) && session.target != null) {
             UUID id = session.target;
@@ -448,14 +572,29 @@ public final class NavigatorService {
             target = Optional.of(new NavigatorView.Entry(id, data.nameOf(id), lines));
             flags |= (role.canBuild() ? NavigatorView.TARGET_MEMBER : 0) | (access.isInvited(id) ? NavigatorView.TARGET_INVITED : 0)
                     | (role == RealmRole.TRUSTED ? NavigatorView.TARGET_TRUSTED : 0);
-        } else if (page == NavigatorPage.PROFILE_OTHER && session.target != null) {
-            UUID id = session.target;
-            target = Optional.of(new NavigatorView.Entry(id, data.nameOf(id), List.of(onlineLine(server, data, id, System.currentTimeMillis()))));
+        } else if (page.isProfile()) {
+            UUID id = page == NavigatorPage.PROFILE || session.target == null ? self : session.target;
+            target = Optional.of(new NavigatorView.Entry(id, data.nameOf(id), stats(server, data, id)));
             flags |= (access.roleOf(self, id).canBuild() ? NavigatorView.TARGET_MEMBER : 0) | (access.isInvited(id) ? NavigatorView.TARGET_INVITED : 0)
                     | (data.areFriends(self, id) ? NavigatorView.TARGET_FRIEND : 0)
                     | (data.hasFriendRequest(id, self) ? NavigatorView.TARGET_REQUESTED : 0)
                     | (data.hasFriendRequest(self, id) ? NavigatorView.TARGET_REQUEST_SENT : 0)
-                    | (DummyPlayers.isOnline(server, id) ? NavigatorView.TARGET_ONLINE : 0);
+                    | (DummyPlayers.isOnline(server, id) ? NavigatorView.TARGET_ONLINE : 0)
+                    | (isAfk(server, id) ? NavigatorView.TARGET_AFK : 0)
+                    | (party.filter(theirs -> theirs.members().contains(id)).isPresent() ? NavigatorView.TARGET_IN_PARTY : 0)
+                    | (party.filter(theirs -> theirs.isInvited(id)).isPresent() ? NavigatorView.TARGET_PARTY_INVITED : 0);
+            ServerPlayer profiled = server.getPlayerList().getPlayer(id);
+            cosmetics = profiled == null ? Wardrobe.EMPTY : profiled.getData(DecorAttachments.WARDROBE);
+        } else if ((page == NavigatorPage.PARTY_MEMBER || page == NavigatorPage.EDIT_PARTY_MEMBER) && session.target != null) {
+            target = Optional.of(new NavigatorView.Entry(session.target, data.nameOf(session.target), List.of(onlineLine(server, data, session.target,
+                    System.currentTimeMillis()))));
+        }
+        List<NavigatorView.Entry> roster = new ArrayList<>();
+        int partySize = 0;
+        if (party.isPresent()) {
+            flags |= NavigatorView.IN_PARTY | (leads ? NavigatorView.PARTY_LEADER : 0) | (PartyService.chatOn(self) ? NavigatorView.PARTY_CHAT : 0);
+            roster = partyEntries(server, data, party.get(), self);
+            partySize = party.get().members().size();
         }
         if (session.realmsRoot && page == NavigatorPage.REALMS) {
             flags |= NavigatorView.NO_BACK;
@@ -463,7 +602,63 @@ public final class NavigatorService {
         int setting = access.visitingRule().ordinal() | (access.privateChat() ? NavigatorView.PRIVATE_CHAT : 0)
                 | (access.alwaysAccessible() ? NavigatorView.ALWAYS_ACCESSIBLE : 0);
         return new NavigatorView(page, session.pageIndex, pageCount, session.filter, session.sort, List.copyOf(shown), target, flags,
-                setting, page == NavigatorPage.REALM_RESET_CONFIRM ? session.preset : -1);
+                setting, page == NavigatorPage.REALM_RESET_CONFIRM ? session.preset : -1, List.copyOf(roster), partySize, cosmetics);
+    }
+
+    /** The party roster: members, the leader first, then open invites, with what clicking each does for {@code viewer}. */
+    private static List<NavigatorView.Entry> partyEntries(MinecraftServer server, RealmData data, Party party, UUID viewer) {
+        long now = System.currentTimeMillis();
+        boolean leads = party.isLeader(viewer);
+        List<NavigatorView.Entry> entries = new ArrayList<>();
+        for (UUID member : party.members()) {
+            List<Component> lines = new ArrayList<>();
+            lines.add(label("party_role", Component.translatable(party.isLeader(member) ? "navigator.apeira.lore.party_leader"
+                    : "navigator.apeira.lore.party_member")));
+            lines.add(onlineLine(server, data, member, now));
+            if (!member.equals(viewer)) {
+                lines.add(Component.empty());
+                lines.add(action(0, leads ? "edit_party_member" : "view_profile"));
+            }
+            entries.add(new NavigatorView.Entry(member, data.nameOf(member), lines));
+        }
+        for (UUID invited : PartyService.openInvites(party)) {
+            List<Component> lines = new ArrayList<>();
+            lines.add(label("party_role", Component.translatable("navigator.apeira.lore.party_invited")));
+            if (leads) {
+                lines.add(Component.empty());
+                lines.add(action(0, "cancel_party_invite"));
+            }
+            entries.add(new NavigatorView.Entry(invited, data.nameOf(invited), lines));
+        }
+        return entries;
+    }
+
+    /**
+     * The profile's stat panel, shown on its info icon: whether the player is online or AFK, their playtime (while
+     * online), realm, friends, homes and party.
+     */
+    private static List<Component> stats(MinecraftServer server, RealmData data, UUID id) {
+        long now = System.currentTimeMillis();
+        List<Component> lines = new ArrayList<>();
+        lines.add(onlineLine(server, data, id, now));
+        ServerPlayer online = server.getPlayerList().getPlayer(id);
+        if (online != null) {
+            long ticks = online.getStats().getValue(Stats.CUSTOM, Stats.PLAY_TIME);
+            lines.add(label("playtime", Component.literal(duration(ticks * 50))));
+        }
+        lines.add(label("realm", data.realmOf(id).<Component>map(realm -> Component.translatable("navigator.apeira.preset."
+                + realm.preset().getSerializedName())).orElse(Component.translatable("navigator.apeira.lore.none"))));
+        lines.add(label("friends", Component.literal(Integer.toString(data.friendsOf(id).size()))));
+        lines.add(label("homes_count", Component.literal(HomeData.get(server).homesOf(id).size() + "/" + HomeData.MAX_HOMES)));
+        lines.add(label("party", PartyService.partyOf(id).<Component>map(party -> Component.translatable("navigator.apeira.lore.party_of",
+                data.nameOf(party.leader()), party.members().size())).orElse(Component.translatable("navigator.apeira.lore.none"))));
+        return lines;
+    }
+
+    /** Whether {@code id} is online and has done nothing for {@link #AFK_MS}. Dummy players are never AFK. */
+    public static boolean isAfk(MinecraftServer server, UUID id) {
+        ServerPlayer player = server.getPlayerList().getPlayer(id);
+        return player != null && Util.getMillis() - player.getLastActionTime() >= AFK_MS;
     }
 
     private static List<NavigatorView.Entry> entries(ServerPlayer player, RealmData data, RealmAccess access, NavigatorPage page, int filter,
@@ -602,8 +797,12 @@ public final class NavigatorService {
         return (int) Math.floor(home.position().x) + ", " + (int) Math.floor(home.position().y) + ", " + (int) Math.floor(home.position().z);
     }
 
-    /** "Online: Now" or "Last Online: 3 hours and 4 minutes ago". */
+    /** "Online: Now", "AFK: 7 minutes" or "Last Online: 3 hours and 4 minutes ago". */
     private static Component onlineLine(MinecraftServer server, RealmData data, UUID id, long now) {
+        ServerPlayer player = server.getPlayerList().getPlayer(id);
+        if (player != null && isAfk(server, id)) {
+            return label("afk", Component.literal(duration(Util.getMillis() - player.getLastActionTime())));
+        }
         return DummyPlayers.isOnline(server, id) ? label("online", Component.translatable("navigator.apeira.lore.now"))
                 : label("last_online", Component.literal(duration(now - data.known(id).map(RealmData.KnownPlayer::lastSeen).orElse(now))));
     }

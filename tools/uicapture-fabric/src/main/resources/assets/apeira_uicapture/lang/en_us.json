@@ -3,5 +3,10 @@
   "key.apeira.inspect_ui": "Deep Inspect UI",
   "message.apeira.ui_capture.done": "UI Layout Captured -> %s",
   "message.apeira.ui_capture.failed": "UI capture failed: %s",
-  "message.apeira.ui_capture.inspect_needs_screen": "Open a screen to inspect it"
+  "message.apeira.ui_capture.inspect_needs_screen": "Open a screen to inspect it",
+  "key.apeira.log_hud": "Log HUD Elements",
+  "key.apeira.log_chat": "Toggle Chat Logger",
+  "message.apeira.ui_capture.hud_needs_no_screen": "Close the screen to log the HUD",
+  "message.apeira.ui_capture.chat_on": "Chat logger on -> %s",
+  "message.apeira.ui_capture.chat_off": "Chat logger off: %s messages logged, fonts in %s"
 }

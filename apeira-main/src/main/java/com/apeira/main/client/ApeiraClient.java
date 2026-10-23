@@ -10,22 +10,35 @@ import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
 import com.apeira.main.client.realm.OnboardingScreen;
 import com.apeira.main.registry.MainBlockEntities;
 import com.apeira.main.navigator.OpenNavigatorPayload;
+import com.apeira.main.navigator.OpenProfilePayload;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.main.realm.OpenOnboardingPayload;
 import com.apeira.main.realm.RealmCreatedPayload;
 import com.apeira.main.registry.MainEntities;
 
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterSelectItemModelPropertyEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 /** Client entrypoint for the main module. */
 @Mod(value = Apeira.MOD_ID, dist = Dist.CLIENT)
 public final class ApeiraClient {
+    /** Opens the profile of the player aimed at, or the player's own; Shift-right-clicking a player does the same. */
+    public static final KeyMapping OPEN_PROFILE = new KeyMapping("key.apeira.open_profile", InputConstants.KEY_O, KeyMapping.Category.MULTIPLAYER);
+
     public ApeiraClient(IEventBus modEventBus) {
         modEventBus.addListener(ApeiraClient::registerRenderers);
         modEventBus.addListener(ApeiraClient::registerItemProperties);
+        modEventBus.addListener(ApeiraClient::registerKeys);
+        NeoForge.EVENT_BUS.addListener(ApeiraClient::openProfile);
         ApeiraClientNetwork.create()
                 .handle(OpenNavigatorPayload.TYPE, ApeiraNavigatorScreen::onOpen)
                 .handle(OpenOnboardingPayload.TYPE, OnboardingScreen::onOpen)
@@ -39,6 +52,17 @@ public final class ApeiraClient {
         event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
         event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);
         event.registerEntityRenderer(MainEntities.WRAITH.get(), WraithRenderer::new);
+    }
+
+    private static void registerKeys(RegisterKeyMappingsEvent event) {
+        event.register(OPEN_PROFILE);
+    }
+
+    private static void openProfile(ClientTickEvent.Post event) {
+        while (OPEN_PROFILE.consumeClick()) {
+            Entity aimed = Minecraft.getInstance().crosshairPickEntity;
+            ApeiraClientNetwork.sendToServer(new OpenProfilePayload(aimed == null ? -1 : aimed.getId()));
+        }
     }
 
     private static void registerItemProperties(RegisterSelectItemModelPropertyEvent event) {

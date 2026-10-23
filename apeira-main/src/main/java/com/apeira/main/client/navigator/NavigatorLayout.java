@@ -1,12 +1,16 @@
 package com.apeira.main.client.navigator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.registry.ApeiraIds;
+import com.apeira.decor.cosmetic.CosmeticSlot;
 import com.apeira.main.navigator.NavigatorActionPayload;
 import com.apeira.main.navigator.NavigatorActionPayload.Action;
 import com.apeira.main.navigator.NavigatorPage;
@@ -17,6 +21,7 @@ import com.apeira.main.realm.RealmRole;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * What each navigator page draws and where its buttons are, copied from the UI captures of Origin Realms' navigator,
@@ -41,6 +46,13 @@ final class NavigatorLayout {
     /** The Homes popup's grid: three rows of five. */
     private static final int[] HOME_SLOTS = block(20, 5, 3);
     private static final String[] PRESETS = {"lush", "arid", "cold", "arctic", "tropical"};
+    /** The party roster's cells: two rows of seven. */
+    private static final int[] PARTY_SLOTS = IntStream.concat(IntStream.rangeClosed(19, 25), IntStream.rangeClosed(28, 34)).toArray();
+    /** A profile's cosmetic slots down its left edge: hat, back, hand and balloon, in {@link CosmeticSlot} order. */
+    static final int[] COSMETIC_SLOTS = {18, 27, 36, 45};
+    static final String[] COSMETIC_NAMES = {"hat", "back", "hand", "balloon"};
+    /** The status light in the model panel's bottom-right corner. */
+    static final int STATUS_SLOT = 49;
 
     private NavigatorLayout() {}
 
@@ -53,17 +65,30 @@ final class NavigatorLayout {
      */
     record Button(int[] slots, List<Component> tooltip, @Nullable NavigatorActionPayload action) {}
 
+    /** A player head drawn in {@code slot}, outside the page's list: a party member or invite; {@code dim} for an invite. */
+    record Head(int slot, UUID id, boolean dim) {}
+
     /**
      * @param layers      textures drawn in order
      * @param buttons     checked before the entries, in order
      * @param entrySlots  the slots the view's entries are drawn in as heads, in order; empty when it shows none
      * @param pageNumbers whether the page number is drawn between the page arrows
+     * @param heads       further heads to draw (party rosters), whose buttons are among {@code buttons}
+     * @param picked      a slot drawn picked (the leader's pick on the roster), or -1
+     * @param profile     whether the page is a profile, drawn with the player's model, cosmetic slots and status
      */
-    record Page(List<Identifier> layers, List<Button> buttons, int[] entrySlots, boolean pageNumbers) {}
+    record Page(List<Identifier> layers, List<Button> buttons, int[] entrySlots, boolean pageNumbers, List<Head> heads, int picked,
+            boolean profile) {
+        Page(List<Identifier> layers, List<Button> buttons, int[] entrySlots, boolean pageNumbers) {
+            this(layers, buttons, entrySlots, pageNumbers, List.of(), -1, false);
+        }
+    }
 
-    static Page of(NavigatorView view) {
+    /** {@code self} is the viewing player, left out of Social's party row. */
+    static Page of(NavigatorView view, UUID self) {
         List<Identifier> layers = new ArrayList<>();
         List<Button> buttons = new ArrayList<>();
+        List<Head> heads = new ArrayList<>();
         NavigatorPage page = view.page();
         switch (page) {
             case MAIN -> {
@@ -78,7 +103,7 @@ final class NavigatorLayout {
                 String[] colours = {"red", "orange", "yellow", "green", "blue", "purple"};
                 int[][] slots = {{10, 11, 19, 20}, {12, 13, 14, 21, 22, 23}, {15, 16, 24, 25}, {28, 29, 37, 38}, {30, 31, 32, 39, 40, 41},
                         {33, 34, 42, 43}};
-                buttons.add(button(slots(7), "close", NavigatorActionPayload.open(NavigatorPage.MAIN)));
+                buttons.add(button(slots(7), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
                 for (int i = 0; i < colours.length; i++) {
                     layer(layers, "profile/open_worlds/" + colours[i] + "_button");
                     buttons.add(button(slots[i], "open_world." + colours[i], new NavigatorActionPayload(Action.OPEN_WORLD, i)));
@@ -94,32 +119,90 @@ final class NavigatorLayout {
                 }
                 return new Page(List.copyOf(layers), List.copyOf(buttons), HOME_SLOTS, false);
             }
-            case SOCIAL -> socialPage(view, layers, buttons);
-            case PROFILE_OTHER -> profilePage(view, layers, buttons);
+            case SOCIAL, EDIT_PARTY, EDIT_PARTY_MEMBER -> socialPage(view, self, layers, buttons, heads);
+            case PROFILE_OTHER -> {
+                profilePage(view, layers, buttons);
+                return new Page(List.copyOf(layers), List.copyOf(buttons), new int[0], false, List.of(), -1, true);
+            }
+            case PROFILE -> {
+                ownProfilePage(view, layers, buttons);
+                return new Page(List.copyOf(layers), List.copyOf(buttons), new int[0], false, List.of(), -1, true);
+            }
+            case PARTY, PARTY_MEMBER -> {
+                partyPage(view, layers, buttons, heads);
+                int picked = -1;
+                if (page == NavigatorPage.PARTY_MEMBER && view.target().isPresent()) {
+                    picked = heads.stream().filter(head -> head.id().equals(view.target().get().id())).mapToInt(Head::slot).findFirst().orElse(-1);
+                }
+                return new Page(List.copyOf(layers), List.copyOf(buttons), new int[0], false, List.copyOf(heads), picked, false);
+            }
             default -> realmPage(view, layers, buttons);
         }
         boolean showsList = switch (page) {
             case REALMS, REALM_IN_REALM, REALM_MEMBERS, REALM_BANNED, SOCIAL -> true;
             default -> false;
         };
-        return new Page(List.copyOf(layers), List.copyOf(buttons), showsList ? LIST_SLOTS : new int[0], showsList);
+        return new Page(List.copyOf(layers), List.copyOf(buttons), showsList ? LIST_SLOTS : new int[0], showsList, List.copyOf(heads), -1, false);
     }
 
     /**
-     * Social: the friends list with requests, filtered All, Online, Offline or Requests. The party controls above it
-     * are not available yet. Only the captured filter (All) and sort (Last Online) have overlay textures.
+     * Social: the party row (the Party button, lit in a party, and up to four other members) over the friends list with
+     * requests, filtered All, Online, Offline or Requests; and its party popups. The Requests filter has no overlay texture.
      */
-    private static void socialPage(NavigatorView view, List<Identifier> layers, List<Button> buttons) {
+    private static void socialPage(NavigatorView view, UUID self, List<Identifier> layers, List<Button> buttons, List<Head> heads) {
         layer(layers, "navigation", "social/navigation_social", "social/background");
-        listControls(view, layers);
-        if (view.filter() == 0) {
-            layer(layers, "social/filter_all");
+        boolean inParty = view.has(NavigatorView.IN_PARTY);
+        if (inParty) {
+            layer(layers, "social/party_on");
         }
-        if (view.sort() == 0) {
-            layer(layers, "social/sort_online");
+        listControls(view, layers);
+        String[] filters = {"all", "online", "offline"};
+        if (view.filter() < filters.length) {
+            layer(layers, "social/filter_" + filters[view.filter()]);
+        }
+        layer(layers, view.sort() == 0 ? "social/sort_online" : "social/sort_alpha_asc");
+        // The party popups come first so they take their slots from the page under them.
+        switch (view.page()) {
+            case EDIT_PARTY -> {
+                layer(layers, "social/edit_party");
+                boolean chat = view.has(NavigatorView.PARTY_CHAT);
+                if (chat) {
+                    layer(layers, "social/party_chat");
+                }
+                buttons.add(button(slots(15), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
+                buttons.add(button(slots(21), "party_chat.info", null));
+                buttons.add(new Button(slots(22, 23), options("party_chat", chat ? 0 : 1, "party", "global"), NavigatorActionPayload.of(Action.PARTY_CHAT)));
+                buttons.add(unavailable(slots(30, 31), "party_warp"));
+                boolean leader = view.has(NavigatorView.PARTY_LEADER);
+                buttons.add(button(slots(32), leader ? "party_disband" : "party_leave",
+                        NavigatorActionPayload.of(leader ? Action.PARTY_DISBAND : Action.PARTY_LEAVE)));
+                return;
+            }
+            case EDIT_PARTY_MEMBER -> {
+                layer(layers, "social/edit_member");
+                buttons.add(button(slots(24), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
+                buttons.add(button(slots(30), "party_transfer", NavigatorActionPayload.of(Action.PARTY_TRANSFER)));
+                view.target().ifPresent(target -> {
+                    heads.add(new Head(31, target.id(), false));
+                    buttons.add(new Button(slots(31), entryTooltip(target), null));
+                });
+                buttons.add(button(slots(32), "party_kick", NavigatorActionPayload.of(Action.PARTY_KICK)));
+                return;
+            }
+            default -> {}
         }
         navigationBar(NavigatorPage.SOCIAL, true, buttons);
-        buttons.add(unavailable(slots(9, 10, 11, 12, 13, 14, 15), "party"));
+        buttons.add(button(slots(9, 10, 11), inParty ? "party.manage" : "party.create", NavigatorActionPayload.of(Action.PARTY)));
+        // The other members, in roster order; the free cells say how to invite.
+        int[] row = slots(12, 13, 14, 15);
+        List<NavigatorView.Entry> others = view.party().subList(0, view.partySize()).stream().filter(entry -> !entry.id().equals(self)).toList();
+        int shown = Math.min(row.length, others.size());
+        for (int i = 0; i < shown; i++) {
+            partyHead(others.get(i), row[i], false, heads, buttons);
+        }
+        if (shown < row.length) {
+            buttons.add(new Button(Arrays.copyOfRange(row, shown, row.length), hint("hint.party"), null));
+        }
         buttons.add(button(slots(17), "learn_social", null));
         buttons.add(button(slots(45, 46), "previous_page", new NavigatorActionPayload(Action.PAGE, -1)));
         buttons.add(button(slots(50, 51), "next_page", new NavigatorActionPayload(Action.PAGE, 1)));
@@ -129,12 +212,108 @@ final class NavigatorLayout {
     }
 
     /**
+     * The party roster (Origin Realms' party menu): members in the two rows of seven, the leader first in its purple
+     * frame, then open invites; chat, leave and help along the top, and for the leader hand-over, kick (lit once a member
+     * is picked) and disband.
+     */
+    private static void partyPage(NavigatorView view, List<Identifier> layers, List<Button> buttons, List<Head> heads) {
+        layer(layers, "party/menu");
+        boolean inParty = view.has(NavigatorView.IN_PARTY);
+        boolean leader = view.has(NavigatorView.PARTY_LEADER);
+        boolean picked = view.page() == NavigatorPage.PARTY_MEMBER;
+        if (inParty) {
+            layer(layers, "party/party_leader");
+        }
+        if (view.has(NavigatorView.PARTY_CHAT)) {
+            layer(layers, "party/party_chat_on");
+        }
+        if (leader) {
+            layer(layers, "party/party_leader_options");
+            if (picked) {
+                layer(layers, "party/party_leader_selected");
+            }
+        }
+        buttons.add(button(slots(0), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
+        if (leader) {
+            buttons.add(button(slots(1), picked ? "party_transfer" : "party_transfer.pick", picked ? NavigatorActionPayload.of(Action.PARTY_TRANSFER) : null));
+            buttons.add(button(slots(2), picked ? "party_kick" : "party_kick.pick", picked ? NavigatorActionPayload.of(Action.PARTY_KICK) : null));
+            buttons.add(button(slots(3), "party_disband", NavigatorActionPayload.of(Action.PARTY_DISBAND)));
+        }
+        if (inParty) {
+            boolean chat = view.has(NavigatorView.PARTY_CHAT);
+            buttons.add(new Button(slots(5), options("party_chat", chat ? 0 : 1, "party", "global"), NavigatorActionPayload.of(Action.PARTY_CHAT)));
+            buttons.add(unavailable(slots(6), "party_warp"));
+            buttons.add(button(slots(7), "party_leave", NavigatorActionPayload.of(Action.PARTY_LEAVE)));
+        }
+        buttons.add(button(slots(8), "learn_party", null));
+        int[] cells = PARTY_SLOTS;
+        int shown = Math.min(cells.length, view.party().size());
+        for (int i = 0; i < shown; i++) {
+            partyHead(view.party().get(i), cells[i], i >= view.partySize(), heads, buttons);
+        }
+        if (shown < cells.length) {
+            buttons.add(new Button(Arrays.copyOfRange(cells, shown, cells.length), hint("hint.party"), null));
+        }
+    }
+
+    /** A party member's or invite's head in {@code slot}: its tooltip, and a click sends it to the server. */
+    private static void partyHead(NavigatorView.Entry entry, int slot, boolean invite, List<Head> heads, List<Button> buttons) {
+        heads.add(new Head(slot, entry.id(), invite));
+        buttons.add(new Button(slots(slot), entryTooltip(entry), new NavigatorActionPayload(Action.PARTY_ENTRY, 0, Optional.of(entry.id()), false, "")));
+    }
+
+    /**
+     * The player's own profile (Origin Realms' "Your Profile"): cosmetic slots that open the wardrobe, the stat panel
+     * and status in the model panel, and the Realms, Open Worlds and Homes buttons. Badges, the balloon, the journal,
+     * graves and settings are not available yet.
+     */
+    private static void ownProfilePage(NavigatorView view, List<Identifier> layers, List<Button> buttons) {
+        layer(layers, "navigation", "navigation_back_enabled", "profile/navigation_profile", "profile/background");
+        navigationBar(NavigatorPage.PROFILE, true, buttons);
+        profileCommon(view, buttons, true);
+        buttons.add(unavailable(slots(19), "badge"));
+        buttons.add(button(slots(23, 24, 32, 33), "realms", NavigatorActionPayload.open(NavigatorPage.REALMS)));
+        buttons.add(button(slots(25, 26, 34, 35), "open_worlds", NavigatorActionPayload.open(NavigatorPage.OPEN_WORLDS)));
+        buttons.add(button(slots(41, 42), "homes", NavigatorActionPayload.of(Action.HOMES)));
+        buttons.add(unavailable(slots(43, 44), "balloon"));
+        buttons.add(unavailable(slots(50, 51), "journal"));
+        buttons.add(unavailable(slots(52), "graves"));
+        buttons.add(unavailable(slots(53), "settings"));
+    }
+
+    /** What both profiles share: the cosmetic slots, the stat panel on the info icon and the status light. */
+    private static void profileCommon(NavigatorView view, List<Button> buttons, boolean own) {
+        CosmeticSlot[] worn = CosmeticSlot.values();
+        for (int i = 0; i < COSMETIC_SLOTS.length; i++) {
+            ItemStack stack = i < worn.length ? view.cosmetics().get(worn[i]) : ItemStack.EMPTY;
+            List<Component> lines = new ArrayList<>();
+            lines.add(stack.isEmpty() ? name("cosmetic_slot." + COSMETIC_NAMES[i]) : stack.getHoverName());
+            if (stack.isEmpty()) {
+                lines.add(grey(Component.translatable(i < worn.length ? "navigator.apeira.cosmetic_slot.empty" : "navigator.apeira.not_available")));
+            }
+            buttons.add(new Button(slots(COSMETIC_SLOTS[i]), lines, own && i < worn.length ? NavigatorActionPayload.of(Action.WARDROBE) : null));
+        }
+        view.target().ifPresent(target -> {
+            List<Component> stats = new ArrayList<>();
+            stats.add(name("stats"));
+            stats.addAll(target.lines());
+            buttons.add(new Button(slots(22), stats, null));
+            buttons.add(new Button(slots(STATUS_SLOT), List.of(name(view.has(NavigatorView.TARGET_AFK) ? "status.afk" : "status.active"),
+                    target.lines().getFirst()), null));
+        });
+    }
+
+    /**
      * Another player's profile (Origin Realms' {@code profile_other}): realm invite or removal, the friend button
      * (send, accept or decline a request, or unfriend; red when they are a friend) and a visit to their realm. Party
      * and trade invites, cosmetics and auctions are not available yet.
      */
     private static void profilePage(NavigatorView view, List<Identifier> layers, List<Button> buttons) {
         layer(layers, "profile/profile_other/background");
+        boolean partied = view.has(NavigatorView.TARGET_IN_PARTY) || view.has(NavigatorView.TARGET_PARTY_INVITED);
+        if (partied) {
+            layer(layers, "profile/profile_other/party_invite");
+        }
         boolean member = view.has(NavigatorView.TARGET_MEMBER);
         boolean friend = view.has(NavigatorView.TARGET_FRIEND);
         if (friend) {
@@ -143,8 +322,10 @@ final class NavigatorLayout {
         if (member) {
             layer(layers, "profile/profile_other/remove_realm");
         }
+        profileCommon(view, buttons, false);
         // The texture's buttons: Party Invite and Trade Invite across slots 23-26 and 32-35, then two rows of pairs.
-        buttons.add(unavailable(slots(23, 24, 25, 26), "party_invite"));
+        buttons.add(partied ? button(slots(23, 24, 25, 26), view.has(NavigatorView.TARGET_IN_PARTY) ? "party_invite.member" : "party_invite.invited", null)
+                : button(slots(23, 24, 25, 26), "party_invite", NavigatorActionPayload.of(Action.PARTY_INVITE)));
         buttons.add(unavailable(slots(32, 33, 34, 35), "trade_invite"));
         if (member) {
             buttons.add(button(slots(41, 42), "remove_realm", NavigatorActionPayload.of(Action.REMOVE_MEMBER)));
@@ -156,8 +337,6 @@ final class NavigatorLayout {
         String friendKey = friend ? "unfriend" : view.has(NavigatorView.TARGET_REQUESTED) ? "friend_request.incoming"
                 : view.has(NavigatorView.TARGET_REQUEST_SENT) ? "friend_request.sent" : "friend_request.send";
         buttons.add(button(slots(43, 44), friendKey, NavigatorActionPayload.of(Action.FRIEND)));
-        // The info icon in the panel's corner shows whether they are online.
-        view.target().ifPresent(target -> buttons.add(new Button(slots(22), List.copyOf(target.lines()), null)));
         buttons.add(unavailable(slots(50, 51), "view_auctions"));
         buttons.add(button(slots(52, 53), "teleport_realm", NavigatorActionPayload.of(Action.VISIT)));
     }
@@ -291,11 +470,12 @@ final class NavigatorLayout {
     private static void navigationBar(NavigatorPage page, boolean back, List<Button> buttons) {
         if (back) {
             buttons.add(button(slots(0), "back", NavigatorActionPayload.open(page == NavigatorPage.REALMS || page == NavigatorPage.SOCIAL
-                    ? NavigatorPage.MAIN : NavigatorPage.REALMS)));
+                    || page == NavigatorPage.PROFILE ? NavigatorPage.MAIN : NavigatorPage.REALMS)));
         }
         String[] bar = {"events", "profile", "badges", "realms_tab", "social", "auction_house"};
         for (int i = 0; i < bar.length; i++) {
             buttons.add(switch (i) {
+                case 1 -> button(slots(2), "profile", NavigatorActionPayload.open(NavigatorPage.PROFILE));
                 case 3 -> button(slots(4), "realms_tab", NavigatorActionPayload.open(NavigatorPage.REALMS));
                 case 4 -> button(slots(5), "social", NavigatorActionPayload.open(NavigatorPage.SOCIAL));
                 default -> unavailable(slots(i + 1), bar[i]);
@@ -308,10 +488,22 @@ final class NavigatorLayout {
     private static void emptyHint(NavigatorView view, List<Button> buttons, String hint) {
         int[] empty = IntStream.range(FIRST_ENTRY + view.entries().size(), FIRST_ENTRY + NavigatorView.PAGE_SIZE).toArray();
         if (empty.length > 0) {
-            buttons.add(new Button(empty, List.of(Component.translatable("navigator.apeira.hint.cmd")
-                    .withStyle(Style.EMPTY.withColor(NavigatorService.LABEL))
-                    .append(Component.translatable("navigator.apeira." + hint).withColor(NavigatorService.VALUE))), null));
+            buttons.add(new Button(empty, hint(hint), null));
         }
+    }
+
+    /** "CMD: /friend add [name]", the tooltip of an empty cell. */
+    private static List<Component> hint(String hint) {
+        return List.of(Component.translatable("navigator.apeira.hint.cmd").withStyle(Style.EMPTY.withColor(NavigatorService.LABEL))
+                .append(Component.translatable("navigator.apeira." + hint).withColor(NavigatorService.VALUE)));
+    }
+
+    /** A head's tooltip: the name, then the server's lines. */
+    static List<Component> entryTooltip(NavigatorView.Entry entry) {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.literal(entry.name()).withColor(NavigatorService.LABEL));
+        lines.addAll(entry.lines());
+        return lines;
     }
 
     private static void settingsLayers(NavigatorView view, List<Identifier> layers) {

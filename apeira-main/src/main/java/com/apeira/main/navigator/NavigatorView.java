@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.apeira.decor.cosmetic.Wardrobe;
+import com.apeira.main.party.Party;
+
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -23,9 +26,12 @@ import net.minecraft.network.codec.StreamCodec;
  *                ({@code TARGET_*})
  * @param setting the visiting rule's ordinal, then {@link #PRIVATE_CHAT} and {@link #ALWAYS_ACCESSIBLE} bits from 8 up
  * @param preset  the region picked for a reset, or -1
+ * @param party   the viewer's party roster: its members, the leader first, then its open invites
+ * @param partySize how many of {@code party} are members; the rest are invites
+ * @param cosmetics what the profile's player wears, for its cosmetic slots
  */
 public record NavigatorView(NavigatorPage page, int pageIndex, int pageCount, int filter, int sort, List<Entry> entries,
-        Optional<Entry> target, int flags, int setting, int preset) {
+        Optional<Entry> target, int flags, int setting, int preset, List<Entry> party, int partySize, Wardrobe cosmetics) {
     public static final int PAGE_SIZE = 18;
     public static final int HAS_REALM = 1;
     public static final int CAN_RESET_OVERWORLD = 2;
@@ -40,6 +46,15 @@ public record NavigatorView(NavigatorPage page, int pageIndex, int pageCount, in
     public static final int TARGET_ONLINE = 256;
     /** The navigator was opened on Realms home by {@code /realms}, so there is no menu to go back to. */
     public static final int NO_BACK = 512;
+    /** The viewer is in a party, leads it, or has party chat on. */
+    public static final int IN_PARTY = 1 << 10;
+    public static final int PARTY_LEADER = 1 << 11;
+    public static final int PARTY_CHAT = 1 << 12;
+    /** The profile's player has done nothing for {@link NavigatorService#AFK_MS}. */
+    public static final int TARGET_AFK = 1 << 13;
+    /** The popup's or profile's player is in the viewer's party, or has an open invite to it. */
+    public static final int TARGET_IN_PARTY = 1 << 14;
+    public static final int TARGET_PARTY_INVITED = 1 << 15;
     public static final int PRIVATE_CHAT = 1 << 8;
     public static final int ALWAYS_ACCESSIBLE = 1 << 9;
 
@@ -54,12 +69,16 @@ public record NavigatorView(NavigatorPage page, int pageIndex, int pageCount, in
         buf.writeVarInt(view.flags);
         buf.writeVarInt(view.setting);
         buf.writeVarInt(view.preset);
+        Entry.STREAM_CODEC.apply(ByteBufCodecs.list(Party.MAX_SIZE)).encode(buf, view.party);
+        buf.writeVarInt(view.partySize);
+        Wardrobe.STREAM_CODEC.encode(buf, view.cosmetics);
     }, buf -> new NavigatorView(NavigatorPage.STREAM_CODEC.decode(buf), buf.readVarInt(), buf.readVarInt(), buf.readVarInt(),
             buf.readVarInt(), Entry.STREAM_CODEC.apply(ByteBufCodecs.list(PAGE_SIZE)).decode(buf),
-            ByteBufCodecs.optional(Entry.STREAM_CODEC).decode(buf), buf.readVarInt(), buf.readVarInt(), buf.readVarInt()));
+            ByteBufCodecs.optional(Entry.STREAM_CODEC).decode(buf), buf.readVarInt(), buf.readVarInt(), buf.readVarInt(),
+            Entry.STREAM_CODEC.apply(ByteBufCodecs.list(Party.MAX_SIZE)).decode(buf), buf.readVarInt(), Wardrobe.STREAM_CODEC.decode(buf)));
 
     public static NavigatorView closed() {
-        return new NavigatorView(NavigatorPage.CLOSED, 0, 1, 0, 0, List.of(), Optional.empty(), 0, 0, -1);
+        return new NavigatorView(NavigatorPage.CLOSED, 0, 1, 0, 0, List.of(), Optional.empty(), 0, 0, -1, List.of(), 0, Wardrobe.EMPTY);
     }
 
     public boolean has(int flag) {

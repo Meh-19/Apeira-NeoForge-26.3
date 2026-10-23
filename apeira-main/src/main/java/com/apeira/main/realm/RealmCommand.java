@@ -106,7 +106,7 @@ public final class RealmCommand {
     }
 
     /** A player-name argument (online names suggested) whose player is passed to {@code action} with the command's player. */
-    private static RequiredArgumentBuilder<CommandSourceStack, String> named(String argument,
+    public static RequiredArgumentBuilder<CommandSourceStack, String> named(String argument,
             BiPredicate<ServerPlayer, UUID> action) {
         return Commands.argument(argument, StringArgumentType.word())
                 .suggests((context, builder) -> SharedSuggestionProvider.suggest(java.util.stream.Stream.concat(

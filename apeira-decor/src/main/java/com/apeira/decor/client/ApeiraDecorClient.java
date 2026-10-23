@@ -33,6 +33,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -54,6 +55,7 @@ public final class ApeiraDecorClient {
         modEventBus.addListener(ApeiraDecorClient::registerItemTints);
         modEventBus.addListener(ApeiraDecorClient::registerItemConditions);
         modEventBus.addListener(FinishRenderTypes::registerPipelines);
+        modEventBus.addListener(ApeiraDecorClient::registerPictureInPictureRenderers);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addPaintTooltip);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::openWardrobe);
         NeoForge.EVENT_BUS.addListener(CrateCamera::onClientTick);
@@ -89,6 +91,11 @@ public final class ApeiraDecorClient {
 
     private static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
         event.registerAvatarEntityModifier(CosmeticLayer.MODIFIER);
+    }
+
+    /** Outlined entities in GUIs, such as the navigator's profile model. */
+    private static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
+        event.register(OutlinedEntityRenderer.OutlinedEntityRenderState.class, OutlinedEntityRenderer::new);
     }
 
     private static void registerKeys(RegisterKeyMappingsEvent event) {

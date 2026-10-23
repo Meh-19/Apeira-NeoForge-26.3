@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.fabricmc.api.ClientModInitializer;
@@ -24,16 +25,20 @@ import net.minecraft.network.chat.Component;
  * default, rebindable in Controls) records the next frame of the open screen, or of the HUD when no screen is open, and
  * writes it with {@link UiCaptureWriter}. The "Deep Inspect UI" key (F9) captures the open screen the same way and adds
  * what is under the mouse: the hovered slot and widgets and the text drawn there and in the tooltip, with its colours,
- * formatting and fonts. Nothing is registered and nothing is sent, so it works on any server.
+ * formatting and fonts. "Log HUD Elements" (F10, no screen open) captures the HUD like F8 and adds what it shows as
+ * text ({@link HudLog}); "Toggle Chat Logger" (F7, also inside screens) logs chat messages ({@link ChatCapture}).
+ * Nothing is registered and nothing is sent, so it works on any server.
  */
 public final class UiCaptureClient implements ClientModInitializer {
     public static final String MOD_ID = "apeira_uicapture";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final KeyMapping CAPTURE = new KeyMapping("key.apeira.capture_ui", InputConstants.KEY_F8, KeyMapping.Category.MISC);
     public static final KeyMapping INSPECT = new KeyMapping("key.apeira.inspect_ui", InputConstants.KEY_F9, KeyMapping.Category.MISC);
+    public static final KeyMapping LOG_HUD = new KeyMapping("key.apeira.log_hud", InputConstants.KEY_F10, KeyMapping.Category.MISC);
+    public static final KeyMapping LOG_CHAT = new KeyMapping("key.apeira.log_chat", InputConstants.KEY_F7, KeyMapping.Category.MISC);
 
-    /** What the next frame should capture: a screen, a screen with a deep inspection, the HUD, or nothing. */
-    private enum Pending { NONE, SCREEN, INSPECT, HUD }
+    /** What the next frame should capture: a screen, a screen with a deep inspection, the HUD, the HUD with its text log, or nothing. */
+    private enum Pending { NONE, SCREEN, INSPECT, HUD, HUD_LOG }
 
     private static Pending pending = Pending.NONE;
 
@@ -41,6 +46,8 @@ public final class UiCaptureClient implements ClientModInitializer {
     public void onInitializeClient() {
         KeyBindingHelper.registerKeyBinding(CAPTURE);
         KeyBindingHelper.registerKeyBinding(INSPECT);
+        KeyBindingHelper.registerKeyBinding(LOG_HUD);
+        KeyBindingHelper.registerKeyBinding(LOG_CHAT);
         ClientTickEvents.END_CLIENT_TICK.register(UiCaptureClient::onClientTick);
         ScreenEvents.AFTER_INIT.register((minecraft, screen, width, height) -> {
             // Key mappings are not clicked while a screen is open, so the screen's own key event arms the capture.
@@ -51,6 +58,14 @@ public final class UiCaptureClient implements ClientModInitializer {
                 }
                 if (INSPECT.matches(event)) {
                     pending = Pending.INSPECT;
+                    return false;
+                }
+                if (LOG_CHAT.matches(event)) {
+                    ChatCapture.toggle(minecraft);
+                    return false;
+                }
+                if (LOG_HUD.matches(event)) {
+                    minecraft.gui.getChat().addMessage(Component.translatable("message.apeira.ui_capture.hud_needs_no_screen"));
                     return false;
                 }
                 return true;
@@ -88,27 +103,42 @@ public final class UiCaptureClient implements ClientModInitializer {
                 minecraft.gui.getChat().addMessage(Component.translatable("message.apeira.ui_capture.inspect_needs_screen"));
             }
         }
+        while (LOG_HUD.consumeClick()) {
+            if (noScreen) {
+                pending = Pending.HUD_LOG;
+            }
+        }
+        while (LOG_CHAT.consumeClick()) {
+            ChatCapture.toggle(minecraft);
+        }
     }
 
     public static void beginHud() {
-        if (pending == Pending.HUD) {
+        if (pending == Pending.HUD || pending == Pending.HUD_LOG) {
             UiCapture.begin();
         }
     }
 
     public static void endHud() {
-        if (pending == Pending.HUD && UiCapture.recording()) {
-            finish(null, null);
+        if ((pending == Pending.HUD || pending == Pending.HUD_LOG) && UiCapture.recording()) {
+            Minecraft minecraft = Minecraft.getInstance();
+            // Collected before the frame ends, so the fonts of its text are described with the drawn ones.
+            JsonObject hud = pending == Pending.HUD_LOG ? HudLog.collect(minecraft, UiCaptureWriter.ops(minecraft)) : null;
+            finish(null, null, hud);
         }
     }
 
     private static void finish(@Nullable Screen screen, UiCaptureWriter.@Nullable Mouse mouse) {
+        finish(screen, mouse, null);
+    }
+
+    private static void finish(@Nullable Screen screen, UiCaptureWriter.@Nullable Mouse mouse, @Nullable JsonObject hud) {
         pending = Pending.NONE;
         UiCapture.Frame frame = UiCapture.end();
         Minecraft minecraft = Minecraft.getInstance();
         Component message;
         try {
-            Path file = UiCaptureWriter.write(minecraft, screen, frame, mouse);
+            Path file = UiCaptureWriter.write(minecraft, screen, frame, mouse, hud);
             LOGGER.info("UI layout captured to {}", file);
             message = Component.translatable("message.apeira.ui_capture.done", file.getFileName().toString());
         } catch (Exception e) {

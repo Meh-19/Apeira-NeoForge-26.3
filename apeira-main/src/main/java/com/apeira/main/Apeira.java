@@ -14,6 +14,9 @@ import com.apeira.main.event.StickPlacement;
 import com.apeira.main.home.HomeCommand;
 import com.apeira.main.navigator.NavigatorCommand;
 import com.apeira.main.navigator.NavigatorService;
+import com.apeira.main.navigator.ProfileEvents;
+import com.apeira.main.party.PartyCommand;
+import com.apeira.main.party.PartyService;
 import com.apeira.main.network.MainPayloads;
 import com.apeira.main.realm.DummyPlayers;
 import com.apeira.main.realm.RealmCommand;
@@ -43,6 +46,7 @@ import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 import com.mojang.logging.LogUtils;
 
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -58,7 +62,7 @@ public final class Apeira {
     /** Generates the models, language, recipes, loot tables, tags and data maps for {@link #REGISTRAR}'s entries. */
     public static final ApeiraDataGenerators DATA = ApeiraDataGenerators.create(REGISTRAR);
     /** The main module's payloads; bump the version when one of their codecs changes. */
-    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("1");
+    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("2");
 
     public Apeira(IEventBus modEventBus, ModContainer modContainer) {
         // Content holder classes (blocks, items, ...) are passed here as they are added.
@@ -75,6 +79,7 @@ public final class Apeira {
         NeoForge.EVENT_BUS.addListener(NavigatorCommand::register);
         NeoForge.EVENT_BUS.addListener(RealmCommand::register);
         NeoForge.EVENT_BUS.addListener(HomeCommand::register);
+        NeoForge.EVENT_BUS.addListener(PartyCommand::register);
         NeoForge.EVENT_BUS.addListener(DummyPlayers::register);
         NeoForge.EVENT_BUS.addListener(DummyPlayers::onServerStopping);
         NeoForge.EVENT_BUS.addListener(RealmPool::onServerStarting);
@@ -91,11 +96,16 @@ public final class Apeira {
         NeoForge.EVENT_BUS.addListener(RealmProtection::onServerTick);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onLoggedIn);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onLoggedOut);
+        // Party chat goes first, so a party message never reaches a private realm chat as well.
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, PartyService::onChat);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onChat);
         NeoForge.EVENT_BUS.addListener(NavigatorService::onChangedDimension);
         NeoForge.EVENT_BUS.addListener(NavigatorService::onLoggedIn);
         NeoForge.EVENT_BUS.addListener(NavigatorService::onLoggedOut);
         NeoForge.EVENT_BUS.addListener(NavigatorService::onServerStopped);
+        NeoForge.EVENT_BUS.addListener(PartyService::onLoggedOut);
+        NeoForge.EVENT_BUS.addListener(PartyService::onServerStopped);
+        NeoForge.EVENT_BUS.addListener(ProfileEvents::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(StickPlacement::onUseItemOnBlock);
         NeoForge.EVENT_BUS.addListener(CaptureNetEvents::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(RocketBootsSafety::onPlayerTick);
