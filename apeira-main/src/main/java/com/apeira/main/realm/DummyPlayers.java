@@ -1,5 +1,6 @@
 package com.apeira.main.realm;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,8 +8,15 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
+import org.jspecify.annotations.Nullable;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -30,7 +38,8 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
  * A dummy counts as an online player that has joined: {@link RealmData} knows its name (so commands, invites and
  * friend lists find it), {@link #isOnline} is true, it is "In Realm" in the realm it stands in, and it accepts realm
  * invites and friend requests at once. {@code /apeiradev dummy request <name>} has a dummy ask the operator to be
- * friends, for testing incoming requests. Dummies live in memory and are removed, mannequins too, when the server stops;
+ * friends, for testing incoming requests. The realm actions ({@code create_realm}, {@code invite}, {@code set_role},
+ * {@code kick}, {@code ban}, {@code reset_realm}) have a dummy act as a realm owner towards the operator. Dummies live in memory and are removed, mannequins too, when the server stops;
  * what they were added to (members, friends) stays, as for a player who logged out.
  */
 public final class DummyPlayers {
@@ -70,9 +79,63 @@ public final class DummyPlayers {
                                 .suggests((context, builder) -> SharedSuggestionProvider.suggest(DUMMIES.values().stream().map(Dummy::name), builder))
                                 .executes(context -> remove(context.getSource(), StringArgumentType.getString(context, "name")))))
                         .then(Commands.literal("list").executes(context -> list(context.getSource())))
-                        .then(Commands.literal("request").then(Commands.argument("name", StringArgumentType.word())
-                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(DUMMIES.values().stream().map(Dummy::name), builder))
-                                .executes(context -> request(context.getSource(), StringArgumentType.getString(context, "name")))))));
+                        .then(dummyAction("request", DummyPlayers::request))
+                        .then(dummyAction("create_realm", (source, dummy) -> createRealm(source, dummy, null))
+                                .then(presetArgument((source, dummy, preset) -> createRealm(source, dummy, preset))))
+                        .then(dummyAction("invite", DummyPlayers::invite))
+                        .then(Commands.literal("set_role").then(dummyArgument()
+                                .then(Commands.literal("trusted").executes(context -> run(context, (source, dummy) -> setRole(source, dummy, RealmRole.TRUSTED))))
+                                .then(Commands.literal("resident").executes(context -> run(context, (source, dummy) -> setRole(source, dummy, RealmRole.RESIDENT))))))
+                        .then(dummyAction("kick", DummyPlayers::kick))
+                        .then(dummyAction("ban", DummyPlayers::ban))
+                        .then(dummyAction("reset_realm", (source, dummy) -> resetRealm(source, dummy, null))
+                                .then(presetArgument((source, dummy, preset) -> resetRealm(source, dummy, preset))))));
+    }
+
+    /** What a dummy does to the operator who runs the command. */
+    @FunctionalInterface
+    private interface DummyAction {
+        int run(ServerPlayer player, Dummy dummy);
+    }
+
+    @FunctionalInterface
+    private interface PresetAction {
+        int run(ServerPlayer player, Dummy dummy, RealmPreset preset);
+    }
+
+    /** {@code <literal> <dummy>}, running {@code action} with the operator and the named dummy. */
+    private static LiteralArgumentBuilder<CommandSourceStack> dummyAction(String literal, DummyAction action) {
+        return Commands.literal(literal).then(dummyArgument().executes(context -> run(context, action)));
+    }
+
+    private static RequiredArgumentBuilder<CommandSourceStack, String> dummyArgument() {
+        return Commands.argument("name", StringArgumentType.word())
+                .suggests((context, builder) -> SharedSuggestionProvider.suggest(DUMMIES.values().stream().map(Dummy::name), builder));
+    }
+
+    private static RequiredArgumentBuilder<CommandSourceStack, String> presetArgument(PresetAction action) {
+        return Commands.argument("preset", StringArgumentType.word())
+                .suggests((context, builder) -> SharedSuggestionProvider.suggest(Arrays.stream(RealmPreset.values()).map(RealmPreset::getSerializedName), builder))
+                .executes(context -> {
+                    String name = StringArgumentType.getString(context, "preset");
+                    Optional<RealmPreset> preset = Arrays.stream(RealmPreset.values()).filter(p -> p.getSerializedName().equals(name)).findFirst();
+                    if (preset.isEmpty()) {
+                        context.getSource().sendFailure(Component.translatable("message.apeira.dummy.bad_preset", name));
+                        return 0;
+                    }
+                    return run(context, (player, dummy) -> action.run(player, dummy, preset.get()));
+                });
+    }
+
+    private static int run(CommandContext<CommandSourceStack> context, DummyAction action) throws CommandSyntaxException {
+        ServerPlayer player = context.getSource().getPlayerOrException();
+        String name = StringArgumentType.getString(context, "name");
+        Optional<Dummy> dummy = byName(name);
+        if (dummy.isEmpty()) {
+            context.getSource().sendFailure(Component.translatable("message.apeira.dummy.unknown", name));
+            return 0;
+        }
+        return action.run(player, dummy.get());
     }
 
     private static int add(CommandSourceStack source, String name) {
@@ -115,21 +178,133 @@ public final class DummyPlayers {
         return DUMMIES.size();
     }
 
-    private static int request(CommandSourceStack source, String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
-        ServerPlayer player = source.getPlayerOrException();
-        Optional<Dummy> dummy = byName(name);
-        if (dummy.isEmpty()) {
-            source.sendFailure(Component.translatable("message.apeira.dummy.unknown", name));
+    private static int request(ServerPlayer player, Dummy dummy) {
+        RealmData data = RealmData.get(player.level().getServer());
+        if (data.areFriends(player.getUUID(), dummy.id())) {
+            RealmService.fail(player, "friend.already", dummy.name());
             return 0;
         }
-        RealmData data = RealmData.get(source.getServer());
-        if (data.areFriends(player.getUUID(), dummy.get().id())) {
-            RealmService.fail(player, "friend.already", dummy.get().name());
-            return 0;
-        }
-        data.addFriendRequest(dummy.get().id(), player.getUUID());
-        RealmService.notifyFriendRequest(player, dummy.get().name());
+        data.addFriendRequest(dummy.id(), player.getUUID());
+        RealmService.notifyFriendRequest(player, dummy.name());
         return 1;
+    }
+
+    // Realm actions a dummy takes as an owner, aimed at the operator, so the receiving end of each can be tested alone.
+
+    /** The dummy claims a pool realm, already generated when one is ready; a random region without {@code preset}. */
+    private static int createRealm(ServerPlayer player, Dummy dummy, @Nullable RealmPreset preset) {
+        MinecraftServer server = player.level().getServer();
+        if (RealmData.get(server).realmOf(dummy.id()).isPresent()) {
+            RealmService.fail(player, "dummy.has_realm", dummy.name());
+            return 0;
+        }
+        RealmPreset picked = preset != null ? preset : RealmPreset.values()[player.getRandom().nextInt(RealmPreset.values().length)];
+        RealmData.Realm realm = RealmPool.take(server, dummy.id(), picked);
+        RealmService.done(player, "dummy.realm_created", dummy.name(), Component.translatable("navigator.apeira.preset." + picked.getSerializedName()),
+                realm.dimension().toString());
+        return 1;
+    }
+
+    /** The dummy invites the operator to its realm, with the same [ACCEPT] line a player's invite sends. */
+    private static int invite(ServerPlayer player, Dummy dummy) {
+        RealmAccess access = dummyRealm(player, dummy);
+        if (access == null) {
+            return 0;
+        }
+        if (access.members.containsKey(player.getUUID())) {
+            RealmService.fail(player, "dummy.already_member", dummy.name());
+            return 0;
+        }
+        access.banned.remove(player.getUUID());
+        access.invites.put(player.getUUID(), System.currentTimeMillis());
+        RealmData.get(player.level().getServer()).setDirty();
+        player.sendSystemMessage(RealmService.inviteMessage(dummy.name()));
+        return 1;
+    }
+
+    /** The dummy makes the operator, a member of its realm, Trusted or Resident. */
+    private static int setRole(ServerPlayer player, Dummy dummy, RealmRole role) {
+        RealmAccess access = dummyRealm(player, dummy);
+        if (access == null) {
+            return 0;
+        }
+        RealmAccess.Member member = access.members.get(player.getUUID());
+        if (member == null) {
+            RealmService.fail(player, "dummy.not_member", dummy.name());
+            return 0;
+        }
+        access.members.put(player.getUUID(), new RealmAccess.Member(role, member.joined()));
+        RealmData.get(player.level().getServer()).setDirty();
+        RealmService.done(player, "dummy.role", dummy.name(), Component.translatable("navigator.apeira.role." + role.getSerializedName()));
+        return 1;
+    }
+
+    /** The dummy sends the operator out of its realm, as an owner's kick does; they may come back. */
+    private static int kick(ServerPlayer player, Dummy dummy) {
+        RealmAccess access = dummyRealm(player, dummy);
+        if (access == null) {
+            return 0;
+        }
+        if (!RealmService.ownerOf(player.level()).equals(Optional.of(dummy.id()))) {
+            RealmService.fail(player, "dummy.not_in_realm", dummy.name());
+            return 0;
+        }
+        player.sendSystemMessage(Component.translatable("message.apeira.realm.kicked", dummy.name()).withStyle(ChatFormatting.RED));
+        RealmService.sendAway(player);
+        return 1;
+    }
+
+    /** The dummy bans the operator from its realm: membership and invite go, and they are sent out if inside. */
+    private static int ban(ServerPlayer player, Dummy dummy) {
+        RealmAccess access = dummyRealm(player, dummy);
+        if (access == null) {
+            return 0;
+        }
+        access.members.remove(player.getUUID());
+        access.invites.remove(player.getUUID());
+        access.banned.put(player.getUUID(), System.currentTimeMillis());
+        RealmData.get(player.level().getServer()).setDirty();
+        player.sendSystemMessage(Component.translatable("message.apeira.realm.banned", dummy.name()).withStyle(ChatFormatting.RED));
+        if (RealmService.ownerOf(player.level()).equals(Optional.of(dummy.id()))) {
+            RealmService.sendAway(player);
+        }
+        return 1;
+    }
+
+    /**
+     * The dummy resets its realm's overworld as {@link RealmService#resetOverworld} does: a new pool realm, the same
+     * members and settings, no spawn point, and everyone who was inside sent away.
+     */
+    private static int resetRealm(ServerPlayer player, Dummy dummy, @Nullable RealmPreset preset) {
+        MinecraftServer server = player.level().getServer();
+        RealmAccess access = dummyRealm(player, dummy);
+        if (access == null) {
+            return 0;
+        }
+        RealmData.Realm old = RealmData.get(server).realmOf(dummy.id()).orElseThrow();
+        RealmPreset picked = preset != null ? preset : old.preset();
+        RealmPool.take(server, dummy.id(), picked);
+        access.spawn = Optional.empty();
+        RealmData.get(server).setDirty();
+        ServerLevel oldLevel = server.getLevel(old.levelKey());
+        if (oldLevel != null) {
+            for (ServerPlayer inside : oldLevel.players().toArray(ServerPlayer[]::new)) {
+                inside.sendSystemMessage(Component.translatable("message.apeira.realm.reset.moved").withStyle(ChatFormatting.RED));
+                RealmService.sendAway(inside);
+            }
+        }
+        RealmService.done(player, "dummy.realm_reset", dummy.name(), Component.translatable("navigator.apeira.preset." + picked.getSerializedName()));
+        return 1;
+    }
+
+    /** The dummy's realm settings, or null after telling the operator it has no realm yet. */
+    private static @Nullable RealmAccess dummyRealm(ServerPlayer player, Dummy dummy) {
+        RealmData data = RealmData.get(player.level().getServer());
+        if (data.realmOf(dummy.id()).isEmpty()) {
+            RealmService.fail(player, "dummy.no_realm", dummy.name(), dummy.name());
+            return null;
+        }
+        return data.access(dummy.id());
     }
 
     /** Called after {@code from} invited dummy {@code target} to their realm: the dummy accepts. */

@@ -69,6 +69,8 @@ public final class NavigatorService {
         int sort;
         @Nullable UUID target;
         int preset = -1;
+        /** Opened straight on Realms home by {@code /realms}: its Back button is greyed out and does nothing. */
+        boolean realmsRoot;
 
         void go(NavigatorPage to) {
             if (listPage(to) != listPage(page)) {
@@ -82,11 +84,22 @@ public final class NavigatorService {
 
     /** Opens the navigator on {@code page} for {@code player}, as the {@code /navigator} and {@code /realm} commands do. */
     public static void open(ServerPlayer player, NavigatorPage page) {
+        open(player, page, false);
+    }
+
+    /** Opens Realms home as the navigator's root, as {@code /realms} does: there is no Back to the root menu. */
+    public static void openRealms(ServerPlayer player) {
+        open(player, NavigatorPage.REALMS, true);
+    }
+
+    private static void open(ServerPlayer player, NavigatorPage page, boolean realmsRoot) {
         Session session = SESSIONS.computeIfAbsent(player.getUUID(), uuid -> new Session());
         if (needsRealm(page) && !hasRealm(player)) {
             player.sendSystemMessage(Component.translatable("message.apeira.realm.none"));
             page = NavigatorPage.MAIN;
+            realmsRoot = false;
         }
+        session.realmsRoot = realmsRoot;
         session.go(page);
         send(player, session);
     }
@@ -99,7 +112,9 @@ public final class NavigatorService {
             case OPEN_PAGE -> {
                 NavigatorPage[] pages = NavigatorPage.values();
                 NavigatorPage to = argument >= 0 && argument < pages.length ? pages[argument] : NavigatorPage.MAIN;
-                if (isTab(to)) {
+                if (session.realmsRoot && page == NavigatorPage.REALMS && to == NavigatorPage.MAIN) {
+                    // Back is disabled on a Realms home opened by /realms.
+                } else if (isTab(to)) {
                     if (needsRealm(to) && !hasRealm(player)) {
                         player.sendSystemMessage(Component.translatable("message.apeira.realm.none"));
                     } else {
@@ -441,6 +456,9 @@ public final class NavigatorService {
                     | (data.hasFriendRequest(id, self) ? NavigatorView.TARGET_REQUESTED : 0)
                     | (data.hasFriendRequest(self, id) ? NavigatorView.TARGET_REQUEST_SENT : 0)
                     | (DummyPlayers.isOnline(server, id) ? NavigatorView.TARGET_ONLINE : 0);
+        }
+        if (session.realmsRoot && page == NavigatorPage.REALMS) {
+            flags |= NavigatorView.NO_BACK;
         }
         int setting = access.visitingRule().ordinal() | (access.privateChat() ? NavigatorView.PRIVATE_CHAT : 0)
                 | (access.alwaysAccessible() ? NavigatorView.ALWAYS_ACCESSIBLE : 0);
