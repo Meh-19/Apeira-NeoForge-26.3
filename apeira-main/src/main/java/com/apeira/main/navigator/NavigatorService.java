@@ -266,11 +266,6 @@ public final class NavigatorService {
                     return;
                 }
             }
-            case SET_HOME -> {
-                if (page == NavigatorPage.HOMES) {
-                    HomeService.setNext(player);
-                }
-            }
             case RENAME_HOME -> {
                 if (page == NavigatorPage.HOMES) {
                     HomeService.rename(player, argument, payload.text());
