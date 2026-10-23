@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import org.jspecify.annotations.Nullable;
 
@@ -18,8 +19,9 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.ARGB;
 
 /**
- * A skin's accent colour, for backgrounds behind a player (Origin Realms tints its profile panel with one). The skin's
- * opaque pixels are grouped into colour buckets (3 bits per channel, so shades of one colour count together), and each
+ * A skin's accent colour, for backgrounds behind a player (Origin Realms tints its profile panel with one). Only the
+ * {@link #REGIONS} are sampled: the head's side strip (front, sides and back of the head and of the hat layer) and the
+ * body with its jacket layer, so arms, legs and the head's top and bottom do not count. Their opaque pixels are grouped into colour buckets (3 bits per channel, so shades of one colour count together), and each
  * bucket scores its saturation, how close its lightness is to 50% (very dark and very light colours make poor
  * backgrounds) and how much of the skin it covers; the best bucket's average colour wins.
  *
@@ -30,6 +32,12 @@ public final class SkinAccent {
     /** A neutral slate, for skins that cannot be read. */
     public static final int FALLBACK = 0xFF3D4A5C;
     private static final Map<Identifier, Integer> CACHE = new HashMap<>();
+    /**
+     * The sampled areas of a 64x64 skin, {x0, y0, x1, y1} (end exclusive): rows 8-16 across the whole width (head and
+     * hat sides) and x 16-40 over rows 16-48 (body, then jacket). Scaled for HD skins; a legacy 64x32 skin has no jacket
+     * rows, so the body box stops at its bottom.
+     */
+    private static final int[][] REGIONS = {{0, 8, 64, 16}, {16, 16, 40, 48}};
 
     private SkinAccent() {}
 
@@ -115,15 +123,20 @@ public final class SkinAccent {
         return null;
     }
 
+    /** The pixels of the skin's {@link #REGIONS}. */
     private static int[] read(NativeImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
-        int[] pixels = new int[width * height];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                pixels[y * width + x] = image.getPixel(x, y);
+        int scale = Math.max(1, width / 64);
+        IntStream.Builder pixels = IntStream.builder();
+        for (int[] region : REGIONS) {
+            int y1 = Math.min(region[3] * scale, height);
+            for (int y = region[1] * scale; y < y1; y++) {
+                for (int x = region[0] * scale; x < Math.min(region[2] * scale, width); x++) {
+                    pixels.add(image.getPixel(x, y));
+                }
             }
         }
-        return pixels;
+        return pixels.build().toArray();
     }
 }
