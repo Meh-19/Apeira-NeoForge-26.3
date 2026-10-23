@@ -51,6 +51,10 @@ final class NavigatorLayout {
     private static final int[] PARTY_SLOTS = IntStream.concat(IntStream.rangeClosed(19, 25), IntStream.rangeClosed(28, 34)).toArray();
     /** Origin Realms' title colours on profiles: white for a button, dark grey for an empty cosmetic cell. */
     private static final int ACTIVE = 0xFFFFFF;
+    /** The status titles' colours, the light colours of the status icons. */
+    private static final int STATUS_ONLINE = 0xABE061;
+    private static final int STATUS_AFK = 0x47B0D7;
+    private static final int STATUS_OFFLINE = 0xF17F61;
     private static final int EMPTY_SLOT = 0x555555;
     /** Social's party row: its cells in {@code social/background} sit 3 pixels below slots 12-15, so the heads do too. */
     private static final int SOCIAL_PARTY_DY = 3;
@@ -317,9 +321,11 @@ final class NavigatorLayout {
         }
         view.target().ifPresent(target -> {
             buttons.add(new Button(slots(INFO_SLOT), target.lines(), null));
+            // Titled in its icon's colour: green online, blue AFK, red offline.
+            boolean afk = view.has(NavigatorView.TARGET_AFK);
             boolean online = view.has(NavigatorView.TARGET_ONLINE);
-            String status = view.has(NavigatorView.TARGET_AFK) ? "status.afk" : online ? "status.online" : "status.offline";
-            buttons.add(titled(slots(STATUS_SLOT), status, online ? NavigatorService.ACTION : NavigatorService.LABEL, null));
+            String status = afk ? "status.afk" : online ? "status.online" : "status.offline";
+            buttons.add(titled(slots(STATUS_SLOT), status, afk ? STATUS_AFK : online ? STATUS_ONLINE : STATUS_OFFLINE, null));
         });
     }
 
