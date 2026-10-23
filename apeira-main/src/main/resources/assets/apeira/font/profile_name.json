@@ -51,21 +51,6 @@
       "file": "minecraft:font/ascii.png",
       "height": 8,
       "type": "bitmap"
-    },
-    {
-      "ascent": -11,
-      "chars": [
-        "\ue000",
-        "\ue001",
-        "\ue002",
-        "\ue003",
-        "\ue004",
-        "\ue005",
-        "\ue006"
-      ],
-      "file": "apeira:gui/navigator/profile/profile_other/line.png",
-      "height": 8,
-      "type": "bitmap"
     }
   ]
 }

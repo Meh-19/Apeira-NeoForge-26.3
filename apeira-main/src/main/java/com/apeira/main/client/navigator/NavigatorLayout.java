@@ -51,6 +51,10 @@ final class NavigatorLayout {
     private static final int[] PARTY_SLOTS = IntStream.concat(IntStream.rangeClosed(19, 25), IntStream.rangeClosed(28, 34)).toArray();
     /** Origin Realms' title colours on profiles: white for a button, dark grey for an empty cosmetic cell. */
     private static final int ACTIVE = 0xFFFFFF;
+    /** The status titles' colours, the light colours of the status icons. */
+    private static final int STATUS_ONLINE = 0xABE061;
+    private static final int STATUS_AFK = 0x47B0D7;
+    private static final int STATUS_OFFLINE = 0xF17F61;
     private static final int EMPTY_SLOT = 0x555555;
     /** Social's party row: its cells in {@code social/background} sit 3 pixels below slots 12-15, so the heads do too. */
     private static final int SOCIAL_PARTY_DY = 3;
@@ -292,12 +296,13 @@ final class NavigatorLayout {
         buttons.add(titled(slots(50, 51), "journal", NavigatorService.LABEL, null));
         buttons.add(titled(slots(52), "gravestones", NavigatorService.LABEL, null));
         buttons.add(titled(slots(53), "player_settings", NavigatorService.LABEL, null));
+        profilePanel(view, buttons, true);
     }
 
     /**
      * What both profiles share: the cosmetic cells ("Equip a prop cosmetic in the / wardrobe at Cosmo's Cosmetics" on
-     * one's own, "Not holding prop" on another's, or the worn item's name), the player's name over the model panel, the
-     * stat panel on the info icon and the status.
+     * one's own, "Not holding prop" on another's, or the worn item's name), the
+     * stat panel on the info icon and the status. The model panel's own button is {@link #profilePanel}.
      */
     private static void profileCommon(NavigatorView view, List<Button> buttons, boolean own) {
         CosmeticSlot[] worn = CosmeticSlot.values();
@@ -315,15 +320,25 @@ final class NavigatorLayout {
             buttons.add(new Button(slots(COSMETIC_SLOTS[i]), lines, own && i < worn.length ? NavigatorActionPayload.of(Action.WARDROBE) : null));
         }
         view.target().ifPresent(target -> {
-            // Origin Realms names the player on every cell of the model panel that holds nothing else. The panel is not
-            // lit on hover (no white box over the model); its tooltip still shows.
+            buttons.add(new Button(slots(INFO_SLOT), target.lines(), null));
+            // Titled in its icon's colour: green online, blue AFK, red offline.
+            boolean afk = view.has(NavigatorView.TARGET_AFK);
+            boolean online = view.has(NavigatorView.TARGET_ONLINE);
+            String status = afk ? "status.afk" : online ? "status.online" : "status.offline";
+            buttons.add(titled(slots(STATUS_SLOT), status, afk ? STATUS_AFK : online ? STATUS_ONLINE : STATUS_OFFLINE, null));
+        });
+    }
+
+    /**
+     * Origin Realms names the player on every cell of the model panel that holds nothing else. The panel is not lit on
+     * hover (no white box over the model); its tooltip still shows. It is added after every other button of the page:
+     * its face is the whole panel, so the info icon, the status and the featured badge inside it are found first.
+     */
+    private static void profilePanel(NavigatorView view, List<Button> buttons, boolean own) {
+        view.target().ifPresent(target -> {
             int[] panel = own ? slots(28, 29, 30, 31, 37, 38, 39, 40, 46, 47, 48) : slots(19, 20, 21, 28, 29, 30, 31, 37, 38, 39, 40, 46, 47, 48);
             buttons.add(new Button(panel, List.of(Component.literal(target.name()).withStyle(Style.EMPTY.withColor(ACTIVE).withItalic(false))), null,
                     false));
-            buttons.add(new Button(slots(INFO_SLOT), target.lines(), null));
-            boolean online = view.has(NavigatorView.TARGET_ONLINE);
-            String status = view.has(NavigatorView.TARGET_AFK) ? "status.afk" : online ? "status.online" : "status.offline";
-            buttons.add(titled(slots(STATUS_SLOT), status, online ? NavigatorService.ACTION : NavigatorService.LABEL, null));
         });
     }
 
@@ -363,6 +378,7 @@ final class NavigatorLayout {
         buttons.add(button(slots(43, 44), friendKey, NavigatorActionPayload.of(Action.FRIEND)));
         buttons.add(titled(slots(50, 51), "view_auctions", NavigatorService.LABEL, null));
         buttons.add(titled(slots(52, 53), "teleport_realm", ACTIVE, NavigatorActionPayload.of(Action.VISIT)));
+        profilePanel(view, buttons, false);
     }
 
     /** The Realms pages: the navigation bar, a tab background, list controls, and the page's panel or popup. */

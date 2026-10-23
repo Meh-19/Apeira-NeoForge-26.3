@@ -81,38 +81,33 @@ public final class ApeiraNavigatorScreen extends Screen {
     private static final int COSMETIC_CELL = 0xFF8B8B8B;
     private static final Identifier[] COSMETIC_ICONS = {icon("slot_hat"), icon("slot_back"), icon("slot_hand"), icon("slot_balloon")};
     /**
-     * The AFK tag, drawn in the model panel's corner in place of the status light, inside a one-pixel black outline:
-     * tag and outline fill the status cell's height, their right edge on the cell's.
+     * The status icons (Origin Realms' online, AFK and offline lights: green, blue and red, 9x9 with a black outline),
+     * drawn in the model panel's corner where the server pack's 16-pixel glyph puts them, 3 pixels in from the status
+     * cell's left and 5 down.
      */
-    private static final Identifier AFK_TAG = icon("afk");
-    private static final int AFK_WIDTH = 44;
-    private static final int AFK_HEIGHT = 14;
-    private static final int AFK_OUTLINE = 0xFF000000;
+    private static final Identifier STATUS_ONLINE = icon("status_online");
+    private static final Identifier STATUS_AFK = icon("status_afk");
+    private static final Identifier STATUS_OFFLINE = icon("status_offline");
+    private static final int STATUS_SIZE = 9;
+    private static final int STATUS_X = 3;
+    private static final int STATUS_Y = 5;
     /**
-     * The status light: a 6-pixel square whose outer pixel is its outline, as Origin Realms draws an active player's;
-     * green online, grey offline. It sits 2 pixels in from the cell's bottom right corner.
-     */
-    private static final int STATUS_SIZE = 6;
-    private static final int STATUS_INSET = 2;
-    private static final int STATUS_EDGE = 0xFF1E4D12;
-    private static final int STATUS_FILL = 0xFF5DBB3A;
-    private static final int OFFLINE_EDGE = 0xFF2B2B2B;
-    private static final int OFFLINE_FILL = 0xFF7A7A7A;
-    /**
-     * The profile title, "Name's Profile" and a line to a fixed right edge, in the server pack's
+     * Another player's profile title, "Name's Profile" and a line to a fixed right edge, in the server pack's
      * {@code menus/profile/name} font ({@code apeira:profile_name}: the ASCII sheet at ascent -11, so the text lands 18
-     * pixels under where it is drawn, and {@code line.png}'s line pieces 64, 32, ... 1 pixels long at E000-E006). Drawn
-     * where the captured title is, (7, 6) moved one row down into this 6-row frame, in the title's dark grey.
+     * pixels under where it is drawn). Drawn where the captured title is, (7, 6) moved one row down into this 6-row
+     * frame, in the dark grey of the own profile's baked-in "Your Profile". The line is filled in that grey too, where
+     * the own profile's line is (one pixel tall, {@link #TITLE_LINE_Y}); the server's {@code line.png} glyphs drew it
+     * white.
      */
     private static final FontDescription PROFILE_NAME_FONT = new FontDescription.Resource(ApeiraIds.id("profile_name"));
     private static final int TITLE_X = 7;
     private static final int TITLE_Y = 24;
     private static final int TITLE_COLOR = 0xFF555555;
-    /** The space between the name and the line (4 + 2), and where the line ends: name, gap and line are this wide. */
-    private static final String TITLE_GAP = "\uEFE2\uEFE1";
+    /** The space between the name and the line, and where the line ends: name, gap and line are this wide. */
+    private static final int TITLE_GAP = 6;
     private static final int TITLE_WIDTH = 162;
-    /** Moves the cursor back one pixel after a line piece, whose advance is one more than its length. */
-    private static final String TITLE_BACK = "\uEFF0";
+    /** The line's row in the frame: the text's top (TITLE_Y + 18) plus 4, as in the own profile's layer. */
+    private static final int TITLE_LINE_Y = TITLE_Y + 22;
     /** The profile's dark panel (inside its outline), where the player is drawn on their skin's accent colour. */
     private static final int PROFILE_X0 = 26;
     private static final int PROFILE_Y0 = 54;
@@ -148,9 +143,13 @@ public final class ApeiraNavigatorScreen extends Screen {
     /**
      * The icons drawn inside the dark panel, which the accent gradient would cover (frame coordinates, measured in the
      * layers): the Profile Info icon in the top right corner of both profiles, and the own profile's featured badge.
+     * Each is drawn again over the gradient and the model from its own texture, cut from the layer with the panel's
+     * grey left transparent, so the gradient runs on behind the badge's rounded corners instead of a grey square.
      */
     private static final NavigatorBounds.Rect INFO_ICON = new NavigatorBounds.Rect(82, 56, 92, 66);
     private static final NavigatorBounds.Rect FEATURED_BADGE = new NavigatorBounds.Rect(26, 54, 42, 70);
+    private static final Identifier INFO_ICON_TEXTURE = icon("info_icon");
+    private static final Identifier FEATURED_BADGE_TEXTURE = icon("featured_badge");
     /**
      * The player inventory part of vanilla's 6-row chest, {@code generic_54}: only it backs the navigator, so where the
      * layers stop the player's inventory grid shows and nothing of the chest's rows.
@@ -253,16 +252,12 @@ public final class ApeiraNavigatorScreen extends Screen {
     }
 
     /**
-     * The status's drawn box in frame coordinates, outline included: the outlined AFK tag, or the green (online) or grey
-     * (offline) light. Its hover highlight and hitbox are exactly this box.
+     * The status icon's box in frame coordinates, outline included. Its hover highlight and hitbox are exactly this box.
      */
-    private NavigatorBounds.Rect statusFace() {
-        int x1 = NavigatorBounds.slotX(NavigatorLayout.STATUS_SLOT) + 16;
-        int y1 = NavigatorBounds.slotY(NavigatorLayout.STATUS_SLOT) + 16;
-        if (view.has(NavigatorView.TARGET_AFK)) {
-            return new NavigatorBounds.Rect(x1 - AFK_WIDTH - 2, y1 - AFK_HEIGHT - 2, x1, y1);
-        }
-        return new NavigatorBounds.Rect(x1 - STATUS_INSET - STATUS_SIZE, y1 - STATUS_INSET - STATUS_SIZE, x1 - STATUS_INSET, y1 - STATUS_INSET);
+    private static NavigatorBounds.Rect statusFace() {
+        int x0 = NavigatorBounds.slotX(NavigatorLayout.STATUS_SLOT) + STATUS_X;
+        int y0 = NavigatorBounds.slotY(NavigatorLayout.STATUS_SLOT) + STATUS_Y;
+        return new NavigatorBounds.Rect(x0, y0, x0 + STATUS_SIZE, y0 + STATUS_SIZE);
     }
 
     private void startRenaming(int index, String name) {
@@ -408,7 +403,7 @@ public final class ApeiraNavigatorScreen extends Screen {
     /**
      * A profile, the player's own or another's: their player model ({@link #model}), standing still with its arms a little
      * out and drawn with a black toon outline ({@link OutlinedEntityRenderer}), on their skin's accent colour
-     * ({@link SkinAccent}) in the dark panel, with no name under it, as on the server; the status light (or the AFK tag) in the panel's corner; the
+     * ({@link SkinAccent}) in the dark panel, with no name under it, as on the server; the status icon (online, AFK or offline) in the panel's corner; the
      * cosmetic slots down the left, each showing what is worn as its 3D model or, when empty, the slot's icon; and the
      * "Name's Profile" title. The model wears no cosmetics: they are shown in the sidebar.
      */
@@ -427,7 +422,10 @@ public final class ApeiraNavigatorScreen extends Screen {
                 WornCosmetic.whileWorn(() -> graphics.item(stack, x, y));
             }
         }
-        title(graphics, target.name());
+        // The own profile's layer has "Your Profile" and its line baked in; only another's is written here.
+        if (view.page() == NavigatorPage.PROFILE_OTHER) {
+            title(graphics, target.name());
+        }
 
         int x0 = leftPos + PROFILE_X0;
         int y0 = topPos + PROFILE_Y0;
@@ -451,56 +449,36 @@ public final class ApeiraNavigatorScreen extends Screen {
         state.leftArmPose = HumanoidModel.ArmPose.EMPTY;
         model(graphics, state);
         // The gradient covers the layers' icons in the panel; they are drawn again over it and the model.
-        relayer(graphics, INFO_ICON);
+        overlay(graphics, INFO_ICON_TEXTURE, INFO_ICON);
         if (view.page() == NavigatorPage.PROFILE) {
-            relayer(graphics, FEATURED_BADGE);
+            overlay(graphics, FEATURED_BADGE_TEXTURE, FEATURED_BADGE);
         }
 
-        // The status is drawn in exactly its face (statusFace), so its outline and highlight match the icon.
-        NavigatorBounds.Rect status = statusFace();
-        int sx0 = leftPos + status.x0();
-        int sy0 = topPos + status.y0();
-        int sx1 = leftPos + status.x1();
-        int sy1 = topPos + status.y1();
-        if (view.has(NavigatorView.TARGET_AFK)) {
-            // The tag is wider than the cell, so it sits in the panel's corner, its right edge at the cell's.
-            graphics.fill(sx0, sy0, sx1, sy1, AFK_OUTLINE);
-            graphics.blit(RenderPipelines.GUI_TEXTURED, AFK_TAG, sx0 + 1, sy0 + 1, 0.0F, 0.0F, AFK_WIDTH, AFK_HEIGHT, AFK_WIDTH, AFK_HEIGHT);
-        } else {
-            boolean online = view.has(NavigatorView.TARGET_ONLINE);
-            graphics.fill(sx0, sy0, sx1, sy1, online ? STATUS_EDGE : OFFLINE_EDGE);
-            graphics.fill(sx0 + 1, sy0 + 1, sx1 - 1, sy1 - 1, online ? STATUS_FILL : OFFLINE_FILL);
-        }
+        // The status is drawn in exactly its face (statusFace), so its highlight matches the icon.
+        Identifier status = view.has(NavigatorView.TARGET_AFK) ? STATUS_AFK : view.has(NavigatorView.TARGET_ONLINE) ? STATUS_ONLINE : STATUS_OFFLINE;
+        overlay(graphics, status, statusFace());
     }
 
     /**
-     * The profile title (one's own profile too) as the server writes another player's: "Name's Profile" ("Name' Profile" after an s), a 6-pixel
-     * gap, then line.png's pieces, the binary digits of the room left, so name, gap and line always end
-     * {@link #TITLE_WIDTH} pixels from the title's start.
+     * Another player's profile title as the server writes it: "Name's Profile" ("Name' Profile" after an s), a 6-pixel
+     * gap, then a line in the same grey to {@link #TITLE_WIDTH} pixels from the title's start.
      */
     private void title(GuiGraphicsExtractor graphics, String name) {
         String text = name + (name.endsWith("s") ? "'" : "'s") + " Profile";
-        Style style = Style.EMPTY.withFont(PROFILE_NAME_FONT);
-        int room = TITLE_WIDTH - font.width(Component.literal(text + TITLE_GAP).withStyle(style));
-        StringBuilder line = new StringBuilder(TITLE_GAP);
-        for (int piece = 0; piece < 7 && room > 0; piece++) {
-            int length = 64 >> piece;
-            if (room >= length) {
-                line.append(Character.toString(0xE000 + piece)).append(TITLE_BACK);
-                room -= length;
-            }
+        Component title = Component.literal(text).withStyle(Style.EMPTY.withFont(PROFILE_NAME_FONT));
+        graphics.text(font, title, leftPos + TITLE_X, topPos + TITLE_Y, TITLE_COLOR, false);
+        int lineX = leftPos + TITLE_X + font.width(title) + TITLE_GAP;
+        int lineEnd = leftPos + TITLE_X + TITLE_WIDTH;
+        if (lineX < lineEnd) {
+            graphics.fill(lineX, topPos + TITLE_LINE_Y, lineEnd, topPos + TITLE_LINE_Y + 1, TITLE_COLOR);
         }
-        graphics.text(font, Component.literal(text + line).withStyle(style), leftPos + TITLE_X, topPos + TITLE_Y, TITLE_COLOR, false);
     }
 
-    /** Draws the page's layers again inside {@code rect} (frame coordinates). */
-    private void relayer(GuiGraphicsExtractor graphics, NavigatorBounds.Rect rect) {
+    /** Draws {@code texture}, the size of {@code rect}, at {@code rect} (frame coordinates). */
+    private void overlay(GuiGraphicsExtractor graphics, Identifier texture, NavigatorBounds.Rect rect) {
         int w = rect.x1() - rect.x0();
         int h = rect.y1() - rect.y0();
-        for (Identifier layer : layout.layers()) {
-            graphics.blit(RenderPipelines.GUI_TEXTURED, layer, leftPos + rect.x0(), topPos + rect.y0(), rect.x0(), rect.y0() - LAYER_Y, w, h,
-                    256, 256);
-        }
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, leftPos + rect.x0(), topPos + rect.y0(), 0.0F, 0.0F, w, h, w, h);
     }
 
     /**
