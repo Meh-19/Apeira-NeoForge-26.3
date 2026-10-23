@@ -1,0 +1,38 @@
+{
+  "providers": [
+    {
+      "type": "space",
+      "advances": {
+        "\ue001": -1,
+        "\ue002": 1
+      }
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/ruby/hud_numbers.png",
+      "ascent": 7,
+      "height": 8,
+      "chars": [
+        "0123456789"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/ruby/hud_comma.png",
+      "ascent": 7,
+      "height": 8,
+      "chars": [
+        ","
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/ruby/icon.png",
+      "ascent": 8,
+      "height": 9,
+      "chars": [
+        "\ue000"
+      ]
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainMaterials;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainRubies;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
@@ -58,6 +59,11 @@ public final class MainRecipeProvider extends ApeiraRecipeProvider {
         }
         tools();
         armor();
+        shaped(RecipeCategory.DECORATIONS, MainRubies.RUBY_DEPOSIT)
+                .define('G', Items.GOLD_INGOT).define('O', Blocks.OBSIDIAN).define('R', MainItems.RUBY)
+                .pattern("GGG").pattern("ORO").pattern("GOG")
+                .unlockedBy(getHasName(MainItems.RUBY), has(MainItems.RUBY))
+                .save(output);
 
         for (MainWoods.Wood wood : MainWoods.woods()) {
             planksFromLog(wood.planks().planks(), wood.logs().item(), 4);

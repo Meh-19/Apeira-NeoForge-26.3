@@ -111,8 +111,21 @@ public final class RealmData extends SavedData {
     public void seen(UUID player, String name) {
         long now = System.currentTimeMillis();
         KnownPlayer before = players.get(player);
-        players.put(player, new KnownPlayer(name, now, before == null || before.firstSeen() == 0 ? now : before.firstSeen()));
+        players.put(player, new KnownPlayer(name, now, before == null || before.firstSeen() == 0 ? now : before.firstSeen(),
+                before == null ? 0 : before.rubies()));
         setDirty();
+    }
+
+    /**
+     * Keeps {@code player}'s ruby balance as last set, so profiles show it while they are offline. The balance itself is
+     * the player's {@code apeira:rubies} attachment ({@link com.apeira.main.ruby.Rubies}).
+     */
+    public void rubiesChanged(UUID player, long rubies) {
+        KnownPlayer before = players.get(player);
+        if (before != null && before.rubies() != rubies) {
+            players.put(player, new KnownPlayer(before.name(), before.lastSeen(), before.firstSeen(), rubies));
+            setDirty();
+        }
     }
 
     public Optional<KnownPlayer> known(UUID player) {
@@ -225,11 +238,13 @@ public final class RealmData extends SavedData {
 
     /** A player's last known name and when they were last online, in epoch milliseconds. */
     /** {@code firstSeen} is when they first joined, the profile's join date; 0 for players saved before it was kept. */
-    public record KnownPlayer(String name, long lastSeen, long firstSeen) {
+    /** {@code rubies} is their ruby balance when it last changed, shown on their profile while they are offline. */
+    public record KnownPlayer(String name, long lastSeen, long firstSeen, long rubies) {
         public static final Codec<KnownPlayer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.STRING.fieldOf("name").forGetter(KnownPlayer::name),
                 Codec.LONG.fieldOf("last_seen").forGetter(KnownPlayer::lastSeen),
-                Codec.LONG.optionalFieldOf("first_seen", 0L).forGetter(KnownPlayer::firstSeen)).apply(instance, KnownPlayer::new));
+                Codec.LONG.optionalFieldOf("first_seen", 0L).forGetter(KnownPlayer::firstSeen),
+                Codec.LONG.optionalFieldOf("rubies", 0L).forGetter(KnownPlayer::rubies)).apply(instance, KnownPlayer::new));
     }
 
     /**

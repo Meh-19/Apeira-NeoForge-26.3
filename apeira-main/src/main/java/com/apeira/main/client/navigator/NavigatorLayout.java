@@ -65,6 +65,8 @@ final class NavigatorLayout {
     static final int STATUS_SLOT = 49;
     /** The Profile Info icon's slot, in the model panel's top right corner: the player's stat panel. */
     static final int INFO_SLOT = 22;
+    /** The own profile's three featured badge cells, each its own button. */
+    static final int[] BADGE_SLOTS = {19, 20, 21};
 
     private NavigatorLayout() {}
 
@@ -287,7 +289,10 @@ final class NavigatorLayout {
         layer(layers, "navigation", "navigation_back_enabled", "profile/navigation_profile", "profile/background");
         navigationBar(NavigatorPage.PROFILE, true, buttons);
         profileCommon(view, buttons, true);
-        buttons.add(titled(slots(19, 20, 21), "featured_badge", ACTIVE, null));
+        // One button per badge cell, so hovering one lights only that badge.
+        for (int slot : BADGE_SLOTS) {
+            buttons.add(titled(slots(slot), "featured_badge", ACTIVE, null));
+        }
         buttons.add(titled(slots(23, 24, 32, 33), "realm_teleport.own", ACTIVE, NavigatorActionPayload.of(Action.REALM_TELEPORT)));
         buttons.add(new Button(slots(25, 26, 34, 35), List.of(title("open_worlds", ACTIVE), NavigatorService.action(0, "open_world_teleport"),
                 NavigatorService.action(1, "open_world_list")), NavigatorActionPayload.open(NavigatorPage.OPEN_WORLDS)));
