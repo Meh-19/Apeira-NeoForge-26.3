@@ -325,6 +325,9 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         addId("navigator", "hint.cmd", "CMD: ");
         addId("navigator", "hint.invite", "/realm invite [name]");
         addId("navigator", "hint.ban", "/realm ban [name]");
+        addId("navigator", "hint.sethome", "/sethome [name]");
+        addId("navigator", "profile_title", "%s's Profile");
+        addId("navigator", "profile_title.s", "%s' Profile");
         addId("navigator", "kick_player", "Kick player from world");
         addId("navigator", "kick_member", "Kick member from Realm");
         addId("navigator", "ban_member", "Ban member from Realm");
@@ -429,8 +432,6 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("friend.not_friends", "You aren't friends with %s");
         message("friend.removed", "You are no longer friends with %s");
         message("friend.list", "Friends: %s");
-        addId("navigator", "set_home", "Set a home here");
-        addId("navigator", "set_home.desc", "Click to set a home where you stand");
         addId("navigator", "rename_home", "Rename home");
         addId("navigator", "rename_home.hint", "New name, then Enter");
         addId("navigator", "home.realm_world", "%s's Realm");

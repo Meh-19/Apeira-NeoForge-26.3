@@ -13,6 +13,7 @@ import com.apeira.core.network.client.ApeiraClientNetwork;
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.decor.client.OutlinedEntityRenderer;
 import com.apeira.decor.client.SkinAccent;
+import com.apeira.decor.client.WornCosmetic;
 import com.apeira.decor.cosmetic.CosmeticSlot;
 import com.apeira.decor.network.OpenWardrobePayload;
 import com.apeira.main.home.HomeData;
@@ -85,6 +86,22 @@ public final class ApeiraNavigatorScreen extends Screen {
     private static final int STATUS_SIZE = 6;
     private static final int STATUS_EDGE = 0xFF1E4D12;
     private static final int STATUS_FILL = 0xFF5DBB3A;
+    /** The offline light: the same square in grey, so the status's highlight always outlines a drawn icon. */
+    private static final int OFFLINE_EDGE = 0xFF2E2E2E;
+    private static final int OFFLINE_FILL = 0xFF8A8A8A;
+    /**
+     * The title over the profile, "Name's Profile" and a line, as Origin Realms draws it in its {@code menus/profile/name}
+     * font: the name in dark grey, its glyphs' tops 18 pixels under the chest title's (here a row lower again, under the
+     * navigation bar), then 6 pixels on a 1-pixel white line at the glyphs' fifth row, so name, gap and line are
+     * always 162 pixels long.
+     */
+    private static final int TITLE_X = 8;
+    private static final int TITLE_Y = 42;
+    private static final int TITLE_COLOR = 0xFF555555;
+    private static final int TITLE_GAP = 6;
+    private static final int TITLE_LENGTH = 162;
+    private static final int TITLE_LINE_Y = 4;
+    private static final int TITLE_LINE = 0xFFFFFFFF;
     /** The profile's dark panel (inside its outline), where the player is drawn on their skin's accent colour. */
     private static final int PROFILE_X0 = 26;
     private static final int PROFILE_Y0 = 54;
@@ -333,10 +350,12 @@ public final class ApeiraNavigatorScreen extends Screen {
         if (hover != NOTHING) {
             // The button's drawn face lights up, fading in, instead of the chest slots under it: the face is found in
             // the layers, so the highlight fits the button however it sits on the slot grid.
-            float fade = Math.min(1.0F, (Util.getMillis() - hoverStart) / (float) HIGHLIGHT_FADE_MS);
-            int color = ARGB.color(Math.round(HIGHLIGHT_ALPHA * fade), 0xFFFFFF);
-            for (NavigatorBounds.Rect face : faces(hover)) {
-                graphics.fill(leftPos + face.x0(), topPos + face.y0(), leftPos + face.x1(), topPos + face.y1(), color);
+            if (hover < 0 || layout.buttons().get(hover).lit()) {
+                float fade = Math.min(1.0F, (Util.getMillis() - hoverStart) / (float) HIGHLIGHT_FADE_MS);
+                int color = ARGB.color(Math.round(HIGHLIGHT_ALPHA * fade), 0xFFFFFF);
+                for (NavigatorBounds.Rect face : faces(hover)) {
+                    graphics.fill(leftPos + face.x0(), topPos + face.y0(), leftPos + face.x1(), topPos + face.y1(), color);
+                }
             }
             List<Component> tooltip = hover >= 0 ? layout.buttons().get(hover).tooltip()
                     : NavigatorLayout.entryTooltip(view.entries().get(entryIndex(hover)));
@@ -387,7 +406,8 @@ public final class ApeiraNavigatorScreen extends Screen {
             if (stack.isEmpty()) {
                 graphics.blit(RenderPipelines.GUI_TEXTURED, COSMETIC_ICONS[i], x, y, 0.0F, 0.0F, 16, 16, 16, 16);
             } else {
-                graphics.item(stack, x, y);
+                // The cosmetic's own 3D model, as worn, not its rarity token; the model in the panel wears nothing.
+                WornCosmetic.whileWorn(() -> graphics.item(stack, x, y));
             }
         }
 
@@ -424,11 +444,27 @@ public final class ApeiraNavigatorScreen extends Screen {
             // The tag is wider than the cell, so it sits in the panel's corner, its right edge at the cell's.
             graphics.blit(RenderPipelines.GUI_TEXTURED, AFK_TAG, statusX + 16 - AFK_WIDTH, statusY + 16 - AFK_HEIGHT, 0.0F, 0.0F, AFK_WIDTH,
                     AFK_HEIGHT, AFK_WIDTH, AFK_HEIGHT);
-        } else if (view.has(NavigatorView.TARGET_ONLINE)) {
+        } else {
+            boolean online = view.has(NavigatorView.TARGET_ONLINE);
             int sx = statusX + 16 - STATUS_SIZE - 2;
             int sy = statusY + 16 - STATUS_SIZE - 2;
-            graphics.fill(sx, sy, sx + STATUS_SIZE, sy + STATUS_SIZE, STATUS_EDGE);
-            graphics.fill(sx + 1, sy + 1, sx + STATUS_SIZE - 1, sy + STATUS_SIZE - 1, STATUS_FILL);
+            graphics.fill(sx, sy, sx + STATUS_SIZE, sy + STATUS_SIZE, online ? STATUS_EDGE : OFFLINE_EDGE);
+            graphics.fill(sx + 1, sy + 1, sx + STATUS_SIZE - 1, sy + STATUS_SIZE - 1, online ? STATUS_FILL : OFFLINE_FILL);
+        }
+        title(graphics, target.name());
+    }
+
+    /** "Name's Profile" (or "Name' Profile" for a name ending in s) and its line, over the profile. */
+    private void title(GuiGraphicsExtractor graphics, String name) {
+        Component title = Component.translatable(name.endsWith("s") || name.endsWith("S") ? "navigator.apeira.profile_title.s"
+                : "navigator.apeira.profile_title", name);
+        int x = leftPos + TITLE_X;
+        int y = topPos + TITLE_Y;
+        graphics.text(font, title, x, y, TITLE_COLOR, false);
+        int lineStart = x + font.width(title) + TITLE_GAP;
+        int lineEnd = x + TITLE_LENGTH;
+        if (lineStart < lineEnd) {
+            graphics.fill(lineStart, y + TITLE_LINE_Y, lineEnd, y + TITLE_LINE_Y + 1, TITLE_LINE);
         }
     }
 

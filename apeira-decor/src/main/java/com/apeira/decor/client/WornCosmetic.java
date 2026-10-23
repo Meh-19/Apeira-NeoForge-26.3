@@ -29,8 +29,8 @@ public record WornCosmetic() implements ConditionalItemModelProperty {
         return resolvingWorn;
     }
 
-    /** Runs {@code resolve} with the condition true. */
-    static void whileWorn(Runnable resolve) {
+    /** Runs {@code resolve} with the condition true; screens use it to draw a cosmetic's 3D model as an item. */
+    public static void whileWorn(Runnable resolve) {
         resolvingWorn = true;
         try {
             resolve.run();

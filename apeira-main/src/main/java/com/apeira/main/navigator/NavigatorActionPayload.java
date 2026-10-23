@@ -92,8 +92,6 @@ public record NavigatorActionPayload(Action action, int argument, Optional<UUID>
         RESET_DIMENSION,
         RESET_PRESET,
         RESET_CONFIRM,
-        /** Homes: set a home where the player stands, under the next free name. */
-        SET_HOME,
         /** Homes: rename home {@code argument} to {@code text}. */
         RENAME_HOME,
         /** Profile: send or accept a friend request, or unfriend; with a right-click decline or take back a request. */
