@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
 
+import com.apeira.main.party.PartyService;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -27,6 +28,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -62,6 +64,12 @@ public final class DummyPlayers {
 
     public static Optional<Dummy> byName(String name) {
         return DUMMIES.values().stream().filter(dummy -> dummy.name().equalsIgnoreCase(name)).findFirst();
+    }
+
+    /** The dummy a mannequin shows, found by its {@code apeira_dummy_<name>} tag. */
+    public static Optional<Dummy> ofEntity(Entity entity) {
+        return entity.entityTags().contains(TAG) ? DUMMIES.values().stream().filter(dummy -> entity.entityTags().contains(tag(dummy))).findFirst()
+                : Optional.empty();
     }
 
     /** Whether {@code id} is an online player or a dummy. */
@@ -167,6 +175,7 @@ public final class DummyPlayers {
         }
         discard(source.getServer(), dummy.get());
         DUMMIES.remove(dummy.get().id());
+        PartyService.remove(source.getServer(), dummy.get().id());
         RealmData.get(source.getServer()).seen(dummy.get().id(), dummy.get().name());
         source.sendSuccess(() -> Component.translatable("message.apeira.dummy.removed", dummy.get().name()), true);
         return 1;

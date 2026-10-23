@@ -1,11 +1,14 @@
 package com.apeira.main.navigator;
 
+import com.apeira.main.realm.RealmCommand;
+
 import net.minecraft.commands.Commands;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 /**
- * {@code /navigator} opens the navigator's root menu for the player who runs it, and {@code /realms} opens Realms home
- * straight away, with its Back button greyed out. Any player may use them.
+ * {@code /navigator} opens the navigator's root menu for the player who runs it, {@code /realms} opens Realms home
+ * straight away, with its Back button greyed out, and {@code /profile [player]} opens the player's own profile or
+ * another player's. Any player may use them.
  */
 public final class NavigatorCommand {
     private NavigatorCommand() {}
@@ -19,5 +22,14 @@ public final class NavigatorCommand {
             NavigatorService.openRealms(context.getSource().getPlayerOrException());
             return 1;
         }));
+        event.getDispatcher().register(Commands.literal("profile")
+                .executes(context -> {
+                    NavigatorService.openProfile(context.getSource().getPlayerOrException(), null);
+                    return 1;
+                })
+                .then(RealmCommand.named("player", (player, target) -> {
+                    NavigatorService.openProfile(player, target);
+                    return true;
+                })));
     }
 }

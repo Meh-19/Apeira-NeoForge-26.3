@@ -42,6 +42,16 @@ public enum NavigatorPage {
     SOCIAL,
     /** Another player's profile, opened from the friends list: realm invite or removal, friend actions, visit their realm. */
     PROFILE_OTHER,
+    /** The player's own profile: their model, cosmetics and stats, and the Realms, Open Worlds and Homes buttons. */
+    PROFILE,
+    /** The party roster ({@code /party}): members, the leader first, then open invites, with chat, leave and the leader's tools. */
+    PARTY,
+    /** The party roster with a member picked by the leader: hand over the lead or kick. */
+    PARTY_MEMBER,
+    /** Popup over Social: the party's chat toggle and leave (disband for the leader). */
+    EDIT_PARTY,
+    /** Popup over Social, for the leader: hand the lead to a member or kick them. */
+    EDIT_PARTY_MEMBER,
     /** Not a page: the server asks the client to close the navigator, for example after a teleport. */
     CLOSED;
 
@@ -51,6 +61,16 @@ public enum NavigatorPage {
     /** Whether this is one of the three Access tabs or a popup over one. */
     public boolean isAccess() {
         return this == REALM_IN_REALM || this == REALM_MEMBERS || this == REALM_BANNED || this == EDIT_PLAYER || this == EDIT_MEMBER;
+    }
+
+    /** Whether this is the party roster or a party popup over Social. */
+    public boolean isParty() {
+        return this == PARTY || this == PARTY_MEMBER || this == EDIT_PARTY || this == EDIT_PARTY_MEMBER;
+    }
+
+    /** Whether this is a profile, the player's own or another's. */
+    public boolean isProfile() {
+        return this == PROFILE || this == PROFILE_OTHER;
     }
 
     /** Whether this shows the Settings panel. */

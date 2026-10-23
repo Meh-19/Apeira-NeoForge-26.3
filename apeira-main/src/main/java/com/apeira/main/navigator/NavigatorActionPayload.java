@@ -99,7 +99,23 @@ public record NavigatorActionPayload(Action action, int argument, Optional<UUID>
         /** Profile: send or accept a friend request, or unfriend; with a right-click decline or take back a request. */
         FRIEND,
         /** Profile: teleport to the player's realm. */
-        VISIT;
+        VISIT,
+        /** Social's Party button: make a party, or open the party popup when in one. */
+        PARTY,
+        /** A party head ({@code target}): the leader picks a member, others open the member's profile; an invite is taken back. */
+        PARTY_ENTRY,
+        /** Profile: invite the player to the viewer's party. */
+        PARTY_INVITE,
+        PARTY_CHAT,
+        /** Leave the party; the leader's leave hands the lead on. */
+        PARTY_LEAVE,
+        PARTY_DISBAND,
+        /** Kick the picked member. */
+        PARTY_KICK,
+        /** Hand the lead to the picked member. */
+        PARTY_TRANSFER,
+        /** Own profile: a cosmetic slot, which opens the wardrobe (the client sends decor's wardrobe payload instead). */
+        WARDROBE;
 
         private static final IntFunction<Action> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
         public static final StreamCodec<ByteBuf, Action> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, Enum::ordinal);

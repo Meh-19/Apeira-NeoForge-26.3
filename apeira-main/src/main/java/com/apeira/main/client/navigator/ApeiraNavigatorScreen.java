@@ -10,11 +10,14 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.network.client.ApeiraClientNetwork;
+import com.apeira.core.registry.ApeiraIds;
+import com.apeira.decor.client.OutlinedEntityRenderer;
 import com.apeira.decor.client.SkinAccent;
+import com.apeira.decor.cosmetic.CosmeticSlot;
+import com.apeira.decor.network.OpenWardrobePayload;
 import com.apeira.main.home.HomeData;
 import com.apeira.main.navigator.NavigatorActionPayload;
 import com.apeira.main.navigator.NavigatorPage;
-import com.apeira.main.navigator.NavigatorService;
 import com.apeira.main.navigator.NavigatorView;
 import com.apeira.main.navigator.OpenNavigatorPayload;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -24,6 +27,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.model.HumanoidModel;
@@ -36,6 +40,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.PlayerSkin;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -61,8 +66,24 @@ public final class ApeiraNavigatorScreen extends Screen {
     private static final int PAGE_TEXT_X = 70;
     private static final int PAGE_TEXT_Y = 115;
     private static final int PAGE_TEXT_COLOR = 0xFFC6C6C6;
-    /** The black frame drawn around every player head, half a GUI pixel wide, finer than the buttons' 1-pixel outline. */
+    /** The black frame drawn around every player head: a 16-pixel box whose 1-pixel border holds a 14-pixel face. */
     private static final int HEAD_FRAME = 0xFF000000;
+    private static final int HEAD_SIZE = 16;
+    /** An invite's head on the party roster is drawn faded. */
+    private static final int INVITE_TINT = 0x80FFFFFF;
+    /** The leader's pick on the party roster: a white frame around the head. */
+    private static final int PICK_FRAME = 0xFFFFFFFF;
+    /** The cosmetic cells' fill: vanilla's slot grey, which the server's chest shows through the texture's holes. */
+    private static final int COSMETIC_CELL = 0xFF8B8B8B;
+    private static final Identifier[] COSMETIC_ICONS = {icon("slot_hat"), icon("slot_back"), icon("slot_hand"), icon("slot_balloon")};
+    /** The AFK tag, drawn in the model panel's corner in place of the green status light. */
+    private static final Identifier AFK_TAG = icon("afk");
+    private static final int AFK_WIDTH = 44;
+    private static final int AFK_HEIGHT = 14;
+    /** The status light: a 6-pixel square, black-edged, as Origin Realms draws an active player's. */
+    private static final int STATUS_SIZE = 6;
+    private static final int STATUS_EDGE = 0xFF1E4D12;
+    private static final int STATUS_FILL = 0xFF5DBB3A;
     /** The profile's dark panel (inside its outline), where the player is drawn on their skin's accent colour. */
     private static final int PROFILE_X0 = 26;
     private static final int PROFILE_Y0 = 54;
@@ -97,8 +118,18 @@ public final class ApeiraNavigatorScreen extends Screen {
     public ApeiraNavigatorScreen(NavigatorView view) {
         super(Component.translatable("screen.apeira.navigator"));
         this.view = view;
-        this.layout = NavigatorLayout.of(view);
+        this.layout = NavigatorLayout.of(view, self());
         measure();
+    }
+
+    private static Identifier icon(String name) {
+        return ApeiraIds.id("textures/gui/navigator/profile/" + name + ".png");
+    }
+
+    /** The viewing player, left out of Social's party row. */
+    private static UUID self() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        return player == null ? Util.NIL_UUID : player.getUUID();
     }
 
     /** Shows {@code payload}'s view, in the open navigator if there is one, or closes the navigator. */
@@ -118,7 +149,7 @@ public final class ApeiraNavigatorScreen extends Screen {
 
     private void show(NavigatorView view) {
         this.view = view;
-        this.layout = NavigatorLayout.of(view);
+        this.layout = NavigatorLayout.of(view, self());
         measure();
         if (view.page() != NavigatorPage.HOMES) {
             stopRenaming();
@@ -176,7 +207,8 @@ public final class ApeiraNavigatorScreen extends Screen {
             return true;
         }
         if (event.key() == InputConstants.KEY_ESCAPE && view.page() == NavigatorPage.PROFILE_OTHER) {
-            // A profile is a popup over the friends list: Escape goes back to the list.
+            // A profile is a popup over the friends list or the party roster: Escape goes back to it, or closes the
+            // navigator when the profile was opened from the world.
             ApeiraClientNetwork.sendToServer(NavigatorActionPayload.of(NavigatorActionPayload.Action.CLOSE_POPUP));
             return true;
         }
@@ -198,7 +230,13 @@ public final class ApeiraNavigatorScreen extends Screen {
         }
         int[] entrySlots = layout.entrySlots();
         for (int i = 0; i < Math.min(view.entries().size(), entrySlots.length); i++) {
-            head(graphics, view.entries().get(i).id(), slotX(entrySlots[i]), slotY(entrySlots[i]), 16);
+            head(graphics, view.entries().get(i).id(), slotX(entrySlots[i]), slotY(entrySlots[i]), -1);
+        }
+        for (NavigatorLayout.Head head : layout.heads()) {
+            if (head.slot() == layout.picked()) {
+                graphics.fill(slotX(head.slot()) - 1, slotY(head.slot()) - 1, slotX(head.slot()) + HEAD_SIZE + 1, slotY(head.slot()) + HEAD_SIZE + 1, PICK_FRAME);
+            }
+            head(graphics, head.id(), slotX(head.slot()), slotY(head.slot()), head.dim() ? INVITE_TINT : -1);
         }
         if (layout.pageNumbers()) {
             String pageText = (view.pageIndex() + 1) + "/" + view.pageCount();
@@ -208,10 +246,10 @@ public final class ApeiraNavigatorScreen extends Screen {
             rename.extractRenderState(graphics, mouseX, mouseY, a);
         }
         view.target().ifPresent(target -> {
-            if (view.page() == NavigatorPage.PROFILE_OTHER) {
+            if (layout.profile()) {
                 profile(graphics, target);
-            } else {
-                head(graphics, target.id(), slotX(NavigatorLayout.POPUP_HEAD), slotY(NavigatorLayout.POPUP_HEAD), 16);
+            } else if (view.page() == NavigatorPage.EDIT_PLAYER || view.page() == NavigatorPage.EDIT_MEMBER) {
+                head(graphics, target.id(), slotX(NavigatorLayout.POPUP_HEAD), slotY(NavigatorLayout.POPUP_HEAD), -1);
             }
         });
 
@@ -228,16 +266,32 @@ public final class ApeiraNavigatorScreen extends Screen {
             for (NavigatorBounds.Rect face : faces(hover)) {
                 graphics.fill(leftPos + face.x0(), topPos + face.y0(), leftPos + face.x1(), topPos + face.y1(), color);
             }
-            List<Component> tooltip = hover >= 0 ? layout.buttons().get(hover).tooltip() : entryTooltip(view.entries().get(entryIndex(hover)));
+            List<Component> tooltip = hover >= 0 ? layout.buttons().get(hover).tooltip()
+                    : NavigatorLayout.entryTooltip(view.entries().get(entryIndex(hover)));
             graphics.setTooltipForNextFrame(font, tooltip, Optional.empty(), mouseX, mouseY);
         }
     }
 
     /**
-     * Another player's profile: their live player model, standing still with its arms a little out, on their skin's
-     * accent colour ({@link SkinAccent}) in the dark panel, with their name under it.
+     * A profile, the player's own or another's: their player model, standing still with its arms a little out and drawn
+     * with a black toon outline ({@link OutlinedEntityRenderer}), on their skin's accent colour ({@link SkinAccent}) in
+     * the dark panel, with their name under it; the status light (or the AFK tag) in the panel's corner; and the
+     * cosmetic slots down the left, each showing what is worn or, when empty, the slot's icon.
      */
     private void profile(GuiGraphicsExtractor graphics, NavigatorView.Entry target) {
+        for (int i = 0; i < NavigatorLayout.COSMETIC_SLOTS.length; i++) {
+            int x = slotX(NavigatorLayout.COSMETIC_SLOTS[i]);
+            int y = slotY(NavigatorLayout.COSMETIC_SLOTS[i]);
+            graphics.fill(x, y, x + 16, y + 16, COSMETIC_CELL);
+            CosmeticSlot[] worn = CosmeticSlot.values();
+            ItemStack stack = i < worn.length ? view.cosmetics().get(worn[i]) : ItemStack.EMPTY;
+            if (stack.isEmpty()) {
+                graphics.blit(RenderPipelines.GUI_TEXTURED, COSMETIC_ICONS[i], x, y, 0.0F, 0.0F, 16, 16, 16, 16);
+            } else {
+                graphics.item(stack, x, y);
+            }
+        }
+
         int x0 = leftPos + PROFILE_X0;
         int y0 = topPos + PROFILE_Y0;
         int x1 = leftPos + PROFILE_X1;
@@ -259,28 +313,32 @@ public final class ApeiraNavigatorScreen extends Screen {
         state.leftArmPose = HumanoidModel.ArmPose.ITEM;
         Quaternionf rotation = new Quaternionf().rotateZ((float) Math.PI);
         Vector3f translation = new Vector3f(0.0F, state.boundingBoxHeight / 2.0F + 0.0625F, 0.0F);
-        graphics.entity(state, PROFILE_MODEL_SCALE, translation, rotation, null, x0, y0, x1, y1 - PROFILE_NAME_GAP);
+        OutlinedEntityRenderer.submit(graphics, state, PROFILE_MODEL_SCALE, translation, rotation, x0, y0, x1, y1 - PROFILE_NAME_GAP);
 
         graphics.text(font, target.name(), (x0 + x1) / 2 - font.width(target.name()) / 2, y1 - PROFILE_NAME_GAP + 1, 0xFFFFFFFF, true);
+
+        int statusX = slotX(NavigatorLayout.STATUS_SLOT);
+        int statusY = slotY(NavigatorLayout.STATUS_SLOT);
+        if (view.has(NavigatorView.TARGET_AFK)) {
+            // The tag is wider than the cell, so it sits in the panel's corner, its right edge at the cell's.
+            graphics.blit(RenderPipelines.GUI_TEXTURED, AFK_TAG, statusX + 16 - AFK_WIDTH, statusY + 16 - AFK_HEIGHT, 0.0F, 0.0F, AFK_WIDTH,
+                    AFK_HEIGHT, AFK_WIDTH, AFK_HEIGHT);
+        } else if (view.has(NavigatorView.TARGET_ONLINE)) {
+            int sx = statusX + 16 - STATUS_SIZE - 2;
+            int sy = statusY + 16 - STATUS_SIZE - 2;
+            graphics.fill(sx, sy, sx + STATUS_SIZE, sy + STATUS_SIZE, STATUS_EDGE);
+            graphics.fill(sx + 1, sy + 1, sx + STATUS_SIZE - 1, sy + STATUS_SIZE - 1, STATUS_FILL);
+        }
     }
 
     /**
-     * A player's face, {@code size} pixels square, in a black frame half a GUI pixel wide, as every head in the navigator
-     * is drawn. The frame is filled at double resolution, so it is finer than the buttons' outlines.
+     * A player's head in the 16-pixel cell at {@code (x, y)}, as every head in the navigator is drawn: a black border one
+     * pixel wide around a 14-pixel face, tinted by {@code color}.
      */
-    private static void head(GuiGraphicsExtractor graphics, UUID id, int x, int y, int size) {
-        graphics.pose().pushMatrix();
-        graphics.pose().scale(0.5F, 0.5F);
-        graphics.fill(2 * x - 1, 2 * y - 1, 2 * (x + size) + 1, 2 * (y + size) + 1, HEAD_FRAME);
-        graphics.pose().popMatrix();
-        PlayerFaceExtractor.extractRenderState(graphics, ResolvableProfile.createUnresolved(id), x, y, size);
-    }
-
-    private static List<Component> entryTooltip(NavigatorView.Entry entry) {
-        List<Component> lines = new ArrayList<>();
-        lines.add(Component.literal(entry.name()).withColor(NavigatorService.LABEL));
-        lines.addAll(entry.lines());
-        return lines;
+    private void head(GuiGraphicsExtractor graphics, UUID id, int x, int y, int color) {
+        graphics.fill(x, y, x + HEAD_SIZE, y + HEAD_SIZE, HEAD_FRAME);
+        PlayerSkin skin = minecraft.playerSkinRenderCache().getOrDefault(ResolvableProfile.createUnresolved(id)).playerSkin();
+        PlayerFaceExtractor.extractRenderState(graphics, skin, x + 1, y + 1, HEAD_SIZE - 2, color);
     }
 
     @Override
@@ -310,7 +368,12 @@ public final class ApeiraNavigatorScreen extends Screen {
         }
         if (action != null) {
             minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            ApeiraClientNetwork.sendToServer(action);
+            if (action.action() == NavigatorActionPayload.Action.WARDROBE) {
+                // The wardrobe is decor's menu; the navigator closes as it opens.
+                ApeiraClientNetwork.sendToServer(OpenWardrobePayload.INSTANCE);
+            } else {
+                ApeiraClientNetwork.sendToServer(action);
+            }
             return true;
         }
         return super.mouseClicked(event, doubleClick);
