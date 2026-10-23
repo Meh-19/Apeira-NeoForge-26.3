@@ -20,7 +20,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 /**
- * {@code /realm} (Origin Realms' command set, see the project's {@code realms/design-answers.md}) and {@code /friend}.
+ * {@code /realm} (Origin Realms' command set, see the project's {@code realms/design-answers.md}) and {@code /friend}
+ * ({@code /friend} alone opens the Social page).
  * Any player may use them; every change goes through {@link RealmService}, which only lets a player manage their own
  * realm. Player names may be offline players who have joined before.
  */
@@ -71,6 +72,9 @@ public final class RealmCommand {
                     return role.canBuild();
                 }))));
         event.getDispatcher().register(Commands.literal("friend")
+                .executes(context -> open(context, NavigatorPage.SOCIAL))
+                .then(Commands.literal("decline").then(named("player", RealmService::declineFriend)))
+                .then(Commands.literal("cancel").then(named("player", RealmService::cancelFriendRequest)))
                 .then(Commands.literal("add").then(named("player", RealmService::requestFriend)))
                 .then(Commands.literal("accept").then(named("player", RealmService::acceptFriend)))
                 .then(Commands.literal("remove").then(named("player", RealmService::removeFriend)))
@@ -105,7 +109,8 @@ public final class RealmCommand {
     private static RequiredArgumentBuilder<CommandSourceStack, String> named(String argument,
             BiPredicate<ServerPlayer, UUID> action) {
         return Commands.argument(argument, StringArgumentType.word())
-                .suggests((context, builder) -> SharedSuggestionProvider.suggest(context.getSource().getOnlinePlayerNames(), builder))
+                .suggests((context, builder) -> SharedSuggestionProvider.suggest(java.util.stream.Stream.concat(
+                        context.getSource().getOnlinePlayerNames().stream(), DummyPlayers.all().stream().map(DummyPlayers.Dummy::name)), builder))
                 .executes(context -> {
                     ServerPlayer player = context.getSource().getPlayerOrException();
                     String name = StringArgumentType.getString(context, argument);

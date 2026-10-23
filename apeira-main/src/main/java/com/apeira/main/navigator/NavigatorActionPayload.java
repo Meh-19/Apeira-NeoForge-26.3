@@ -21,19 +21,26 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * {@link OpenNavigatorPayload}.
  *
  * @param argument  the page for {@link Action#OPEN_PAGE}, the step for {@link Action#PAGE}, the rule, role, region,
- *                  dimension or world for the actions that pick one, otherwise 0
+ *                  dimension or world for the actions that pick one, the home for {@link Action#RENAME_HOME}; for
+ *                  {@link Action#ENTRY} the entry's place in the shown list times two, plus one with Shift held
  * @param target    the player head clicked, for {@link Action#ENTRY}
  * @param secondary a right-click
+ * @param text      a typed name, for {@link Action#RENAME_HOME}
  */
-public record NavigatorActionPayload(Action action, int argument, Optional<UUID> target, boolean secondary)
+public record NavigatorActionPayload(Action action, int argument, Optional<UUID> target, boolean secondary, String text)
         implements ApeiraPayload<NavigatorActionPayload> {
     public static final ApeiraPayloadType<NavigatorActionPayload> TYPE = ApeiraPayloadType.of("navigator_action",
             StreamCodec.composite(Action.STREAM_CODEC, NavigatorActionPayload::action, ByteBufCodecs.VAR_INT, NavigatorActionPayload::argument,
                     ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), NavigatorActionPayload::target, ByteBufCodecs.BOOL,
-                    NavigatorActionPayload::secondary, NavigatorActionPayload::new));
+                    NavigatorActionPayload::secondary, ByteBufCodecs.stringUtf8(32), NavigatorActionPayload::text, NavigatorActionPayload::new));
 
     public NavigatorActionPayload(Action action, int argument) {
-        this(action, argument, Optional.empty(), false);
+        this(action, argument, Optional.empty(), false, "");
+    }
+
+    /** This action again, as a right-click or not. */
+    public NavigatorActionPayload withSecondary(boolean secondary) {
+        return new NavigatorActionPayload(action, argument, target, secondary, text);
     }
 
     public static NavigatorActionPayload of(Action action) {
@@ -84,7 +91,15 @@ public record NavigatorActionPayload(Action action, int argument, Optional<UUID>
         /** Open the reset button into its dimension buttons, or pick one: 0 Overworld, 1 Nether, 2 Aether. */
         RESET_DIMENSION,
         RESET_PRESET,
-        RESET_CONFIRM;
+        RESET_CONFIRM,
+        /** Homes: set a home where the player stands, under the next free name. */
+        SET_HOME,
+        /** Homes: rename home {@code argument} to {@code text}. */
+        RENAME_HOME,
+        /** Profile: send or accept a friend request, or unfriend; with a right-click decline or take back a request. */
+        FRIEND,
+        /** Profile: teleport to the player's realm. */
+        VISIT;
 
         private static final IntFunction<Action> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
         public static final StreamCodec<ByteBuf, Action> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, Enum::ordinal);

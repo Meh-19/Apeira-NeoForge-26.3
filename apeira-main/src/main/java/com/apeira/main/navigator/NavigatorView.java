@@ -19,7 +19,8 @@ import net.minecraft.network.codec.StreamCodec;
  *
  * @param filter  index into the page's filters, as {@link NavigatorService} lists them
  * @param sort    index into the page's sorts
- * @param flags   {@link #HAS_REALM}, {@link #CAN_RESET_OVERWORLD}, {@link #TARGET_MEMBER}, {@link #TARGET_INVITED}
+ * @param flags   {@link #HAS_REALM}, {@link #CAN_RESET_OVERWORLD}, and what the popup's player is to the viewer
+ *                ({@code TARGET_*})
  * @param setting the visiting rule's ordinal, then {@link #PRIVATE_CHAT} and {@link #ALWAYS_ACCESSIBLE} bits from 8 up
  * @param preset  the region picked for a reset, or -1
  */
@@ -31,6 +32,12 @@ public record NavigatorView(NavigatorPage page, int pageIndex, int pageCount, in
     public static final int TARGET_MEMBER = 4;
     public static final int TARGET_INVITED = 8;
     public static final int TARGET_TRUSTED = 16;
+    public static final int TARGET_FRIEND = 32;
+    /** The popup's player has asked the viewer to be friends. */
+    public static final int TARGET_REQUESTED = 64;
+    /** The viewer has asked the popup's player to be friends. */
+    public static final int TARGET_REQUEST_SENT = 128;
+    public static final int TARGET_ONLINE = 256;
     public static final int PRIVATE_CHAT = 1 << 8;
     public static final int ALWAYS_ACCESSIBLE = 1 << 9;
 

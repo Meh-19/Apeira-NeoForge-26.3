@@ -35,6 +35,10 @@ final class NavigatorLayout {
     static final int FIRST_ENTRY = 27;
     /** The slot of the head in an Edit Player or Edit Member popup. */
     static final int POPUP_HEAD = 22;
+    /** The list slots of most pages: two rows from {@link #FIRST_ENTRY}. */
+    private static final int[] LIST_SLOTS = IntStream.range(FIRST_ENTRY, FIRST_ENTRY + NavigatorView.PAGE_SIZE).toArray();
+    /** The Homes popup's grid: three rows of five. */
+    private static final int[] HOME_SLOTS = block(20, 5, 3);
     private static final String[] PRESETS = {"lush", "arid", "cold", "arctic", "tropical"};
 
     private NavigatorLayout() {}
@@ -49,11 +53,12 @@ final class NavigatorLayout {
     record Button(int[] slots, List<Component> tooltip, @Nullable NavigatorActionPayload action) {}
 
     /**
-     * @param layers    textures drawn in order
-     * @param buttons   checked before the entries, in order
-     * @param showsList whether the view's entries are drawn as heads in slots 27 to 44, with the page number
+     * @param layers      textures drawn in order
+     * @param buttons     checked before the entries, in order
+     * @param entrySlots  the slots the view's entries are drawn in as heads, in order; empty when it shows none
+     * @param pageNumbers whether the page number is drawn between the page arrows
      */
-    record Page(List<Identifier> layers, List<Button> buttons, boolean showsList) {}
+    record Page(List<Identifier> layers, List<Button> buttons, int[] entrySlots, boolean pageNumbers) {}
 
     static Page of(NavigatorView view) {
         List<Identifier> layers = new ArrayList<>();
@@ -78,13 +83,80 @@ final class NavigatorLayout {
                     buttons.add(button(slots[i], "open_world." + colours[i], new NavigatorActionPayload(Action.OPEN_WORLD, i)));
                 }
             }
+            case HOMES -> {
+                layer(layers, "navigation", "profile/navigation_profile", "profile/background", "profile/homes/background");
+                buttons.add(button(slots(15), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
+                // Every free cell of the grid sets a home where the player stands.
+                int[] free = IntStream.range(view.entries().size(), HOME_SLOTS.length).map(i -> HOME_SLOTS[i]).toArray();
+                if (free.length > 0) {
+                    buttons.add(button(free, "set_home", NavigatorActionPayload.of(Action.SET_HOME)));
+                }
+                return new Page(List.copyOf(layers), List.copyOf(buttons), HOME_SLOTS, false);
+            }
+            case SOCIAL -> socialPage(view, layers, buttons);
+            case PROFILE_OTHER -> profilePage(view, layers, buttons);
             default -> realmPage(view, layers, buttons);
         }
         boolean showsList = switch (page) {
-            case REALMS, REALM_IN_REALM, REALM_MEMBERS, REALM_BANNED -> true;
+            case REALMS, REALM_IN_REALM, REALM_MEMBERS, REALM_BANNED, SOCIAL -> true;
             default -> false;
         };
-        return new Page(List.copyOf(layers), List.copyOf(buttons), showsList);
+        return new Page(List.copyOf(layers), List.copyOf(buttons), showsList ? LIST_SLOTS : new int[0], showsList);
+    }
+
+    /**
+     * Social: the friends list with requests, filtered All, Online, Offline or Requests. The party controls above it
+     * are not available yet. Only the captured filter (All) and sort (Last Online) have overlay textures.
+     */
+    private static void socialPage(NavigatorView view, List<Identifier> layers, List<Button> buttons) {
+        layer(layers, "navigation", "social/navigation_social", "social/background");
+        listControls(view, layers);
+        if (view.filter() == 0) {
+            layer(layers, "social/filter_all");
+        }
+        if (view.sort() == 0) {
+            layer(layers, "social/sort_online");
+        }
+        navigationBar(NavigatorPage.SOCIAL, buttons);
+        buttons.add(unavailable(slots(9, 10, 11, 12, 13, 14, 15), "party"));
+        buttons.add(button(slots(17), "learn_social", null));
+        buttons.add(button(slots(45, 46), "previous_page", new NavigatorActionPayload(Action.PAGE, -1)));
+        buttons.add(button(slots(50, 51), "next_page", new NavigatorActionPayload(Action.PAGE, 1)));
+        buttons.add(new Button(slots(52), options("filter", view.filter(), "all", "online", "offline", "requests"), NavigatorActionPayload.of(Action.FILTER)));
+        buttons.add(new Button(slots(53), options("sort", view.sort(), "last_online", "alpha_asc"), NavigatorActionPayload.of(Action.SORT)));
+        emptyHint(view, buttons, "hint.friend");
+    }
+
+    /**
+     * Another player's profile (Origin Realms' {@code profile_other}): realm invite or removal, the friend button
+     * (send, accept or decline a request, or unfriend; red when they are a friend) and a visit to their realm. Party
+     * and trade invites, cosmetics and auctions are not available yet.
+     */
+    private static void profilePage(NavigatorView view, List<Identifier> layers, List<Button> buttons) {
+        layer(layers, "profile/profile_other/background");
+        boolean member = view.has(NavigatorView.TARGET_MEMBER);
+        boolean friend = view.has(NavigatorView.TARGET_FRIEND);
+        if (friend) {
+            layer(layers, "profile/profile_other/remove_friend");
+        }
+        if (member) {
+            layer(layers, "profile/profile_other/remove_realm");
+        }
+        buttons.add(unavailable(slots(14, 15, 16, 17), "party_invite"));
+        buttons.add(unavailable(slots(23, 24, 25, 26), "trade_invite"));
+        if (member) {
+            buttons.add(button(slots(32, 33), "remove_realm", NavigatorActionPayload.of(Action.REMOVE_MEMBER)));
+        } else if (view.has(NavigatorView.TARGET_INVITED)) {
+            buttons.add(button(slots(32, 33), "invite_player.invited", null));
+        } else {
+            buttons.add(button(slots(32, 33), "invite_player", NavigatorActionPayload.of(Action.INVITE)));
+        }
+        String friendKey = friend ? "unfriend" : view.has(NavigatorView.TARGET_REQUESTED) ? "friend_request.incoming"
+                : view.has(NavigatorView.TARGET_REQUEST_SENT) ? "friend_request.sent" : "friend_request.send";
+        buttons.add(button(slots(34, 35), friendKey, NavigatorActionPayload.of(Action.FRIEND)));
+        view.target().ifPresent(target -> buttons.add(new Button(slots(40), List.copyOf(target.lines()), null)));
+        buttons.add(unavailable(slots(41, 42), "view_auctions"));
+        buttons.add(button(slots(43, 44), "teleport_realm", NavigatorActionPayload.of(Action.VISIT)));
     }
 
     /** The Realms pages: the navigation bar, a tab background, list controls, and the page's panel or popup. */
@@ -97,12 +169,7 @@ final class NavigatorLayout {
             case REALM_BANNED -> "realms/access/background_banned";
             default -> "realms/home/background";
         });
-        if (view.pageIndex() > 0) {
-            layer(layers, "prev_page_on");
-        }
-        if (view.pageIndex() < view.pageCount() - 1) {
-            layer(layers, "next_page_on");
-        }
+        listControls(view, layers);
         layer(layers, "realms/filter_" + NavigatorService.filterName(page, view.filter()), "realms/sort_" + NavigatorService.sortName(page, view.sort()));
 
         // Popups and panels come first so they take their slots from the page under them.
@@ -145,12 +212,7 @@ final class NavigatorLayout {
             default -> {}
         }
 
-        buttons.add(button(slots(0), "back", NavigatorActionPayload.open(page == NavigatorPage.REALMS ? NavigatorPage.MAIN : NavigatorPage.REALMS)));
-        String[] bar = {"events", "profile", "badges", "realms_tab", "social", "auction_house", "store", "store"};
-        for (int i = 0; i < bar.length; i++) {
-            buttons.add(i == 3 ? button(slots(4), "realms_tab", NavigatorActionPayload.open(NavigatorPage.REALMS))
-                    : unavailable(slots(i + 1), bar[i]));
-        }
+        navigationBar(page, buttons);
 
         if (page.isSettings()) {
             settingsLayers(view, layers);
@@ -199,10 +261,40 @@ final class NavigatorLayout {
         String[] sorts = sortNames(list);
         buttons.add(new Button(slots(52), options("filter", view.filter(), filters), NavigatorActionPayload.of(Action.FILTER)));
         buttons.add(new Button(slots(53), options("sort", view.sort(), sorts), NavigatorActionPayload.of(Action.SORT)));
-        // Empty list slots say how to add someone, as Origin Realms' do.
         String hint = page == NavigatorPage.REALM_MEMBERS ? "hint.invite" : page == NavigatorPage.REALM_BANNED ? "hint.ban" : null;
         if (hint != null) {
-            int[] empty = IntStream.range(FIRST_ENTRY + view.entries().size(), FIRST_ENTRY + NavigatorView.PAGE_SIZE).toArray();
+            emptyHint(view, buttons, hint);
+        }
+    }
+
+    /** The page arrows that are lit, when there is a page that way. */
+    private static void listControls(NavigatorView view, List<Identifier> layers) {
+        if (view.pageIndex() > 0) {
+            layer(layers, "prev_page_on");
+        }
+        if (view.pageIndex() < view.pageCount() - 1) {
+            layer(layers, "next_page_on");
+        }
+    }
+
+    /** Slot 0 goes back; Realms and Social open their tabs and the others say they are not available yet. */
+    private static void navigationBar(NavigatorPage page, List<Button> buttons) {
+        buttons.add(button(slots(0), "back", NavigatorActionPayload.open(page == NavigatorPage.REALMS || page == NavigatorPage.SOCIAL
+                ? NavigatorPage.MAIN : NavigatorPage.REALMS)));
+        String[] bar = {"events", "profile", "badges", "realms_tab", "social", "auction_house", "store", "store"};
+        for (int i = 0; i < bar.length; i++) {
+            buttons.add(switch (i) {
+                case 3 -> button(slots(4), "realms_tab", NavigatorActionPayload.open(NavigatorPage.REALMS));
+                case 4 -> button(slots(5), "social", NavigatorActionPayload.open(NavigatorPage.SOCIAL));
+                default -> unavailable(slots(i + 1), bar[i]);
+            });
+        }
+    }
+
+    /** Empty list slots say how to add someone, as Origin Realms' do. */
+    private static void emptyHint(NavigatorView view, List<Button> buttons, String hint) {
+        int[] empty = IntStream.range(FIRST_ENTRY + view.entries().size(), FIRST_ENTRY + NavigatorView.PAGE_SIZE).toArray();
+        if (empty.length > 0) {
             buttons.add(new Button(empty, List.of(Component.translatable("navigator.apeira.hint.cmd")
                     .withStyle(Style.EMPTY.withColor(NavigatorService.LABEL))
                     .append(Component.translatable("navigator.apeira." + hint).withColor(NavigatorService.VALUE))), null));

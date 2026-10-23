@@ -36,6 +36,12 @@ public enum NavigatorPage {
     EDIT_MEMBER,
     /** The six open (resource) worlds. */
     OPEN_WORLDS,
+    /** Popup over the profile: the player's homes, a grid of up to 15. */
+    HOMES,
+    /** Social: the friends list with incoming and sent friend requests (the party controls are not available yet). */
+    SOCIAL,
+    /** Another player's profile, opened from the friends list: realm invite or removal, friend actions, visit their realm. */
+    PROFILE_OTHER,
     /** Not a page: the server asks the client to close the navigator, for example after a teleport. */
     CLOSED;
 
