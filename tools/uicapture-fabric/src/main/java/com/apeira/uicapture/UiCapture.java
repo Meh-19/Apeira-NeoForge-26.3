@@ -13,9 +13,12 @@ import org.jspecify.annotations.Nullable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
@@ -127,39 +130,51 @@ public final class UiCapture {
         items.put(entry, stack.copy());
     }
 
-    /** A text draw: its plain text, and runs of one font with their codepoints where they are not plain ASCII. */
+    /**
+     * A text draw: its plain text, its size, and runs of one font and style, each with its colour and formatting and,
+     * where it is not plain ASCII, its codepoints.
+     */
     public static void text(Matrix3x2fc pose, FormattedCharSequence text, int x, int y, int color, boolean shadow) {
         StringBuilder plain = new StringBuilder();
-        List<Run> runs = new ArrayList<>();
         text.accept((index, style, codepoint) -> {
             plain.appendCodePoint(codepoint);
+            return true;
+        });
+        Font font = Minecraft.getInstance().font;
+        JsonObject entry = entry("text", pose, x, y, x + font.width(text), y + font.lineHeight);
+        entry.addProperty("text", plain.toString());
+        color(entry, color);
+        entry.addProperty("shadow", shadow);
+        entry.add("runs", runs(text));
+    }
+
+    /** {@code text} split into runs of one font and style, as {@link #text} records them. */
+    public static JsonArray runs(FormattedCharSequence text) {
+        List<Run> runs = new ArrayList<>();
+        text.accept((index, style, codepoint) -> {
             String font = font(style, codepoint);
-            if (runs.isEmpty() || !runs.getLast().font.equals(font)) {
-                runs.add(new Run(font));
+            if (runs.isEmpty() || !runs.getLast().font.equals(font) || !runs.getLast().style.equals(style)) {
+                runs.add(new Run(font, style));
             }
             runs.getLast().add(codepoint);
             return true;
         });
-        JsonObject entry = entry("text", pose, x, y, x, y);
-        entry.remove("width");
-        entry.remove("height");
-        entry.addProperty("text", plain.toString());
-        color(entry, color);
-        entry.addProperty("shadow", shadow);
         JsonArray json = new JsonArray();
         runs.forEach(run -> json.add(run.toJson()));
-        entry.add("runs", json);
+        return json;
     }
 
-    /** Consecutive characters drawn with one font. */
+    /** Consecutive characters drawn with one font and style. */
     private static final class Run {
         final String font;
+        final Style style;
         final StringBuilder text = new StringBuilder();
         final JsonArray codepoints = new JsonArray();
         boolean special;
 
-        Run(String font) {
+        Run(String font, Style style) {
             this.font = font;
+            this.style = style;
         }
 
         void add(int codepoint) {
@@ -172,6 +187,34 @@ public final class UiCapture {
             JsonObject json = new JsonObject();
             json.addProperty("font", font);
             json.addProperty("text", text.toString());
+            TextColor color = style.getColor();
+            if (color != null) {
+                // The name for a named colour ("gold"), else "#RRGGBB", and the value either way.
+                json.addProperty("color", color.serialize());
+                json.addProperty("rgb", String.format("#%06X", color.getValue() & 0xFFFFFF));
+            }
+            if (style.getShadowColor() != null) {
+                json.addProperty("shadow_color", String.format("#%08X", style.getShadowColor()));
+            }
+            JsonArray formatting = new JsonArray();
+            if (style.isBold()) {
+                formatting.add("bold");
+            }
+            if (style.isItalic()) {
+                formatting.add("italic");
+            }
+            if (style.isUnderlined()) {
+                formatting.add("underlined");
+            }
+            if (style.isStrikethrough()) {
+                formatting.add("strikethrough");
+            }
+            if (style.isObfuscated()) {
+                formatting.add("obfuscated");
+            }
+            if (!formatting.isEmpty()) {
+                json.add("formatting", formatting);
+            }
             if (special) {
                 json.add("codepoints", codepoints);
             }

@@ -1,5 +1,7 @@
 {
   "key.apeira.capture_ui": "Capture UI Layout",
+  "key.apeira.inspect_ui": "Deep Inspect UI",
   "message.apeira.ui_capture.done": "UI Layout Captured -> %s",
-  "message.apeira.ui_capture.failed": "UI capture failed: %s"
+  "message.apeira.ui_capture.failed": "UI capture failed: %s",
+  "message.apeira.ui_capture.inspect_needs_screen": "Open a screen to inspect it"
 }

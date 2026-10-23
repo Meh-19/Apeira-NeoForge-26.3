@@ -26,7 +26,9 @@ import net.neoforged.neoforge.common.NeoForge;
 /**
  * Apeira UI Capture, a client-only dev tool: the "Capture UI Layout" key (F8 by default, rebindable in Controls)
  * records the next frame of the open screen, or of the HUD when no screen is open, and writes it with
- * {@link UiCaptureWriter}. It works on any screen, container or not, on any server: nothing is registered and nothing
+ * {@link UiCaptureWriter}. The "Deep Inspect UI" key (F9) captures the open screen the same way and adds what is under
+ * the mouse: the hovered slot and widgets and the text drawn there and in the tooltip, with its colours, formatting and
+ * fonts. It works on any screen, container or not, on any server: nothing is registered and nothing
  * is sent, so a plain NeoForge client with only this jar can join a server without Apeira.
  */
 @Mod(value = UiCaptureClient.MOD_ID, dist = Dist.CLIENT)
@@ -34,9 +36,10 @@ public final class UiCaptureClient {
     public static final String MOD_ID = "apeira_uicapture";
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final KeyMapping CAPTURE = new KeyMapping("key.apeira.capture_ui", InputConstants.KEY_F8, KeyMapping.Category.MISC);
+    public static final KeyMapping INSPECT = new KeyMapping("key.apeira.inspect_ui", InputConstants.KEY_F9, KeyMapping.Category.MISC);
 
-    /** What the next frame should capture: a screen, the HUD, or nothing. */
-    private enum Pending { NONE, SCREEN, HUD }
+    /** What the next frame should capture: a screen, a screen with a deep inspection, the HUD, or nothing. */
+    private enum Pending { NONE, SCREEN, INSPECT, HUD }
 
     private static Pending pending = Pending.NONE;
 
@@ -52,6 +55,7 @@ public final class UiCaptureClient {
 
     private static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(CAPTURE);
+        event.register(INSPECT);
     }
 
     /** Key mappings are not clicked while a screen is open, so the screen's own key event arms the capture. */
@@ -59,12 +63,15 @@ public final class UiCaptureClient {
         if (CAPTURE.matches(event.getKeyEvent())) {
             pending = Pending.SCREEN;
             event.setCanceled(true);
+        } else if (INSPECT.matches(event.getKeyEvent())) {
+            pending = Pending.INSPECT;
+            event.setCanceled(true);
         }
     }
 
     private static void onClientTick(ClientTickEvent.Post event) {
         boolean noScreen = Minecraft.getInstance().gui.screen() == null;
-        if (pending == Pending.SCREEN && noScreen) {
+        if ((pending == Pending.SCREEN || pending == Pending.INSPECT) && noScreen) {
             // The screen closed before it drew again.
             pending = Pending.NONE;
         }
@@ -73,17 +80,23 @@ public final class UiCaptureClient {
                 pending = Pending.HUD;
             }
         }
+        while (INSPECT.consumeClick()) {
+            if (noScreen) {
+                // The HUD has no mouse to inspect under.
+                Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(Component.translatable("message.apeira.ui_capture.inspect_needs_screen"));
+            }
+        }
     }
 
     private static void onScreenRenderPre(ScreenEvent.Render.Pre event) {
-        if (pending == Pending.SCREEN) {
+        if (pending == Pending.SCREEN || pending == Pending.INSPECT) {
             UiCapture.begin();
         }
     }
 
     private static void onScreenRenderPost(ScreenEvent.Render.Post event) {
-        if (pending == Pending.SCREEN && UiCapture.recording()) {
-            finish(event.getScreen());
+        if ((pending == Pending.SCREEN || pending == Pending.INSPECT) && UiCapture.recording()) {
+            finish(event.getScreen(), pending == Pending.INSPECT ? new UiCaptureWriter.Mouse(event.getMouseX(), event.getMouseY()) : null);
         }
     }
 
@@ -95,17 +108,17 @@ public final class UiCaptureClient {
 
     private static void onHudRenderPost(RenderGuiEvent.Post event) {
         if (pending == Pending.HUD && UiCapture.recording()) {
-            finish(null);
+            finish(null, null);
         }
     }
 
-    private static void finish(@Nullable Screen screen) {
+    private static void finish(@Nullable Screen screen, UiCaptureWriter.@Nullable Mouse mouse) {
         pending = Pending.NONE;
         UiCapture.Frame frame = UiCapture.end();
         Minecraft minecraft = Minecraft.getInstance();
         Component message;
         try {
-            Path file = UiCaptureWriter.write(minecraft, screen, frame);
+            Path file = UiCaptureWriter.write(minecraft, screen, frame, mouse);
             LOGGER.info("UI layout captured to {}", file);
             message = Component.translatable("message.apeira.ui_capture.done", file.getFileName().toString());
         } catch (Exception e) {

@@ -23,6 +23,8 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Util;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
@@ -37,13 +39,17 @@ public final class ApeiraNavigatorScreen extends Screen {
     /** Where a 256x256, ascent-19 title glyph's top edge lands relative to the chest's top. */
     private static final int LAYER_Y = -6;
     private static final int SLOT_SIZE = 18;
-    private static final Identifier HIGHLIGHT_BACK = Identifier.withDefaultNamespace("container/slot_highlight_back");
-    private static final Identifier HIGHLIGHT_FRONT = Identifier.withDefaultNamespace("container/slot_highlight_front");
+    /** The white of vanilla's slot highlight, at full strength. */
+    private static final int HIGHLIGHT_ALPHA = 0x60;
+    /** How long a button's highlight takes to fade in, in milliseconds. */
+    private static final long HIGHLIGHT_FADE_MS = 120;
 
     private NavigatorPage page;
     private NavigatorLayout.Page layout;
     private int leftPos;
     private int topPos;
+    private NavigatorLayout.@Nullable Button hoveredButton;
+    private long hoverStart;
 
     public ApeiraNavigatorScreen(NavigatorPage page) {
         super(Component.translatable("screen.apeira.navigator"));
@@ -64,6 +70,7 @@ public final class ApeiraNavigatorScreen extends Screen {
     private void show(NavigatorPage page) {
         this.page = page;
         this.layout = NavigatorLayout.of(page);
+        this.hoveredButton = null;
     }
 
     @Override
@@ -80,12 +87,20 @@ public final class ApeiraNavigatorScreen extends Screen {
         }
         int slot = slotAt(mouseX, mouseY);
         NavigatorLayout.Button hovered = buttonAt(slot);
+        if (hovered != hoveredButton) {
+            hoveredButton = hovered;
+            hoverStart = Util.getMillis();
+        }
         if (hovered != null) {
-            // The vanilla slot highlight Origin Realms shows, on the slot under the mouse.
-            int x = slotX(slot) - 4;
-            int y = slotY(slot) - 4;
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HIGHLIGHT_BACK, x, y, 24, 24);
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HIGHLIGHT_FRONT, x, y, 24, 24);
+            // The whole button lights up, fading in, instead of only the chest slot under the mouse: each of its slots'
+            // 18-pixel cells is filled, so the cells join into the button's own shape.
+            float fade = Math.min(1.0F, (Util.getMillis() - hoverStart) / (float) HIGHLIGHT_FADE_MS);
+            int color = ARGB.color(Math.round(HIGHLIGHT_ALPHA * fade), 0xFFFFFF);
+            for (int s : hovered.slots()) {
+                int x = slotX(s) - 1;
+                int y = slotY(s) - 1;
+                graphics.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, color);
+            }
             graphics.setTooltipForNextFrame(font, tooltip(hovered), Optional.empty(), mouseX, mouseY);
         }
     }
