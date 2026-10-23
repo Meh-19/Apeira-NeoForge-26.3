@@ -8,6 +8,15 @@
       "chars": [
         "\ue100\ue101\ue102"
       ]
+    },
+    {
+      "ascent": 7,
+      "chars": [
+        "\ue203\ue204"
+      ],
+      "file": "apeira:gui/tooltip/keys.png",
+      "height": 7,
+      "type": "bitmap"
     }
   ]
 }

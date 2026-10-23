@@ -1290,8 +1290,6 @@
   "navigator.apeira.preset.tropical": "Tropical",
   "navigator.apeira.previous_page": "Previous page",
   "navigator.apeira.profile": "Your Profile",
-  "navigator.apeira.profile_title": "%s's Profile",
-  "navigator.apeira.profile_title.s": "%s' Profile",
   "navigator.apeira.realm_access": "Realm access",
   "navigator.apeira.realm_access_toggle": "Realm access toggle",
   "navigator.apeira.realm_access_toggle.always": "Always accessible",

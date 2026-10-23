@@ -59,7 +59,6 @@ final class NavigatorLayout {
     static final String[] COSMETIC_NAMES = {"hat", "back", "prop", "balloon"};
     /** The status light in the model panel's bottom-right corner. */
     static final int STATUS_SLOT = 49;
-    private static final int AFK = 0x5555FF;
     /** The Profile Info icon's slot, in the model panel's top right corner: the player's stat panel. */
     static final int INFO_SLOT = 22;
 
@@ -71,8 +70,8 @@ final class NavigatorLayout {
      * @param slots   the chest slots it covers
      * @param tooltip its tooltip, first line the name
      * @param action  what clicking it asks the server to do; null for areas that only explain themselves
+     * @param lit     whether hovering it lights its face; the profile's model panel only shows its tooltip
      */
-    /** {@code lit} is false for a button that only shows a tooltip and is not lit up under the mouse (the model panel). */
     record Button(int[] slots, List<Component> tooltip, @Nullable NavigatorActionPayload action, boolean lit) {
         Button(int[] slots, List<Component> tooltip, @Nullable NavigatorActionPayload action) {
             this(slots, tooltip, action, true);
@@ -129,7 +128,7 @@ final class NavigatorLayout {
             case HOMES -> {
                 layer(layers, "navigation", "profile/navigation_profile", "profile/background", "profile/homes/background");
                 buttons.add(button(slots(15), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
-                // Homes are only set with /sethome: a free cell says so and does nothing when clicked.
+                // Homes are only set by command: a free cell of the grid says how ("CMD: /sethome [name]"), as on the server.
                 int[] free = IntStream.range(view.entries().size(), HOME_SLOTS.length).map(i -> HOME_SLOTS[i]).toArray();
                 cells(free, hint("hint.sethome"), buttons);
                 return new Page(List.copyOf(layers), List.copyOf(buttons), HOME_SLOTS, false);
@@ -316,17 +315,15 @@ final class NavigatorLayout {
             buttons.add(new Button(slots(COSMETIC_SLOTS[i]), lines, own && i < worn.length ? NavigatorActionPayload.of(Action.WARDROBE) : null));
         }
         view.target().ifPresent(target -> {
-            // Origin Realms names the player on every cell of the model panel that holds nothing else; the panel shows the
-            // name's tooltip without lighting up.
+            // Origin Realms names the player on every cell of the model panel that holds nothing else. The panel is not
+            // lit on hover (no white box over the model); its tooltip still shows.
             int[] panel = own ? slots(28, 29, 30, 31, 37, 38, 39, 40, 46, 47, 48) : slots(19, 20, 21, 28, 29, 30, 31, 37, 38, 39, 40, 46, 47, 48);
             buttons.add(new Button(panel, List.of(Component.literal(target.name()).withStyle(Style.EMPTY.withColor(ACTIVE).withItalic(false))), null,
                     false));
             buttons.add(new Button(slots(INFO_SLOT), target.lines(), null));
             boolean online = view.has(NavigatorView.TARGET_ONLINE);
             String status = view.has(NavigatorView.TARGET_AFK) ? "status.afk" : online ? "status.online" : "status.offline";
-            // AFK is titled in blue, as on Origin Realms.
-            int color = view.has(NavigatorView.TARGET_AFK) ? AFK : online ? NavigatorService.ACTION : NavigatorService.LABEL;
-            buttons.add(titled(slots(STATUS_SLOT), status, color, null));
+            buttons.add(titled(slots(STATUS_SLOT), status, online ? NavigatorService.ACTION : NavigatorService.LABEL, null));
         });
     }
 

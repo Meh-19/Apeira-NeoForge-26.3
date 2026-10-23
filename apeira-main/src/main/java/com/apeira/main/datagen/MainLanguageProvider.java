@@ -326,8 +326,6 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         addId("navigator", "hint.invite", "/realm invite [name]");
         addId("navigator", "hint.ban", "/realm ban [name]");
         addId("navigator", "hint.sethome", "/sethome [name]");
-        addId("navigator", "profile_title", "%s's Profile");
-        addId("navigator", "profile_title.s", "%s' Profile");
         addId("navigator", "kick_player", "Kick player from world");
         addId("navigator", "kick_member", "Kick member from Realm");
         addId("navigator", "ban_member", "Ban member from Realm");

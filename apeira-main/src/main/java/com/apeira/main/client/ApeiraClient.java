@@ -39,7 +39,6 @@ public final class ApeiraClient {
         modEventBus.addListener(ApeiraClient::registerItemProperties);
         modEventBus.addListener(ApeiraClient::registerKeys);
         NeoForge.EVENT_BUS.addListener(ApeiraClient::openProfile);
-        BlackLoadingScreen.register();
         ApeiraClientNetwork.create()
                 .handle(OpenNavigatorPayload.TYPE, ApeiraNavigatorScreen::onOpen)
                 .handle(OpenOnboardingPayload.TYPE, OnboardingScreen::onOpen)
