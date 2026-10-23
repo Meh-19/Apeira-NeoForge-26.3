@@ -99,7 +99,7 @@ public final class ApeiraNavigatorScreen extends Screen {
     private static final int OFFLINE_EDGE = 0xFF2B2B2B;
     private static final int OFFLINE_FILL = 0xFF7A7A7A;
     /**
-     * Another player's profile title, "Name's Profile" and a line to a fixed right edge, in the server pack's
+     * The profile title, "Name's Profile" and a line to a fixed right edge, in the server pack's
      * {@code menus/profile/name} font ({@code apeira:profile_name}: the ASCII sheet at ascent -11, so the text lands 18
      * pixels under where it is drawn, and {@code line.png}'s line pieces 64, 32, ... 1 pixels long at E000-E006). Drawn
      * where the captured title is, (7, 6) moved one row down into this 6-row frame, in the title's dark grey.
@@ -409,8 +409,8 @@ public final class ApeiraNavigatorScreen extends Screen {
      * A profile, the player's own or another's: their player model ({@link #model}), standing still with its arms a little
      * out and drawn with a black toon outline ({@link OutlinedEntityRenderer}), on their skin's accent colour
      * ({@link SkinAccent}) in the dark panel, with no name under it, as on the server; the status light (or the AFK tag) in the panel's corner; the
-     * cosmetic slots down the left, each showing what is worn as its 3D model or, when empty, the slot's icon; and on
-     * another player's profile the "Name's Profile" title. The model wears no cosmetics: they are shown in the sidebar.
+     * cosmetic slots down the left, each showing what is worn as its 3D model or, when empty, the slot's icon; and the
+     * "Name's Profile" title. The model wears no cosmetics: they are shown in the sidebar.
      */
     private void profile(GuiGraphicsExtractor graphics, NavigatorView.Entry target) {
         for (int i = 0; i < NavigatorLayout.COSMETIC_SLOTS.length; i++) {
@@ -427,9 +427,7 @@ public final class ApeiraNavigatorScreen extends Screen {
                 WornCosmetic.whileWorn(() -> graphics.item(stack, x, y));
             }
         }
-        if (view.page() == NavigatorPage.PROFILE_OTHER) {
-            title(graphics, target.name());
-        }
+        title(graphics, target.name());
 
         int x0 = leftPos + PROFILE_X0;
         int y0 = topPos + PROFILE_Y0;
@@ -476,7 +474,7 @@ public final class ApeiraNavigatorScreen extends Screen {
     }
 
     /**
-     * Another player's profile title as the server writes it: "Name's Profile" ("Name' Profile" after an s), a 6-pixel
+     * The profile title (one's own profile too) as the server writes another player's: "Name's Profile" ("Name' Profile" after an s), a 6-pixel
      * gap, then line.png's pieces, the binary digits of the room left, so name, gap and line always end
      * {@link #TITLE_WIDTH} pixels from the title's start.
      */
