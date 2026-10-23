@@ -59,6 +59,8 @@ final class NavigatorLayout {
     static final String[] COSMETIC_NAMES = {"hat", "back", "prop", "balloon"};
     /** The status light in the model panel's bottom-right corner. */
     static final int STATUS_SLOT = 49;
+    /** The Profile Info icon's slot, in the model panel's top right corner: the player's stat panel. */
+    static final int INFO_SLOT = 22;
 
     private NavigatorLayout() {}
 
@@ -121,10 +123,10 @@ final class NavigatorLayout {
             case HOMES -> {
                 layer(layers, "navigation", "profile/navigation_profile", "profile/background", "profile/homes/background");
                 buttons.add(button(slots(15), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
-                // Every free cell of the grid sets a home where the player stands.
+                // Every free cell of the grid sets a home where the player stands, each a button of its own.
                 int[] free = IntStream.range(view.entries().size(), HOME_SLOTS.length).map(i -> HOME_SLOTS[i]).toArray();
-                if (free.length > 0) {
-                    buttons.add(button(free, "set_home", NavigatorActionPayload.of(Action.SET_HOME)));
+                for (int slot : free) {
+                    buttons.add(button(slots(slot), "set_home", NavigatorActionPayload.of(Action.SET_HOME)));
                 }
                 return new Page(List.copyOf(layers), List.copyOf(buttons), HOME_SLOTS, false);
             }
@@ -209,9 +211,7 @@ final class NavigatorLayout {
         for (int i = 0; i < shown; i++) {
             partyHead(others.get(i), row[i], false, SOCIAL_PARTY_DY, heads, buttons);
         }
-        if (shown < row.length) {
-            buttons.add(new Button(Arrays.copyOfRange(row, shown, row.length), hint("hint.party"), null));
-        }
+        cells(Arrays.copyOfRange(row, shown, row.length), hint("hint.party"), buttons);
         buttons.add(button(slots(17), "learn_social", null));
         buttons.add(button(slots(45, 46), "previous_page", new NavigatorActionPayload(Action.PAGE, -1)));
         buttons.add(button(slots(50, 51), "next_page", new NavigatorActionPayload(Action.PAGE, 1)));
@@ -260,9 +260,7 @@ final class NavigatorLayout {
         for (int i = 0; i < shown; i++) {
             partyHead(view.party().get(i), cells[i], i >= view.partySize(), 0, heads, buttons);
         }
-        if (shown < cells.length) {
-            buttons.add(new Button(Arrays.copyOfRange(cells, shown, cells.length), hint("hint.party"), null));
-        }
+        cells(Arrays.copyOfRange(cells, shown, cells.length), hint("hint.party"), buttons);
     }
 
     /** A party member's or invite's head in {@code slot}: its tooltip, and a click sends it to the server. */
@@ -274,8 +272,9 @@ final class NavigatorLayout {
     /**
      * The player's own profile (Origin Realms' "Your Profile"), with the captured titles and lore: cosmetic cells that
      * open the wardrobe, featured badges, the stat panel and status in the model panel, Teleport to your Realm, Open
-     * World, Homes, Teleport to Origin Isles, Journal, Gravestones and Player settings. Badges, Origin Isles, the
-     * journal, gravestones and settings do nothing yet.
+     * World, Homes, Teleport to Realm Spawn (Origin Realms' Teleport to Origin Isles: the viewed player's realm spawn,
+     * which on one's own profile is one's own), Journal, Gravestones and Player settings. Badges, the journal,
+     * gravestones and settings do nothing yet.
      */
     private static void ownProfilePage(NavigatorView view, List<Identifier> layers, List<Button> buttons) {
         layer(layers, "navigation", "navigation_back_enabled", "profile/navigation_profile", "profile/background");
@@ -286,7 +285,7 @@ final class NavigatorLayout {
         buttons.add(new Button(slots(25, 26, 34, 35), List.of(title("open_worlds", ACTIVE), NavigatorService.action(0, "open_world_teleport"),
                 NavigatorService.action(1, "open_world_list")), NavigatorActionPayload.open(NavigatorPage.OPEN_WORLDS)));
         buttons.add(titled(slots(41, 42), "homes", ACTIVE, NavigatorActionPayload.of(Action.HOMES)));
-        buttons.add(titled(slots(43, 44), "origin_isles", ACTIVE, null));
+        buttons.add(titled(slots(43, 44), "realm_spawn", ACTIVE, NavigatorActionPayload.of(Action.VISIT)));
         buttons.add(titled(slots(50, 51), "journal", NavigatorService.LABEL, null));
         buttons.add(titled(slots(52), "gravestones", NavigatorService.LABEL, null));
         buttons.add(titled(slots(53), "player_settings", NavigatorService.LABEL, null));
@@ -316,7 +315,7 @@ final class NavigatorLayout {
             // Origin Realms names the player on every cell of the model panel that holds nothing else.
             int[] panel = own ? slots(28, 29, 30, 31, 37, 38, 39, 40, 46, 47, 48) : slots(19, 20, 21, 28, 29, 30, 31, 37, 38, 39, 40, 46, 47, 48);
             buttons.add(new Button(panel, List.of(Component.literal(target.name()).withStyle(Style.EMPTY.withColor(ACTIVE).withItalic(false))), null));
-            buttons.add(new Button(slots(22), target.lines(), null));
+            buttons.add(new Button(slots(INFO_SLOT), target.lines(), null));
             boolean online = view.has(NavigatorView.TARGET_ONLINE);
             String status = view.has(NavigatorView.TARGET_AFK) ? "status.afk" : online ? "status.online" : "status.offline";
             buttons.add(titled(slots(STATUS_SLOT), status, online ? NavigatorService.ACTION : NavigatorService.LABEL, null));
@@ -507,8 +506,16 @@ final class NavigatorLayout {
     /** Empty list slots say how to add someone, as Origin Realms' do. */
     private static void emptyHint(NavigatorView view, List<Button> buttons, String hint) {
         int[] empty = IntStream.range(FIRST_ENTRY + view.entries().size(), FIRST_ENTRY + NavigatorView.PAGE_SIZE).toArray();
-        if (empty.length > 0) {
-            buttons.add(new Button(empty, hint(hint), null));
+        cells(empty, hint(hint), buttons);
+    }
+
+    /**
+     * One button per slot, all with the same tooltip: cells drawn with the same icon are still separate buttons, so
+     * each lights up and is outlined on its own.
+     */
+    private static void cells(int[] slots, List<Component> tooltip, List<Button> buttons) {
+        for (int slot : slots) {
+            buttons.add(new Button(slots(slot), tooltip, null));
         }
     }
 

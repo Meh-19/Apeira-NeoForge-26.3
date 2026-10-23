@@ -106,11 +106,26 @@ public final class ApeiraNavigatorScreen extends Screen {
             {-0.25F, 1.5F, -0.25F, 0.25F, 2.0F, 0.25F},
             {-0.58F, 0.7F, -0.13F, 0.58F, 1.5F, 0.13F},
             {-0.25F, 0.0F, -0.13F, 0.25F, 0.75F, 0.13F}};
+    /** How many boxes of {@link #MODEL_BOXES}, from the first, make the bust: head, and body with arms. */
+    private static final int BUST_BOXES = 2;
     /** The space kept between the model's outline and the panel's edge, in GUI pixels; the toon outline takes one. */
     private static final int MODEL_MARGIN = 4;
     /**
-     * The chest the server opens the navigator in, vanilla's 6-row {@code generic_54}: its layers cover only the chest's
-     * rows, so the chest's player inventory shows under them, as it does on the server.
+     * The bust shot: the model is drawn this many times the size that fits it whole in the panel, so the legs and lower
+     * body fall below the panel and only the head, arms and upper torso show.
+     */
+    private static final float BUST_ZOOM = 2.0F;
+    /** How far below the panel's top edge the top of the head sits, in GUI pixels. */
+    private static final int BUST_TOP = 8;
+    /**
+     * The icons drawn inside the dark panel, which the accent gradient would cover (frame coordinates, measured in the
+     * layers): the Profile Info icon in the top right corner of both profiles, and the own profile's featured badge.
+     */
+    private static final NavigatorBounds.Rect INFO_ICON = new NavigatorBounds.Rect(82, 56, 92, 66);
+    private static final NavigatorBounds.Rect FEATURED_BADGE = new NavigatorBounds.Rect(26, 54, 42, 70);
+    /**
+     * The player inventory part of vanilla's 6-row chest, {@code generic_54}: only it backs the navigator, so where the
+     * layers stop the player's inventory grid shows and nothing of the chest's rows.
      */
     private static final Identifier CHEST = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
     private static final int CHEST_ROWS_HEIGHT = 6 * 18 + 17;
@@ -193,8 +208,30 @@ public final class ApeiraNavigatorScreen extends Screen {
         for (int slot : layout.entrySlots()) {
             entries.add(bounds.measure(layout.layers(), new int[] {slot}));
         }
+        if (layout.profile()) {
+            // The status and the info icon sit on the plain dark panel, so a fill finds no outline around them: their
+            // highlight is the drawn indicator's own box instead of the slot cell.
+            for (int i = 0; i < layout.buttons().size(); i++) {
+                int[] slots = layout.buttons().get(i).slots();
+                if (slots.length == 1 && slots[0] == NavigatorLayout.STATUS_SLOT) {
+                    buttons.set(i, List.of(statusFace()));
+                } else if (slots.length == 1 && slots[0] == NavigatorLayout.INFO_SLOT) {
+                    buttons.set(i, List.of(INFO_ICON));
+                }
+            }
+        }
         buttonFaces = buttons;
         entryFaces = entries;
+    }
+
+    /** The status's drawn box in frame coordinates: the AFK tag, or the status light (where it sits when offline too). */
+    private NavigatorBounds.Rect statusFace() {
+        int x1 = NavigatorBounds.slotX(NavigatorLayout.STATUS_SLOT) + 16;
+        int y1 = NavigatorBounds.slotY(NavigatorLayout.STATUS_SLOT) + 16;
+        if (view.has(NavigatorView.TARGET_AFK)) {
+            return new NavigatorBounds.Rect(x1 - AFK_WIDTH, y1 - AFK_HEIGHT, x1, y1);
+        }
+        return new NavigatorBounds.Rect(x1 - STATUS_SIZE - 2, y1 - STATUS_SIZE - 2, x1 - 2, y1 - 2);
     }
 
     private void startRenaming(int index, String name) {
@@ -308,12 +345,11 @@ public final class ApeiraNavigatorScreen extends Screen {
     }
 
     /**
-     * The chest under the layers and the player's inventory in it, with the hovered item's tooltip: the server's menu is
-     * a chest, so its player inventory backs every page where the layers stop. The items are only shown; the navigator
-     * takes no clicks on them.
+     * The player's inventory grid under the layers, with the hovered item's tooltip: the server's menu is a chest, so its
+     * player inventory shows where the layers stop. Only the inventory part of the chest texture is drawn, not its rows.
+     * The items are only shown; the navigator takes no clicks on them.
      */
     private void inventory(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos, topPos, 0.0F, 0.0F, IMAGE_WIDTH, CHEST_ROWS_HEIGHT, 256, 256);
         graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos, topPos + CHEST_ROWS_HEIGHT, 0.0F, 126.0F, IMAGE_WIDTH, 96, 256, 256);
         LocalPlayer player = minecraft.player;
         if (player == null) {
@@ -376,6 +412,11 @@ public final class ApeiraNavigatorScreen extends Screen {
         state.rightArmPose = HumanoidModel.ArmPose.EMPTY;
         state.leftArmPose = HumanoidModel.ArmPose.EMPTY;
         model(graphics, state);
+        // The gradient covers the layers' icons in the panel; they are drawn again over it and the model.
+        relayer(graphics, INFO_ICON);
+        if (view.page() == NavigatorPage.PROFILE) {
+            relayer(graphics, FEATURED_BADGE);
+        }
 
         int statusX = slotX(NavigatorLayout.STATUS_SLOT);
         int statusY = slotY(NavigatorLayout.STATUS_SLOT);
@@ -391,12 +432,24 @@ public final class ApeiraNavigatorScreen extends Screen {
         }
     }
 
+    /** Draws the page's layers again inside {@code rect} (frame coordinates). */
+    private void relayer(GuiGraphicsExtractor graphics, NavigatorBounds.Rect rect) {
+        int w = rect.x1() - rect.x0();
+        int h = rect.y1() - rect.y0();
+        for (Identifier layer : layout.layers()) {
+            graphics.blit(RenderPipelines.GUI_TEXTURED, layer, leftPos + rect.x0(), topPos + rect.y0(), rect.x0(), rect.y0() - LAYER_Y, w, h,
+                    256, 256);
+        }
+    }
+
     /**
-     * Draws {@code state} in the profile's panel, as the inventory screen draws its player: through the entity
-     * renderer, in a picture-in-picture box the size of the panel. The pose is worked out here, not read from a model
-     * file: the posed outline ({@link #MODEL_BOXES}) is turned by the view, its on-screen bounds are measured, and the
-     * model is scaled to fit the panel less {@link #MODEL_MARGIN} and moved so the bounds' centre is the panel's.
-     * The box's space has its origin at the panel's centre, x right, y down, one unit per GUI pixel times the scale.
+     * Draws {@code state} in the profile's panel as a bust, as the inventory screen draws its player: through the entity
+     * renderer, in a picture-in-picture box the size of the panel, which cuts off what reaches past it. The pose is
+     * worked out here, not read from a model file: the posed outline ({@link #MODEL_BOXES}) is turned by the view and its
+     * on-screen bounds are measured; the model is scaled {@link #BUST_ZOOM} times the size that fits the whole outline in
+     * the panel less {@link #MODEL_MARGIN}, centred across on the bust (head, body and arms), with the top of the head
+     * {@link #BUST_TOP} below the panel's top, so the lower body falls out of the panel. The box's space has its origin
+     * at the panel's centre, x right, y down, one unit per GUI pixel times the scale.
      */
     private void model(GuiGraphicsExtractor graphics, AvatarRenderState state) {
         // Flipped about x into the box's y-down space, then the view's tip and turn.
@@ -404,23 +457,32 @@ public final class ApeiraNavigatorScreen extends Screen {
                 .mul(new Quaternionf().rotationXYZ(VIEW_PITCH * Mth.DEG_TO_RAD, VIEW_YAW * Mth.DEG_TO_RAD, 0.0F));
         Vector3f min = new Vector3f(Float.POSITIVE_INFINITY);
         Vector3f max = new Vector3f(Float.NEGATIVE_INFINITY);
+        Vector3f bustMin = new Vector3f(Float.POSITIVE_INFINITY);
+        Vector3f bustMax = new Vector3f(Float.NEGATIVE_INFINITY);
         Vector3f corner = new Vector3f();
-        for (float[] box : MODEL_BOXES) {
+        for (int b = 0; b < MODEL_BOXES.length; b++) {
+            float[] box = MODEL_BOXES[b];
             for (int i = 0; i < 8; i++) {
                 corner.set(box[(i & 1) == 0 ? 0 : 3], box[(i & 2) == 0 ? 1 : 4], box[(i & 4) == 0 ? 2 : 5]).mul(AVATAR_SCALE);
                 rotation.transform(corner);
                 min.min(corner);
                 max.max(corner);
+                if (b < BUST_BOXES) {
+                    bustMin.min(corner);
+                    bustMax.max(corner);
+                }
             }
         }
         int x0 = leftPos + PROFILE_X0;
         int y0 = topPos + PROFILE_Y0;
         int x1 = leftPos + PROFILE_X1;
         int y1 = topPos + PROFILE_Y1;
-        float pixels = Math.min((x1 - x0 - 2 * MODEL_MARGIN) / (max.x - min.x), (y1 - y0 - 2 * MODEL_MARGIN) / (max.y - min.y));
-        // Moves the bounds' centre (in blocks, turned) to the box's centre, depth included so no part is cut by the near
-        // or far plane.
-        Vector3f translation = new Vector3f(min).add(max).mul(-0.5F);
+        float pixels = BUST_ZOOM * Math.min((x1 - x0 - 2 * MODEL_MARGIN) / (max.x - min.x), (y1 - y0 - 2 * MODEL_MARGIN) / (max.y - min.y));
+        // In blocks, turned: the bust's middle across goes to the box's centre, the top of the head BUST_TOP pixels under
+        // the box's top edge, and the whole outline's middle in depth to the box's, so no part is cut by the near or far
+        // plane.
+        Vector3f translation = new Vector3f(-(bustMin.x + bustMax.x) * 0.5F, (BUST_TOP - (y1 - y0) * 0.5F) / pixels - bustMin.y,
+                -(min.z + max.z) * 0.5F);
         OutlinedEntityRenderer.submit(graphics, state, pixels, translation, rotation, x0, y0, x1, y1);
     }
 

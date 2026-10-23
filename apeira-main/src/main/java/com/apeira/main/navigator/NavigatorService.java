@@ -282,7 +282,11 @@ public final class NavigatorService {
                 }
             }
             case VISIT -> {
-                if (page == NavigatorPage.PROFILE_OTHER && session.target != null && RealmService.visit(player, session.target)) {
+                // The viewed player's realm spawn: Teleport to their Realm on another's profile, Teleport to Realm Spawn on
+                // one's own. The owner is the server's own session target (or the player), never one the client names,
+                // and RealmService#visit checks the visiting rules.
+                UUID owner = page == NavigatorPage.PROFILE ? player.getUUID() : page == NavigatorPage.PROFILE_OTHER ? session.target : null;
+                if (owner != null && RealmService.visit(player, owner)) {
                     close(player);
                     return;
                 }
