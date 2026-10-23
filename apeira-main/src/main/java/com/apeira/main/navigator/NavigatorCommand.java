@@ -1,7 +1,5 @@
 package com.apeira.main.navigator;
 
-import com.apeira.core.network.ApeiraPackets;
-
 import net.minecraft.commands.Commands;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
@@ -11,7 +9,7 @@ public final class NavigatorCommand {
 
     public static void register(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("navigator").executes(context -> {
-            ApeiraPackets.sendToPlayer(context.getSource().getPlayerOrException(), new OpenNavigatorPayload(NavigatorPage.MAIN));
+            NavigatorService.open(context.getSource().getPlayerOrException(), NavigatorPage.MAIN);
             return 1;
         }));
     }

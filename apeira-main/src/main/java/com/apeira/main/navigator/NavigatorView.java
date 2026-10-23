@@ -1,0 +1,79 @@
+package com.apeira.main.navigator;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+
+/**
+ * Everything the client needs to draw one navigator page, built by {@link NavigatorService} from the server's realm
+ * data: the page, the list page shown and how many there are, the filter and sort picked, the list's entries (player
+ * heads, up to {@link #PAGE_SIZE}), the player a popup is about, the realm's settings and a few flags. The client draws
+ * it as it is and never decides what a player may see or do.
+ *
+ * @param filter  index into the page's filters, as {@link NavigatorService} lists them
+ * @param sort    index into the page's sorts
+ * @param flags   {@link #HAS_REALM}, {@link #CAN_RESET_OVERWORLD}, {@link #TARGET_MEMBER}, {@link #TARGET_INVITED}
+ * @param setting the visiting rule's ordinal, then {@link #PRIVATE_CHAT} and {@link #ALWAYS_ACCESSIBLE} bits from 8 up
+ * @param preset  the region picked for a reset, or -1
+ */
+public record NavigatorView(NavigatorPage page, int pageIndex, int pageCount, int filter, int sort, List<Entry> entries,
+        Optional<Entry> target, int flags, int setting, int preset) {
+    public static final int PAGE_SIZE = 18;
+    public static final int HAS_REALM = 1;
+    public static final int CAN_RESET_OVERWORLD = 2;
+    public static final int TARGET_MEMBER = 4;
+    public static final int TARGET_INVITED = 8;
+    public static final int TARGET_TRUSTED = 16;
+    public static final int PRIVATE_CHAT = 1 << 8;
+    public static final int ALWAYS_ACCESSIBLE = 1 << 9;
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, NavigatorView> STREAM_CODEC = StreamCodec.of((buf, view) -> {
+        NavigatorPage.STREAM_CODEC.encode(buf, view.page);
+        buf.writeVarInt(view.pageIndex);
+        buf.writeVarInt(view.pageCount);
+        buf.writeVarInt(view.filter);
+        buf.writeVarInt(view.sort);
+        Entry.STREAM_CODEC.apply(ByteBufCodecs.list(PAGE_SIZE)).encode(buf, view.entries);
+        ByteBufCodecs.optional(Entry.STREAM_CODEC).encode(buf, view.target);
+        buf.writeVarInt(view.flags);
+        buf.writeVarInt(view.setting);
+        buf.writeVarInt(view.preset);
+    }, buf -> new NavigatorView(NavigatorPage.STREAM_CODEC.decode(buf), buf.readVarInt(), buf.readVarInt(), buf.readVarInt(),
+            buf.readVarInt(), Entry.STREAM_CODEC.apply(ByteBufCodecs.list(PAGE_SIZE)).decode(buf),
+            ByteBufCodecs.optional(Entry.STREAM_CODEC).decode(buf), buf.readVarInt(), buf.readVarInt(), buf.readVarInt()));
+
+    public static NavigatorView closed() {
+        return new NavigatorView(NavigatorPage.CLOSED, 0, 1, 0, 0, List.of(), Optional.empty(), 0, 0, -1);
+    }
+
+    public boolean has(int flag) {
+        return (flags & flag) != 0;
+    }
+
+    public int visitingRule() {
+        return setting & 0xFF;
+    }
+
+    public boolean setting(int bit) {
+        return (setting & bit) != 0;
+    }
+
+    /**
+     * One player head in a list or popup: whose head it is, the name shown and the tooltip lines under it, written by
+     * the server in Origin Realms' colours.
+     */
+    public record Entry(UUID id, String name, List<Component> lines) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, Entry> STREAM_CODEC = StreamCodec.composite(
+                UUIDUtil.STREAM_CODEC, Entry::id,
+                ByteBufCodecs.stringUtf8(16), Entry::name,
+                ComponentSerialization.STREAM_CODEC.apply(ByteBufCodecs.list(16)), Entry::lines,
+                Entry::new);
+    }
+}
