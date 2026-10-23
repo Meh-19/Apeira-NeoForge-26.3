@@ -236,14 +236,17 @@ public final class ApeiraNavigatorScreen extends Screen {
             entries.add(bounds.measure(layout.layers(), new int[] {slot}));
         }
         if (layout.profile()) {
-            // The status and the info icon sit on the plain dark panel, so a fill finds no outline around them: their
-            // highlight is the drawn indicator's own box instead of the slot cell.
+            // The status, the info icon and the featured badge sit on the plain dark panel, so a fill finds no outline
+            // around them: their highlight is the drawn indicator's own box instead of the slot cell.
             for (int i = 0; i < layout.buttons().size(); i++) {
                 int[] slots = layout.buttons().get(i).slots();
                 if (slots.length == 1 && slots[0] == NavigatorLayout.STATUS_SLOT) {
                     buttons.set(i, List.of(statusFace()));
                 } else if (slots.length == 1 && slots[0] == NavigatorLayout.INFO_SLOT) {
                     buttons.set(i, List.of(INFO_ICON));
+                } else if (slots.length == 1 && slots[0] == NavigatorLayout.BADGE_SLOTS[0] && view.page() == NavigatorPage.PROFILE) {
+                    // The featured badge is drawn over the gradient from its own texture, so its box is the highlight.
+                    buttons.set(i, List.of(FEATURED_BADGE));
                 }
             }
         }

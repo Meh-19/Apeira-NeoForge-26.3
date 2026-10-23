@@ -34,6 +34,7 @@ import com.apeira.main.realm.RealmPreset;
 import com.apeira.main.realm.RealmRole;
 import com.apeira.main.realm.RealmService;
 import com.apeira.main.realm.VisitingRule;
+import com.apeira.main.ruby.Rubies;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -67,10 +68,11 @@ public final class NavigatorService {
     public static final long AFK_MS = 5 * 60_000;
     /** The mouse-button glyphs in front of an action line (left, right, middle click). */
     private static final FontDescription KEYS = new FontDescription.Resource(ApeiraIds.id("tooltip_keys"));
-    /** The server pack's {@code tooltips/icon} font: the stat panel's line icons (E007 playtime, E008 join date). */
+    /** The server pack's {@code tooltips/icon} font: the stat panel's line icons (E007 playtime, E008 join date, E000 rubies). */
     private static final FontDescription ICONS = new FontDescription.Resource(ApeiraIds.id("tooltip_icons"));
     private static final int PLAYTIME_ICON = 0xE007;
     private static final int JOIN_DATE_ICON = 0xE008;
+    private static final int RUBIES_ICON = 0xE000;
     /** "September 05, 2022", the Created line of a home. */
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH);
     /** Origin Realms' profile join date: "November 21, 2021 (06:32 PM)". */
@@ -673,15 +675,22 @@ public final class NavigatorService {
 
     /**
      * The profile's stat panel, shown on its info icon as Origin Realms' is: "Playtime: ..." as its title, then the join
-     * date, each behind its white icon glyph and a space. Origin Realms also lists rubies, Discord and the streak
-     * highscore, which Apeira does not have.
+     * date and the ruby balance, each behind its white icon glyph and a space. Origin Realms also lists Discord and the
+     * streak highscore, which Apeira does not have.
      */
     private static List<Component> stats(MinecraftServer server, RealmData data, UUID id) {
         List<Component> lines = new ArrayList<>();
         lines.add(iconed(PLAYTIME_ICON, label("playtime", Component.literal(duration(playTicks(server, id) * 50)))));
         data.known(id).map(RealmData.KnownPlayer::firstSeen).filter(first -> first > 0).ifPresent(first -> lines.add(iconed(JOIN_DATE_ICON,
                 label("join_date", Component.literal(JOIN_DATE.format(Instant.ofEpochMilli(first).atZone(ZoneId.systemDefault())))))));
+        lines.add(iconed(RUBIES_ICON, label("rubies", Component.literal(Rubies.format(rubies(server, data, id))))));
         return lines;
+    }
+
+    /** {@code id}'s ruby balance: an online player's own, else the one last kept in {@link RealmData}. */
+    private static long rubies(MinecraftServer server, RealmData data, UUID id) {
+        ServerPlayer online = server.getPlayerList().getPlayer(id);
+        return online != null ? Rubies.get(online) : data.known(id).map(RealmData.KnownPlayer::rubies).orElse(0L);
     }
 
     /** {@code line} behind icon {@code icon} of the tooltip icon font and a space, as Origin Realms writes its stat lines. */

@@ -40,10 +40,12 @@ import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainMaterials;
 import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainRubies;
 import com.apeira.main.registry.MainSounds;
 import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
+import com.apeira.main.ruby.RubyCommand;
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.EventPriority;
@@ -68,7 +70,7 @@ public final class Apeira {
         // Content holder classes (blocks, items, ...) are passed here as they are added.
         REGISTRAR.register(modEventBus, MainItems::init, MainBlocks::init, MainWoods::init, MainStones::init, MainLanterns::init,
                 MainRocks::init, MainDyedBlocks::init, MainCrystals::init, MainBuildingBlocks::init, MainPlants::init,
-                MainSpecialBlocks::init, MainMaterials::init, MainBlockEntities::init, MainDataComponents::init, MainEffects::init,
+                MainSpecialBlocks::init, MainMaterials::init, MainRubies::init, MainBlockEntities::init, MainDataComponents::init, MainEffects::init,
                 MainGear::init, MainSounds::init, MainFeatures::init, MainEntities::init, MainCosmetics::init, MainCrates::init,
                 MainCreativeTabs::init);
         NETWORK.register(modEventBus, MainPayloads::init);
@@ -78,6 +80,7 @@ public final class Apeira {
         modEventBus.addListener(MainEntityEvents::registerSpawnPlacements);
         NeoForge.EVENT_BUS.addListener(NavigatorCommand::register);
         NeoForge.EVENT_BUS.addListener(RealmCommand::register);
+        NeoForge.EVENT_BUS.addListener(RubyCommand::register);
         NeoForge.EVENT_BUS.addListener(HomeCommand::register);
         NeoForge.EVENT_BUS.addListener(PartyCommand::register);
         NeoForge.EVENT_BUS.addListener(DummyPlayers::register);

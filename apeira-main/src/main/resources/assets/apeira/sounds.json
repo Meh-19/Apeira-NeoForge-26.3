@@ -149,5 +149,21 @@
         "stream": true
       }
     ]
+  },
+  "entity.atm_ruby.ambient": {
+    "subtitle": "subtitles.apeira.entity.atm_ruby.ambient",
+    "sounds": [
+      {
+        "name": "apeira:mono/ambient/atm",
+        "volume": 0.7,
+        "attenuation_distance": 6
+      }
+    ]
+  },
+  "ui.ruby_gain": {
+    "subtitle": "subtitles.apeira.ui.ruby_gain",
+    "sounds": [
+      "apeira:mono/ui/ruby_gain"
+    ]
   }
 }

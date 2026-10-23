@@ -22,6 +22,7 @@ import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainRubies;
 import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
@@ -106,6 +107,9 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
             existingModelBlock(block);
             blockItemModel(block, modLoc("item/" + crate.getId().getPath()));
         }
+        // The ruby deposit is drawn by its block entity too; its item is the hand-made display model of its base.
+        existingModelBlock(MainRubies.RUBY_DEPOSIT.get());
+        blockItemModel(MainRubies.RUBY_DEPOSIT.get(), modLoc("item/ruby_deposit"));
     }
 
     /**

@@ -16,6 +16,7 @@ import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainMaterials;
 import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainRubies;
 import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
@@ -81,6 +82,8 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         block(MainCrates.FUN_FAIR_CRATE, "Fun Fair Crate");
         block(MainCrates.GARDEN_CRATE, "Garden Crate");
         block(MainCrates.ZODIAC_CRATE, "Zodiac Crate");
+
+        rubies();
 
         creativeTab("content", "Apeira Content");
         creativeTab("cosmetics", "Cosmetics");
@@ -171,6 +174,25 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         realms();
         realmMenus();
         profilesAndParties();
+    }
+
+    /** The ruby deposit, its menu and sounds, the ruby commands' messages and the profile's ruby line. */
+    private void rubies() {
+        block(MainRubies.RUBY_DEPOSIT, "Ruby Deposit");
+        add("container.apeira.ruby_deposit", "Ruby Deposit");
+        add("container.apeira.ruby_deposit.info", "Learn more about Rubies");
+        add("container.apeira.ruby_deposit.info1", "Put rubies in the slots above");
+        add("container.apeira.ruby_deposit.info2", "to add them to your balance.");
+        add("subtitles.apeira.entity.atm_ruby.ambient", "Ruby ATM Sparkles");
+        add("subtitles.apeira.ui.ruby_gain", "Rubies gained");
+        addId("navigator", "lore.rubies", "Rubies: %s");
+        addId("message", "rubies.balance", "You have %s rubies.");
+        addId("message", "rubies.pay.self", "You can't pay yourself.");
+        addId("message", "rubies.pay.full", "%s can't hold that many rubies.");
+        addId("message", "rubies.pay.not_enough", "You don't have %s rubies (you have %s).");
+        addId("message", "rubies.pay.sent", "You sent %s rubies to %s.");
+        addId("message", "rubies.pay.received", "%s sent you %s rubies.");
+        addId("message", "rubies.set", "%s now has %s rubies.");
     }
 
     /** The profile pages, the party roster and popups, and the party messages. */

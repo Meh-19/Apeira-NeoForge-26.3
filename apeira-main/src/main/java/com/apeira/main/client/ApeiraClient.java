@@ -8,6 +8,10 @@ import com.apeira.main.client.entity.TurkeyRenderer;
 import com.apeira.main.client.entity.WraithRenderer;
 import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
 import com.apeira.main.client.realm.OnboardingScreen;
+import com.apeira.main.client.ruby.RubyDepositRenderer;
+import com.apeira.main.client.ruby.RubyDepositScreen;
+import com.apeira.main.client.ruby.RubyDepositSound;
+import com.apeira.main.client.ruby.RubyHud;
 import com.apeira.main.registry.MainBlockEntities;
 import com.apeira.main.navigator.OpenNavigatorPayload;
 import com.apeira.main.navigator.OpenProfilePayload;
@@ -15,6 +19,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.main.realm.OpenOnboardingPayload;
 import com.apeira.main.realm.RealmCreatedPayload;
 import com.apeira.main.registry.MainEntities;
+import com.apeira.main.registry.MainRubies;
+import com.apeira.main.ruby.RubyDepositBlockEntity;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -24,8 +30,11 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterSelectItemModelPropertyEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
 
 /** Client entrypoint for the main module. */
@@ -38,6 +47,9 @@ public final class ApeiraClient {
         modEventBus.addListener(ApeiraClient::registerRenderers);
         modEventBus.addListener(ApeiraClient::registerItemProperties);
         modEventBus.addListener(ApeiraClient::registerKeys);
+        modEventBus.addListener(ApeiraClient::registerScreens);
+        modEventBus.addListener(ApeiraClient::registerGuiLayers);
+        RubyDepositBlockEntity.ambience = RubyDepositSound::tick;
         NeoForge.EVENT_BUS.addListener(ApeiraClient::openProfile);
         ApeiraClientNetwork.create()
                 .handle(OpenNavigatorPayload.TYPE, ApeiraNavigatorScreen::onOpen)
@@ -48,10 +60,20 @@ public final class ApeiraClient {
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(MainBlockEntities.ECHO_GLASS.get(), EchoGlassRenderer::new);
+        event.registerBlockEntityRenderer(MainRubies.RUBY_DEPOSIT_ENTITY.get(), RubyDepositRenderer::new);
         event.registerEntityRenderer(MainEntities.TURKEY.get(), TurkeyRenderer::new);
         event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
         event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);
         event.registerEntityRenderer(MainEntities.WRAITH.get(), WraithRenderer::new);
+    }
+
+    private static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(MainRubies.RUBY_DEPOSIT_MENU.get(), RubyDepositScreen::new);
+    }
+
+    /** The ruby counter is drawn with the food bar, over its right end. */
+    private static void registerGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerAbove(VanillaGuiLayers.FOOD_LEVEL, Apeira.REGISTRAR.id("rubies"), RubyHud::render);
     }
 
     private static void registerKeys(RegisterKeyMappingsEvent event) {
