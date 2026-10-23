@@ -35,7 +35,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Util;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -248,7 +247,6 @@ public final class ApeiraNavigatorScreen extends Screen {
         graphics.fillGradient(x0, y0, x1, y1, ARGB.scaleRGB(accent, 1.1F), ARGB.scaleRGB(accent, 0.55F));
 
         AvatarRenderState state = new AvatarRenderState();
-        state.entityType = EntityType.PLAYER;
         state.skin = skin;
         state.boundingBoxWidth = 0.6F;
         state.boundingBoxHeight = 1.8F;
