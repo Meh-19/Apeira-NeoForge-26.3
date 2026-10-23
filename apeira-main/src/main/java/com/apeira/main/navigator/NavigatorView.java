@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 /**
  * Everything the client needs to draw one navigator page, built by {@link NavigatorService} from the server's realm
@@ -95,13 +96,24 @@ public record NavigatorView(NavigatorPage page, int pageIndex, int pageCount, in
 
     /**
      * One player head in a list or popup: whose head it is, the name shown and the tooltip lines under it, written by
-     * the server in Origin Realms' colours.
+     * the server in Origin Realms' colours, and the profile its skin is drawn from ({@link NavigatorService#skinned}: the
+     * online player's own signed profile, else their name), so every head and model shows that player's skin.
      */
-    public record Entry(UUID id, String name, List<Component> lines) {
+    public record Entry(UUID id, String name, List<Component> lines, ResolvableProfile skin) {
         public static final StreamCodec<RegistryFriendlyByteBuf, Entry> STREAM_CODEC = StreamCodec.composite(
                 UUIDUtil.STREAM_CODEC, Entry::id,
                 ByteBufCodecs.stringUtf8(16), Entry::name,
                 ComponentSerialization.STREAM_CODEC.apply(ByteBufCodecs.list(16)), Entry::lines,
+                ResolvableProfile.STREAM_CODEC, Entry::skin,
                 Entry::new);
+
+        /** An entry whose skin is looked up by {@code id} until {@link NavigatorService#skinned} gives it the player's profile. */
+        public Entry(UUID id, String name, List<Component> lines) {
+            this(id, name, lines, ResolvableProfile.createUnresolved(id));
+        }
+
+        public Entry withSkin(ResolvableProfile skin) {
+            return new Entry(id, name, lines, skin);
+        }
     }
 }

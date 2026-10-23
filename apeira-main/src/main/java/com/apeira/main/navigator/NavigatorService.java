@@ -1,5 +1,7 @@
 package com.apeira.main.navigator;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -40,9 +42,12 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Util;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
@@ -63,6 +68,8 @@ public final class NavigatorService {
     private static final FontDescription KEYS = new FontDescription.Resource(ApeiraIds.id("tooltip_keys"));
     /** "September 05, 2022", the Created line of a home. */
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH);
+    /** Origin Realms' profile join date: "November 21, 2021 (06:32 PM)". */
+    private static final DateTimeFormatter JOIN_DATE = DateTimeFormatter.ofPattern("MMMM dd, yyyy (hh:mm a)", Locale.ENGLISH);
 
     private static final Map<UUID, Session> SESSIONS = new HashMap<>();
     /** When each online player entered the level they are in, for "Joined" in the In Realm list. */
@@ -601,8 +608,27 @@ public final class NavigatorService {
         }
         int setting = access.visitingRule().ordinal() | (access.privateChat() ? NavigatorView.PRIVATE_CHAT : 0)
                 | (access.alwaysAccessible() ? NavigatorView.ALWAYS_ACCESSIBLE : 0);
-        return new NavigatorView(page, session.pageIndex, pageCount, session.filter, session.sort, List.copyOf(shown), target, flags,
-                setting, page == NavigatorPage.REALM_RESET_CONFIRM ? session.preset : -1, List.copyOf(roster), partySize, cosmetics);
+        return new NavigatorView(page, session.pageIndex, pageCount, session.filter, session.sort, skinned(server, data, shown),
+                target.map(entry -> skinned(server, data, entry)), flags, setting, page == NavigatorPage.REALM_RESET_CONFIRM ? session.preset : -1,
+                skinned(server, data, roster), partySize, cosmetics);
+    }
+
+    private static List<NavigatorView.Entry> skinned(MinecraftServer server, RealmData data, List<NavigatorView.Entry> entries) {
+        return entries.stream().map(entry -> skinned(server, data, entry)).toList();
+    }
+
+    /**
+     * {@code entry} with the skin of the player whose head it is ({@link NavigatorView.Entry#id()}, which for a home is
+     * its owner): an online player's own profile when it carries their skin, as the server got it from Mojang, else their
+     * name, which the client looks up as a player head does (dummies' mannequins wear their name's skin the same way).
+     * A bare UUID is the last resort: it only finds a skin for an online-mode account.
+     */
+    static NavigatorView.Entry skinned(MinecraftServer server, RealmData data, NavigatorView.Entry entry) {
+        ServerPlayer online = server.getPlayerList().getPlayer(entry.id());
+        if (online != null && !online.getGameProfile().properties().isEmpty()) {
+            return entry.withSkin(ResolvableProfile.createResolved(online.getGameProfile()));
+        }
+        return data.known(entry.id()).map(known -> entry.withSkin(ResolvableProfile.createUnresolved(known.name()))).orElse(entry);
     }
 
     /** The party roster: members, the leader first, then open invites, with what clicking each does for {@code viewer}. */
@@ -634,25 +660,25 @@ public final class NavigatorService {
     }
 
     /**
-     * The profile's stat panel, shown on its info icon: whether the player is online or AFK, their playtime (while
-     * online), realm, friends, homes and party.
+     * The profile's stat panel, shown on its info icon as Origin Realms' is: "Playtime: ..." as its title, then the join
+     * date. Origin Realms also lists rubies, Discord and the streak highscore, which Apeira does not have.
      */
     private static List<Component> stats(MinecraftServer server, RealmData data, UUID id) {
-        long now = System.currentTimeMillis();
         List<Component> lines = new ArrayList<>();
-        lines.add(onlineLine(server, data, id, now));
+        lines.add(label("playtime", Component.literal(duration(playTicks(server, id) * 50))));
+        data.known(id).map(RealmData.KnownPlayer::firstSeen).filter(first -> first > 0).ifPresent(first -> lines.add(label("join_date",
+                Component.literal(JOIN_DATE.format(Instant.ofEpochMilli(first).atZone(ZoneId.systemDefault()))))));
+        return lines;
+    }
+
+    /** {@code id}'s play time in ticks: an online player's live statistic, else the one saved in their stats file, else 0. */
+    private static long playTicks(MinecraftServer server, UUID id) {
         ServerPlayer online = server.getPlayerList().getPlayer(id);
         if (online != null) {
-            long ticks = online.getStats().getValue(Stats.CUSTOM, Stats.PLAY_TIME);
-            lines.add(label("playtime", Component.literal(duration(ticks * 50))));
+            return online.getStats().getValue(Stats.CUSTOM, Stats.PLAY_TIME);
         }
-        lines.add(label("realm", data.realmOf(id).<Component>map(realm -> Component.translatable("navigator.apeira.preset."
-                + realm.preset().getSerializedName())).orElse(Component.translatable("navigator.apeira.lore.none"))));
-        lines.add(label("friends", Component.literal(Integer.toString(data.friendsOf(id).size()))));
-        lines.add(label("homes_count", Component.literal(HomeData.get(server).homesOf(id).size() + "/" + HomeData.MAX_HOMES)));
-        lines.add(label("party", PartyService.partyOf(id).<Component>map(party -> Component.translatable("navigator.apeira.lore.party_of",
-                data.nameOf(party.leader()), party.members().size())).orElse(Component.translatable("navigator.apeira.lore.none"))));
-        return lines;
+        Path file = server.getWorldPath(LevelResource.PLAYER_STATS_DIR).resolve(id + ".json");
+        return Files.isRegularFile(file) ? new ServerStatsCounter(server, file).getValue(Stats.CUSTOM, Stats.PLAY_TIME) : 0;
     }
 
     /** Whether {@code id} is online and has done nothing for {@link #AFK_MS}. Dummy players are never AFK. */
@@ -818,7 +844,7 @@ public final class NavigatorService {
     }
 
     /** A green action line behind a mouse glyph: 0 left click, 1 right click. */
-    private static Component action(int button, String key) {
+    public static Component action(int button, String key) {
         return Component.empty().withStyle(Style.EMPTY.withItalic(false))
                 .append(Component.literal(Character.toString(0xE100 + button)).withStyle(Style.EMPTY.withFont(KEYS).withColor(VALUE)))
                 .append(" ")

@@ -38,6 +38,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.ItemStack;
@@ -89,11 +90,29 @@ public final class ApeiraNavigatorScreen extends Screen {
     private static final int PROFILE_Y0 = 54;
     private static final int PROFILE_X1 = 94;
     private static final int PROFILE_Y1 = 124;
-    /** The player model's size in the panel (pixels per block) and the name's baseline gap from the panel's bottom. */
-    private static final int PROFILE_MODEL_SCALE = 30;
-    private static final int PROFILE_NAME_GAP = 11;
-    /** How the model stands: turned a little towards the buttons, as an inventory preview, without following the mouse. */
-    private static final float PROFILE_BODY_YAW = 160.0F;
+    /**
+     * The player model, 1:1 with Origin Realms' profile: the server draws it as a player head item in the slot above the
+     * panel (slot 3 of its 5-row chest, slot 12 of this frame) whose GUI display is the reference model's
+     * ({@code display.gui}: rotation 34.5, 45, 0, translation -0.25, -12.5, 0, scale 0.8; arms 5 degrees out) at four
+     * times a slot's size, a 16-pixel item frame spread over 4x4 slots. Its feet stand on the panel's floor and its head
+     * rises over the panel's top edge, as on the server.
+     */
+    private static final int MODEL_SLOT = 12;
+    /** GUI pixels per block of the item frame: a slot's 16, four times over. */
+    private static final float MODEL_FRAME = 16.0F * 4.0F;
+    private static final float MODEL_ROTATION_X = 34.5F;
+    private static final float MODEL_ROTATION_Y = 45.0F;
+    /** The display translation, in blocks (model units / 16). */
+    private static final float MODEL_TRANSLATION_X = -0.25F / 16.0F;
+    private static final float MODEL_TRANSLATION_Y = -12.5F / 16.0F;
+    private static final float MODEL_SCALE = 0.8F;
+    /** The avatar renderer's own scale: the reference model is a full 2 blocks tall, a drawn player 1.875. */
+    private static final float AVATAR_SCALE = 0.9375F;
+    /** The box the model is drawn in, in frame coordinates: the panel's width, from the top slot row to the panel's floor. */
+    private static final int MODEL_X0 = 26;
+    private static final int MODEL_Y0 = 16;
+    private static final int MODEL_X1 = 96;
+    private static final int MODEL_Y1 = 126;
     /** The rename box, under the Homes popup. */
     private static final int RENAME_X = 32;
     private static final int RENAME_Y = 120;
@@ -230,13 +249,15 @@ public final class ApeiraNavigatorScreen extends Screen {
         }
         int[] entrySlots = layout.entrySlots();
         for (int i = 0; i < Math.min(view.entries().size(), entrySlots.length); i++) {
-            head(graphics, view.entries().get(i).id(), slotX(entrySlots[i]), slotY(entrySlots[i]), -1);
+            head(graphics, view.entries().get(i).skin(), slotX(entrySlots[i]), slotY(entrySlots[i]), -1);
         }
         for (NavigatorLayout.Head head : layout.heads()) {
+            int x = slotX(head.slot());
+            int y = slotY(head.slot()) + head.dy();
             if (head.slot() == layout.picked()) {
-                graphics.fill(slotX(head.slot()) - 1, slotY(head.slot()) - 1, slotX(head.slot()) + HEAD_SIZE + 1, slotY(head.slot()) + HEAD_SIZE + 1, PICK_FRAME);
+                graphics.fill(x - 1, y - 1, x + HEAD_SIZE + 1, y + HEAD_SIZE + 1, PICK_FRAME);
             }
-            head(graphics, head.id(), slotX(head.slot()), slotY(head.slot()), head.dim() ? INVITE_TINT : -1);
+            head(graphics, head.skin(), x, y, head.dim() ? INVITE_TINT : -1);
         }
         if (layout.pageNumbers()) {
             String pageText = (view.pageIndex() + 1) + "/" + view.pageCount();
@@ -249,7 +270,7 @@ public final class ApeiraNavigatorScreen extends Screen {
             if (layout.profile()) {
                 profile(graphics, target);
             } else if (view.page() == NavigatorPage.EDIT_PLAYER || view.page() == NavigatorPage.EDIT_MEMBER) {
-                head(graphics, target.id(), slotX(NavigatorLayout.POPUP_HEAD), slotY(NavigatorLayout.POPUP_HEAD), -1);
+                head(graphics, target.skin(), slotX(NavigatorLayout.POPUP_HEAD), slotY(NavigatorLayout.POPUP_HEAD), -1);
             }
         });
 
@@ -273,9 +294,9 @@ public final class ApeiraNavigatorScreen extends Screen {
     }
 
     /**
-     * A profile, the player's own or another's: their player model, standing still with its arms a little out and drawn
-     * with a black toon outline ({@link OutlinedEntityRenderer}), on their skin's accent colour ({@link SkinAccent}) in
-     * the dark panel, with their name under it; the status light (or the AFK tag) in the panel's corner; and the
+     * A profile, the player's own or another's: their player model ({@link #model}), standing still with its arms a little
+     * out and drawn with a black toon outline ({@link OutlinedEntityRenderer}), on their skin's accent colour
+     * ({@link SkinAccent}) in the dark panel, with no name under it, as on the server; the status light (or the AFK tag) in the panel's corner; and the
      * cosmetic slots down the left, each showing what is worn or, when empty, the slot's icon.
      */
     private void profile(GuiGraphicsExtractor graphics, NavigatorView.Entry target) {
@@ -296,7 +317,7 @@ public final class ApeiraNavigatorScreen extends Screen {
         int y0 = topPos + PROFILE_Y0;
         int x1 = leftPos + PROFILE_X1;
         int y1 = topPos + PROFILE_Y1;
-        PlayerSkin skin = minecraft.playerSkinRenderCache().getOrDefault(ResolvableProfile.createUnresolved(target.id())).playerSkin();
+        PlayerSkin skin = minecraft.playerSkinRenderCache().getOrDefault(target.skin()).playerSkin();
         int accent = SkinAccent.of(skin.body().texturePath());
         graphics.fillGradient(x0, y0, x1, y1, ARGB.scaleRGB(accent, 1.1F), ARGB.scaleRGB(accent, 0.55F));
 
@@ -304,18 +325,15 @@ public final class ApeiraNavigatorScreen extends Screen {
         state.skin = skin;
         state.boundingBoxWidth = 0.6F;
         state.boundingBoxHeight = 1.8F;
-        state.bodyRot = PROFILE_BODY_YAW;
+        // Facing south, towards the viewer before the display rotation, as the item model does.
+        state.bodyRot = 0.0F;
         state.yRot = 0.0F;
         state.xRot = 0.0F;
-        // A fixed age keeps the idle arm sway still, at its widest; ITEM holds both arms a little forward.
+        // Empty hands at age 0 hold the idle arm sway still with both arms 0.1 radians out, the reference's slight spread.
         state.ageInTicks = 0.0F;
-        state.rightArmPose = HumanoidModel.ArmPose.ITEM;
-        state.leftArmPose = HumanoidModel.ArmPose.ITEM;
-        Quaternionf rotation = new Quaternionf().rotateZ((float) Math.PI);
-        Vector3f translation = new Vector3f(0.0F, state.boundingBoxHeight / 2.0F + 0.0625F, 0.0F);
-        OutlinedEntityRenderer.submit(graphics, state, PROFILE_MODEL_SCALE, translation, rotation, x0, y0, x1, y1 - PROFILE_NAME_GAP);
-
-        graphics.text(font, target.name(), (x0 + x1) / 2 - font.width(target.name()) / 2, y1 - PROFILE_NAME_GAP + 1, 0xFFFFFFFF, true);
+        state.rightArmPose = HumanoidModel.ArmPose.EMPTY;
+        state.leftArmPose = HumanoidModel.ArmPose.EMPTY;
+        model(graphics, state);
 
         int statusX = slotX(NavigatorLayout.STATUS_SLOT);
         int statusY = slotY(NavigatorLayout.STATUS_SLOT);
@@ -332,12 +350,39 @@ public final class ApeiraNavigatorScreen extends Screen {
     }
 
     /**
+     * Draws {@code state} as the server's item model is drawn in a GUI slot: in the item frame's space (centred on
+     * {@link #MODEL_SLOT}, {@link #MODEL_FRAME} pixels per block, y up) the model is moved by the display translation,
+     * turned by its rotation, scaled and centred on the block, which on screen is
+     * {@code frameCentre + frame * flipY(translation + rotation * scale * (model - 0.5))}. The picture-in-picture renderer
+     * draws {@code flipZ(pixels * (translation' + rotation' * entity))} from the box's centre instead, so the same
+     * placement is a rotation of {@code rotateX(pi) * rotation} and a translation solved from the rest.
+     */
+    private void model(GuiGraphicsExtractor graphics, AvatarRenderState state) {
+        Quaternionf display = new Quaternionf().rotationXYZ(MODEL_ROTATION_X * Mth.DEG_TO_RAD, MODEL_ROTATION_Y * Mth.DEG_TO_RAD, 0.0F);
+        Quaternionf rotation = new Quaternionf().rotationX((float) Math.PI).mul(display);
+        // The entity's feet are at its origin; the item model's are half a block below the centre it turns about.
+        Vector3f centre = display.transform(new Vector3f(0.0F, 0.5F, 0.0F)).mul(MODEL_SCALE);
+        int x0 = leftPos + MODEL_X0;
+        int y0 = topPos + MODEL_Y0;
+        int x1 = leftPos + MODEL_X1;
+        int y1 = topPos + MODEL_Y1;
+        float offsetX = slotX(MODEL_SLOT) + 8 - (x0 + x1) / 2.0F;
+        float offsetY = slotY(MODEL_SLOT) + 8 - (y0 + y1) / 2.0F;
+        // Where the entity's origin lands from the box's centre, in GUI pixels with y down and z towards the viewer.
+        Vector3f origin = new Vector3f(MODEL_FRAME * (MODEL_TRANSLATION_X - centre.x) + offsetX,
+                -MODEL_FRAME * (MODEL_TRANSLATION_Y - centre.y) + offsetY, -MODEL_FRAME * centre.z);
+        float pixels = MODEL_FRAME * MODEL_SCALE / AVATAR_SCALE;
+        Vector3f translation = new Vector3f(origin.x / pixels, origin.y / pixels, -origin.z / pixels);
+        OutlinedEntityRenderer.submit(graphics, state, pixels, translation, rotation, x0, y0, x1, y1);
+    }
+
+    /**
      * A player's head in the 16-pixel cell at {@code (x, y)}, as every head in the navigator is drawn: a black border one
      * pixel wide around a 14-pixel face, tinted by {@code color}.
      */
-    private void head(GuiGraphicsExtractor graphics, UUID id, int x, int y, int color) {
+    private void head(GuiGraphicsExtractor graphics, ResolvableProfile profile, int x, int y, int color) {
         graphics.fill(x, y, x + HEAD_SIZE, y + HEAD_SIZE, HEAD_FRAME);
-        PlayerSkin skin = minecraft.playerSkinRenderCache().getOrDefault(ResolvableProfile.createUnresolved(id)).playerSkin();
+        PlayerSkin skin = minecraft.playerSkinRenderCache().getOrDefault(profile).playerSkin();
         PlayerFaceExtractor.extractRenderState(graphics, skin, x + 1, y + 1, HEAD_SIZE - 2, color);
     }
 

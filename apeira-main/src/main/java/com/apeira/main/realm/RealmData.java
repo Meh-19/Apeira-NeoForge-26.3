@@ -109,7 +109,9 @@ public final class RealmData extends SavedData {
 
     /** Records that {@code player} is online now under {@code name}. */
     public void seen(UUID player, String name) {
-        players.put(player, new KnownPlayer(name, System.currentTimeMillis()));
+        long now = System.currentTimeMillis();
+        KnownPlayer before = players.get(player);
+        players.put(player, new KnownPlayer(name, now, before == null || before.firstSeen() == 0 ? now : before.firstSeen()));
         setDirty();
     }
 
@@ -222,10 +224,12 @@ public final class RealmData extends SavedData {
     }
 
     /** A player's last known name and when they were last online, in epoch milliseconds. */
-    public record KnownPlayer(String name, long lastSeen) {
+    /** {@code firstSeen} is when they first joined, the profile's join date; 0 for players saved before it was kept. */
+    public record KnownPlayer(String name, long lastSeen, long firstSeen) {
         public static final Codec<KnownPlayer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.STRING.fieldOf("name").forGetter(KnownPlayer::name),
-                Codec.LONG.fieldOf("last_seen").forGetter(KnownPlayer::lastSeen)).apply(instance, KnownPlayer::new));
+                Codec.LONG.fieldOf("last_seen").forGetter(KnownPlayer::lastSeen),
+                Codec.LONG.optionalFieldOf("first_seen", 0L).forGetter(KnownPlayer::firstSeen)).apply(instance, KnownPlayer::new));
     }
 
     /**
