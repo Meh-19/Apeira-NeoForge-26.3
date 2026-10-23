@@ -260,7 +260,8 @@ public final class PartyService {
         Component line = Component.translatable("message.apeira." + key, args).withStyle(ChatFormatting.LIGHT_PURPLE);
         for (UUID member : party.members) {
             ServerPlayer player = server.getPlayerList().getPlayer(member);
-            if (player != null) {
+            // The member whose menu click caused it already sees the roster change.
+            if (player != null && !RealmService.isQuiet(player)) {
                 player.sendSystemMessage(line);
             }
         }

@@ -35,6 +35,7 @@ import com.apeira.main.realm.RealmRole;
 import com.apeira.main.realm.RealmService;
 import com.apeira.main.realm.VisitingRule;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
@@ -129,7 +130,7 @@ public final class NavigatorService {
     private static void open(ServerPlayer player, NavigatorPage page, boolean realmsRoot) {
         Session session = SESSIONS.computeIfAbsent(player.getUUID(), uuid -> new Session());
         if (needsRealm(page) && !hasRealm(player)) {
-            player.sendSystemMessage(Component.translatable("message.apeira.realm.none"));
+            RealmService.fail(player, "realm.none");
             page = NavigatorPage.MAIN;
             realmsRoot = false;
         }
@@ -138,7 +139,15 @@ public final class NavigatorService {
         send(player, session);
     }
 
+    /**
+     * Applies a click in the navigator. The menu's next view shows what changed, so success lines are left out of chat
+     * ({@link RealmService#quietly}); errors are still written, in red.
+     */
     public static void handle(ServerPlayer player, NavigatorActionPayload payload) {
+        RealmService.quietly(player, () -> apply(player, payload));
+    }
+
+    private static void apply(ServerPlayer player, NavigatorActionPayload payload) {
         Session session = SESSIONS.computeIfAbsent(player.getUUID(), uuid -> new Session());
         NavigatorPage page = session.page;
         int argument = payload.argument();
@@ -150,7 +159,7 @@ public final class NavigatorService {
                     // Back is disabled on a Realms home opened by /realms.
                 } else if (isTab(to)) {
                     if (needsRealm(to) && !hasRealm(player)) {
-                        player.sendSystemMessage(Component.translatable("message.apeira.realm.none"));
+                        RealmService.fail(player, "realm.none");
                     } else {
                         session.go(to);
                     }
@@ -169,9 +178,10 @@ public final class NavigatorService {
                 if (!RealmPool.sendHome(player)) {
                     if (payload.action() == Action.SPAWN) {
                         player.teleport(player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING));
-                        player.sendSystemMessage(Component.translatable("message.apeira.navigator.spawn"));
+                        // An arrival line, as "Welcome home!" is: the menu closes, so it is not redundant.
+                        player.sendSystemMessage(Component.translatable("message.apeira.navigator.spawn").withStyle(ChatFormatting.GREEN));
                     } else {
-                        player.sendSystemMessage(Component.translatable("message.apeira.realm.none"));
+                        RealmService.fail(player, "realm.none");
                     }
                 }
                 close(player);
@@ -452,13 +462,12 @@ public final class NavigatorService {
         } else if (session.page == NavigatorPage.REALM_RESET) {
             if (dimension != 0) {
                 // Realm nethers and the Aether do not exist yet, so their buttons stay greyed out.
-                player.sendSystemMessage(Component.translatable("message.apeira.realm.reset.travel",
-                        Component.translatable("navigator.apeira.dimension." + (dimension == 1 ? "nether" : "aether"))));
+                RealmService.fail(player, "realm.reset.travel",
+                        Component.translatable("navigator.apeira.dimension." + (dimension == 1 ? "nether" : "aether")));
             } else if (RealmService.canResetOverworld(player)) {
                 session.page = NavigatorPage.REALM_RESET_PRESET;
             } else {
-                player.sendSystemMessage(Component.translatable("message.apeira.realm.reset.travel",
-                        Component.translatable("navigator.apeira.dimension.overworld")));
+                RealmService.fail(player, "realm.reset.travel", Component.translatable("navigator.apeira.dimension.overworld"));
             }
         }
     }
@@ -472,7 +481,7 @@ public final class NavigatorService {
     }
 
     private static void unavailable(ServerPlayer player, String feature) {
-        player.sendSystemMessage(Component.translatable("message.apeira.navigator.unavailable", Component.translatable("navigator.apeira." + feature)));
+        RealmService.fail(player, "navigator.unavailable", Component.translatable("navigator.apeira." + feature));
     }
 
     /** Pages a client may ask for by name; popups and reset steps are reached only through their actions. */

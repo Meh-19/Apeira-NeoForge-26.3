@@ -91,28 +91,36 @@ public final class ApeiraNavigatorScreen extends Screen {
     private static final int PROFILE_X1 = 94;
     private static final int PROFILE_Y1 = 124;
     /**
-     * The player model, 1:1 with Origin Realms' profile: the server draws it as a player head item in the slot above the
-     * panel (slot 3 of its 5-row chest, slot 12 of this frame) whose GUI display is the reference model's
-     * ({@code display.gui}: rotation 34.5, 45, 0, translation -0.25, -12.5, 0, scale 0.8; arms 5 degrees out) at four
-     * times a slot's size, a 16-pixel item frame spread over 4x4 slots. Its feet stand on the panel's floor and its head
-     * rises over the panel's top edge, as on the server.
+     * The player model's view, a three-quarter turn as on Origin Realms' profile: turned 45 degrees about its up axis,
+     * then tipped 34.5 degrees towards the viewer, so the top of the head and one side show.
      */
-    private static final int MODEL_SLOT = 12;
-    /** GUI pixels per block of the item frame: a slot's 16, four times over. */
-    private static final float MODEL_FRAME = 16.0F * 4.0F;
-    private static final float MODEL_ROTATION_X = 34.5F;
-    private static final float MODEL_ROTATION_Y = 45.0F;
-    /** The display translation, in blocks (model units / 16). */
-    private static final float MODEL_TRANSLATION_X = -0.25F / 16.0F;
-    private static final float MODEL_TRANSLATION_Y = -12.5F / 16.0F;
-    private static final float MODEL_SCALE = 0.8F;
-    /** The avatar renderer's own scale: the reference model is a full 2 blocks tall, a drawn player 1.875. */
+    private static final float VIEW_PITCH = 34.5F;
+    private static final float VIEW_YAW = 45.0F;
+    /** The avatar renderer's own scale: a drawn player is 1.875 blocks tall, not 2. */
     private static final float AVATAR_SCALE = 0.9375F;
-    /** The box the model is drawn in, in frame coordinates: the panel's width, from the top slot row to the panel's floor. */
-    private static final int MODEL_X0 = 26;
-    private static final int MODEL_Y0 = 16;
-    private static final int MODEL_X1 = 96;
-    private static final int MODEL_Y1 = 126;
+    /**
+     * The posed player's outline in blocks (x across, y up from the feet, z front to back), before the avatar scale:
+     * head, body with both arms (a little out, as in the idle pose), legs. The model is fitted to the panel by these boxes.
+     */
+    private static final float[][] MODEL_BOXES = {
+            {-0.25F, 1.5F, -0.25F, 0.25F, 2.0F, 0.25F},
+            {-0.58F, 0.7F, -0.13F, 0.58F, 1.5F, 0.13F},
+            {-0.25F, 0.0F, -0.13F, 0.25F, 0.75F, 0.13F}};
+    /** The space kept between the model's outline and the panel's edge, in GUI pixels; the toon outline takes one. */
+    private static final int MODEL_MARGIN = 4;
+    /**
+     * The chest the server opens the navigator in, vanilla's 6-row {@code generic_54}: its layers cover only the chest's
+     * rows, so the chest's player inventory shows under them, as it does on the server.
+     */
+    private static final Identifier CHEST = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
+    private static final int CHEST_ROWS_HEIGHT = 6 * 18 + 17;
+    /**
+     * The player inventory under the chest, its three rows and the hotbar, as vanilla's container lays them. Its
+     * "Inventory" label is left out: it would be drawn over the layers, which reach down past it.
+     */
+    private static final int INVENTORY_X = 8;
+    private static final int INVENTORY_Y = IMAGE_HEIGHT - 82;
+    private static final int HOTBAR_Y = IMAGE_HEIGHT - 24;
     /** The rename box, under the Homes popup. */
     private static final int RENAME_X = 32;
     private static final int RENAME_Y = 120;
@@ -225,6 +233,11 @@ public final class ApeiraNavigatorScreen extends Screen {
             super.keyPressed(event);
             return true;
         }
+        if (minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(event))) {
+            // The inventory key closes the navigator from any page, as it closes the server's chest menu.
+            onClose();
+            return true;
+        }
         if (event.key() == InputConstants.KEY_ESCAPE && view.page() == NavigatorPage.PROFILE_OTHER) {
             // A profile is a popup over the friends list or the party roster: Escape goes back to it, or closes the
             // navigator when the profile was opened from the world.
@@ -244,6 +257,7 @@ public final class ApeiraNavigatorScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
+        inventory(graphics, mouseX, mouseY);
         for (Identifier layer : layout.layers()) {
             graphics.blit(RenderPipelines.GUI_TEXTURED, layer, leftPos, topPos + LAYER_Y, 0.0F, 0.0F, 256, 256, 256, 256);
         }
@@ -294,6 +308,34 @@ public final class ApeiraNavigatorScreen extends Screen {
     }
 
     /**
+     * The chest under the layers and the player's inventory in it, with the hovered item's tooltip: the server's menu is
+     * a chest, so its player inventory backs every page where the layers stop. The items are only shown; the navigator
+     * takes no clicks on them.
+     */
+    private void inventory(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos, topPos, 0.0F, 0.0F, IMAGE_WIDTH, CHEST_ROWS_HEIGHT, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos, topPos + CHEST_ROWS_HEIGHT, 0.0F, 126.0F, IMAGE_WIDTH, 96, 256, 256);
+        LocalPlayer player = minecraft.player;
+        if (player == null) {
+            return;
+        }
+        for (int slot = 0; slot < 36; slot++) {
+            // Slots 0-8 are the hotbar, along the bottom; 9-35 the three rows above it.
+            int x = leftPos + INVENTORY_X + slot % 9 * 18;
+            int y = topPos + (slot < 9 ? HOTBAR_Y : INVENTORY_Y + (slot / 9 - 1) * 18);
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            graphics.item(stack, x, y);
+            graphics.itemDecorations(font, stack, x, y);
+            if (mouseX >= x && mouseX < x + 16 && mouseY >= y && mouseY < y + 16) {
+                graphics.setTooltipForNextFrame(font, stack, mouseX, mouseY);
+            }
+        }
+    }
+
+    /**
      * A profile, the player's own or another's: their player model ({@link #model}), standing still with its arms a little
      * out and drawn with a black toon outline ({@link OutlinedEntityRenderer}), on their skin's accent colour
      * ({@link SkinAccent}) in the dark panel, with no name under it, as on the server; the status light (or the AFK tag) in the panel's corner; and the
@@ -325,11 +367,11 @@ public final class ApeiraNavigatorScreen extends Screen {
         state.skin = skin;
         state.boundingBoxWidth = 0.6F;
         state.boundingBoxHeight = 1.8F;
-        // Facing south, towards the viewer before the display rotation, as the item model does.
+        // Facing south, towards the viewer before the view's turn. A new state has no name tag, so no name is drawn.
         state.bodyRot = 0.0F;
         state.yRot = 0.0F;
         state.xRot = 0.0F;
-        // Empty hands at age 0 hold the idle arm sway still with both arms 0.1 radians out, the reference's slight spread.
+        // Empty hands at age 0 hold the idle arm sway still with both arms 0.1 radians out: the idle pose's slight spread.
         state.ageInTicks = 0.0F;
         state.rightArmPose = HumanoidModel.ArmPose.EMPTY;
         state.leftArmPose = HumanoidModel.ArmPose.EMPTY;
@@ -350,29 +392,35 @@ public final class ApeiraNavigatorScreen extends Screen {
     }
 
     /**
-     * Draws {@code state} as the server's item model is drawn in a GUI slot: in the item frame's space (centred on
-     * {@link #MODEL_SLOT}, {@link #MODEL_FRAME} pixels per block, y up) the model is moved by the display translation,
-     * turned by its rotation, scaled and centred on the block, which on screen is
-     * {@code frameCentre + frame * flipY(translation + rotation * scale * (model - 0.5))}. The picture-in-picture renderer
-     * draws {@code flipZ(pixels * (translation' + rotation' * entity))} from the box's centre instead, so the same
-     * placement is a rotation of {@code rotateX(pi) * rotation} and a translation solved from the rest.
+     * Draws {@code state} in the profile's panel, as the inventory screen draws its player: through the entity
+     * renderer, in a picture-in-picture box the size of the panel. The pose is worked out here, not read from a model
+     * file: the posed outline ({@link #MODEL_BOXES}) is turned by the view, its on-screen bounds are measured, and the
+     * model is scaled to fit the panel less {@link #MODEL_MARGIN} and moved so the bounds' centre is the panel's.
+     * The box's space has its origin at the panel's centre, x right, y down, one unit per GUI pixel times the scale.
      */
     private void model(GuiGraphicsExtractor graphics, AvatarRenderState state) {
-        Quaternionf display = new Quaternionf().rotationXYZ(MODEL_ROTATION_X * Mth.DEG_TO_RAD, MODEL_ROTATION_Y * Mth.DEG_TO_RAD, 0.0F);
-        Quaternionf rotation = new Quaternionf().rotationX((float) Math.PI).mul(display);
-        // The entity's feet are at its origin; the item model's are half a block below the centre it turns about.
-        Vector3f centre = display.transform(new Vector3f(0.0F, 0.5F, 0.0F)).mul(MODEL_SCALE);
-        int x0 = leftPos + MODEL_X0;
-        int y0 = topPos + MODEL_Y0;
-        int x1 = leftPos + MODEL_X1;
-        int y1 = topPos + MODEL_Y1;
-        float offsetX = slotX(MODEL_SLOT) + 8 - (x0 + x1) / 2.0F;
-        float offsetY = slotY(MODEL_SLOT) + 8 - (y0 + y1) / 2.0F;
-        // Where the entity's origin lands from the box's centre, in GUI pixels with y down and z towards the viewer.
-        Vector3f origin = new Vector3f(MODEL_FRAME * (MODEL_TRANSLATION_X - centre.x) + offsetX,
-                -MODEL_FRAME * (MODEL_TRANSLATION_Y - centre.y) + offsetY, -MODEL_FRAME * centre.z);
-        float pixels = MODEL_FRAME * MODEL_SCALE / AVATAR_SCALE;
-        Vector3f translation = new Vector3f(origin.x / pixels, origin.y / pixels, -origin.z / pixels);
+        // Flipped about x into the box's y-down space, then the view's tip and turn.
+        Quaternionf rotation = new Quaternionf().rotationX((float) Math.PI)
+                .mul(new Quaternionf().rotationXYZ(VIEW_PITCH * Mth.DEG_TO_RAD, VIEW_YAW * Mth.DEG_TO_RAD, 0.0F));
+        Vector3f min = new Vector3f(Float.POSITIVE_INFINITY);
+        Vector3f max = new Vector3f(Float.NEGATIVE_INFINITY);
+        Vector3f corner = new Vector3f();
+        for (float[] box : MODEL_BOXES) {
+            for (int i = 0; i < 8; i++) {
+                corner.set(box[(i & 1) == 0 ? 0 : 3], box[(i & 2) == 0 ? 1 : 4], box[(i & 4) == 0 ? 2 : 5]).mul(AVATAR_SCALE);
+                rotation.transform(corner);
+                min.min(corner);
+                max.max(corner);
+            }
+        }
+        int x0 = leftPos + PROFILE_X0;
+        int y0 = topPos + PROFILE_Y0;
+        int x1 = leftPos + PROFILE_X1;
+        int y1 = topPos + PROFILE_Y1;
+        float pixels = Math.min((x1 - x0 - 2 * MODEL_MARGIN) / (max.x - min.x), (y1 - y0 - 2 * MODEL_MARGIN) / (max.y - min.y));
+        // Moves the bounds' centre (in blocks, turned) to the box's centre, depth included so no part is cut by the near
+        // or far plane.
+        Vector3f translation = new Vector3f(min).add(max).mul(-0.5F);
         OutlinedEntityRenderer.submit(graphics, state, pixels, translation, rotation, x0, y0, x1, y1);
     }
 
