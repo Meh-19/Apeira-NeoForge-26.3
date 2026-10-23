@@ -31,15 +31,17 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * region icons and the "Hold F to pick" bar at the bottom. Keys 1 to 5 pick a region, tapping F goes to the next one
  * (tropical wraps to lush), and holding F for {@link #HOLD_TICKS} fills the bar, fades to black and sends a
  * {@link SelectRealmPresetPayload}. The server's {@link RealmCreatedPayload} shows "Realm Created", then "Traveling
- * Home..." until the player arrives in their realm.
+ * Home..." until the player arrives in their realm. The screen fades in from black, and it cannot be closed (Esc or
+ * otherwise) until a region is picked.
  * <p>
  * Positions are in GUI pixels, measured from Origin Realms at GUI scale 3, where every card texture is drawn 1:1.
  */
 public final class OnboardingScreen extends Screen {
-    private static final int HOLD_TICKS = 60;
+    private static final int HOLD_TICKS = 40;
     /** A press of F released before this many ticks is a tap, which cycles the region. */
     private static final int TAP_TICKS = 5;
     private static final int FADE_TICKS = 8;
+    private static final int FADE_IN_TICKS = 20;
     private static final int BLACKOUT_TICKS = 10;
     private static final int CREATED_TICKS = 30;
     /** Closes the screen if the player has not arrived by then, so it cannot hang over the game. */
@@ -50,7 +52,13 @@ public final class OnboardingScreen extends Screen {
     private static final int BAR_WIDTH = 136;
     private static final int ICON_SIZE = 24;
     private static final int ICON_SPACING = 28;
-    private static final int PROGRESS_COLOR = 0xFF3A3A3A;
+    /**
+     * {@code confirm_progress.png} is Origin Realms' progress font: seven 20-pixel rows of the bar's fill, 64, 32, 16,
+     * 8, 4, 2 and 1 pixels wide, which it adds up to any width.
+     */
+    private static final int PROGRESS_ROW_HEIGHT = 20;
+    private static final int PROGRESS_TEXTURE_WIDTH = 64;
+    private static final int PROGRESS_TEXTURE_HEIGHT = 140;
     private static final int DARK_COLOR = 0xFF101216;
 
     private static final Identifier GUIDE = texture("guide");
@@ -58,6 +66,7 @@ public final class OnboardingScreen extends Screen {
     private static final Identifier ACTIVE = texture("active");
     private static final Identifier CONFIRM_BG = texture("confirm_big_bg");
     private static final Identifier CONFIRM_TEXT = texture("confirm_big_text");
+    private static final Identifier CONFIRM_PROGRESS = texture("confirm_progress");
     private static final Identifier CREATED = texture("created");
     private static final Identifier TRAVELING = texture("traveling");
 
@@ -70,6 +79,7 @@ public final class OnboardingScreen extends Screen {
     /** Whether the current press of F was used up (continuing from the guide) and must not cycle or pick. */
     private boolean pressConsumed;
     private int holdTicks;
+    private int openTicks;
     private @Nullable ResourceKey<Level> departure;
 
     public OnboardingScreen() {
@@ -122,6 +132,7 @@ public final class OnboardingScreen extends Screen {
     @Override
     public void tick() {
         stageTicks++;
+        openTicks++;
         if (fadeTicks > 0) {
             fadeTicks--;
         }
@@ -151,7 +162,7 @@ public final class OnboardingScreen extends Screen {
         }
         boolean arrived = departure != null && minecraft.level != null && !minecraft.level.dimension().equals(departure);
         if (arrived || (stage == Stage.WAITING || stage == Stage.TRAVELING) && stageTicks > TRAVEL_TIMEOUT) {
-            onClose();
+            super.onClose();
         }
     }
 
@@ -180,6 +191,7 @@ public final class OnboardingScreen extends Screen {
         int centreX = width / 2;
         if (stage == Stage.INTRO) {
             blit(graphics, GUIDE, centreX - 100, (height - 140) / 2, 200, 140, -1);
+            fadeIn(graphics, a);
             return;
         }
         int barX = centreX - BAR_WIDTH / 2;
@@ -194,18 +206,49 @@ public final class OnboardingScreen extends Screen {
         if (stage == Stage.BLACKOUT) {
             progress = 1.0F;
         }
-        if (progress > 0.0F) {
-            graphics.fill(barX, barY, barX + Math.round(BAR_WIDTH * progress), barY + 20, PROGRESS_COLOR);
-        }
+        drawProgress(graphics, barX, barY, Math.round(BAR_WIDTH * progress));
         blit(graphics, CONFIRM_TEXT, barX, barY, BAR_WIDTH, 20, -1);
         if (stage == Stage.BLACKOUT) {
             graphics.fill(0, 0, width, height, ARGB.color(Mth.clamp((stageTicks + a) / BLACKOUT_TICKS, 0.0F, 1.0F), 0));
+        } else {
+            fadeIn(graphics, a);
         }
     }
 
+    /** Covers the screen in black that clears over {@link #FADE_IN_TICKS} after it opens. */
+    private void fadeIn(GuiGraphicsExtractor graphics, float a) {
+        if (openTicks < FADE_IN_TICKS) {
+            graphics.fill(0, 0, width, height, ARGB.color(Mth.clamp(1.0F - (openTicks + a) / FADE_IN_TICKS, 0.0F, 1.0F), 0));
+        }
+    }
+
+    /** Fills {@code width} pixels of the bar from {@link #CONFIRM_PROGRESS}'s rows, as Origin Realms adds them up. */
+    private static void drawProgress(GuiGraphicsExtractor graphics, int x, int y, int width) {
+        while (width > 0) {
+            int row = 0;
+            int rowWidth = PROGRESS_TEXTURE_WIDTH;
+            while (rowWidth > width) {
+                rowWidth >>= 1;
+                row++;
+            }
+            graphics.blit(RenderPipelines.GUI_TEXTURED, CONFIRM_PROGRESS, x, y, 0.0F, row * PROGRESS_ROW_HEIGHT, rowWidth,
+                    PROGRESS_ROW_HEIGHT, PROGRESS_TEXTURE_WIDTH, PROGRESS_TEXTURE_HEIGHT);
+            x += rowWidth;
+            width -= rowWidth;
+        }
+    }
+
+    /** A realm must be picked first: Esc does nothing, and nothing else closes the screen before the pick. */
     @Override
     public boolean shouldCloseOnEsc() {
-        return stage == Stage.INTRO || stage == Stage.PREVIEW;
+        return false;
+    }
+
+    @Override
+    public void onClose() {
+        if (stage != Stage.INTRO && stage != Stage.PREVIEW) {
+            super.onClose();
+        }
     }
 
     @Override

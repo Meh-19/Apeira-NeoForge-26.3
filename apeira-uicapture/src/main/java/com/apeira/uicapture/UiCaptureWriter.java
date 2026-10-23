@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,6 +33,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -50,19 +52,27 @@ import net.neoforged.fml.loading.FMLPaths;
  * Turns a recorded frame into the capture file: the screen (title, class, size, the container's image size, offsets,
  * label positions and slots with their full items), the widget tree, everything drawn in order, the glyphs of every
  * font drawn with and the copied assets. Writes {@code logs/apeira_ui_capture.json} (the latest capture) and keeps
- * each capture, with the copied assets, under {@code logs/apeira_ui_capture/}.
+ * each capture, with the copied assets, under {@code logs/apeira_ui_capture/}. A deep inspection (F9) adds what is
+ * under the mouse, also written alone to {@code logs/apeira_ui_inspect.json}.
  */
 final class UiCaptureWriter {
     static final String LATEST = "logs/apeira_ui_capture.json";
     static final String FOLDER = "logs/apeira_ui_capture";
+    static final String INSPECT = "logs/apeira_ui_inspect.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static final DateTimeFormatter STAMP = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
     private static final int MAX_DEPTH = 12;
 
     private UiCaptureWriter() {}
 
-    /** Writes the capture of {@code screen} (null for the HUD) and returns the file written. */
-    static Path write(Minecraft minecraft, @Nullable Screen screen, UiCapture.Frame frame) throws IOException {
+    /** The mouse position of a deep inspection, in GUI pixels. */
+    record Mouse(int x, int y) {}
+
+    /**
+     * Writes the capture of {@code screen} (null for the HUD), with a deep inspection at {@code mouse} when it is not
+     * null, and returns the file written.
+     */
+    static Path write(Minecraft minecraft, @Nullable Screen screen, UiCapture.Frame frame, @Nullable Mouse mouse) throws IOException {
         Path game = FMLPaths.GAMEDIR.get();
         Path folder = game.resolve(FOLDER);
         ResourceManager resources = minecraft.getResourceManager();
@@ -122,6 +132,10 @@ final class UiCaptureWriter {
         }
         frame.items().forEach((entry, stack) -> entry.add("item", item(stack, ops)));
         root.add("drawn", frame.drawn());
+        JsonObject inspect = screen != null && mouse != null ? inspect(screen, frame, mouse, ops) : null;
+        if (inspect != null) {
+            root.add("inspect", inspect);
+        }
 
         JsonObject fonts = new JsonObject();
         for (Map.Entry<Identifier, TreeSet<Integer>> font : frame.glyphs().entrySet()) {
@@ -139,6 +153,11 @@ final class UiCaptureWriter {
         Path latest = game.resolve(LATEST);
         try (Writer writer = Files.newBufferedWriter(latest, StandardCharsets.UTF_8)) {
             writer.write(json);
+        }
+        if (inspect != null) {
+            Path inspected = game.resolve(INSPECT);
+            Files.writeString(inspected, GSON.toJson(inspect), StandardCharsets.UTF_8);
+            return inspected;
         }
         return latest;
     }
@@ -258,11 +277,111 @@ final class UiCaptureWriter {
         return json;
     }
 
-    /** A component as its plain text and its full JSON (fonts, colours, click events). */
+    /**
+     * The deep inspection: what is under the mouse. The hovered slot with its item, the hovered widgets (innermost
+     * last) with their messages, the text drawn under the mouse and the tooltip, each with its exact text and every run's
+     * font, colour and formatting.
+     */
+    private static JsonObject inspect(Screen screen, UiCapture.Frame frame, Mouse mouse, DynamicOps<JsonElement> ops) {
+        JsonObject json = new JsonObject();
+        json.addProperty("mouse_x", mouse.x());
+        json.addProperty("mouse_y", mouse.y());
+        if (screen instanceof AbstractContainerScreen<?> container) {
+            Slot slot = ((AbstractContainerScreenAccessor) container).apeira$hoveredSlot();
+            if (slot != null) {
+                JsonObject entry = new JsonObject();
+                entry.addProperty("index", slot.index);
+                entry.addProperty("container_slot", slot.getContainerSlot());
+                entry.addProperty("x", slot.x);
+                entry.addProperty("y", slot.y);
+                if (slot.hasItem()) {
+                    entry.add("item", item(slot.getItem(), ops));
+                }
+                json.add("hovered_slot", entry);
+            }
+        }
+        JsonArray widgets = new JsonArray();
+        hoveredWidgets(screen.children(), mouse, widgets, ops, 0);
+        json.add("hovered_widgets", widgets);
+
+        JsonArray hovered = new JsonArray();
+        JsonArray tooltip = new JsonArray();
+        float[] tooltipBox = null;
+        for (JsonElement element : frame.drawn()) {
+            JsonObject entry = element.getAsJsonObject();
+            String kind = entry.get("kind").getAsString();
+            if (kind.equals("sprite") && isTooltipBackground(entry.get("sprite").getAsString())) {
+                // A new tooltip background: the text drawn inside it after this is the tooltip.
+                tooltipBox = box(entry);
+                tooltip = new JsonArray();
+            } else if (kind.equals("text")) {
+                float[] box = box(entry);
+                if (mouse.x() >= box[0] && mouse.x() < box[2] && mouse.y() >= box[1] && mouse.y() < box[3]) {
+                    hovered.add(entry);
+                }
+                if (tooltipBox != null && box[0] >= tooltipBox[0] && box[0] < tooltipBox[2] && box[1] >= tooltipBox[1] && box[1] < tooltipBox[3]) {
+                    tooltip.add(entry);
+                }
+            }
+        }
+        json.add("hovered_text", hovered);
+        json.add("tooltip", tooltip);
+        return json;
+    }
+
+    /** Widgets under the mouse, parents before their children. */
+    private static void hoveredWidgets(List<? extends GuiEventListener> children, Mouse mouse, JsonArray out, DynamicOps<JsonElement> ops, int depth) {
+        if (depth > MAX_DEPTH) {
+            return;
+        }
+        for (GuiEventListener child : children) {
+            if (!child.isMouseOver(mouse.x(), mouse.y())) {
+                continue;
+            }
+            JsonObject json = new JsonObject();
+            json.addProperty("class", child.getClass().getName());
+            if (child instanceof LayoutElement layout) {
+                json.addProperty("x", layout.getX());
+                json.addProperty("y", layout.getY());
+                json.addProperty("width", layout.getWidth());
+                json.addProperty("height", layout.getHeight());
+            }
+            if (child instanceof AbstractWidget widget) {
+                json.add("message", component(widget.getMessage(), ops));
+                json.addProperty("active", widget.active);
+            }
+            out.add(json);
+            if (child instanceof ContainerEventHandler container) {
+                hoveredWidgets(container.children(), mouse, out, ops, depth + 1);
+            }
+        }
+    }
+
+    /** Vanilla's {@code tooltip/background} sprite, or a tooltip style's {@code tooltip/<style>_background}. */
+    private static boolean isTooltipBackground(String sprite) {
+        String path = Identifier.parse(sprite).getPath();
+        return path.startsWith("tooltip/") && path.endsWith("background");
+    }
+
+    /** A drawn entry's rectangle on screen as {x0, y0, x1, y1}. */
+    private static float[] box(JsonObject entry) {
+        if (entry.has("screen")) {
+            JsonArray screen = entry.getAsJsonArray("screen");
+            float x = screen.get(0).getAsFloat();
+            float y = screen.get(1).getAsFloat();
+            return new float[] {x, y, x + screen.get(2).getAsFloat(), y + screen.get(3).getAsFloat()};
+        }
+        float x = entry.get("x").getAsFloat();
+        float y = entry.get("y").getAsFloat();
+        return new float[] {x, y, x + entry.get("width").getAsFloat(), y + entry.get("height").getAsFloat()};
+    }
+
+    /** A component as its plain text, its full JSON (fonts, colours, click events) and its runs of one font and style. */
     private static JsonObject component(Component component, DynamicOps<JsonElement> ops) {
         JsonObject json = new JsonObject();
         json.addProperty("text", component.getString());
         json.add("json", ComponentSerialization.CODEC.encodeStart(ops, component).result().orElse(JsonNull.INSTANCE));
+        json.add("runs", UiCapture.runs(component.getVisualOrderText()));
         return json;
     }
 
