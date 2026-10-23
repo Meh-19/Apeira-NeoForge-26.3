@@ -98,7 +98,7 @@ public record NavigatorActionPayload(Action action, int argument, Optional<UUID>
         RENAME_HOME,
         /** Profile: send or accept a friend request, or unfriend; with a right-click decline or take back a request. */
         FRIEND,
-        /** Profile: teleport to the player's realm. */
+        /** Profile: teleport to the viewed player's realm spawn (one's own on one's own profile). */
         VISIT,
         /** Social's Party button: make a party, or open the party popup when in one. */
         PARTY,

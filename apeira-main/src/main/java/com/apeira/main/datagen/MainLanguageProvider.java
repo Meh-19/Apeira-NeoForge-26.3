@@ -209,7 +209,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         addId("navigator", "realm_teleport.own", "Teleport to your Realm");
         addId("navigator", "action.open_world_teleport", "Left-click to teleport");
         addId("navigator", "action.open_world_list", "Right-click to view all worlds");
-        addId("navigator", "origin_isles", "Teleport to Origin Isles");
+        addId("navigator", "realm_spawn", "Teleport to Realm Spawn");
         addId("navigator", "gravestones", "Gravestones");
         addId("navigator", "player_settings", "Player settings");
         addId("navigator", "cosmetic_slot.equip.hat", "Equip a hat cosmetic in the");
