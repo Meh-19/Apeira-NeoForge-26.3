@@ -100,15 +100,22 @@ public final class RealmService {
         return true;
     }
 
-    /** Sends {@code player} out of the realm they are in: to their own realm, or to their spawn point without one. */
+    /**
+     * Sends {@code player} out of the realm they are in: to their own realm, or without one to their spawn point, and to
+     * the world spawn when that spawn point (a bed or anchor) is in the realm they are sent out of.
+     */
     public static void sendAway(ServerPlayer player) {
         MinecraftServer server = player.level().getServer();
         Optional<UUID> here = ownerOf(player.level());
-        if (data(server).realmOf(player.getUUID()).isPresent() && !here.equals(Optional.of(player.getUUID()))) {
-            RealmPool.sendHome(player);
-        } else {
-            player.teleport(player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING));
+        if (!here.equals(Optional.of(player.getUUID())) && RealmPool.sendHome(player)) {
+            return;
         }
+        TeleportTransition respawn = player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING);
+        if (here.isPresent() && ownerOf(respawn.newLevel()).equals(here)) {
+            respawn = new TeleportTransition(server.findRespawnDimension(), Vec3.atBottomCenterOf(server.getRespawnData().pos()), Vec3.ZERO,
+                    player.getYRot(), player.getXRot(), TeleportTransition.DO_NOTHING);
+        }
+        player.teleport(respawn);
     }
 
     /** Sends away everyone in {@code owner}'s realm who may no longer be there. Run every second by {@link RealmProtection}. */
@@ -136,12 +143,27 @@ public final class RealmService {
         return data.access(owner.getUUID());
     }
 
-    /** Sends {@code target} out of {@code owner}'s realm once; they may come back if the rules let them. */
+    /**
+     * Sends {@code target} out of {@code owner}'s realm once; they may come back if the rules let them. A player goes
+     * to their own realm ({@link #sendAway}); a dummy standing in the realm has its mannequin moved out the same way
+     * ({@link DummyPlayers#sendAway}).
+     */
     public static boolean kick(ServerPlayer owner, UUID target) {
         if (owned(owner) == null || target.equals(owner.getUUID())) {
             return false;
         }
-        ServerPlayer player = owner.level().getServer().getPlayerList().getPlayer(target);
+        MinecraftServer server = owner.level().getServer();
+        Optional<DummyPlayers.Dummy> dummy = DummyPlayers.all().stream().filter(candidate -> candidate.id().equals(target)).findFirst();
+        if (dummy.isPresent()) {
+            if (!DummyPlayers.realmOf(server, dummy.get()).equals(Optional.of(owner.getUUID()))) {
+                fail(owner, "realm.not_here", dummy.get().name());
+                return false;
+            }
+            DummyPlayers.sendAway(server, dummy.get());
+            done(owner, "realm.kick", Component.literal(dummy.get().name()));
+            return true;
+        }
+        ServerPlayer player = server.getPlayerList().getPlayer(target);
         if (player == null || !ownerOf(player.level()).equals(Optional.of(owner.getUUID()))) {
             fail(owner, "realm.not_here", data(owner.level().getServer()).nameOf(target));
             return false;

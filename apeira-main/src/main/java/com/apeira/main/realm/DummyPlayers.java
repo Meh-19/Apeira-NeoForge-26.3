@@ -160,9 +160,7 @@ public final class DummyPlayers {
         Dummy dummy = new Dummy(id, name, source.getLevel().dimension(), source.getPosition());
         DUMMIES.put(id, dummy);
         RealmData.get(server).seen(id, name);
-        server.getCommands().performPrefixedCommand(source.withSuppressedOutput(),
-                String.format(java.util.Locale.ROOT, "summon minecraft:mannequin %f %f %f {profile:{name:\"%s\"},CustomName:\"%s\",CustomNameVisible:1b,Tags:[\"%s\",\"%s\"]}",
-                        dummy.position().x, dummy.position().y, dummy.position().z, name, name, TAG, tag(dummy)));
+        summon(source, dummy);
         source.sendSuccess(() -> Component.translatable("message.apeira.dummy.added", name), true);
         return 1;
     }
@@ -339,6 +337,29 @@ public final class DummyPlayers {
     public static void onServerStopping(ServerStoppingEvent event) {
         DUMMIES.values().forEach(dummy -> discard(event.getServer(), dummy));
         DUMMIES.clear();
+    }
+
+    /**
+     * Sends {@code dummy} out of the realm it stands in, as {@link RealmService#sendAway} does a player: its mannequin
+     * moves to the dummy's own realm, or to the world spawn without one.
+     */
+    static void sendAway(MinecraftServer server, Dummy dummy) {
+        RealmData data = RealmData.get(server);
+        Optional<RealmData.Realm> own = data.realmOf(dummy.id()).filter(realm -> !realm.levelKey().equals(dummy.level()));
+        ServerLevel level = own.map(realm -> RealmLevels.create(server, realm)).orElseGet(server::findRespawnDimension);
+        Vec3 position = Vec3.atBottomCenterOf(own.map(realm -> RealmPool.spawnOf(level, realm, data.access(dummy.id())))
+                .orElseGet(() -> server.getRespawnData().pos()));
+        discard(server, dummy);
+        Dummy moved = new Dummy(dummy.id(), dummy.name(), level.dimension(), position);
+        DUMMIES.put(dummy.id(), moved);
+        summon(server.createCommandSourceStack().withLevel(level), moved);
+    }
+
+    /** Places {@code dummy}'s mannequin, wearing its name's skin, at its spot in {@code source}'s level. */
+    private static void summon(CommandSourceStack source, Dummy dummy) {
+        source.getServer().getCommands().performPrefixedCommand(source.withSuppressedOutput(),
+                String.format(java.util.Locale.ROOT, "summon minecraft:mannequin %f %f %f {profile:{name:\"%s\"},CustomName:\"%s\",CustomNameVisible:1b,Tags:[\"%s\",\"%s\"]}",
+                        dummy.position().x, dummy.position().y, dummy.position().z, dummy.name(), dummy.name(), TAG, tag(dummy)));
     }
 
     private static void discard(MinecraftServer server, Dummy dummy) {

@@ -22,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 /**
  * What each navigator page draws and where its buttons are, copied from the UI captures of Origin Realms' navigator,
@@ -48,9 +49,14 @@ final class NavigatorLayout {
     private static final String[] PRESETS = {"lush", "arid", "cold", "arctic", "tropical"};
     /** The party roster's cells: two rows of seven. */
     private static final int[] PARTY_SLOTS = IntStream.concat(IntStream.rangeClosed(19, 25), IntStream.rangeClosed(28, 34)).toArray();
-    /** A profile's cosmetic slots down its left edge: hat, back, hand and balloon, in {@link CosmeticSlot} order. */
+    /** Origin Realms' title colours on profiles: white for a button, dark grey for an empty cosmetic cell. */
+    private static final int ACTIVE = 0xFFFFFF;
+    private static final int EMPTY_SLOT = 0x555555;
+    /** Social's party row: its cells in {@code social/background} sit 3 pixels below slots 12-15, so the heads do too. */
+    private static final int SOCIAL_PARTY_DY = 3;
+    /** A profile's cosmetic slots down its left edge: hat, back, prop (the hand slot) and balloon, in {@link CosmeticSlot} order. */
     static final int[] COSMETIC_SLOTS = {18, 27, 36, 45};
-    static final String[] COSMETIC_NAMES = {"hat", "back", "hand", "balloon"};
+    static final String[] COSMETIC_NAMES = {"hat", "back", "prop", "balloon"};
     /** The status light in the model panel's bottom-right corner. */
     static final int STATUS_SLOT = 49;
 
@@ -65,8 +71,11 @@ final class NavigatorLayout {
      */
     record Button(int[] slots, List<Component> tooltip, @Nullable NavigatorActionPayload action) {}
 
-    /** A player head drawn in {@code slot}, outside the page's list: a party member or invite; {@code dim} for an invite. */
-    record Head(int slot, UUID id, boolean dim) {}
+    /**
+     * A player head drawn in {@code slot}, outside the page's list: a party member or invite; {@code dim} for an invite.
+     * {@code dy} moves it down to its drawn cell where the texture's cell is not on the slot grid.
+     */
+    record Head(int slot, UUID id, ResolvableProfile skin, boolean dim, int dy) {}
 
     /**
      * @param layers      textures drawn in order
@@ -183,7 +192,7 @@ final class NavigatorLayout {
                 buttons.add(button(slots(24), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
                 buttons.add(button(slots(30), "party_transfer", NavigatorActionPayload.of(Action.PARTY_TRANSFER)));
                 view.target().ifPresent(target -> {
-                    heads.add(new Head(31, target.id(), false));
+                    heads.add(new Head(31, target.id(), target.skin(), false, 0));
                     buttons.add(new Button(slots(31), entryTooltip(target), null));
                 });
                 buttons.add(button(slots(32), "party_kick", NavigatorActionPayload.of(Action.PARTY_KICK)));
@@ -198,7 +207,7 @@ final class NavigatorLayout {
         List<NavigatorView.Entry> others = view.party().subList(0, view.partySize()).stream().filter(entry -> !entry.id().equals(self)).toList();
         int shown = Math.min(row.length, others.size());
         for (int i = 0; i < shown; i++) {
-            partyHead(others.get(i), row[i], false, heads, buttons);
+            partyHead(others.get(i), row[i], false, SOCIAL_PARTY_DY, heads, buttons);
         }
         if (shown < row.length) {
             buttons.add(new Button(Arrays.copyOfRange(row, shown, row.length), hint("hint.party"), null));
@@ -249,7 +258,7 @@ final class NavigatorLayout {
         int[] cells = PARTY_SLOTS;
         int shown = Math.min(cells.length, view.party().size());
         for (int i = 0; i < shown; i++) {
-            partyHead(view.party().get(i), cells[i], i >= view.partySize(), heads, buttons);
+            partyHead(view.party().get(i), cells[i], i >= view.partySize(), 0, heads, buttons);
         }
         if (shown < cells.length) {
             buttons.add(new Button(Arrays.copyOfRange(cells, shown, cells.length), hint("hint.party"), null));
@@ -257,49 +266,60 @@ final class NavigatorLayout {
     }
 
     /** A party member's or invite's head in {@code slot}: its tooltip, and a click sends it to the server. */
-    private static void partyHead(NavigatorView.Entry entry, int slot, boolean invite, List<Head> heads, List<Button> buttons) {
-        heads.add(new Head(slot, entry.id(), invite));
+    private static void partyHead(NavigatorView.Entry entry, int slot, boolean invite, int dy, List<Head> heads, List<Button> buttons) {
+        heads.add(new Head(slot, entry.id(), entry.skin(), invite, dy));
         buttons.add(new Button(slots(slot), entryTooltip(entry), new NavigatorActionPayload(Action.PARTY_ENTRY, 0, Optional.of(entry.id()), false, "")));
     }
 
     /**
-     * The player's own profile (Origin Realms' "Your Profile"): cosmetic slots that open the wardrobe, the stat panel
-     * and status in the model panel, and the Realms, Open Worlds and Homes buttons. Badges, the balloon, the journal,
-     * graves and settings are not available yet.
+     * The player's own profile (Origin Realms' "Your Profile"), with the captured titles and lore: cosmetic cells that
+     * open the wardrobe, featured badges, the stat panel and status in the model panel, Teleport to your Realm, Open
+     * World, Homes, Teleport to Origin Isles, Journal, Gravestones and Player settings. Badges, Origin Isles, the
+     * journal, gravestones and settings do nothing yet.
      */
     private static void ownProfilePage(NavigatorView view, List<Identifier> layers, List<Button> buttons) {
         layer(layers, "navigation", "navigation_back_enabled", "profile/navigation_profile", "profile/background");
         navigationBar(NavigatorPage.PROFILE, true, buttons);
         profileCommon(view, buttons, true);
-        buttons.add(unavailable(slots(19), "badge"));
-        buttons.add(button(slots(23, 24, 32, 33), "realms", NavigatorActionPayload.open(NavigatorPage.REALMS)));
-        buttons.add(button(slots(25, 26, 34, 35), "open_worlds", NavigatorActionPayload.open(NavigatorPage.OPEN_WORLDS)));
-        buttons.add(button(slots(41, 42), "homes", NavigatorActionPayload.of(Action.HOMES)));
-        buttons.add(unavailable(slots(43, 44), "balloon"));
-        buttons.add(unavailable(slots(50, 51), "journal"));
-        buttons.add(unavailable(slots(52), "graves"));
-        buttons.add(unavailable(slots(53), "settings"));
+        buttons.add(titled(slots(19, 20, 21), "featured_badge", ACTIVE, null));
+        buttons.add(titled(slots(23, 24, 32, 33), "realm_teleport.own", ACTIVE, NavigatorActionPayload.of(Action.REALM_TELEPORT)));
+        buttons.add(new Button(slots(25, 26, 34, 35), List.of(title("open_worlds", ACTIVE), NavigatorService.action(0, "open_world_teleport"),
+                NavigatorService.action(1, "open_world_list")), NavigatorActionPayload.open(NavigatorPage.OPEN_WORLDS)));
+        buttons.add(titled(slots(41, 42), "homes", ACTIVE, NavigatorActionPayload.of(Action.HOMES)));
+        buttons.add(titled(slots(43, 44), "origin_isles", ACTIVE, null));
+        buttons.add(titled(slots(50, 51), "journal", NavigatorService.LABEL, null));
+        buttons.add(titled(slots(52), "gravestones", NavigatorService.LABEL, null));
+        buttons.add(titled(slots(53), "player_settings", NavigatorService.LABEL, null));
     }
 
-    /** What both profiles share: the cosmetic slots, the stat panel on the info icon and the status light. */
+    /**
+     * What both profiles share: the cosmetic cells ("Equip a prop cosmetic in the / wardrobe at Cosmo's Cosmetics" on
+     * one's own, "Not holding prop" on another's, or the worn item's name), the player's name over the model panel, the
+     * stat panel on the info icon and the status.
+     */
     private static void profileCommon(NavigatorView view, List<Button> buttons, boolean own) {
         CosmeticSlot[] worn = CosmeticSlot.values();
         for (int i = 0; i < COSMETIC_SLOTS.length; i++) {
             ItemStack stack = i < worn.length ? view.cosmetics().get(worn[i]) : ItemStack.EMPTY;
             List<Component> lines = new ArrayList<>();
-            lines.add(stack.isEmpty() ? name("cosmetic_slot." + COSMETIC_NAMES[i]) : stack.getHoverName());
-            if (stack.isEmpty()) {
-                lines.add(grey(Component.translatable(i < worn.length ? "navigator.apeira.cosmetic_slot.empty" : "navigator.apeira.not_available")));
+            if (!stack.isEmpty()) {
+                lines.add(stack.getHoverName());
+            } else if (own) {
+                lines.add(title("cosmetic_slot.equip." + COSMETIC_NAMES[i], EMPTY_SLOT));
+                lines.add(title("cosmetic_slot.equip.where", EMPTY_SLOT));
+            } else {
+                lines.add(title("cosmetic_slot.none." + COSMETIC_NAMES[i], EMPTY_SLOT));
             }
             buttons.add(new Button(slots(COSMETIC_SLOTS[i]), lines, own && i < worn.length ? NavigatorActionPayload.of(Action.WARDROBE) : null));
         }
         view.target().ifPresent(target -> {
-            List<Component> stats = new ArrayList<>();
-            stats.add(name("stats"));
-            stats.addAll(target.lines());
-            buttons.add(new Button(slots(22), stats, null));
-            buttons.add(new Button(slots(STATUS_SLOT), List.of(name(view.has(NavigatorView.TARGET_AFK) ? "status.afk" : "status.active"),
-                    target.lines().getFirst()), null));
+            // Origin Realms names the player on every cell of the model panel that holds nothing else.
+            int[] panel = own ? slots(28, 29, 30, 31, 37, 38, 39, 40, 46, 47, 48) : slots(19, 20, 21, 28, 29, 30, 31, 37, 38, 39, 40, 46, 47, 48);
+            buttons.add(new Button(panel, List.of(Component.literal(target.name()).withStyle(Style.EMPTY.withColor(ACTIVE).withItalic(false))), null));
+            buttons.add(new Button(slots(22), target.lines(), null));
+            boolean online = view.has(NavigatorView.TARGET_ONLINE);
+            String status = view.has(NavigatorView.TARGET_AFK) ? "status.afk" : online ? "status.online" : "status.offline";
+            buttons.add(titled(slots(STATUS_SLOT), status, online ? NavigatorService.ACTION : NavigatorService.LABEL, null));
         });
     }
 
@@ -326,7 +346,7 @@ final class NavigatorLayout {
         // The texture's buttons: Party Invite and Trade Invite across slots 23-26 and 32-35, then two rows of pairs.
         buttons.add(partied ? button(slots(23, 24, 25, 26), view.has(NavigatorView.TARGET_IN_PARTY) ? "party_invite.member" : "party_invite.invited", null)
                 : button(slots(23, 24, 25, 26), "party_invite", NavigatorActionPayload.of(Action.PARTY_INVITE)));
-        buttons.add(unavailable(slots(32, 33, 34, 35), "trade_invite"));
+        buttons.add(titled(slots(32, 33, 34, 35), "trade_invite", ACTIVE, null));
         if (member) {
             buttons.add(button(slots(41, 42), "remove_realm", NavigatorActionPayload.of(Action.REMOVE_MEMBER)));
         } else if (view.has(NavigatorView.TARGET_INVITED)) {
@@ -337,8 +357,8 @@ final class NavigatorLayout {
         String friendKey = friend ? "unfriend" : view.has(NavigatorView.TARGET_REQUESTED) ? "friend_request.incoming"
                 : view.has(NavigatorView.TARGET_REQUEST_SENT) ? "friend_request.sent" : "friend_request.send";
         buttons.add(button(slots(43, 44), friendKey, NavigatorActionPayload.of(Action.FRIEND)));
-        buttons.add(unavailable(slots(50, 51), "view_auctions"));
-        buttons.add(button(slots(52, 53), "teleport_realm", NavigatorActionPayload.of(Action.VISIT)));
+        buttons.add(titled(slots(50, 51), "view_auctions", NavigatorService.LABEL, null));
+        buttons.add(titled(slots(52, 53), "teleport_realm", ACTIVE, NavigatorActionPayload.of(Action.VISIT)));
     }
 
     /** The Realms pages: the navigation bar, a tab background, list controls, and the page's panel or popup. */
@@ -583,6 +603,15 @@ final class NavigatorLayout {
     /** A button for a feature Apeira does not have yet: it names the feature and says so, and does nothing. */
     private static Button unavailable(int[] slots, String key) {
         return new Button(slots, List.of(name(key), grey(Component.translatable("navigator.apeira.not_available"))), null);
+    }
+
+    /** A button as Origin Realms' profiles title theirs: the title alone, in {@code color}. */
+    private static Button titled(int[] slots, String key, int color, @Nullable NavigatorActionPayload action) {
+        return new Button(slots, List.of(title(key, color)), action);
+    }
+
+    private static Component title(String key, int color) {
+        return Component.translatable("navigator.apeira." + key).withStyle(Style.EMPTY.withColor(color).withItalic(false));
     }
 
     private static Component name(String key) {
