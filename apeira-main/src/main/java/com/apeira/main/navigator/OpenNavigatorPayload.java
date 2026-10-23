@@ -6,12 +6,13 @@ import com.apeira.core.network.ApeiraPayloadType;
 import net.minecraft.network.codec.StreamCodec;
 
 /**
- * Server to client: show the navigator on {@code page}, opening it if it is closed. Sent by {@code /navigator} and in
- * answer to {@link NavigatorActionPayload}s that change page. Handled in {@code client/ApeiraClient}.
+ * Server to client: show {@code view}, opening the navigator if it is closed, or close it when the view's page is
+ * {@link NavigatorPage#CLOSED}. Sent by {@code /navigator}, {@code /realm} commands and in answer to every
+ * {@link NavigatorActionPayload}. Handled in {@code client/ApeiraClient}.
  */
-public record OpenNavigatorPayload(NavigatorPage page) implements ApeiraPayload<OpenNavigatorPayload> {
+public record OpenNavigatorPayload(NavigatorView view) implements ApeiraPayload<OpenNavigatorPayload> {
     public static final ApeiraPayloadType<OpenNavigatorPayload> TYPE = ApeiraPayloadType.of("open_navigator",
-            StreamCodec.composite(NavigatorPage.STREAM_CODEC, OpenNavigatorPayload::page, OpenNavigatorPayload::new));
+            StreamCodec.composite(NavigatorView.STREAM_CODEC, OpenNavigatorPayload::view, OpenNavigatorPayload::new));
 
     @Override
     public ApeiraPayloadType<OpenNavigatorPayload> payloadType() {

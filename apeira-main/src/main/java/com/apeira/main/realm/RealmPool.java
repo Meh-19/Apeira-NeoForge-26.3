@@ -121,21 +121,30 @@ public final class RealmPool {
      */
     public static void claim(ServerPlayer player, RealmPreset preset) {
         MinecraftServer server = player.level().getServer();
-        RealmData data = RealmData.get(server);
-        if (data.realmOf(player.getUUID()).isEmpty()) {
-            RealmData.Realm realm = data.claim(player.getUUID(), preset).orElseGet(() -> {
-                RealmData.Realm fresh = newRealm(server, preset);
-                RealmLevels.create(server, fresh);
-                data.own(player.getUUID(), fresh);
-                return fresh;
-            });
-            // A claimed realm still generating keeps loading only as the player walks it.
-            GENERATING.removeIf(job -> job.cancelIfFor(realm));
-            REFILLS.add(preset);
+        if (RealmData.get(server).realmOf(player.getUUID()).isEmpty()) {
+            RealmData.Realm realm = take(server, player.getUUID(), preset);
             Apeira.LOGGER.info("{} claimed realm {} ({})", player.getName().getString(), realm.dimension(), preset.getSerializedName());
         }
         ApeiraPackets.sendToPlayer(player, new RealmCreatedPayload());
         TRAVELLERS.put(player.getUUID(), TRAVEL_DELAY);
+    }
+
+    /**
+     * Gives {@code owner} a realm of {@code preset}, in place of any they had: a pool realm, a generated one first, or a
+     * new one that generates as they arrive. The pool slot is refilled. Used by {@link #claim} and by realm resets.
+     */
+    static RealmData.Realm take(MinecraftServer server, UUID owner, RealmPreset preset) {
+        RealmData data = RealmData.get(server);
+        RealmData.Realm realm = data.claim(owner, preset).orElseGet(() -> {
+            RealmData.Realm fresh = newRealm(server, preset);
+            RealmLevels.create(server, fresh);
+            data.own(owner, fresh);
+            return fresh;
+        });
+        // A claimed realm still generating keeps loading only as the player walks it.
+        GENERATING.removeIf(job -> job.cancelIfFor(realm));
+        REFILLS.add(preset);
+        return realm;
     }
 
     /** Teleports {@code player} to their realm's spawn. Returns false when they have none. */
@@ -146,11 +155,16 @@ public final class RealmPool {
             return false;
         }
         ServerLevel level = RealmLevels.create(server, realm);
-        BlockPos spawn = realm.generated() ? realm.spawn() : surface(level);
+        BlockPos spawn = spawnOf(level, realm, RealmData.get(server).access(player.getUUID()));
         player.teleport(new TeleportTransition(level, Vec3.atBottomCenterOf(spawn), Vec3.ZERO, player.getYRot(), player.getXRot(),
                 TeleportTransition.DO_NOTHING));
         player.sendSystemMessage(Component.translatable("message.apeira.realm.home"));
         return true;
+    }
+
+    /** Where players arrive in {@code realm}: the spawn its owner set, else the top block at 0, 0. */
+    static BlockPos spawnOf(ServerLevel level, RealmData.Realm realm, RealmAccess access) {
+        return access.spawn().orElseGet(() -> realm.generated() ? realm.spawn() : surface(level));
     }
 
     private static void fill(MinecraftServer server, RealmPreset preset) {
@@ -159,13 +173,13 @@ public final class RealmPool {
         GENERATING.add(new Pregeneration(RealmLevels.create(server, realm), realm));
     }
 
-    private static RealmData.Realm newRealm(MinecraftServer server, RealmPreset preset) {
+    static RealmData.Realm newRealm(MinecraftServer server, RealmPreset preset) {
         String id = "realm/" + preset.getSerializedName() + "_" + Long.toHexString(RANDOM.nextLong() & 0xFFFFFFFFFFFFL);
         return new RealmData.Realm(ApeiraIds.id(id), preset, RealmLevels.landSeed(server, RANDOM), false, BlockPos.ZERO);
     }
 
     /** Where players arrive: the top block at 0, 0, generating the chunk if it is not yet. */
-    private static BlockPos surface(ServerLevel level) {
+    static BlockPos surface(ServerLevel level) {
         level.getChunk(0, 0);
         int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, 0, 0);
         return new BlockPos(0, Math.max(y, level.getSeaLevel() + 1), 0);
