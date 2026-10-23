@@ -1,10 +1,15 @@
 package com.apeira.main.navigator;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,7 +17,10 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.network.ApeiraPackets;
 import com.apeira.core.registry.ApeiraIds;
+import com.apeira.main.home.HomeData;
+import com.apeira.main.home.HomeService;
 import com.apeira.main.navigator.NavigatorActionPayload.Action;
+import com.apeira.main.realm.DummyPlayers;
 import com.apeira.main.realm.RealmAccess;
 import com.apeira.main.realm.RealmData;
 import com.apeira.main.realm.RealmPool;
@@ -45,6 +53,8 @@ public final class NavigatorService {
     public static final int ACTION = 0x85CC16;
     /** The mouse-button glyphs in front of an action line (left, right, middle click). */
     private static final FontDescription KEYS = new FontDescription.Resource(ApeiraIds.id("tooltip_keys"));
+    /** "September 05, 2022", the Created line of a home. */
+    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH);
 
     private static final Map<UUID, Session> SESSIONS = new HashMap<>();
     /** When each online player entered the level they are in, for "Joined" in the In Realm list. */
@@ -118,14 +128,16 @@ public final class NavigatorService {
                 close(player);
                 return;
             }
-            case HOMES -> unavailable(player, "homes");
+            case HOMES -> session.go(NavigatorPage.HOMES);
             case OPEN_WORLD -> unavailable(player, "open_world");
             case ENTRY -> {
-                if (payload.target().isPresent() && entry(player, session, payload.target().get())) {
+                if (payload.target().isPresent() && entry(player, session, payload.target().get(), argument, payload.secondary())) {
                     return;
                 }
             }
             case CLOSE_POPUP -> session.page = switch (page) {
+                case HOMES -> NavigatorPage.MAIN;
+                case PROFILE_OTHER -> NavigatorPage.SOCIAL;
                 case EDIT_PLAYER -> NavigatorPage.REALM_IN_REALM;
                 case EDIT_MEMBER -> NavigatorPage.REALM_MEMBERS;
                 case REALM_RESET, REALM_RESET_PRESET, REALM_RESET_CONFIRM -> NavigatorPage.REALM_SETTINGS;
@@ -143,7 +155,7 @@ public final class NavigatorService {
                 }
             }
             case INVITE -> {
-                if (page == NavigatorPage.EDIT_PLAYER && session.target != null) {
+                if ((page == NavigatorPage.EDIT_PLAYER || page == NavigatorPage.PROFILE_OTHER) && session.target != null) {
                     RealmService.invite(player, session.target);
                 }
             }
@@ -156,6 +168,8 @@ public final class NavigatorService {
             case REMOVE_MEMBER -> {
                 if (page == NavigatorPage.EDIT_MEMBER && session.target != null && RealmService.removeMember(player, session.target)) {
                     session.page = NavigatorPage.REALM_MEMBERS;
+                } else if (page == NavigatorPage.PROFILE_OTHER && session.target != null) {
+                    RealmService.removeMember(player, session.target);
                 }
             }
             case VISITING_RULE -> {
@@ -193,12 +207,37 @@ public final class NavigatorService {
                     return;
                 }
             }
+            case SET_HOME -> {
+                if (page == NavigatorPage.HOMES) {
+                    HomeService.setNext(player);
+                }
+            }
+            case RENAME_HOME -> {
+                if (page == NavigatorPage.HOMES) {
+                    HomeService.rename(player, argument, payload.text());
+                }
+            }
+            case FRIEND -> {
+                if (page == NavigatorPage.PROFILE_OTHER && session.target != null) {
+                    friendAction(player, session.target, payload.secondary(), false);
+                }
+            }
+            case VISIT -> {
+                if (page == NavigatorPage.PROFILE_OTHER && session.target != null && RealmService.visit(player, session.target)) {
+                    close(player);
+                    return;
+                }
+            }
         }
         send(player, session);
     }
 
-    /** A head clicked in a list. Returns true when the navigator was closed (the player travelled). */
-    private static boolean entry(ServerPlayer player, Session session, UUID target) {
+    /**
+     * A head clicked in a list, {@code argument} being its place in the shown list times two, plus one with Shift.
+     * Returns true when the navigator was closed (the player travelled).
+     */
+    private static boolean entry(ServerPlayer player, Session session, UUID target, int argument, boolean secondary) {
+        boolean shift = (argument & 1) != 0;
         MinecraftServer server = player.level().getServer();
         RealmData data = RealmService.data(server);
         switch (session.page) {
@@ -209,7 +248,7 @@ public final class NavigatorService {
                 }
             }
             case REALM_IN_REALM -> {
-                if (inRealm(player).stream().anyMatch(other -> other.getUUID().equals(target))) {
+                if (inRealm(player).contains(target)) {
                     session.target = target;
                     session.page = NavigatorPage.EDIT_PLAYER;
                 }
@@ -221,9 +260,54 @@ public final class NavigatorService {
                 }
             }
             case REALM_BANNED -> RealmService.unban(player, target);
+            case HOMES -> {
+                // Homes are picked by their place in the grid, which is the order they were set in.
+                int index = argument >> 1;
+                if (secondary) {
+                    HomeService.delete(player, index);
+                } else if (HomeService.teleport(player, index)) {
+                    close(player);
+                    return true;
+                }
+            }
+            case SOCIAL -> {
+                UUID self = player.getUUID();
+                if (data.areFriends(self, target) || data.hasFriendRequest(target, self) || data.hasFriendRequest(self, target)) {
+                    if (shift || secondary || data.hasFriendRequest(target, self)) {
+                        friendAction(player, target, secondary, true);
+                    } else {
+                        session.target = target;
+                        session.page = NavigatorPage.PROFILE_OTHER;
+                    }
+                }
+            }
             default -> {}
         }
         return false;
+    }
+
+    /**
+     * The friend button of a profile, or a click on the friends list: unfriend a friend (from the list only with Shift),
+     * accept a request (decline it with a right-click), take back a sent request with a right-click, or send one.
+     */
+    private static void friendAction(ServerPlayer player, UUID target, boolean secondary, boolean fromList) {
+        RealmData data = RealmService.data(player.level().getServer());
+        UUID self = player.getUUID();
+        if (data.areFriends(self, target)) {
+            RealmService.removeFriend(player, target);
+        } else if (data.hasFriendRequest(target, self)) {
+            if (secondary) {
+                RealmService.declineFriend(player, target);
+            } else {
+                RealmService.acceptFriend(player, target);
+            }
+        } else if (data.hasFriendRequest(self, target)) {
+            if (secondary) {
+                RealmService.cancelFriendRequest(player, target);
+            }
+        } else if (!fromList) {
+            RealmService.requestFriend(player, target);
+        }
     }
 
     private static void resetDimension(ServerPlayer player, Session session, int dimension) {
@@ -258,7 +342,7 @@ public final class NavigatorService {
     /** Pages a client may ask for by name; popups and reset steps are reached only through their actions. */
     private static boolean isTab(NavigatorPage page) {
         return switch (page) {
-            case MAIN, REALMS, REALM_IN_REALM, REALM_MEMBERS, REALM_BANNED, REALM_SETTINGS, OPEN_WORLDS -> true;
+            case MAIN, REALMS, REALM_IN_REALM, REALM_MEMBERS, REALM_BANNED, REALM_SETTINGS, OPEN_WORLDS, HOMES, SOCIAL -> true;
             default -> false;
         };
     }
@@ -276,6 +360,7 @@ public final class NavigatorService {
         return switch (page) {
             case EDIT_PLAYER -> NavigatorPage.REALM_IN_REALM;
             case EDIT_MEMBER -> NavigatorPage.REALM_MEMBERS;
+            case PROFILE_OTHER -> NavigatorPage.SOCIAL;
             default -> page.isSettings() ? NavigatorPage.REALMS : page;
         };
     }
@@ -284,6 +369,7 @@ public final class NavigatorService {
         return switch (page) {
             case REALMS -> new String[] {"all", "added_to", "friends"};
             case REALM_MEMBERS -> new String[] {"all", "resident", "trusted"};
+            case SOCIAL -> new String[] {"all", "online", "offline", "requests"};
             default -> new String[] {"all"};
         };
     }
@@ -294,6 +380,7 @@ public final class NavigatorService {
             case REALM_IN_REALM -> new String[] {"alpha_asc", "rank"};
             case REALM_MEMBERS -> new String[] {"alpha_asc", "time_desc"};
             case REALM_BANNED -> new String[] {"time_asc", "time_desc"};
+            case SOCIAL -> new String[] {"last_online", "alpha_asc"};
             default -> new String[] {"alpha_asc"};
         };
     }
@@ -302,12 +389,15 @@ public final class NavigatorService {
         return page == NavigatorPage.REALMS ? 2 : page == NavigatorPage.REALM_BANNED ? 1 : 0;
     }
 
-    /** The players in {@code owner}'s realm right now, other than the owner. */
-    private static List<ServerPlayer> inRealm(ServerPlayer owner) {
+    /** The players in {@code owner}'s realm right now, other than the owner, dummy players included. */
+    private static List<UUID> inRealm(ServerPlayer owner) {
         MinecraftServer server = owner.level().getServer();
-        return RealmService.data(server).realmOf(owner.getUUID()).map(realm -> server.getLevel(realm.levelKey()))
-                .map(level -> level.players().stream().filter(player -> player != owner).map(ServerPlayer.class::cast).toList())
-                .orElse(List.of());
+        List<UUID> players = new ArrayList<>(RealmService.data(server).realmOf(owner.getUUID()).map(realm -> server.getLevel(realm.levelKey()))
+                .map(level -> level.players().stream().filter(player -> player != owner).map(player -> player.getUUID()).toList())
+                .orElse(List.of()));
+        DummyPlayers.all().stream().filter(dummy -> DummyPlayers.realmOf(server, dummy).filter(owner.getUUID()::equals).isPresent())
+                .forEach(dummy -> players.add(dummy.id()));
+        return players;
     }
 
     private static NavigatorView view(ServerPlayer player, Session session) {
@@ -343,6 +433,14 @@ public final class NavigatorService {
             target = Optional.of(new NavigatorView.Entry(id, data.nameOf(id), lines));
             flags |= (role.canBuild() ? NavigatorView.TARGET_MEMBER : 0) | (access.isInvited(id) ? NavigatorView.TARGET_INVITED : 0)
                     | (role == RealmRole.TRUSTED ? NavigatorView.TARGET_TRUSTED : 0);
+        } else if (page == NavigatorPage.PROFILE_OTHER && session.target != null) {
+            UUID id = session.target;
+            target = Optional.of(new NavigatorView.Entry(id, data.nameOf(id), List.of(onlineLine(server, data, id, System.currentTimeMillis()))));
+            flags |= (access.roleOf(self, id).canBuild() ? NavigatorView.TARGET_MEMBER : 0) | (access.isInvited(id) ? NavigatorView.TARGET_INVITED : 0)
+                    | (data.areFriends(self, id) ? NavigatorView.TARGET_FRIEND : 0)
+                    | (data.hasFriendRequest(id, self) ? NavigatorView.TARGET_REQUESTED : 0)
+                    | (data.hasFriendRequest(self, id) ? NavigatorView.TARGET_REQUEST_SENT : 0)
+                    | (DummyPlayers.isOnline(server, id) ? NavigatorView.TARGET_ONLINE : 0);
         }
         int setting = access.visitingRule().ordinal() | (access.privateChat() ? NavigatorView.PRIVATE_CHAT : 0)
                 | (access.alwaysAccessible() ? NavigatorView.ALWAYS_ACCESSIBLE : 0);
@@ -395,17 +493,17 @@ public final class NavigatorService {
                 }
             }
             case REALM_IN_REALM -> {
-                List<ServerPlayer> players = new ArrayList<>(inRealm(player));
-                Comparator<ServerPlayer> byName = Comparator.comparing(other -> other.getName().getString().toLowerCase());
-                players.sort(sort == 1 ? Comparator.<ServerPlayer, RealmRole>comparing(other -> access.roleOf(self, other.getUUID())).reversed()
+                List<UUID> players = new ArrayList<>(inRealm(player));
+                Comparator<UUID> byName = Comparator.comparing(other -> data.nameOf(other).toLowerCase());
+                players.sort(sort == 1 ? Comparator.<UUID, RealmRole>comparing(other -> access.roleOf(self, other)).reversed()
                         .thenComparing(byName) : byName);
-                for (ServerPlayer other : players) {
+                for (UUID other : players) {
                     List<Component> lines = new ArrayList<>();
-                    lines.add(label("joined", Component.literal(duration(now - ARRIVALS.getOrDefault(other.getUUID(), now)))));
-                    lines.add(label("role", role(access.roleOf(self, other.getUUID()))));
+                    lines.add(label("joined", Component.literal(duration(now - ARRIVALS.getOrDefault(other, now)))));
+                    lines.add(label("role", role(access.roleOf(self, other))));
                     lines.add(Component.empty());
                     lines.add(action(0, "edit_player"));
-                    entries.add(new NavigatorView.Entry(other.getUUID(), other.getName().getString(), lines));
+                    entries.add(new NavigatorView.Entry(other, data.nameOf(other), lines));
                 }
             }
             case REALM_MEMBERS -> {
@@ -418,8 +516,7 @@ public final class NavigatorService {
                 for (Map.Entry<UUID, RealmAccess.Member> member : members) {
                     UUID id = member.getKey();
                     List<Component> lines = new ArrayList<>();
-                    lines.add(server.getPlayerList().getPlayer(id) != null ? label("online", Component.translatable("navigator.apeira.lore.now"))
-                            : label("last_online", Component.literal(duration(now - data.known(id).map(RealmData.KnownPlayer::lastSeen).orElse(now)))));
+                    lines.add(onlineLine(server, data, id, now));
                     lines.add(label("joined_ago", Component.literal(duration(now - member.getValue().joined()))));
                     lines.add(label("role", role(member.getValue().role())));
                     lines.add(Component.empty());
@@ -439,13 +536,62 @@ public final class NavigatorService {
                     entries.add(new NavigatorView.Entry(ban.getKey(), data.nameOf(ban.getKey()), lines));
                 }
             }
+            case HOMES -> {
+                List<HomeData.Home> homes = HomeService.homesOf(player);
+                for (HomeData.Home home : homes) {
+                    List<Component> lines = new ArrayList<>();
+                    lines.add(label("created_on", Component.literal(DATE.format(Instant.ofEpochMilli(home.created()).atZone(ZoneId.systemDefault())))));
+                    lines.add(label("world", HomeService.worldName(server, home)));
+                    lines.add(label("position", Component.literal(position(home))));
+                    lines.add(Component.empty());
+                    lines.add(action(0, "teleport"));
+                    lines.add(action(1, "delete"));
+                    lines.add(action(0, "rename"));
+                    entries.add(new NavigatorView.Entry(HomeService.icon(server, home, self), home.name(), lines));
+                }
+            }
+            case SOCIAL -> {
+                Set<UUID> incoming = data.requestsTo(self);
+                Set<UUID> sent = data.requestsFrom(self);
+                List<UUID> friends = new ArrayList<>(data.friendsOf(self));
+                friends.removeIf(id -> filter == 1 && !DummyPlayers.isOnline(server, id) || filter == 2 && DummyPlayers.isOnline(server, id)
+                        || filter == 3);
+                Comparator<UUID> byName = Comparator.comparing(id -> data.nameOf(id).toLowerCase());
+                Comparator<UUID> order = sort == 0 ? Comparator.<UUID>comparingLong(id -> lastOnline(server, data, id)).reversed().thenComparing(byName)
+                        : byName;
+                friends.sort(order);
+                if (filter == 0 || filter == 3) {
+                    // Requests come first, incoming before sent, as they ask for an answer.
+                    incoming.stream().sorted(order).forEach(id -> entries.add(new NavigatorView.Entry(id, data.nameOf(id), List.of(
+                            label("request", Component.translatable("navigator.apeira.lore.request.incoming")), Component.empty(),
+                            action(0, "accept_friend"), action(1, "decline_friend")))));
+                    sent.stream().sorted(order).forEach(id -> entries.add(new NavigatorView.Entry(id, data.nameOf(id), List.of(
+                            label("request", Component.translatable("navigator.apeira.lore.request.sent")), Component.empty(),
+                            action(0, "view_profile"), action(1, "cancel_friend")))));
+                }
+                for (UUID id : friends) {
+                    entries.add(new NavigatorView.Entry(id, data.nameOf(id), List.of(onlineLine(server, data, id, now), Component.empty(),
+                            action(0, "view_profile"), action(0, "unfriend"))));
+                }
+            }
             default -> {}
         }
         return entries;
     }
 
+    /** "x, y, z" of a home, rounded down to its block. */
+    private static String position(HomeData.Home home) {
+        return (int) Math.floor(home.position().x) + ", " + (int) Math.floor(home.position().y) + ", " + (int) Math.floor(home.position().z);
+    }
+
+    /** "Online: Now" or "Last Online: 3 hours and 4 minutes ago". */
+    private static Component onlineLine(MinecraftServer server, RealmData data, UUID id, long now) {
+        return DummyPlayers.isOnline(server, id) ? label("online", Component.translatable("navigator.apeira.lore.now"))
+                : label("last_online", Component.literal(duration(now - data.known(id).map(RealmData.KnownPlayer::lastSeen).orElse(now))));
+    }
+
     private static long lastOnline(MinecraftServer server, RealmData data, UUID player) {
-        return server.getPlayerList().getPlayer(player) != null ? Long.MAX_VALUE : data.known(player).map(RealmData.KnownPlayer::lastSeen).orElse(0L);
+        return DummyPlayers.isOnline(server, player) ? Long.MAX_VALUE : data.known(player).map(RealmData.KnownPlayer::lastSeen).orElse(0L);
     }
 
     /** "Label: value", the label grey-blue and the value white, as Origin Realms writes its lore. */

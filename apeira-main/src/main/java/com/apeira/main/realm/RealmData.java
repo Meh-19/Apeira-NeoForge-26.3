@@ -145,6 +145,31 @@ public final class RealmData extends SavedData {
         setDirty();
     }
 
+    /** Drops {@code from}'s request to {@code to}; false when there was none. */
+    public boolean removeFriendRequest(UUID from, UUID to) {
+        boolean removed = friendRequests.getOrDefault(to, new HashSet<>()).remove(from);
+        if (removed) {
+            setDirty();
+        }
+        return removed;
+    }
+
+    /** Who has asked {@code player} to be friends. */
+    public Set<UUID> requestsTo(UUID player) {
+        return Set.copyOf(friendRequests.getOrDefault(player, Set.of()));
+    }
+
+    /** Whom {@code player} has asked to be friends. */
+    public Set<UUID> requestsFrom(UUID player) {
+        Set<UUID> asked = new HashSet<>();
+        friendRequests.forEach((to, from) -> {
+            if (from.contains(player)) {
+                asked.add(to);
+            }
+        });
+        return asked;
+    }
+
     /** Makes {@code a} and {@code b} friends, dropping any requests between them. */
     public void befriend(UUID a, UUID b) {
         friends.computeIfAbsent(a, uuid -> new HashSet<>()).add(b);

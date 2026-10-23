@@ -61,7 +61,7 @@ public final class RealmService {
         if (access.roleOf(owner, player.getUUID()).canBuild()) {
             return access.visitingRule() != VisitingRule.NOBODY;
         }
-        if (!access.alwaysAccessible() && server.getPlayerList().getPlayer(owner) == null) {
+        if (!access.alwaysAccessible() && !DummyPlayers.isOnline(server, owner)) {
             return false;
         }
         return switch (access.visitingRule()) {
@@ -204,6 +204,7 @@ public final class RealmService {
             player.sendSystemMessage(inviteMessage(owner.getName().getString()));
         }
         done(owner, "realm.invite", data.nameOf(target));
+        DummyPlayers.onInvited(owner.level().getServer(), owner.getUUID(), target);
         return true;
     }
 
@@ -368,10 +369,15 @@ public final class RealmService {
 
     public static boolean requestFriend(ServerPlayer player, UUID target) {
         RealmData data = data(player.level().getServer());
-        if (target.equals(player.getUUID()) || data.areFriends(player.getUUID(), target)) {
+        if (target.equals(player.getUUID())) {
             return false;
         }
-        if (data.hasFriendRequest(target, player.getUUID())) {
+        if (data.areFriends(player.getUUID(), target)) {
+            fail(player, "friend.already", data.nameOf(target));
+            return false;
+        }
+        // A dummy player (DummyPlayers) says yes at once.
+        if (data.hasFriendRequest(target, player.getUUID()) || DummyPlayers.isDummy(target)) {
             data.befriend(player.getUUID(), target);
             done(player, "friend.added", data.nameOf(target));
             return true;
@@ -380,11 +386,38 @@ public final class RealmService {
         done(player, "friend.requested", data.nameOf(target));
         ServerPlayer other = player.level().getServer().getPlayerList().getPlayer(target);
         if (other != null) {
-            Component accept = Component.translatable("message.apeira.realm.invite.accept").withStyle(style -> style
-                    .withColor(ChatFormatting.GREEN).withBold(true)
-                    .withClickEvent(new ClickEvent.RunCommand("/friend accept " + player.getName().getString())));
-            other.sendSystemMessage(Component.translatable("message.apeira.friend.request", player.getName(), accept).withStyle(ChatFormatting.YELLOW));
+            notifyFriendRequest(other, player.getName().getString());
         }
+        return true;
+    }
+
+    /** Tells {@code player} that {@code from} asked to be friends, with an [ACCEPT] button running {@code /friend accept}. */
+    public static void notifyFriendRequest(ServerPlayer player, String from) {
+        Component accept = Component.translatable("message.apeira.realm.invite.accept").withStyle(style -> style
+                .withColor(ChatFormatting.GREEN).withBold(true)
+                .withClickEvent(new ClickEvent.RunCommand("/friend accept " + from)));
+        player.sendSystemMessage(Component.translatable("message.apeira.friend.request", from, accept).withStyle(ChatFormatting.YELLOW));
+    }
+
+    /** {@code player} turns down {@code from}'s friend request. */
+    public static boolean declineFriend(ServerPlayer player, UUID from) {
+        RealmData data = data(player.level().getServer());
+        if (!data.removeFriendRequest(from, player.getUUID())) {
+            fail(player, "friend.no_request", data.nameOf(from));
+            return false;
+        }
+        done(player, "friend.declined", data.nameOf(from));
+        return true;
+    }
+
+    /** {@code player} takes back their friend request to {@code target}. */
+    public static boolean cancelFriendRequest(ServerPlayer player, UUID target) {
+        RealmData data = data(player.level().getServer());
+        if (!data.removeFriendRequest(player.getUUID(), target)) {
+            fail(player, "friend.no_sent_request", data.nameOf(target));
+            return false;
+        }
+        done(player, "friend.cancelled", data.nameOf(target));
         return true;
     }
 
@@ -411,11 +444,11 @@ public final class RealmService {
         return true;
     }
 
-    static void done(ServerPlayer player, String key, Object... args) {
+    public static void done(ServerPlayer player, String key, Object... args) {
         player.sendSystemMessage(Component.translatable("message.apeira." + key, args).withStyle(ChatFormatting.GREEN));
     }
 
-    static void fail(ServerPlayer player, String key, Object... args) {
+    public static void fail(ServerPlayer player, String key, Object... args) {
         player.sendSystemMessage(Component.translatable("message.apeira." + key, args).withStyle(ChatFormatting.RED));
     }
 }
