@@ -400,6 +400,15 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("dummy.removed", "Removed dummy player %s");
         message("dummy.unknown", "No dummy player named %s");
         message("dummy.list", "%s dummy players: %s");
+        message("dummy.bad_preset", "Unknown realm region %s: lush, arid, cold, arctic or tropical");
+        message("dummy.has_realm", "%s already has a realm");
+        message("dummy.no_realm", "%s has no realm yet: /apeiradev dummy create_realm %s");
+        message("dummy.realm_created", "%s claimed a %s realm (%s)");
+        message("dummy.realm_reset", "%s reset their realm to %s");
+        message("dummy.already_member", "You are already a member of %s's realm");
+        message("dummy.not_member", "You are not a member of %s's realm");
+        message("dummy.not_in_realm", "You are not in %s's realm");
+        message("dummy.role", "%s made you %s in their realm");
     }
 
     /** A coloured block and its shapes as {@code <Colour> <name>} and {@code <Colour> <name> Stairs}. */

@@ -209,7 +209,7 @@ public final class RealmService {
     }
 
     /** "! <Player> invited you to join their Realm! [ACCEPT] or use /navigator to view in Realm Menu" */
-    private static Component inviteMessage(String ownerName) {
+    static Component inviteMessage(String ownerName) {
         Component accept = Component.translatable("message.apeira.realm.invite.accept").withStyle(style -> style
                 .withColor(ChatFormatting.GREEN).withBold(true)
                 .withClickEvent(new ClickEvent.RunCommand("/realm invite accept " + ownerName))

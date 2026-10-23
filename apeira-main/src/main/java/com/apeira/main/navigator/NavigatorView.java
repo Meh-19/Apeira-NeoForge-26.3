@@ -38,6 +38,8 @@ public record NavigatorView(NavigatorPage page, int pageIndex, int pageCount, in
     /** The viewer has asked the popup's player to be friends. */
     public static final int TARGET_REQUEST_SENT = 128;
     public static final int TARGET_ONLINE = 256;
+    /** The navigator was opened on Realms home by {@code /realms}, so there is no menu to go back to. */
+    public static final int NO_BACK = 512;
     public static final int PRIVATE_CHAT = 1 << 8;
     public static final int ALWAYS_ACCESSIBLE = 1 << 9;
 

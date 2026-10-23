@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.network.client.ApeiraClientNetwork;
+import com.apeira.decor.client.SkinAccent;
 import com.apeira.main.home.HomeData;
 import com.apeira.main.navigator.NavigatorActionPayload;
 import com.apeira.main.navigator.NavigatorPage;
@@ -23,21 +26,26 @@ import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Util;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * The navigator, Origin Realms' {@code /navigator} menu with its Realms pages, drawn natively from the captured
  * textures instead of as a chest of invisible items. The server sends each page as a {@link NavigatorView}; this screen
- * draws its layers and buttons ({@link NavigatorLayout}), the list's player heads with their tooltips and the page
- * number, and sends every click as a {@link NavigatorActionPayload}. It changes nothing itself: the server answers
+ * draws its layers and buttons ({@link NavigatorLayout}, hit-tested and lit up by their drawn faces, {@link NavigatorBounds}),
+ * the list's player heads with their tooltips and the page number, and sends every click as a
+ * {@link NavigatorActionPayload}. It changes nothing itself: the server answers
  * each click with the next view, or closes the screen.
  */
 public final class ApeiraNavigatorScreen extends Screen {
@@ -46,7 +54,6 @@ public final class ApeiraNavigatorScreen extends Screen {
     private static final int IMAGE_HEIGHT = 222;
     /** Where a 256x256, ascent-19 title glyph's top edge lands relative to the chest's top. */
     private static final int LAYER_Y = -6;
-    private static final int SLOT_SIZE = 18;
     /** The white of vanilla's slot highlight, at full strength. */
     private static final int HIGHLIGHT_ALPHA = 0x60;
     /** How long a button's highlight takes to fade in, in milliseconds. */
@@ -55,12 +62,18 @@ public final class ApeiraNavigatorScreen extends Screen {
     private static final int PAGE_TEXT_X = 70;
     private static final int PAGE_TEXT_Y = 115;
     private static final int PAGE_TEXT_COLOR = 0xFFC6C6C6;
-    /** The black frame drawn around every player head. */
+    /** The black frame drawn around every player head, half a GUI pixel wide, finer than the buttons' 1-pixel outline. */
     private static final int HEAD_FRAME = 0xFF000000;
-    /** The profile's dark panel, where the player's head and name are drawn: its centre column and the head's top. */
-    private static final int PROFILE_CENTER_X = 60;
-    private static final int PROFILE_HEAD_Y = 64;
-    private static final int PROFILE_HEAD_SIZE = 32;
+    /** The profile's dark panel (inside its outline), where the player is drawn on their skin's accent colour. */
+    private static final int PROFILE_X0 = 26;
+    private static final int PROFILE_Y0 = 54;
+    private static final int PROFILE_X1 = 94;
+    private static final int PROFILE_Y1 = 124;
+    /** The player model's size in the panel (pixels per block) and the name's baseline gap from the panel's bottom. */
+    private static final int PROFILE_MODEL_SCALE = 30;
+    private static final int PROFILE_NAME_GAP = 11;
+    /** How the model stands: turned a little towards the buttons, as an inventory preview, without following the mouse. */
+    private static final float PROFILE_BODY_YAW = 160.0F;
     /** The rename box, under the Homes popup. */
     private static final int RENAME_X = 32;
     private static final int RENAME_Y = 120;
@@ -70,8 +83,14 @@ public final class ApeiraNavigatorScreen extends Screen {
     private NavigatorLayout.Page layout;
     private int leftPos;
     private int topPos;
-    private int @Nullable [] hovered;
+    /** Finds each button's face in the layers; each button's and each entry's faces, in frame coordinates. */
+    private final NavigatorBounds bounds = new NavigatorBounds();
+    private List<List<NavigatorBounds.Rect>> buttonFaces = List.of();
+    private List<List<NavigatorBounds.Rect>> entryFaces = List.of();
+    /** What the mouse is over: a button's index, {@link #entryHover} of an entry's, or {@link #NOTHING}. */
+    private int hovered = NOTHING;
     private long hoverStart;
+    private static final int NOTHING = Integer.MIN_VALUE;
     /** The box for a home's new name while one is being renamed, and that home's place in the grid. */
     private @Nullable EditBox rename;
     private int renameIndex;
@@ -80,6 +99,7 @@ public final class ApeiraNavigatorScreen extends Screen {
         super(Component.translatable("screen.apeira.navigator"));
         this.view = view;
         this.layout = NavigatorLayout.of(view);
+        measure();
     }
 
     /** Shows {@code payload}'s view, in the open navigator if there is one, or closes the navigator. */
@@ -100,9 +120,24 @@ public final class ApeiraNavigatorScreen extends Screen {
     private void show(NavigatorView view) {
         this.view = view;
         this.layout = NavigatorLayout.of(view);
+        measure();
         if (view.page() != NavigatorPage.HOMES) {
             stopRenaming();
         }
+    }
+
+    /** Finds where the page's buttons and list cells are drawn. */
+    private void measure() {
+        List<List<NavigatorBounds.Rect>> buttons = new ArrayList<>();
+        for (NavigatorLayout.Button button : layout.buttons()) {
+            buttons.add(bounds.measure(layout.layers(), button.slots()));
+        }
+        List<List<NavigatorBounds.Rect>> entries = new ArrayList<>();
+        for (int slot : layout.entrySlots()) {
+            entries.add(bounds.measure(layout.layers(), new int[] {slot}));
+        }
+        buttonFaces = buttons;
+        entryFaces = entries;
     }
 
     private void startRenaming(int index, String name) {
@@ -175,40 +210,71 @@ public final class ApeiraNavigatorScreen extends Screen {
         }
         view.target().ifPresent(target -> {
             if (view.page() == NavigatorPage.PROFILE_OTHER) {
-                head(graphics, target.id(), leftPos + PROFILE_CENTER_X - PROFILE_HEAD_SIZE / 2, topPos + PROFILE_HEAD_Y, PROFILE_HEAD_SIZE);
-                graphics.text(font, target.name(), leftPos + PROFILE_CENTER_X - font.width(target.name()) / 2,
-                        topPos + PROFILE_HEAD_Y + PROFILE_HEAD_SIZE + 6, 0xFFFFFFFF, true);
+                profile(graphics, target);
             } else {
                 head(graphics, target.id(), slotX(NavigatorLayout.POPUP_HEAD), slotY(NavigatorLayout.POPUP_HEAD), 16);
             }
         });
 
-        int slot = slotAt(mouseX, mouseY);
-        NavigatorLayout.Button button = buttonAt(slot);
-        NavigatorView.Entry entry = button == null ? entryAt(slot) : null;
-        int[] shape = button != null ? button.slots() : entry != null ? new int[] {slot} : null;
-        if (!sameShape(shape, hovered)) {
-            hovered = shape;
+        int hover = hoverAt(mouseX, mouseY);
+        if (hover != hovered) {
+            hovered = hover;
             hoverStart = Util.getMillis();
         }
-        if (shape != null) {
-            // The whole button lights up, fading in, instead of only the chest slot under the mouse: each of its slots'
-            // 18-pixel cells is filled, so the cells join into the button's own shape.
+        if (hover != NOTHING) {
+            // The button's drawn face lights up, fading in, instead of the chest slots under it: the face is found in
+            // the layers, so the highlight fits the button however it sits on the slot grid.
             float fade = Math.min(1.0F, (Util.getMillis() - hoverStart) / (float) HIGHLIGHT_FADE_MS);
             int color = ARGB.color(Math.round(HIGHLIGHT_ALPHA * fade), 0xFFFFFF);
-            for (int s : shape) {
-                int x = slotX(s) - 1;
-                int y = slotY(s) - 1;
-                graphics.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, color);
+            for (NavigatorBounds.Rect face : faces(hover)) {
+                graphics.fill(leftPos + face.x0(), topPos + face.y0(), leftPos + face.x1(), topPos + face.y1(), color);
             }
-            List<Component> tooltip = button != null ? button.tooltip() : entryTooltip(entry);
+            List<Component> tooltip = hover >= 0 ? layout.buttons().get(hover).tooltip() : entryTooltip(view.entries().get(entryIndex(hover)));
             graphics.setTooltipForNextFrame(font, tooltip, Optional.empty(), mouseX, mouseY);
         }
     }
 
-    /** A player's face, {@code size} pixels square, in a one-pixel black frame, as every head in the navigator is drawn. */
+    /**
+     * Another player's profile: their live player model, standing still with its arms a little out, on their skin's
+     * accent colour ({@link SkinAccent}) in the dark panel, with their name under it.
+     */
+    private void profile(GuiGraphicsExtractor graphics, NavigatorView.Entry target) {
+        int x0 = leftPos + PROFILE_X0;
+        int y0 = topPos + PROFILE_Y0;
+        int x1 = leftPos + PROFILE_X1;
+        int y1 = topPos + PROFILE_Y1;
+        PlayerSkin skin = minecraft.playerSkinRenderCache().getOrDefault(ResolvableProfile.createUnresolved(target.id())).playerSkin();
+        int accent = SkinAccent.of(skin.body().texturePath());
+        graphics.fillGradient(x0, y0, x1, y1, ARGB.scaleRGB(accent, 1.1F), ARGB.scaleRGB(accent, 0.55F));
+
+        AvatarRenderState state = new AvatarRenderState();
+        state.entityType = EntityType.PLAYER;
+        state.skin = skin;
+        state.boundingBoxWidth = 0.6F;
+        state.boundingBoxHeight = 1.8F;
+        state.bodyRot = PROFILE_BODY_YAW;
+        state.yRot = 0.0F;
+        state.xRot = 0.0F;
+        // A fixed age keeps the idle arm sway still, at its widest; ITEM holds both arms a little forward.
+        state.ageInTicks = 0.0F;
+        state.rightArmPose = HumanoidModel.ArmPose.ITEM;
+        state.leftArmPose = HumanoidModel.ArmPose.ITEM;
+        Quaternionf rotation = new Quaternionf().rotateZ((float) Math.PI);
+        Vector3f translation = new Vector3f(0.0F, state.boundingBoxHeight / 2.0F + 0.0625F, 0.0F);
+        graphics.entity(state, PROFILE_MODEL_SCALE, translation, rotation, null, x0, y0, x1, y1 - PROFILE_NAME_GAP);
+
+        graphics.text(font, target.name(), (x0 + x1) / 2 - font.width(target.name()) / 2, y1 - PROFILE_NAME_GAP + 1, 0xFFFFFFFF, true);
+    }
+
+    /**
+     * A player's face, {@code size} pixels square, in a black frame half a GUI pixel wide, as every head in the navigator
+     * is drawn. The frame is filled at double resolution, so it is finer than the buttons' outlines.
+     */
     private static void head(GuiGraphicsExtractor graphics, UUID id, int x, int y, int size) {
-        graphics.fill(x - 1, y - 1, x + size + 1, y + size + 1, HEAD_FRAME);
+        graphics.pose().pushMatrix();
+        graphics.pose().scale(0.5F, 0.5F);
+        graphics.fill(2 * x - 1, 2 * y - 1, 2 * (x + size) + 1, 2 * (y + size) + 1, HEAD_FRAME);
+        graphics.pose().popMatrix();
         PlayerFaceExtractor.extractRenderState(graphics, ResolvableProfile.createUnresolved(id), x, y, size);
     }
 
@@ -227,24 +293,22 @@ public final class ApeiraNavigatorScreen extends Screen {
             }
             stopRenaming();
         }
-        int slot = slotAt(event.x(), event.y());
-        NavigatorLayout.Button button = buttonAt(slot);
+        int hover = hoverAt(event.x(), event.y());
         NavigatorActionPayload action = null;
         boolean secondary = event.button() == 1;
-        if (button != null) {
+        if (hover >= 0) {
+            NavigatorLayout.Button button = layout.buttons().get(hover);
             action = button.action() == null ? null : button.action().withSecondary(secondary);
-        } else {
-            int index = entryIndex(slot);
-            if (index >= 0) {
-                NavigatorView.Entry entry = view.entries().get(index);
-                boolean shift = minecraft.hasShiftDown();
-                if (shift && !secondary && view.page() == NavigatorPage.HOMES) {
-                    startRenaming(index, entry.name());
-                    return true;
-                }
-                action = new NavigatorActionPayload(NavigatorActionPayload.Action.ENTRY, index << 1 | (shift ? 1 : 0), Optional.of(entry.id()),
-                        secondary, "");
+        } else if (hover != NOTHING) {
+            int index = entryIndex(hover);
+            NavigatorView.Entry entry = view.entries().get(index);
+            boolean shift = minecraft.hasShiftDown();
+            if (shift && !secondary && view.page() == NavigatorPage.HOMES) {
+                startRenaming(index, entry.name());
+                return true;
             }
+            action = new NavigatorActionPayload(NavigatorActionPayload.Action.ENTRY, index << 1 | (shift ? 1 : 0), Optional.of(entry.id()),
+                    secondary, "");
         }
         if (action != null) {
             minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
@@ -259,52 +323,48 @@ public final class ApeiraNavigatorScreen extends Screen {
         return false;
     }
 
-    private NavigatorLayout.@Nullable Button buttonAt(int slot) {
-        if (slot < 0) {
-            return null;
-        }
-        for (NavigatorLayout.Button button : layout.buttons()) {
-            for (int s : button.slots()) {
-                if (s == slot) {
-                    return button;
+    /**
+     * What is under the mouse: a button's index (buttons first, in order, as popups sit over the page), an entry's
+     * {@link #entryHover}, or {@link #NOTHING}.
+     */
+    private int hoverAt(double mouseX, double mouseY) {
+        double x = mouseX - leftPos;
+        double y = mouseY - topPos;
+        for (int i = 0; i < buttonFaces.size(); i++) {
+            for (NavigatorBounds.Rect face : buttonFaces.get(i)) {
+                if (face.contains(x, y)) {
+                    return i;
                 }
             }
         }
-        return null;
-    }
-
-    private NavigatorView.@Nullable Entry entryAt(int slot) {
-        int index = entryIndex(slot);
-        return index >= 0 ? view.entries().get(index) : null;
-    }
-
-    /** The place in the view's entries of the head in {@code slot}, or -1. */
-    private int entryIndex(int slot) {
-        int[] entrySlots = layout.entrySlots();
-        for (int i = 0; i < Math.min(entrySlots.length, view.entries().size()); i++) {
-            if (entrySlots[i] == slot) {
-                return i;
+        for (int i = 0; i < Math.min(entryFaces.size(), view.entries().size()); i++) {
+            for (NavigatorBounds.Rect face : entryFaces.get(i)) {
+                if (face.contains(x, y)) {
+                    return entryHover(i);
+                }
             }
         }
-        return -1;
+        return NOTHING;
     }
 
-    private static boolean sameShape(int @Nullable [] a, int @Nullable [] b) {
-        return a == null ? b == null : b != null && java.util.Arrays.equals(a, b);
+    private List<NavigatorBounds.Rect> faces(int hover) {
+        return hover >= 0 ? buttonFaces.get(hover) : entryFaces.get(entryIndex(hover));
     }
 
-    /** The chest slot under the mouse, or -1. Slots are 18 pixels apart with a 1-pixel border around each 16-pixel item. */
-    private int slotAt(double mouseX, double mouseY) {
-        int column = (int) Math.floor((mouseX - leftPos - 7) / SLOT_SIZE);
-        int row = (int) Math.floor((mouseY - topPos - 17) / SLOT_SIZE);
-        return column >= 0 && column < 9 && row >= 0 && row < 6 ? row * 9 + column : -1;
+    /** The hover value of entry {@code index}: negative, so it never clashes with a button's index. */
+    private static int entryHover(int index) {
+        return -1 - index;
+    }
+
+    private static int entryIndex(int hover) {
+        return -1 - hover;
     }
 
     private int slotX(int slot) {
-        return leftPos + 8 + slot % 9 * SLOT_SIZE;
+        return leftPos + NavigatorBounds.slotX(slot);
     }
 
     private int slotY(int slot) {
-        return topPos + 18 + slot / 9 * SLOT_SIZE;
+        return topPos + NavigatorBounds.slotY(slot);
     }
 }
