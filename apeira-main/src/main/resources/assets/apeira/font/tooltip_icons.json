@@ -1,0 +1,13 @@
+{
+  "providers": [
+    {
+      "ascent": 7,
+      "chars": [
+        "\ue000\ue001\ue002\ue003\ue004\ue005\ue006\ue007\ue008"
+      ],
+      "file": "apeira:gui/tooltip/icons.png",
+      "height": 7,
+      "type": "bitmap"
+    }
+  ]
+}

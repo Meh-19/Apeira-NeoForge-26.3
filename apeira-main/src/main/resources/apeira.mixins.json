@@ -19,6 +19,8 @@
     "ZombieFleeGrizzlyMixin"
   ],
   "client": [
+    "client.ClientPacketListenerMixin",
+    "client.LevelLoadingScreenMixin",
     "client.ShadowPlayerRenderMixin",
     "client.ShadowVignetteMixin"
   ],

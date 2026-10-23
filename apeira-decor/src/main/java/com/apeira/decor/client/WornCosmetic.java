@@ -12,8 +12,9 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * The {@code apeira:worn_cosmetic} item model condition: true only while {@link CosmeticLayer} resolves the models of
- * a wardrobe's cosmetics, so a cosmetic's item definition shows its 3D model when worn and its token everywhere else
- * (inventories, the hand, item frames, the ground). Item definitions use it as
+ * a wardrobe's cosmetics, or a menu draws a worn cosmetic as its 3D model (the profile's cosmetic sidebar), so a
+ * cosmetic's item definition shows its 3D model there and its token everywhere else (inventories, the hand, item
+ * frames, the ground). Item definitions use it as
  * {@code {"type": "minecraft:condition", "property": "apeira:worn_cosmetic", ...}}.
  *
  * <p>Models are resolved on the render thread while render states are extracted, so a plain flag is enough.
@@ -29,8 +30,8 @@ public record WornCosmetic() implements ConditionalItemModelProperty {
         return resolvingWorn;
     }
 
-    /** Runs {@code resolve} with the condition true. */
-    static void whileWorn(Runnable resolve) {
+    /** Runs {@code resolve} with the condition true; item models are resolved inside it, as {@code GuiGraphicsExtractor#item} does. */
+    public static void whileWorn(Runnable resolve) {
         resolvingWorn = true;
         try {
             resolve.run();
