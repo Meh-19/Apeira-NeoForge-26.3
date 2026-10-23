@@ -24,6 +24,9 @@ import net.minecraft.world.phys.Vec3;
  * that the player asking owns a realm and acts on that realm only.
  */
 public final class RealmService {
+    /** The player whose menu click is being applied (server thread only), see {@link #quietly}. */
+    private static @Nullable UUID quiet;
+
     private RealmService() {}
 
     public static RealmData data(MinecraftServer server) {
@@ -466,9 +469,33 @@ public final class RealmService {
         return true;
     }
 
-    public static void done(ServerPlayer player, String key, Object... args) {
-        player.sendSystemMessage(Component.translatable("message.apeira." + key, args).withStyle(ChatFormatting.GREEN));
+    /**
+     * Runs {@code action}, a menu click of {@code player}'s, without telling them it worked: the menu they clicked in
+     * already shows the change, so {@link #done} skips them while it runs. Errors ({@link #fail}) still reach them.
+     */
+    public static void quietly(ServerPlayer player, Runnable action) {
+        UUID previous = quiet;
+        quiet = player.getUUID();
+        try {
+            action.run();
+        } finally {
+            quiet = previous;
+        }
     }
+
+    /** Whether {@code player} is the one whose menu click is being applied, see {@link #quietly}. */
+    public static boolean isQuiet(ServerPlayer player) {
+        return player.getUUID().equals(quiet);
+    }
+
+    /** A success line, green, as Origin Realms writes one; skipped for a menu click's own player ({@link #quietly}). */
+    public static void done(ServerPlayer player, String key, Object... args) {
+        if (!isQuiet(player)) {
+            player.sendSystemMessage(Component.translatable("message.apeira." + key, args).withStyle(ChatFormatting.GREEN));
+        }
+    }
+
+    /** An error line, red, as Origin Realms writes one; always sent. */
 
     public static void fail(ServerPlayer player, String key, Object... args) {
         player.sendSystemMessage(Component.translatable("message.apeira." + key, args).withStyle(ChatFormatting.RED));
