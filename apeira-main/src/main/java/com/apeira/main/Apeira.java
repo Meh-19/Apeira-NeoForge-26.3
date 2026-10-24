@@ -2,6 +2,7 @@ package com.apeira.main;
 
 import org.slf4j.Logger;
 
+import com.apeira.core.command.CommandList;
 import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.core.network.ApeiraNetwork;
 import com.apeira.core.registry.ApeiraRegistrar;
@@ -78,9 +79,11 @@ public final class Apeira {
         DATA.register(modEventBus, MainData::init);
         modEventBus.addListener(MainEntityEvents::registerAttributes);
         modEventBus.addListener(MainEntityEvents::registerSpawnPlacements);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, CommandList::snapshot);
         NeoForge.EVENT_BUS.addListener(NavigatorCommand::register);
         NeoForge.EVENT_BUS.addListener(RealmCommand::register);
         NeoForge.EVENT_BUS.addListener(RubyCommand::register);
+        NeoForge.EVENT_BUS.addListener(RubyCommand::onLoggedIn);
         NeoForge.EVENT_BUS.addListener(HomeCommand::register);
         NeoForge.EVENT_BUS.addListener(PartyCommand::register);
         NeoForge.EVENT_BUS.addListener(DummyPlayers::register);

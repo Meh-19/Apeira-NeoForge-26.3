@@ -8,5 +8,6 @@
   "key.apeira.log_chat": "Toggle Chat Logger",
   "message.apeira.ui_capture.hud_needs_no_screen": "Close the screen to log the HUD",
   "message.apeira.ui_capture.chat_on": "Chat logger on -> %s",
-  "message.apeira.ui_capture.chat_off": "Chat logger off: %s messages logged, fonts in %s"
+  "message.apeira.ui_capture.chat_off": "Chat logger off: %s messages logged, fonts in %s",
+  "message.apeira.sound_inspector.unknown": "No sound event %s in the loaded resource packs"
 }

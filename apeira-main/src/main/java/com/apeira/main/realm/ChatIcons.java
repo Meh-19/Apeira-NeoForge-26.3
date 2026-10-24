@@ -15,6 +15,8 @@ import net.minecraft.network.chat.MutableComponent;
 public final class ChatIcons {
     /** The red error mark, {@code error_red.png}. */
     public static final String ERROR = "ꑜ";
+    /** The yellow mark, {@code error_yellow.png}. */
+    public static final String NOTICE = "ꑟ";
     /** The green tick, {@code error_green.png}. */
     public static final String SUCCESS = "ꑠ";
 
