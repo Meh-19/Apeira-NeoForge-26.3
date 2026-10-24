@@ -64,15 +64,19 @@ import com.apeira.uicapture.ArmorStandRecorder.Track;
  * Every other entity in the area is a prop bone named by its kind ({@code item_display_<n>}, {@code block_display_<n>},
  * {@code text_display_<n>}, {@code item_frame_<n>}, {@code item_<n>}, {@code entity_<n>}) with a locator of the same
  * name, moved to its position and hidden outside the area; display entities also turn by their yaw and pitch (as a
- * fixed billboard draws them) and have a {@code <bone>_transform} child with their transformation: translation as its
- * position, left times right rotation as its rotation and scale as its scale, which is exact when the right rotation is
- * identity or the scale uniform (servers almost always leave the right rotation alone). Item displays draw their item
- * turned half a turn about y and block displays from the block's corner, as vanilla does. {@code recording.json} lists
+ * fixed billboard draws them, {@code rotationYXZ(-yaw, pitch, 0)}) and have their transformation as vanilla's matrix,
+ * translation * left rotation * scale * right rotation, in two bones, as a bone is translation * rotation * scale: a
+ * {@code <bone>_transform} child with the translation, left rotation and scale, and its {@code <bone>_transform_right}
+ * child with the right rotation, so non-uniform scale with a right rotation is exact. Every pivot is 0, the entity's
+ * origin, which vanilla turns and scales about: item models are drawn centred on it (their cubes moved -8 pixels, as the
+ * item renderer draws from the model's centre), block displays from the block's corner. {@code recording.json} lists
  * each prop's frames with its state (item or block, custom model data, billboard, text, frame rotation) and full
  * transformation, and the {@code change} events hold the state keys that changed.
  * Item displays' items are drawn: each distinct item (and display context) a display shows is resolved to its model
- * ({@link ItemModels}) and becomes a {@code <bone>_item_<k>} child of {@code <bone>_transform} holding the model's cubes
- * ({@link ItemGeometry}), turned by the display's half turn and the model's display transform; the animation scales each
+ * ({@link ItemModels}) and becomes a {@code <bone>_item_<k>} child of {@code <bone>_transform_right}, with a
+ * {@code <bone>_item_<k>_model_<m>} child per model (composite definitions have several) holding its cubes
+ * ({@link ItemGeometry}) and, held by the animation, the display's half turn and that model's {@code display.<context>}
+ * transform, which vanilla applies to the model before the entity's matrix; the animation scales each variant bone
  * to 0 while the display shows another item or none, so item, custom model data and visibility swaps are keyframes. The
  * textures (and the model and item definition files read) are copied to {@code assets/<namespace>/...}, packed into
  * {@code <name>.png}, the geometry's one texture (with the armor stand's texture at its top left corner for the stands'
@@ -137,6 +141,11 @@ public final class ArmorStandExporter {
         String bone(String prop) {
             return prop + "_item_" + index;
         }
+
+        /** The bone holding the variant's {@code m}th model (composite definitions have several). */
+        String model(String prop, int m) {
+            return bone(prop) + "_model_" + m;
+        }
     }
 
     /** Every item display's distinct items, resolved, with their textures added to the atlas. */
@@ -184,8 +193,10 @@ public final class ArmorStandExporter {
                 entry.addProperty("display_context", variant.context());
                 entry.addProperty("definition", variant.resolved().definition().toString());
                 JsonArray models = new JsonArray();
-                for (ItemModels.Model model : variant.resolved().models()) {
+                for (int index = 0; index < variant.resolved().models().size(); index++) {
+                    ItemModels.Model model = variant.resolved().models().get(index);
                     JsonObject m = new JsonObject();
+                    m.addProperty("bone", variant.model(prop, index));
                     m.addProperty("model", model.id().toString());
                     JsonArray chain = new JsonArray();
                     model.chain().forEach(id -> chain.add(id.toString()));
@@ -433,14 +444,18 @@ public final class ArmorStandExporter {
             bones.add(bone);
             if (track.frames.values().iterator().next().transform() != null) {
                 bones.add(bone(track.bone + "_transform", track.bone, 0, 0, 0));
+                bones.add(bone(track.bone + "_transform_right", track.bone + "_transform", 0, 0, 0));
                 for (ItemVariant variant : items.getOrDefault(track.bone, List.of())) {
-                    JsonObject itemBone = bone(variant.bone(track.bone), track.bone + "_transform", 0, 0, 0);
-                    JsonArray cubes = new JsonArray();
-                    variant.resolved().models().forEach(model -> cubes.addAll(ItemGeometry.cubes(model, atlas)));
-                    if (!cubes.isEmpty()) {
-                        itemBone.add("cubes", cubes);
+                    bones.add(bone(variant.bone(track.bone), track.bone + "_transform_right", 0, 0, 0));
+                    List<ItemModels.Model> models = variant.resolved().models();
+                    for (int m = 0; m < models.size(); m++) {
+                        JsonObject modelBone = bone(variant.model(track.bone, m), variant.bone(track.bone), 0, 0, 0);
+                        JsonArray cubes = ItemGeometry.cubes(models.get(m), atlas);
+                        if (!cubes.isEmpty()) {
+                            modelBone.add("cubes", cubes);
+                        }
+                        bones.add(modelBone);
                     }
-                    bones.add(itemBone);
                 }
             }
         }
@@ -602,24 +617,38 @@ public final class ArmorStandExporter {
                     AreaEntities.Transform tr = states[t].transform();
                     return tr == null ? new double[3] : new double[] {-tr.translation().x() * 16, tr.translation().y() * 16, tr.translation().z() * 16};
                 }, false));
+                // Vanilla's matrix is translation * left rotation * scale * right rotation; a bone is translation * rotation * scale,
+                // so the right rotation is a child bone of its own.
                 transform.add("rotation", continuous(ticks, t -> {
                     AreaEntities.Transform tr = states[t].transform();
-                    return tr == null ? new double[3] : euler(new Quaternionf(tr.left()).mul(tr.right()));
+                    return tr == null ? new double[3] : euler(tr.left());
                 }, true));
                 transform.add("scale", continuous(ticks, t -> {
                     AreaEntities.Transform tr = states[t].transform();
                     return tr == null ? new double[] {1, 1, 1} : new double[] {tr.scale().x(), tr.scale().y(), tr.scale().z()};
                 }, false));
                 bones.add(track.bone + "_transform", transform);
+                JsonObject right = new JsonObject();
+                right.add("rotation", continuous(ticks, t -> {
+                    AreaEntities.Transform tr = states[t].transform();
+                    return tr == null ? new double[3] : euler(tr.right());
+                }, true));
+                bones.add(track.bone + "_transform_right", right);
                 for (ItemVariant variant : items.getOrDefault(track.bone, List.of())) {
-                    // The model's display transform, held; scale 0 while the display shows another item or none.
-                    double[][] display = variant.resolved().models().isEmpty() ? new double[][] {{0, 0, 0}, {0, 0, 0}, {1, 1, 1}}
-                            : ItemGeometry.displayTransform(variant.resolved().models().get(0), variant.context());
+                    // Scale 0 while the display shows another item or none.
                     JsonObject item = new JsonObject();
-                    item.add("position", continuous(ticks, t -> display[0].clone(), false));
-                    item.add("rotation", continuous(ticks, t -> display[1].clone(), true));
-                    item.add("scale", discreteVector(ticks, t -> variant.key().equals(itemKey(states[t])) ? display[2] : new double[3]));
+                    item.add("scale", discrete(ticks, t -> variant.key().equals(itemKey(states[t])) ? 1.0 : 0.0));
                     bones.add(variant.bone(track.bone), item);
+                    // Each model's display transform (its half turn and display.<context>), held.
+                    List<ItemModels.Model> models = variant.resolved().models();
+                    for (int m = 0; m < models.size(); m++) {
+                        double[][] display = ItemGeometry.displayTransform(models.get(m), variant.context());
+                        JsonObject model = new JsonObject();
+                        model.add("position", continuous(ticks, t -> display[0].clone(), false));
+                        model.add("rotation", continuous(ticks, t -> display[1].clone(), true));
+                        model.add("scale", continuous(ticks, t -> display[2].clone(), false));
+                        bones.add(variant.model(track.bone, m), model);
+                    }
                 }
             }
             bones.add(track.bone, root);
@@ -702,22 +731,6 @@ public final class ArmorStandExporter {
             if (v != previous) {
                 frames.add(String.format(Locale.ROOT, "%.4f", t / 20.0 - STEP), array(previous, previous, previous));
                 frames.add(time(t), array(v, v, v));
-                previous = v;
-            }
-        }
-        return frames;
-    }
-
-    /** {@link #discrete} for a vector. */
-    private static JsonObject discreteVector(int ticks, Function<Integer, double[]> value) {
-        JsonObject frames = new JsonObject();
-        double[] previous = value.apply(0);
-        frames.add(time(0), array(previous));
-        for (int t = 1; t < ticks; t++) {
-            double[] v = value.apply(t);
-            if (!same(v, previous)) {
-                frames.add(String.format(Locale.ROOT, "%.4f", t / 20.0 - STEP), array(previous));
-                frames.add(time(t), array(v));
                 previous = v;
             }
         }
