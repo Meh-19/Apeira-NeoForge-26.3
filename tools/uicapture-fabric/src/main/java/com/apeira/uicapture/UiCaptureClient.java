@@ -28,7 +28,8 @@ import net.minecraft.network.chat.Component;
  * what is under the mouse: the hovered slot and widgets and the text drawn there and in the tooltip, with its colours,
  * formatting and fonts. "Log HUD Elements" (F10, no screen open) captures the HUD like F8 and adds what it shows as
  * text ({@link HudLog}); "Toggle Chat Logger" (F7, also inside screens) logs chat messages ({@link ChatCapture}).
- * {@code /apeirasound} inspects a sound event ({@link SoundInspector}).
+ * {@code /apeirasound} inspects a sound event and logs played sounds ({@link SoundInspector}); {@code /apeiracommands}
+ * logs the server's command tree ({@link CommandLogger}).
  * Nothing is registered and nothing is sent, so it works on any server.
  */
 public final class UiCaptureClient implements ClientModInitializer {
@@ -51,7 +52,10 @@ public final class UiCaptureClient implements ClientModInitializer {
         KeyBindingHelper.registerKeyBinding(LOG_HUD);
         KeyBindingHelper.registerKeyBinding(LOG_CHAT);
         ClientTickEvents.END_CLIENT_TICK.register(UiCaptureClient::onClientTick);
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> SoundInspector.register(dispatcher));
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> {
+            SoundInspector.register(dispatcher);
+            CommandLogger.register(dispatcher);
+        });
         ScreenEvents.AFTER_INIT.register((minecraft, screen, width, height) -> {
             // Key mappings are not clicked while a screen is open, so the screen's own key event arms the capture.
             ScreenKeyboardEvents.allowKeyPress(screen).register((s, event) -> {

@@ -9,5 +9,10 @@
   "message.apeira.ui_capture.hud_needs_no_screen": "Close the screen to log the HUD",
   "message.apeira.ui_capture.chat_on": "Chat logger on -> %s",
   "message.apeira.ui_capture.chat_off": "Chat logger off: %s messages logged, fonts in %s",
-  "message.apeira.sound_inspector.unknown": "No sound event %s in the loaded resource packs"
+  "message.apeira.sound_inspector.unknown": "No sound event %s in the loaded resource packs",
+  "message.apeira.sound_inspector.listen_on": "Sound log on -> %s",
+  "message.apeira.sound_inspector.listen_off": "Sound log off: %s sounds logged",
+  "message.apeira.command_logger.done": "Logged %s commands (%s from the server, %s usages) -> %s",
+  "message.apeira.command_logger.failed": "Command log failed: %s",
+  "message.apeira.command_logger.unknown": "The server sent no command %s"
 }
