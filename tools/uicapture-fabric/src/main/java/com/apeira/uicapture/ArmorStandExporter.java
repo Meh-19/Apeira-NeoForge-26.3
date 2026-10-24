@@ -22,7 +22,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Rotations;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.phys.Vec3;
 
 import org.joml.Quaternionf;
@@ -67,6 +70,15 @@ import com.apeira.uicapture.ArmorStandRecorder.Track;
  * turned half a turn about y and block displays from the block's corner, as vanilla does. {@code recording.json} lists
  * each prop's frames with its state (item or block, custom model data, billboard, text, frame rotation) and full
  * transformation, and the {@code change} events hold the state keys that changed.
+ * Item displays' items are drawn: each distinct item (and display context) a display shows is resolved to its model
+ * ({@link ItemModels}) and becomes a {@code <bone>_item_<k>} child of {@code <bone>_transform} holding the model's cubes
+ * ({@link ItemGeometry}), turned by the display's half turn and the model's display transform; the animation scales each
+ * to 0 while the display shows another item or none, so item, custom model data and visibility swaps are keyframes. The
+ * textures (and the model and item definition files read) are copied to {@code assets/<namespace>/...}, packed into
+ * {@code <name>.png}, the geometry's one texture (with the armor stand's texture at its top left corner for the stands'
+ * box UV), and {@code <name>.bbmodel} is the same geometry as a Blockbench project with that texture embedded
+ * ({@link Bbmodel}). {@code item_models.json} lists every resolved item: definition, models with their parent chains and
+ * textures, notes on what could not be drawn, each texture's place in the atlas, and the files copied with their pack.
  * Discrete changes are two keyframes {@value #STEP} seconds apart, so they are instant in any Bedrock-format reader.
  * Values are Bedrock's: x is mirrored (GeckoLib negates it), rotations are in degrees as GeckoLib reads them, so an
  * armor stand pose is written as it is and a yaw as {@code yRot - 180}. Angles are unwrapped so a turn past 180 degrees
@@ -91,9 +103,127 @@ public final class ArmorStandExporter {
         Vec3 origin = new Vec3((recording.min().getX() + recording.max().getX() + 1) / 2.0, recording.min().getY(),
                 (recording.min().getZ() + recording.max().getZ() + 1) / 2.0);
         Files.writeString(folder.resolve("recording.json"), GSON.toJson(raw(recording, origin)), StandardCharsets.UTF_8);
-        Files.writeString(folder.resolve(name + ".geo.json"), GSON.toJson(geometry(recording, name)), StandardCharsets.UTF_8);
-        Files.writeString(folder.resolve(name + ".animation.json"), GSON.toJson(animation(recording, name, origin)), StandardCharsets.UTF_8);
+        ResourceManager resources = Minecraft.getInstance().getResourceManager();
+        CapturedAssets assets = new CapturedAssets(resources, folder);
+        TextureAtlas atlas = new TextureAtlas(resources, assets);
+        try {
+            if (!recording.tracks().isEmpty()) {
+                atlas.pin(Identifier.withDefaultNamespace("textures/entity/armorstand/wood.png"),
+                        Identifier.withDefaultNamespace("textures/entity/armorstand/armorstand.png"));
+            }
+            Map<String, List<ItemVariant>> items = items(recording, new ItemModels(resources, assets), atlas);
+            if (!atlas.isEmpty()) {
+                atlas.pack();
+                atlas.write(folder.resolve(name + ".png"));
+            }
+            JsonObject geometry = geometry(recording, name, items, atlas);
+            Files.writeString(folder.resolve(name + ".geo.json"), GSON.toJson(geometry), StandardCharsets.UTF_8);
+            Files.writeString(folder.resolve(name + ".animation.json"), GSON.toJson(animation(recording, name, origin, items)), StandardCharsets.UTF_8);
+            Files.writeString(folder.resolve("item_models.json"), GSON.toJson(itemIndex(items, atlas, assets)), StandardCharsets.UTF_8);
+            if (!atlas.isEmpty()) {
+                Files.writeString(folder.resolve(name + ".bbmodel"),
+                        GSON.toJson(Bbmodel.of(geometry, name, folder.resolve(name + ".png"), atlas.width(), atlas.height())), StandardCharsets.UTF_8);
+            }
+        } finally {
+            atlas.close();
+        }
         return folder;
+    }
+
+    // Item display models
+
+    /** One item (and display context) an item display shows during the recording, drawn by the {@code <bone>_item_<index>} bone. */
+    private record ItemVariant(int index, String key, JsonObject item, String context, ItemModels.Resolved resolved) {
+        String bone(String prop) {
+            return prop + "_item_" + index;
+        }
+    }
+
+    /** Every item display's distinct items, resolved, with their textures added to the atlas. */
+    private static Map<String, List<ItemVariant>> items(Recording recording, ItemModels models, TextureAtlas atlas) {
+        Map<String, List<ItemVariant>> items = new TreeMap<>();
+        for (PropTrack track : recording.props()) {
+            if (!track.kind.equals("item_display")) {
+                continue;
+            }
+            List<ItemVariant> variants = new ArrayList<>();
+            for (PropSnapshot frame : track.frames.values()) {
+                String key = itemKey(frame);
+                if (key == null || variants.stream().anyMatch(v -> v.key().equals(key))) {
+                    continue;
+                }
+                JsonObject item = frame.state().getAsJsonObject("item");
+                String context = frame.state().get("item_display").getAsString();
+                ItemModels.Resolved resolved = models.resolve(item, context);
+                resolved.models().forEach(model -> ItemGeometry.collect(model, atlas));
+                variants.add(new ItemVariant(variants.size(), key, item, context, resolved));
+            }
+            if (!variants.isEmpty()) {
+                items.put(track.bone, variants);
+            }
+        }
+        return items;
+    }
+
+    /** What picks an item display's look: its item and display context, or null while it shows nothing. */
+    private static @Nullable String itemKey(PropSnapshot frame) {
+        JsonElement item = frame.state().get("item");
+        if (item == null || !item.isJsonObject() || !frame.state().has("item_display")) {
+            return null;
+        }
+        return COMPACT.toJson(item) + " " + frame.state().get("item_display").getAsString();
+    }
+
+    private static JsonObject itemIndex(Map<String, List<ItemVariant>> items, TextureAtlas atlas, CapturedAssets assets) {
+        JsonArray list = new JsonArray();
+        items.forEach((prop, variants) -> {
+            for (ItemVariant variant : variants) {
+                JsonObject entry = new JsonObject();
+                entry.addProperty("bone", variant.bone(prop));
+                entry.add("item", variant.item());
+                entry.addProperty("display_context", variant.context());
+                entry.addProperty("definition", variant.resolved().definition().toString());
+                JsonArray models = new JsonArray();
+                for (ItemModels.Model model : variant.resolved().models()) {
+                    JsonObject m = new JsonObject();
+                    m.addProperty("model", model.id().toString());
+                    JsonArray chain = new JsonArray();
+                    model.chain().forEach(id -> chain.add(id.toString()));
+                    m.add("parents", chain);
+                    m.addProperty("generated", model.generated());
+                    JsonObject textures = new JsonObject();
+                    model.textures().forEach((key, id) -> textures.addProperty(key, id.toString()));
+                    m.add("textures", textures);
+                    m.addProperty("cubes", ItemGeometry.cubes(model, atlas).size());
+                    if (model.display().has(variant.context())) {
+                        m.add("display", model.display().get(variant.context()));
+                    }
+                    models.add(m);
+                }
+                entry.add("models", models);
+                JsonArray notes = new JsonArray();
+                variant.resolved().notes().forEach(notes::add);
+                entry.add("notes", notes);
+                list.add(entry);
+            }
+        });
+        JsonObject textures = new JsonObject();
+        atlas.slots().forEach((id, slot) -> {
+            JsonObject entry = new JsonObject();
+            entry.add("atlas", array(slot.x(), slot.y(), slot.width(), slot.height()));
+            if (slot.missing()) {
+                entry.addProperty("missing", true);
+            }
+            textures.add(id.toString(), entry);
+        });
+        JsonObject root = new JsonObject();
+        root.addProperty("conventions", "Each item display's distinct items, as the client resolves them from the loaded resource packs. "
+                + "The models' cubes are in the bone of the same name; textures lists each texture's place in the atlas (x, y, width, "
+                + "height; its first animation frame); assets lists the files copied into this folder and the pack each came from.");
+        root.add("items", list);
+        root.add("textures", textures);
+        root.add("assets", assets.index());
+        return root;
     }
 
     // recording.json
@@ -251,7 +381,7 @@ public final class ArmorStandExporter {
 
     // <name>.geo.json
 
-    private static JsonObject geometry(Recording recording, String name) {
+    private static JsonObject geometry(Recording recording, String name, Map<String, List<ItemVariant>> items, TextureAtlas atlas) {
         JsonArray bones = new JsonArray();
         for (Track track : recording.tracks()) {
             String b = track.bone;
@@ -303,13 +433,22 @@ public final class ArmorStandExporter {
             bones.add(bone);
             if (track.frames.values().iterator().next().transform() != null) {
                 bones.add(bone(track.bone + "_transform", track.bone, 0, 0, 0));
+                for (ItemVariant variant : items.getOrDefault(track.bone, List.of())) {
+                    JsonObject bone = bone(variant.bone(track.bone), track.bone + "_transform", 0, 0, 0);
+                    JsonArray cubes = new JsonArray();
+                    variant.resolved().models().forEach(model -> cubes.addAll(ItemGeometry.cubes(model, atlas)));
+                    if (!cubes.isEmpty()) {
+                        bone.add("cubes", cubes);
+                    }
+                    bones.add(bone);
+                }
             }
         }
         int width = Math.max(recording.max().getX() - recording.min().getX(), recording.max().getZ() - recording.min().getZ()) + 3;
         JsonObject description = new JsonObject();
         description.addProperty("identifier", "geometry." + name);
-        description.addProperty("texture_width", 64);
-        description.addProperty("texture_height", 64);
+        description.addProperty("texture_width", atlas.isEmpty() ? 64 : atlas.width());
+        description.addProperty("texture_height", atlas.isEmpty() ? 64 : atlas.height());
         description.addProperty("visible_bounds_width", width);
         description.addProperty("visible_bounds_height", recording.max().getY() - recording.min().getY() + 3);
         description.add("visible_bounds_offset", array(0, (recording.max().getY() - recording.min().getY() + 1) / 2.0, 0));
@@ -355,7 +494,7 @@ public final class ArmorStandExporter {
 
     // <name>.animation.json
 
-    private static JsonObject animation(Recording recording, String name, Vec3 origin) {
+    private static JsonObject animation(Recording recording, String name, Vec3 origin, Map<String, List<ItemVariant>> items) {
         int ticks = Math.max(1, recording.ticks());
         JsonObject bones = new JsonObject();
         for (Track track : recording.tracks()) {
@@ -472,6 +611,16 @@ public final class ArmorStandExporter {
                     return tr == null ? new double[] {1, 1, 1} : new double[] {tr.scale().x(), tr.scale().y(), tr.scale().z()};
                 }, false));
                 bones.add(track.bone + "_transform", transform);
+                for (ItemVariant variant : items.getOrDefault(track.bone, List.of())) {
+                    // The model's display transform, held; scale 0 while the display shows another item or none.
+                    double[][] display = variant.resolved().models().isEmpty() ? new double[][] {{0, 0, 0}, {0, 0, 0}, {1, 1, 1}}
+                            : ItemGeometry.displayTransform(variant.resolved().models().get(0), variant.context());
+                    JsonObject item = new JsonObject();
+                    item.add("position", continuous(ticks, t -> display[0].clone(), false));
+                    item.add("rotation", continuous(ticks, t -> display[1].clone(), true));
+                    item.add("scale", discreteVector(ticks, t -> variant.key().equals(itemKey(states[t])) ? display[2] : new double[3]));
+                    bones.add(variant.bone(track.bone), item);
+                }
             }
             bones.add(track.bone, root);
         }
@@ -514,7 +663,7 @@ public final class ArmorStandExporter {
      * A world rotation as a GeckoLib bone rotation in degrees: GeckoLib turns a bone about z, then y, then x, and negates
      * the x and y it reads, as it does for the stands' poses.
      */
-    private static double[] euler(Quaternionfc rotation) {
+    static double[] euler(Quaternionfc rotation) {
         Vector3f angles = rotation.getEulerAnglesZYX(new Vector3f());
         return new double[] {-Math.toDegrees(angles.x), -Math.toDegrees(angles.y), Math.toDegrees(angles.z)};
     }
@@ -559,6 +708,22 @@ public final class ArmorStandExporter {
         return frames;
     }
 
+    /** {@link #discrete} for a vector. */
+    private static JsonObject discreteVector(int ticks, Function<Integer, double[]> value) {
+        JsonObject frames = new JsonObject();
+        double[] previous = value.apply(0);
+        frames.add(time(0), array(previous));
+        for (int t = 1; t < ticks; t++) {
+            double[] v = value.apply(t);
+            if (!same(v, previous)) {
+                frames.add(String.format(Locale.ROOT, "%.4f", t / 20.0 - STEP), array(previous));
+                frames.add(time(t), array(v));
+                previous = v;
+            }
+        }
+        return frames;
+    }
+
     private static double wrap(double degrees) {
         double d = degrees % 360;
         return d > 180 ? d - 360 : d < -180 ? d + 360 : d;
@@ -577,7 +742,7 @@ public final class ArmorStandExporter {
         return String.format(Locale.ROOT, "%.4f", tick / 20.0);
     }
 
-    private static JsonArray array(double... values) {
+    static JsonArray array(double... values) {
         JsonArray array = new JsonArray();
         for (double value : values) {
             // Whole numbers without ".0", others rounded to 4 places.
