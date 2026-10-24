@@ -197,7 +197,8 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         addId("message", "block.unblocked", "You unblocked %s.");
         addId("message", "rubies.pay.blocked", "You have %s blocked!");
         addId("message", "rubies.pay.sent", "You've paid %s rubies to %s!");
-        addId("message", "rubies.pay.received", "%s sent you %s rubies.");
+        addId("message", "rubies.pay.received", "You've received %s rubies from %s!");
+        addId("message", "rubies.pay.received_offline", "You've received %s rubies from %s while you were offline!");
         addId("message", "rubies.set", "%s now has %s rubies.");
     }
 
@@ -515,6 +516,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("dummy.list", "%s dummy players: %s");
         message("dummy.bad_preset", "Unknown realm region %s: lush, arid, cold, arctic or tropical");
         message("dummy.has_realm", "%s already has a realm");
+        add("message.apeira.dev.commands", "%s commands added by mods:");
         message("dummy.no_realm", "%s has no realm yet: /apeiradev dummy create_realm %s");
         message("dummy.realm_created", "%s claimed a %s realm (%s)");
         message("dummy.realm_reset", "%s reset their realm to %s");

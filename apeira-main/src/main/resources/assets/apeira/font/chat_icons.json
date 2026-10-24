@@ -11,6 +11,15 @@
     },
     {
       "type": "bitmap",
+      "file": "apeira:gui/chat/error_yellow.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꑟ"
+      ]
+    },
+    {
+      "type": "bitmap",
       "file": "apeira:gui/chat/error_green.png",
       "ascent": 7,
       "height": 7,

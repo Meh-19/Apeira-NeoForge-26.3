@@ -3,12 +3,16 @@ package com.apeira.main.realm;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+
+import com.apeira.core.command.CommandList;
 
 import com.apeira.main.party.PartyService;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -16,6 +20,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.logging.LogUtils;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -45,6 +50,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
  * what they were added to (members, friends) stays, as for a player who logged out.
  */
 public final class DummyPlayers {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final String TAG = "apeira_dummy";
     private static final Pattern NAME = Pattern.compile("[A-Za-z0-9_]{3,16}");
     private static final Map<UUID, Dummy> DUMMIES = new LinkedHashMap<>();
@@ -80,6 +86,7 @@ public final class DummyPlayers {
     public static void register(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("apeiradev")
                 .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                .then(Commands.literal("commands").executes(context -> commands(context.getSource())))
                 .then(Commands.literal("dummy")
                         .then(Commands.literal("add").then(Commands.argument("name", StringArgumentType.word()).executes(context ->
                                 add(context.getSource(), StringArgumentType.getString(context, "name")))))
@@ -98,6 +105,23 @@ public final class DummyPlayers {
                         .then(dummyAction("ban", DummyPlayers::ban))
                         .then(dummyAction("reset_realm", (source, dummy) -> resetRealm(source, dummy, null))
                                 .then(presetArgument((source, dummy, preset) -> resetRealm(source, dummy, preset))))));
+    }
+
+    /**
+     * {@code /apeiradev commands}: every command mods added to the server ({@link CommandList}), grouped by root
+     * command, written to chat and the log.
+     */
+    private static int commands(CommandSourceStack source) {
+        Map<String, List<String>> usages = CommandList.usages(source.getServer().getCommands().getDispatcher());
+        source.sendSuccess(() -> Component.translatable("message.apeira.dev.commands", usages.size()).withStyle(ChatFormatting.GOLD), false);
+        usages.forEach((root, lines) -> {
+            source.sendSuccess(() -> Component.literal("/" + root).withStyle(ChatFormatting.YELLOW), false);
+            for (String line : lines) {
+                source.sendSuccess(() -> Component.literal("  " + line).withStyle(ChatFormatting.GRAY), false);
+                LOGGER.info("[apeiradev commands] {}", line);
+            }
+        });
+        return usages.size();
     }
 
     /** What a dummy does to the operator who runs the command. */

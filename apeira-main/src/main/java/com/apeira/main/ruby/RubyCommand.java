@@ -1,35 +1,46 @@
 package com.apeira.main.ruby;
 
 import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
 
 import com.apeira.main.realm.ChatIcons;
 import com.apeira.main.realm.RealmData;
 import com.apeira.main.realm.RealmService;
 import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permissions;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 /**
  * The ruby commands. {@code /pay <player> <amount>} (any player) moves rubies from the sender's balance to another
- * online player's, unless the sender has blocked them ({@code /block}): "You have [name] blocked!" in red, or on
- * success "You've paid [#] rubies to [name]!" in green, each behind Origin Realms' chat icon ({@link ChatIcons}). {@code /rubies add|remove <players> <amount>} and {@code /rubies reset <players>} (operators) change
- * balances; {@code /rubies} alone shows one's own. Every change goes through {@link Rubies}.
+ * player's, online or offline as long as they have joined before, unless the sender has blocked them ({@code /block}):
+ * "You have [name] blocked!" in red, or on success "You've paid [#] rubies to [name]!" in green, each behind Origin
+ * Realms' chat icon ({@link ChatIcons}). An online receiver gets the rubies at once with "You've received [#] rubies
+ * from [name]!"; an offline one's are queued in {@link RealmData} and handed over at their next login with "You've
+ * received [#] rubies from [name] while you were offline!" ({@link #onLoggedIn}), both behind the yellow icon.
+ * {@code /rubies give|take <players> <amount>} and {@code /rubies reset <players>} (operators) change balances;
+ * {@code /rubies} alone shows one's own. Every change goes through {@link Rubies}.
  */
 public final class RubyCommand {
     private RubyCommand() {}
 
     public static void register(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("pay")
-                .then(Commands.argument("player", EntityArgument.player())
+                .then(Commands.argument("player", StringArgumentType.word())
+                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(context.getSource().getOnlinePlayerNames(), builder))
                         .then(Commands.argument("amount", LongArgumentType.longArg(1, Rubies.MAX))
                                 .executes(RubyCommand::pay))));
         event.getDispatcher().register(Commands.literal("rubies")
@@ -38,11 +49,11 @@ public final class RubyCommand {
                     RealmService.done(player, "rubies.balance", Rubies.format(Rubies.get(player)));
                     return 1;
                 })
-                .then(Commands.literal("add").requires(RubyCommand::isOperator)
+                .then(Commands.literal("give").requires(RubyCommand::isOperator)
                         .then(Commands.argument("players", EntityArgument.players())
                                 .then(Commands.argument("amount", LongArgumentType.longArg(1, Rubies.MAX))
                                         .executes(context -> change(context, LongArgumentType.getLong(context, "amount"))))))
-                .then(Commands.literal("remove").requires(RubyCommand::isOperator)
+                .then(Commands.literal("take").requires(RubyCommand::isOperator)
                         .then(Commands.argument("players", EntityArgument.players())
                                 .then(Commands.argument("amount", LongArgumentType.longArg(1, Rubies.MAX))
                                         .executes(context -> change(context, -LongArgumentType.getLong(context, "amount"))))))
@@ -57,29 +68,57 @@ public final class RubyCommand {
 
     private static int pay(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer sender = context.getSource().getPlayerOrException();
-        ServerPlayer target = EntityArgument.getPlayer(context, "player");
+        MinecraftServer server = context.getSource().getServer();
+        RealmData data = RealmData.get(server);
+        String name = StringArgumentType.getString(context, "player");
+        ServerPlayer online = server.getPlayerList().getPlayerByName(name);
+        Optional<UUID> found = online != null ? Optional.of(online.getUUID()) : data.byName(name);
+        if (found.isEmpty()) {
+            RealmService.fail(sender, "realm.unknown_player", name);
+            return 0;
+        }
+        UUID target = found.get();
+        Component targetName = online != null ? online.getDisplayName() : Component.literal(data.nameOf(target));
         long amount = LongArgumentType.getLong(context, "amount");
-        if (target == sender) {
+        if (target.equals(sender.getUUID())) {
             RealmService.fail(sender, "rubies.pay.self");
             return 0;
         }
-        if (RealmData.get(sender.level().getServer()).hasBlocked(sender.getUUID(), target.getUUID())) {
-            sender.sendSystemMessage(ChatIcons.line(ChatIcons.ERROR, "rubies.pay.blocked", ChatFormatting.RED, target.getDisplayName()));
+        if (data.hasBlocked(sender.getUUID(), target)) {
+            sender.sendSystemMessage(ChatIcons.line(ChatIcons.ERROR, "rubies.pay.blocked", ChatFormatting.RED, targetName));
             return 0;
         }
-        if (Rubies.get(target) + amount > Rubies.MAX) {
-            RealmService.fail(sender, "rubies.pay.full", target.getDisplayName());
+        long balance = online != null ? Rubies.get(online)
+                : data.known(target).map(RealmData.KnownPlayer::rubies).orElse(0L) + data.pendingRubiesFor(target);
+        if (balance + amount > Rubies.MAX) {
+            RealmService.fail(sender, "rubies.pay.full", targetName);
             return 0;
         }
         if (!Rubies.take(sender, amount)) {
             RealmService.fail(sender, "rubies.pay.not_enough", Rubies.format(amount), Rubies.format(Rubies.get(sender)));
             return 0;
         }
-        Rubies.give(target, amount);
-        sender.sendSystemMessage(ChatIcons.line(ChatIcons.SUCCESS, "rubies.pay.sent", ChatFormatting.GREEN, Rubies.format(amount),
-                target.getDisplayName()));
-        RealmService.done(target, "rubies.pay.received", sender.getDisplayName(), Rubies.format(amount));
+        if (online != null) {
+            Rubies.give(online, amount);
+            online.sendSystemMessage(ChatIcons.line(ChatIcons.NOTICE, "rubies.pay.received", ChatFormatting.YELLOW, Rubies.format(amount),
+                    sender.getDisplayName()));
+        } else {
+            data.queueRubies(target, sender.getUUID(), amount);
+        }
+        sender.sendSystemMessage(ChatIcons.line(ChatIcons.SUCCESS, "rubies.pay.sent", ChatFormatting.GREEN, Rubies.format(amount), targetName));
         return 1;
+    }
+
+    /** Hands a player the rubies paid to them while they were offline, one line per payment. */
+    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            RealmData data = RealmData.get(player.level().getServer());
+            for (RealmData.PendingRubies pending : data.takePendingRubies(player.getUUID())) {
+                Rubies.give(player, pending.amount());
+                player.sendSystemMessage(ChatIcons.line(ChatIcons.NOTICE, "rubies.pay.received_offline", ChatFormatting.YELLOW,
+                        Rubies.format(pending.amount()), data.nameOf(pending.from())));
+            }
+        }
     }
 
     /**

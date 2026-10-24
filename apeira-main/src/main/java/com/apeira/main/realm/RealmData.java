@@ -27,7 +27,8 @@ import net.minecraft.world.level.saveddata.SavedDataType;
  * Every realm dimension the server has made, saved with the overworld ({@code data/apeira/realms.dat}): the realms
  * players own, by owner, and the pre-generated pool waiting to be claimed ({@link RealmPool}); each realm's
  * {@link RealmAccess} (members, bans, invites, settings); the names and last-seen times of players who have joined, so
- * menus can list offline members; friendships and friend requests, which the {@link VisitingRule#FRIENDS} rule uses; and each player's blocked players.
+ * menus can list offline members; friendships and friend requests, which the {@link VisitingRule#FRIENDS} rule uses; each player's blocked players; and rubies paid to players while they were offline ({@code /pay}), handed over at
+ * their next login.
  */
 public final class RealmData extends SavedData {
     private static final Codec<RealmData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -40,7 +41,9 @@ public final class RealmData extends SavedData {
             Codec.unboundedMap(UUIDUtil.STRING_CODEC, UUIDUtil.STRING_CODEC.listOf()).optionalFieldOf("friend_requests", Map.of())
                     .forGetter(data -> lists(data.friendRequests)),
             Codec.unboundedMap(UUIDUtil.STRING_CODEC, UUIDUtil.STRING_CODEC.listOf()).optionalFieldOf("blocked", Map.of())
-                    .forGetter(data -> lists(data.blocked))).apply(instance, RealmData::new));
+                    .forGetter(data -> lists(data.blocked)),
+            Codec.unboundedMap(UUIDUtil.STRING_CODEC, PendingRubies.CODEC.listOf()).optionalFieldOf("pending_rubies", Map.of())
+                    .forGetter(data -> Map.copyOf(data.pendingRubies))).apply(instance, RealmData::new));
     public static final SavedDataType<RealmData> TYPE = new SavedDataType<>(ApeiraIds.id("realms"), RealmData::new, CODEC);
 
     private final Map<UUID, Realm> owners = new HashMap<>();
@@ -53,11 +56,14 @@ public final class RealmData extends SavedData {
     private final Map<UUID, Set<UUID>> friendRequests = new HashMap<>();
     /** Whom each player has blocked ({@code /block}); one-sided. */
     private final Map<UUID, Set<UUID>> blocked = new HashMap<>();
+    /** Rubies paid to players while they were offline, by the player paid, oldest first. */
+    private final Map<UUID, List<PendingRubies>> pendingRubies = new HashMap<>();
 
     private RealmData() {}
 
     private RealmData(Map<UUID, Realm> owners, List<Realm> pool, Map<UUID, RealmAccess> access, Map<UUID, KnownPlayer> players,
-            Map<UUID, List<UUID>> friends, Map<UUID, List<UUID>> friendRequests, Map<UUID, List<UUID>> blocked) {
+            Map<UUID, List<UUID>> friends, Map<UUID, List<UUID>> friendRequests, Map<UUID, List<UUID>> blocked,
+            Map<UUID, List<PendingRubies>> pendingRubies) {
         this.owners.putAll(owners);
         this.pool.addAll(pool);
         this.access.putAll(access);
@@ -65,6 +71,7 @@ public final class RealmData extends SavedData {
         friends.forEach((player, list) -> this.friends.put(player, new HashSet<>(list)));
         friendRequests.forEach((player, list) -> this.friendRequests.put(player, new HashSet<>(list)));
         blocked.forEach((player, list) -> this.blocked.put(player, new HashSet<>(list)));
+        pendingRubies.forEach((player, list) -> this.pendingRubies.put(player, new ArrayList<>(list)));
     }
 
     private static Map<UUID, List<UUID>> lists(Map<UUID, Set<UUID>> sets) {
@@ -131,6 +138,27 @@ public final class RealmData extends SavedData {
             players.put(player, new KnownPlayer(before.name(), before.lastSeen(), before.firstSeen(), rubies));
             setDirty();
         }
+    }
+
+    /** Queues {@code amount} rubies from {@code from} for {@code player}, who is offline, until they next log in. */
+    public void queueRubies(UUID player, UUID from, long amount) {
+        pendingRubies.computeIfAbsent(player, uuid -> new ArrayList<>()).add(new PendingRubies(from, amount));
+        setDirty();
+    }
+
+    /** The rubies queued for {@code player}, all together. */
+    public long pendingRubiesFor(UUID player) {
+        return pendingRubies.getOrDefault(player, List.of()).stream().mapToLong(PendingRubies::amount).sum();
+    }
+
+    /** Removes and returns the rubies queued for {@code player}, oldest first. */
+    public List<PendingRubies> takePendingRubies(UUID player) {
+        List<PendingRubies> pending = pendingRubies.remove(player);
+        if (pending == null) {
+            return List.of();
+        }
+        setDirty();
+        return pending;
     }
 
     public Optional<KnownPlayer> known(UUID player) {
@@ -266,6 +294,13 @@ public final class RealmData extends SavedData {
                 Codec.LONG.fieldOf("last_seen").forGetter(KnownPlayer::lastSeen),
                 Codec.LONG.optionalFieldOf("first_seen", 0L).forGetter(KnownPlayer::firstSeen),
                 Codec.LONG.optionalFieldOf("rubies", 0L).forGetter(KnownPlayer::rubies)).apply(instance, KnownPlayer::new));
+    }
+
+    /** Rubies {@code from} paid while the receiver was offline. */
+    public record PendingRubies(UUID from, long amount) {
+        public static final Codec<PendingRubies> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                UUIDUtil.STRING_CODEC.fieldOf("from").forGetter(PendingRubies::from),
+                Codec.LONG.fieldOf("amount").forGetter(PendingRubies::amount)).apply(instance, PendingRubies::new));
     }
 
     /**
