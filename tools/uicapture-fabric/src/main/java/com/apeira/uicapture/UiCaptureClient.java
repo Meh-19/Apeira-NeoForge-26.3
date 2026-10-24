@@ -30,7 +30,8 @@ import net.minecraft.network.chat.Component;
  * formatting and fonts. "Log HUD Elements" (F10, no screen open) captures the HUD like F8 and adds what it shows as
  * text ({@link HudLog}); "Toggle Chat Logger" (F7, also inside screens) logs chat messages ({@link ChatCapture}).
  * {@code /apeirasound} inspects a sound event and logs played sounds ({@link SoundInspector}); {@code /apeiracommands}
- * logs the server's command tree and, with {@code probe}, the server's completions, and records the commands the player runs ({@link CommandLogger}).
+ * logs the server's command tree and, with {@code probe}, the server's completions, and records the commands the player runs ({@link CommandLogger});
+ * {@code /apeiradev area} and {@code /apeiradev record} record the armor stands in an area as a GeckoLib model and animation ({@link ArmorStandRecorder}).
  * Nothing is registered and nothing is sent but a probe's completion requests, so it works on any server.
  */
 public final class UiCaptureClient implements ClientModInitializer {
@@ -57,6 +58,7 @@ public final class UiCaptureClient implements ClientModInitializer {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> {
             SoundInspector.register(dispatcher);
             CommandLogger.register(dispatcher);
+            ArmorStandRecorder.register(dispatcher);
         });
         ScreenEvents.AFTER_INIT.register((minecraft, screen, width, height) -> {
             // Key mappings are not clicked while a screen is open, so the screen's own key event arms the capture.
@@ -97,6 +99,7 @@ public final class UiCaptureClient implements ClientModInitializer {
 
     private static void onClientTick(Minecraft minecraft) {
         CommandLogger.tick(minecraft);
+        ArmorStandRecorder.tick(minecraft);
         boolean noScreen = minecraft.screen == null;
         if ((pending == Pending.SCREEN || pending == Pending.INSPECT) && noScreen) {
             // The screen closed before it drew again.
