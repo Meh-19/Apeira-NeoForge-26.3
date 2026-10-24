@@ -8,6 +8,7 @@
     "BossHealthOverlayAccessor",
     "ChatComponentAccessor",
     "ChatComponentMixin",
+    "ClientSuggestionProviderMixin",
     "GuiAccessor",
     "GuiGraphicsMixin",
     "GuiMixin",
