@@ -12,6 +12,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
@@ -29,7 +30,7 @@ import net.minecraft.network.chat.Component;
  * formatting and fonts. "Log HUD Elements" (F10, no screen open) captures the HUD like F8 and adds what it shows as
  * text ({@link HudLog}); "Toggle Chat Logger" (F7, also inside screens) logs chat messages ({@link ChatCapture}).
  * {@code /apeirasound} inspects a sound event and logs played sounds ({@link SoundInspector}); {@code /apeiracommands}
- * logs the server's command tree and, with {@code probe}, the server's completions ({@link CommandLogger}).
+ * logs the server's command tree and, with {@code probe}, the server's completions, and records the commands the player runs ({@link CommandLogger}).
  * Nothing is registered and nothing is sent but a probe's completion requests, so it works on any server.
  */
 public final class UiCaptureClient implements ClientModInitializer {
@@ -52,6 +53,7 @@ public final class UiCaptureClient implements ClientModInitializer {
         KeyBindingHelper.registerKeyBinding(LOG_HUD);
         KeyBindingHelper.registerKeyBinding(LOG_CHAT);
         ClientTickEvents.END_CLIENT_TICK.register(UiCaptureClient::onClientTick);
+        ClientSendMessageEvents.COMMAND.register(CommandLogger::ran);
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> {
             SoundInspector.register(dispatcher);
             CommandLogger.register(dispatcher);
