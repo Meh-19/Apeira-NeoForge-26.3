@@ -25,9 +25,15 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Rotations;
 import net.minecraft.world.phys.Vec3;
 
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
+import org.joml.Vector3f;
+
 import com.apeira.uicapture.ArmorStandRecorder.Event;
 import com.apeira.uicapture.ArmorStandRecorder.HitboxSnapshot;
 import com.apeira.uicapture.ArmorStandRecorder.HitboxTrack;
+import com.apeira.uicapture.ArmorStandRecorder.PropSnapshot;
+import com.apeira.uicapture.ArmorStandRecorder.PropTrack;
 import com.apeira.uicapture.ArmorStandRecorder.Recording;
 import com.apeira.uicapture.ArmorStandRecorder.Snapshot;
 import com.apeira.uicapture.ArmorStandRecorder.Track;
@@ -52,6 +58,15 @@ import com.apeira.uicapture.ArmorStandRecorder.Track;
  * width and height; the animation moves the bone, scales it to 0 outside the area and scales the hitbox by the size
  * changes. {@code recording.json} lists each interaction's frames (position, yaw, width, height, response) and its offset
  * from the nearest recorded stand.
+ * Every other entity in the area is a prop bone named by its kind ({@code item_display_<n>}, {@code block_display_<n>},
+ * {@code text_display_<n>}, {@code item_frame_<n>}, {@code item_<n>}, {@code entity_<n>}) with a locator of the same
+ * name, moved to its position and hidden outside the area; display entities also turn by their yaw and pitch (as a
+ * fixed billboard draws them) and have a {@code <bone>_transform} child with their transformation: translation as its
+ * position, left times right rotation as its rotation and scale as its scale, which is exact when the right rotation is
+ * identity or the scale uniform (servers almost always leave the right rotation alone). Item displays draw their item
+ * turned half a turn about y and block displays from the block's corner, as vanilla does. {@code recording.json} lists
+ * each prop's frames with its state (item or block, custom model data, billboard, text, frame rotation) and full
+ * transformation, and the {@code change} events hold the state keys that changed.
  * Discrete changes are two keyframes {@value #STEP} seconds apart, so they are instant in any Bedrock-format reader.
  * Values are Bedrock's: x is mirrored (GeckoLib negates it), rotations are in degrees as GeckoLib reads them, so an
  * armor stand pose is written as it is and a yaw as {@code yRot - 180}. Angles are unwrapped so a turn past 180 degrees
@@ -155,6 +170,33 @@ public final class ArmorStandExporter {
             hitboxes.add(hitbox);
         }
         root.add("interactions", hitboxes);
+        JsonArray props = new JsonArray();
+        for (PropTrack track : recording.props()) {
+            JsonObject prop = new JsonObject();
+            prop.addProperty("bone", track.bone);
+            prop.addProperty("kind", track.kind);
+            prop.addProperty("type", track.type);
+            prop.addProperty("uuid", track.uuid.toString());
+            prop.addProperty("entity_id", track.entityId);
+            prop.addProperty("first_tick", track.firstTick);
+            JsonArray frames = new JsonArray();
+            track.frames.forEach((tick, p) -> {
+                JsonObject frame = new JsonObject();
+                frame.addProperty("tick", tick);
+                frame.add("pos", array(p.pos().x, p.pos().y, p.pos().z));
+                frame.add("relative_to_origin", array(p.pos().x - origin.x, p.pos().y - origin.y, p.pos().z - origin.z));
+                frame.addProperty("yaw", p.yaw());
+                frame.addProperty("pitch", p.pitch());
+                if (p.transform() != null) {
+                    frame.add("transformation", p.transform().json());
+                }
+                frame.add("state", p.state());
+                frames.add(frame);
+            });
+            prop.add("frames", frames);
+            props.add(prop);
+        }
+        root.add("props", props);
         JsonArray events = new JsonArray();
         for (Event event : recording.events()) {
             JsonObject json = new JsonObject();
@@ -249,6 +291,19 @@ public final class ArmorStandExporter {
             bones.add(bone);
             double w = first.width() * 16, h = first.height() * 16;
             bones.add(bone(track.bone + "_hitbox", track.bone, 0, 0, 0, cube(-w / 2, 0, -w / 2, w, h, w, 0, 0, false)));
+        }
+        for (PropTrack track : recording.props()) {
+            if (track.frames.isEmpty()) {
+                continue;
+            }
+            JsonObject bone = bone(track.bone, null, 0, 0, 0);
+            JsonObject locators = new JsonObject();
+            locators.add(track.bone, array(0, 0, 0));
+            bone.add("locators", locators);
+            bones.add(bone);
+            if (track.frames.values().iterator().next().transform() != null) {
+                bones.add(bone(track.bone + "_transform", track.bone, 0, 0, 0));
+            }
         }
         int width = Math.max(recording.max().getX() - recording.min().getX(), recording.max().getZ() - recording.min().getZ()) + 3;
         JsonObject description = new JsonObject();
@@ -381,6 +436,45 @@ public final class ArmorStandExporter {
             }, false));
             bones.add(track.bone + "_hitbox", hitbox);
         }
+        for (PropTrack track : recording.props()) {
+            if (track.frames.isEmpty()) {
+                continue;
+            }
+            PropSnapshot[] states = new PropSnapshot[ticks];
+            PropSnapshot first = track.frames.values().iterator().next();
+            PropSnapshot last = first;
+            for (int t = 0; t < ticks; t++) {
+                PropSnapshot p = track.frames.get(t);
+                if (p != null) {
+                    last = p;
+                }
+                states[t] = last;
+            }
+            JsonObject root = new JsonObject();
+            root.add("position", continuous(ticks, t -> new double[] {
+                    -(states[t].pos().x - origin.x) * 16, (states[t].pos().y - origin.y) * 16, (states[t].pos().z - origin.z) * 16}, false));
+            root.add("scale", discrete(ticks, t -> track.frames.containsKey(t) ? 1.0 : 0.0));
+            if (first.transform() != null) {
+                // A fixed billboard turns the display by yaw, then pitch.
+                root.add("rotation", continuous(ticks, t -> euler(new Quaternionf().rotationYXZ(
+                        (float) Math.toRadians(-states[t].yaw()), (float) Math.toRadians(states[t].pitch()), 0)), true));
+                JsonObject transform = new JsonObject();
+                transform.add("position", continuous(ticks, t -> {
+                    AreaEntities.Transform tr = states[t].transform();
+                    return tr == null ? new double[3] : new double[] {-tr.translation().x() * 16, tr.translation().y() * 16, tr.translation().z() * 16};
+                }, false));
+                transform.add("rotation", continuous(ticks, t -> {
+                    AreaEntities.Transform tr = states[t].transform();
+                    return tr == null ? new double[3] : euler(new Quaternionf(tr.left()).mul(tr.right()));
+                }, true));
+                transform.add("scale", continuous(ticks, t -> {
+                    AreaEntities.Transform tr = states[t].transform();
+                    return tr == null ? new double[] {1, 1, 1} : new double[] {tr.scale().x(), tr.scale().y(), tr.scale().z()};
+                }, false));
+                bones.add(track.bone + "_transform", transform);
+            }
+            bones.add(track.bone, root);
+        }
         JsonObject timeline = new JsonObject();
         Map<Integer, JsonArray> byTick = new TreeMap<>();
         for (Event event : recording.events()) {
@@ -414,6 +508,15 @@ public final class ArmorStandExporter {
             text.append(' ').append(COMPACT.toJson(event.details()));
         }
         return text.toString();
+    }
+
+    /**
+     * A world rotation as a GeckoLib bone rotation in degrees: GeckoLib turns a bone about z, then y, then x, and negates
+     * the x and y it reads, as it does for the stands' poses.
+     */
+    private static double[] euler(Quaternionfc rotation) {
+        Vector3f angles = rotation.getEulerAnglesZYX(new Vector3f());
+        return new double[] {-Math.toDegrees(angles.x), -Math.toDegrees(angles.y), Math.toDegrees(angles.z)};
     }
 
     /** Linear keyframes at the ends of every run of equal values, so held values stay held. */
