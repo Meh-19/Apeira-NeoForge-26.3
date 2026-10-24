@@ -2,6 +2,7 @@ package com.apeira.uicapture;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -118,13 +119,37 @@ public final class ArmorStandRecorder {
         }
     }
 
+    /** A prop's state in one tick: position, yaw, pitch, what picks its look ({@link AreaEntities#state}) and, for display entities, its transformation. */
+    record PropSnapshot(Vec3 pos, float yaw, float pitch, JsonObject state, AreaEntities.@Nullable Transform transform) {
+    }
+
+    /** Any other entity seen in the area (display entities, item frames, dropped items, mobs), as {@link Track} is for a stand. */
+    static final class PropTrack {
+        final UUID uuid;
+        final String bone;
+        final String kind;
+        final String type;
+        final int entityId;
+        final int firstTick;
+        final Map<Integer, PropSnapshot> frames = new LinkedHashMap<>();
+
+        PropTrack(UUID uuid, String bone, String kind, String type, int entityId, int firstTick) {
+            this.uuid = uuid;
+            this.bone = bone;
+            this.kind = kind;
+            this.type = type;
+            this.entityId = entityId;
+            this.firstTick = firstTick;
+        }
+    }
+
     /** One recorded event: its tick, type ({@code spawn}, {@code enter}, {@code present}, {@code despawn}, {@code exit}, {@code invisible}, {@code visible}, {@code swap};
      * for interactions also {@code resize}, {@code response}, {@code target_start}, {@code target_end}, {@code attack}, {@code use}), stand or interaction bone and details. */
     record Event(int tick, String type, String bone, JsonObject details) {
     }
 
     /** A finished recording, handed to the exporter. */
-    record Recording(String name, BlockPos min, BlockPos max, int ticks, List<Track> tracks, List<HitboxTrack> hitboxes, List<Event> events) {
+    record Recording(String name, BlockPos min, BlockPos max, int ticks, List<Track> tracks, List<HitboxTrack> hitboxes, List<PropTrack> props, List<Event> events) {
     }
 
     private static @Nullable BlockPos pos1;
@@ -141,6 +166,10 @@ public final class ArmorStandRecorder {
         final Map<UUID, HitboxTrack> hitboxes = new LinkedHashMap<>();
         /** The interactions in the area last tick, and the one the crosshair is on. */
         Set<UUID> hitboxesInside = new HashSet<>();
+        final Map<UUID, PropTrack> props = new LinkedHashMap<>();
+        /** The props in the area last tick, and how many of each kind have been seen, for their bone names. */
+        Set<UUID> propsInside = new HashSet<>();
+        final Map<String, Integer> kindCounts = new HashMap<>();
         @Nullable UUID targeted;
         final List<Event> events = new ArrayList<>();
         /** The stands in the area last tick. */
@@ -167,6 +196,7 @@ public final class ArmorStandRecorder {
                         .then(ClientCommandManager.literal("show").executes(context -> outline(context, true)))
                         .then(ClientCommandManager.literal("hide").executes(context -> outline(context, false)))
                         .then(ClientCommandManager.literal("clear").executes(ArmorStandRecorder::clear)))
+                .then(ClientCommandManager.literal("dumparea").executes(ArmorStandRecorder::dump))
                 .then(ClientCommandManager.literal("record")
                         .then(ClientCommandManager.literal("start")
                                 .executes(context -> start(context, "armor_stands"))
@@ -226,6 +256,19 @@ public final class ArmorStandRecorder {
         return 1;
     }
 
+    private static int dump(CommandContext<FabricClientCommandSource> context) {
+        if (pos1 == null || pos2 == null) {
+            context.getSource().sendError(Component.translatable("message.apeira.armor_stands.no_area",
+                    pos1 == null ? "-" : pos1.toShortString(), pos2 == null ? "-" : pos2.toShortString()));
+            return 0;
+        }
+        AreaEntities.dump(Minecraft.getInstance(), AABB.encapsulatingFullBlocks(BlockPos.min(pos1, pos2), BlockPos.max(pos1, pos2)), line -> {
+            context.getSource().sendFeedback(line);
+            UiCaptureClient.LOGGER.info("[dumparea] {}", line.getString());
+        });
+        return 1;
+    }
+
     private static int outline(CommandContext<FabricClientCommandSource> context, boolean show) {
         showOutline = show;
         context.getSource().sendFeedback(Component.translatable(show ? "message.apeira.armor_stands.outline_on" : "message.apeira.armor_stands.outline_off"));
@@ -266,12 +309,12 @@ public final class ArmorStandRecorder {
         }
         session = null;
         Recording recording = new Recording(done.name, done.min, done.max, done.tick, new ArrayList<>(done.tracks.values()),
-                new ArrayList<>(done.hitboxes.values()), done.events);
+                new ArrayList<>(done.hitboxes.values()), new ArrayList<>(done.props.values()), done.events);
         try {
             Path folder = ArmorStandExporter.write(recording);
             UiCaptureClient.LOGGER.info("Armor stand recording written to {}", folder);
             context.getSource().sendFeedback(Component.translatable("message.apeira.armor_stands.done",
-                    done.tracks.size(), done.hitboxes.size(), done.tick, done.events.size(), folder.getFileName().toString()));
+                    done.tracks.size(), done.hitboxes.size(), done.props.size(), done.tick, done.events.size(), folder.getFileName().toString()));
             return 1;
         } catch (Exception e) {
             UiCaptureClient.LOGGER.error("Armor stand export failed", e);
@@ -308,9 +351,11 @@ public final class ArmorStandRecorder {
         if (current != null && !minecraft.isPaused()) {
             record(level, current);
             recordHitboxes(minecraft, level, current);
+            recordProps(minecraft, level, current);
+            current.tick++;
             if (current.tick % 10 == 0) {
                 minecraft.player.displayClientMessage(Component.translatable("message.apeira.armor_stands.recording",
-                        current.name, current.inside.size(), current.hitboxesInside.size(), String.format("%.1f", current.tick / 20.0)), true);
+                        current.name, current.inside.size(), current.hitboxesInside.size(), current.propsInside.size(), String.format("%.1f", current.tick / 20.0)), true);
             }
         }
     }
@@ -408,7 +453,58 @@ public final class ArmorStandRecorder {
             }
             session.targeted = targeted;
         }
-        session.tick++;
+    }
+
+    /** Records every other non-player entity in the area: spawns, exits and changes of what picks its look. */
+    private static void recordProps(Minecraft minecraft, ClientLevel level, Session session) {
+        int tick = session.tick;
+        Set<UUID> now = new HashSet<>();
+        var ops = UiCaptureWriter.ops(minecraft);
+        for (Entity entity : level.getEntities((Entity) null, session.box, e -> AreaEntities.isProp(e) && session.box.contains(e.position()))) {
+            now.add(entity.getUUID());
+            PropTrack track = session.props.computeIfAbsent(entity.getUUID(), uuid -> {
+                String kind = AreaEntities.kind(entity);
+                int index = session.kindCounts.merge(kind, 1, Integer::sum) - 1;
+                return new PropTrack(uuid, kind + "_" + index, kind, AreaEntities.typeId(entity), entity.getId(), tick);
+            });
+            PropSnapshot snapshot = new PropSnapshot(entity.position(), entity.getYRot(), entity.getXRot(), AreaEntities.state(entity, ops),
+                    AreaEntities.transform(entity));
+            PropSnapshot last = track.frames.get(tick - 1);
+            if (last == null) {
+                String type = tick == 0 ? "present" : entity.tickCount <= 2 ? "spawn" : "enter";
+                session.events.add(new Event(tick, type, track.bone, snapshot.state().deepCopy()));
+            } else if (!last.state().equals(snapshot.state())) {
+                // Only the keys that changed, before and after: an item swap, a new block or text, a frame turned.
+                JsonObject from = new JsonObject();
+                JsonObject to = new JsonObject();
+                for (String key : union(last.state(), snapshot.state())) {
+                    if (!Objects.equals(last.state().get(key), snapshot.state().get(key))) {
+                        from.add(key, last.state().get(key));
+                        to.add(key, snapshot.state().get(key));
+                    }
+                }
+                JsonObject details = new JsonObject();
+                details.add("from", from);
+                details.add("to", to);
+                session.events.add(new Event(tick, "change", track.bone, details));
+            }
+            track.frames.put(tick, snapshot);
+        }
+        for (UUID uuid : session.propsInside) {
+            if (!now.contains(uuid)) {
+                PropTrack track = session.props.get(uuid);
+                Entity entity = level.getEntity(track.entityId);
+                String type = entity != null && !entity.isRemoved() ? "exit" : "despawn";
+                session.events.add(new Event(tick, type, track.bone, new JsonObject()));
+            }
+        }
+        session.propsInside = now;
+    }
+
+    private static Set<String> union(JsonObject a, JsonObject b) {
+        Set<String> keys = new java.util.LinkedHashSet<>(a.keySet());
+        keys.addAll(b.keySet());
+        return keys;
     }
 
     private static HitboxTrack hitboxTrack(Session session, Interaction hitbox) {
