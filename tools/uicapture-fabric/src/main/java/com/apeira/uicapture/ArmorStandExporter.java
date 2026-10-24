@@ -26,6 +26,8 @@ import net.minecraft.core.Rotations;
 import net.minecraft.world.phys.Vec3;
 
 import com.apeira.uicapture.ArmorStandRecorder.Event;
+import com.apeira.uicapture.ArmorStandRecorder.HitboxSnapshot;
+import com.apeira.uicapture.ArmorStandRecorder.HitboxTrack;
 import com.apeira.uicapture.ArmorStandRecorder.Recording;
 import com.apeira.uicapture.ArmorStandRecorder.Snapshot;
 import com.apeira.uicapture.ArmorStandRecorder.Track;
@@ -45,6 +47,11 @@ import com.apeira.uicapture.ArmorStandRecorder.Track;
  * {@code timeline} one instruction per event (see {@link #instruction}), which GeckoLib passes to a custom instruction
  * keyframe handler.</li>
  * </ul>
+ * Each recorded {@code minecraft:interaction} entity is an {@code interaction_<n>} bone with a locator of the same name at
+ * its position (the bottom centre of its hitbox) and an {@code interaction_<n>_hitbox} child holding a cube of its first
+ * width and height; the animation moves the bone, scales it to 0 outside the area and scales the hitbox by the size
+ * changes. {@code recording.json} lists each interaction's frames (position, yaw, width, height, response) and its offset
+ * from the nearest recorded stand.
  * Discrete changes are two keyframes {@value #STEP} seconds apart, so they are instant in any Bedrock-format reader.
  * Values are Bedrock's: x is mirrored (GeckoLib negates it), rotations are in degrees as GeckoLib reads them, so an
  * armor stand pose is written as it is and a yaw as {@code yRot - 180}. Angles are unwrapped so a turn past 180 degrees
@@ -120,6 +127,34 @@ public final class ArmorStandExporter {
             stands.add(stand);
         }
         root.add("stands", stands);
+        JsonArray hitboxes = new JsonArray();
+        for (HitboxTrack track : recording.hitboxes()) {
+            JsonObject hitbox = new JsonObject();
+            hitbox.addProperty("bone", track.bone);
+            hitbox.addProperty("type", "minecraft:interaction");
+            hitbox.addProperty("uuid", track.uuid.toString());
+            hitbox.addProperty("entity_id", track.entityId);
+            hitbox.addProperty("first_tick", track.firstTick);
+            if (!track.frames.isEmpty()) {
+                HitboxSnapshot first = track.frames.values().iterator().next();
+                hitbox.add("relative_to_origin", array(first.pos().x - origin.x, first.pos().y - origin.y, first.pos().z - origin.z));
+                nearestStand(recording, track, first).ifPresent(near -> hitbox.add("nearest_stand", near));
+            }
+            JsonArray frames = new JsonArray();
+            track.frames.forEach((tick, h) -> {
+                JsonObject frame = new JsonObject();
+                frame.addProperty("tick", tick);
+                frame.add("pos", array(h.pos().x, h.pos().y, h.pos().z));
+                frame.addProperty("yaw", h.yaw());
+                frame.addProperty("width", h.width());
+                frame.addProperty("height", h.height());
+                frame.addProperty("response", h.response());
+                frames.add(frame);
+            });
+            hitbox.add("frames", frames);
+            hitboxes.add(hitbox);
+        }
+        root.add("interactions", hitboxes);
         JsonArray events = new JsonArray();
         for (Event event : recording.events()) {
             JsonObject json = new JsonObject();
@@ -133,6 +168,39 @@ public final class ArmorStandExporter {
         }
         root.add("events", events);
         return root;
+    }
+
+    /** The stand closest to an interaction in the interaction's first tick: its bone, the offset to the interaction (blocks, Java axes) and that offset turned into the stand's own frame (x left, z forward). */
+    private static java.util.Optional<JsonObject> nearestStand(Recording recording, HitboxTrack track, HitboxSnapshot first) {
+        int tick = track.frames.keySet().iterator().next();
+        Track best = null;
+        Snapshot bestFrame = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (Track stand : recording.tracks()) {
+            Snapshot frame = stand.frames.get(tick);
+            if (frame == null && !stand.frames.isEmpty()) {
+                frame = stand.frames.values().iterator().next();
+            }
+            if (frame != null && frame.pos().distanceToSqr(first.pos()) < bestDistance) {
+                best = stand;
+                bestFrame = frame;
+                bestDistance = frame.pos().distanceToSqr(first.pos());
+            }
+        }
+        if (best == null) {
+            return java.util.Optional.empty();
+        }
+        Vec3 offset = first.pos().subtract(bestFrame.pos());
+        double yaw = Math.toRadians(bestFrame.yaw());
+        // A stand with yaw 0 faces +z (south) and its left is +x.
+        double localX = offset.x * Math.cos(yaw) + offset.z * Math.sin(yaw);
+        double localZ = -offset.x * Math.sin(yaw) + offset.z * Math.cos(yaw);
+        JsonObject near = new JsonObject();
+        near.addProperty("bone", best.bone);
+        near.add("offset", array(offset.x, offset.y, offset.z));
+        near.add("offset_in_stand_frame", array(localX, offset.y, localZ));
+        near.addProperty("yaw_difference", wrap(first.yaw() - bestFrame.yaw()));
+        return java.util.Optional.of(near);
     }
 
     private static Rotations[] poses(Snapshot s) {
@@ -168,6 +236,19 @@ public final class ArmorStandExporter {
             bones.add(bone(b + "_feet_item", b, 0, 1, 0));
             bones.add(bone(b + "_mainhand_item", b + "_right_arm", -6, 13, 0));
             bones.add(bone(b + "_offhand_item", b + "_left_arm", 6, 13, 0));
+        }
+        for (HitboxTrack track : recording.hitboxes()) {
+            if (track.frames.isEmpty()) {
+                continue;
+            }
+            HitboxSnapshot first = track.frames.values().iterator().next();
+            JsonObject bone = bone(track.bone, null, 0, 0, 0);
+            JsonObject locators = new JsonObject();
+            locators.add(track.bone, array(0, 0, 0));
+            bone.add("locators", locators);
+            bones.add(bone);
+            double w = first.width() * 16, h = first.height() * 16;
+            bones.add(bone(track.bone + "_hitbox", track.bone, 0, 0, 0, cube(-w / 2, 0, -w / 2, w, h, w, 0, 0, false)));
         }
         int width = Math.max(recording.max().getX() - recording.min().getX(), recording.max().getZ() - recording.min().getZ()) + 3;
         JsonObject description = new JsonObject();
@@ -272,6 +353,33 @@ public final class ArmorStandExporter {
                 item.add("scale", discrete(ticks, t -> states[t].items()[slot] == null ? 0.0 : 1.0));
                 bones.add(b + "_" + SLOT_NAMES[i] + "_item", item);
             }
+        }
+        for (HitboxTrack track : recording.hitboxes()) {
+            if (track.frames.isEmpty()) {
+                continue;
+            }
+            HitboxSnapshot[] states = new HitboxSnapshot[ticks];
+            HitboxSnapshot first = track.frames.values().iterator().next();
+            HitboxSnapshot last = first;
+            for (int t = 0; t < ticks; t++) {
+                HitboxSnapshot h = track.frames.get(t);
+                if (h != null) {
+                    last = h;
+                }
+                states[t] = t < track.firstTick && h == null ? first : last;
+            }
+            JsonObject root = new JsonObject();
+            root.add("position", continuous(ticks, t -> new double[] {
+                    -(states[t].pos().x - origin.x) * 16, (states[t].pos().y - origin.y) * 16, (states[t].pos().z - origin.z) * 16}, false));
+            root.add("scale", discrete(ticks, t -> track.frames.containsKey(t) ? 1.0 : 0.0));
+            bones.add(track.bone, root);
+            JsonObject hitbox = new JsonObject();
+            hitbox.add("scale", continuous(ticks, t -> {
+                double sw = first.width() == 0 ? 1 : states[t].width() / first.width();
+                double sh = first.height() == 0 ? 1 : states[t].height() / first.height();
+                return new double[] {sw, sh, sw};
+            }, false));
+            bones.add(track.bone + "_hitbox", hitbox);
         }
         JsonObject timeline = new JsonObject();
         Map<Integer, JsonArray> byTick = new TreeMap<>();

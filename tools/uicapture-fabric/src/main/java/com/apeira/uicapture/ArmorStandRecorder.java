@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,15 +32,23 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Interaction;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+
+import com.apeira.uicapture.mixin.InteractionAccessor;
 
 /**
  * Records the armor stands inside a recording area, tick by tick, for copying a server's multi-part armor stand
@@ -48,6 +57,11 @@ import net.minecraft.world.phys.Vec3;
  * Only armor stands (marker ones included; the {@code minecraft:marker} entity is never sent to clients) whose position is
  * inside the area are recorded. Each tick keeps every stand's position, yaw, poses, flags and equipment, and notes when a
  * stand appears, disappears, turns invisible or visible, or changes an item (its id, item model, custom model data or dye).
+ * {@code minecraft:interaction} entities inside the area (the invisible hitboxes servers put on armor stand models) are
+ * recorded too: position, yaw, hitbox width and height and the response flag, with events when they appear, disappear or
+ * change, when the player's crosshair starts or stops targeting one, and when the player attacks or uses one. The server
+ * keeps who last attacked or used an interaction to itself, so what it answers with shows only as the recording's other
+ * events (swaps, spawns) in the ticks after a click.
  */
 public final class ArmorStandRecorder {
     /** The slots an armor stand shows, in the order they are exported. */
@@ -84,12 +98,33 @@ public final class ArmorStandRecorder {
         }
     }
 
-    /** One recorded event: its tick, type ({@code spawn}, {@code enter}, {@code present}, {@code despawn}, {@code exit}, {@code invisible}, {@code visible}, {@code swap}), stand and details. */
+    /** One interaction entity's state in one tick: position, yaw, hitbox width and height (blocks) and whether it responds to clicks. */
+    record HitboxSnapshot(Vec3 pos, float yaw, float width, float height, boolean response) {
+    }
+
+    /** An interaction entity seen during the recording, as {@link Track} is for a stand. */
+    static final class HitboxTrack {
+        final UUID uuid;
+        final String bone;
+        final int entityId;
+        final int firstTick;
+        final Map<Integer, HitboxSnapshot> frames = new LinkedHashMap<>();
+
+        HitboxTrack(UUID uuid, String bone, int entityId, int firstTick) {
+            this.uuid = uuid;
+            this.bone = bone;
+            this.entityId = entityId;
+            this.firstTick = firstTick;
+        }
+    }
+
+    /** One recorded event: its tick, type ({@code spawn}, {@code enter}, {@code present}, {@code despawn}, {@code exit}, {@code invisible}, {@code visible}, {@code swap};
+     * for interactions also {@code resize}, {@code response}, {@code target_start}, {@code target_end}, {@code attack}, {@code use}), stand or interaction bone and details. */
     record Event(int tick, String type, String bone, JsonObject details) {
     }
 
     /** A finished recording, handed to the exporter. */
-    record Recording(String name, BlockPos min, BlockPos max, int ticks, List<Track> tracks, List<Event> events) {
+    record Recording(String name, BlockPos min, BlockPos max, int ticks, List<Track> tracks, List<HitboxTrack> hitboxes, List<Event> events) {
     }
 
     private static @Nullable BlockPos pos1;
@@ -103,6 +138,10 @@ public final class ArmorStandRecorder {
         final BlockPos max;
         final AABB box;
         final Map<UUID, Track> tracks = new LinkedHashMap<>();
+        final Map<UUID, HitboxTrack> hitboxes = new LinkedHashMap<>();
+        /** The interactions in the area last tick, and the one the crosshair is on. */
+        Set<UUID> hitboxesInside = new HashSet<>();
+        @Nullable UUID targeted;
         final List<Event> events = new ArrayList<>();
         /** The stands in the area last tick. */
         Set<UUID> inside = new HashSet<>();
@@ -179,9 +218,11 @@ public final class ArmorStandRecorder {
         }
         BlockPos min = BlockPos.min(pos1, pos2);
         BlockPos max = BlockPos.max(pos1, pos2);
-        int stands = Minecraft.getInstance().level.getEntitiesOfClass(ArmorStand.class, AABB.encapsulatingFullBlocks(min, max)).size();
+        AABB box = AABB.encapsulatingFullBlocks(min, max);
+        int stands = Minecraft.getInstance().level.getEntitiesOfClass(ArmorStand.class, box).size();
+        int hitboxes = Minecraft.getInstance().level.getEntitiesOfClass(Interaction.class, box).size();
         context.getSource().sendFeedback(Component.translatable("message.apeira.armor_stands.area", min.toShortString(), max.toShortString(),
-                max.getX() - min.getX() + 1, max.getY() - min.getY() + 1, max.getZ() - min.getZ() + 1, stands));
+                max.getX() - min.getX() + 1, max.getY() - min.getY() + 1, max.getZ() - min.getZ() + 1, stands, hitboxes));
         return 1;
     }
 
@@ -224,12 +265,13 @@ public final class ArmorStandRecorder {
             return 0;
         }
         session = null;
-        Recording recording = new Recording(done.name, done.min, done.max, done.tick, new ArrayList<>(done.tracks.values()), done.events);
+        Recording recording = new Recording(done.name, done.min, done.max, done.tick, new ArrayList<>(done.tracks.values()),
+                new ArrayList<>(done.hitboxes.values()), done.events);
         try {
             Path folder = ArmorStandExporter.write(recording);
             UiCaptureClient.LOGGER.info("Armor stand recording written to {}", folder);
             context.getSource().sendFeedback(Component.translatable("message.apeira.armor_stands.done",
-                    done.tracks.size(), done.tick, done.events.size(), folder.getFileName().toString()));
+                    done.tracks.size(), done.hitboxes.size(), done.tick, done.events.size(), folder.getFileName().toString()));
             return 1;
         } catch (Exception e) {
             UiCaptureClient.LOGGER.error("Armor stand export failed", e);
@@ -265,9 +307,10 @@ public final class ArmorStandRecorder {
         Session current = session;
         if (current != null && !minecraft.isPaused()) {
             record(level, current);
+            recordHitboxes(minecraft, level, current);
             if (current.tick % 10 == 0) {
                 minecraft.player.displayClientMessage(Component.translatable("message.apeira.armor_stands.recording",
-                        current.name, current.inside.size(), String.format("%.1f", current.tick / 20.0)), true);
+                        current.name, current.inside.size(), current.hitboxesInside.size(), String.format("%.1f", current.tick / 20.0)), true);
             }
         }
     }
@@ -316,7 +359,115 @@ public final class ArmorStandRecorder {
             }
         }
         session.inside = now;
+    }
+
+    /** Records the interactions in the area, then ends the tick (after the stands, so both use the same tick). */
+    private static void recordHitboxes(Minecraft minecraft, ClientLevel level, Session session) {
+        int tick = session.tick;
+        Set<UUID> now = new HashSet<>();
+        for (Interaction hitbox : level.getEntitiesOfClass(Interaction.class, session.box, e -> session.box.contains(e.position()))) {
+            now.add(hitbox.getUUID());
+            HitboxTrack track = hitboxTrack(session, hitbox);
+            HitboxSnapshot snapshot = new HitboxSnapshot(hitbox.position(), hitbox.getYRot(), hitbox.getBbWidth(), hitbox.getBbHeight(),
+                    ((InteractionAccessor) hitbox).apeira$getResponse());
+            HitboxSnapshot last = track.frames.get(tick - 1);
+            if (last == null) {
+                String type = tick == 0 ? "present" : hitbox.tickCount <= 2 ? "spawn" : "enter";
+                session.events.add(new Event(tick, type, track.bone, describe(snapshot)));
+            } else {
+                if (last.width() != snapshot.width() || last.height() != snapshot.height()) {
+                    JsonObject details = new JsonObject();
+                    details.addProperty("width", snapshot.width());
+                    details.addProperty("height", snapshot.height());
+                    session.events.add(new Event(tick, "resize", track.bone, details));
+                }
+                if (last.response() != snapshot.response()) {
+                    JsonObject details = new JsonObject();
+                    details.addProperty("response", snapshot.response());
+                    session.events.add(new Event(tick, "response", track.bone, details));
+                }
+            }
+            track.frames.put(tick, snapshot);
+        }
+        for (UUID uuid : session.hitboxesInside) {
+            if (!now.contains(uuid)) {
+                HitboxTrack track = session.hitboxes.get(uuid);
+                Entity entity = level.getEntity(track.entityId);
+                String type = entity != null && !entity.isRemoved() ? "exit" : "despawn";
+                session.events.add(new Event(tick, type, track.bone, new JsonObject()));
+            }
+        }
+        session.hitboxesInside = now;
+        UUID targeted = minecraft.crosshairPickEntity instanceof Interaction hitbox && now.contains(hitbox.getUUID()) ? hitbox.getUUID() : null;
+        if (!Objects.equals(targeted, session.targeted)) {
+            if (session.targeted != null && session.hitboxes.containsKey(session.targeted)) {
+                session.events.add(new Event(tick, "target_end", session.hitboxes.get(session.targeted).bone, new JsonObject()));
+            }
+            if (targeted != null) {
+                session.events.add(new Event(tick, "target_start", session.hitboxes.get(targeted).bone, new JsonObject()));
+            }
+            session.targeted = targeted;
+        }
         session.tick++;
+    }
+
+    private static HitboxTrack hitboxTrack(Session session, Interaction hitbox) {
+        return session.hitboxes.computeIfAbsent(hitbox.getUUID(),
+                uuid -> new HitboxTrack(uuid, "interaction_" + session.hitboxes.size(), hitbox.getId(), session.tick));
+    }
+
+    private static JsonObject describe(HitboxSnapshot snapshot) {
+        JsonObject json = new JsonObject();
+        json.addProperty("width", snapshot.width());
+        json.addProperty("height", snapshot.height());
+        json.addProperty("response", snapshot.response());
+        return json;
+    }
+
+    /** {@code AttackEntityCallback}: the player attacking an interaction in the area. Never changes the attack. */
+    public static InteractionResult onAttack(Player player, Level level, InteractionHand hand, Entity entity, @Nullable EntityHitResult hit) {
+        click("attack", level, hand, entity, hit);
+        return InteractionResult.PASS;
+    }
+
+    /** {@code UseEntityCallback}: the player using (right-clicking) an interaction in the area. Never changes the use. */
+    public static InteractionResult onUse(Player player, Level level, InteractionHand hand, Entity entity, @Nullable EntityHitResult hit) {
+        click("use", level, hand, entity, hit);
+        return InteractionResult.PASS;
+    }
+
+    private static void click(String type, Level level, InteractionHand hand, Entity entity, @Nullable EntityHitResult hit) {
+        Session current = session;
+        if (current == null || !level.isClientSide() || !(entity instanceof Interaction hitbox) || !current.box.contains(hitbox.position())) {
+            return;
+        }
+        HitboxTrack track = hitboxTrack(current, hitbox);
+        // The client asks once per hand, and for a use both with and without the hit point: one event per tick is enough.
+        for (int i = current.events.size() - 1; i >= 0 && current.events.get(i).tick() == current.tick; i--) {
+            Event event = current.events.get(i);
+            if (event.type().equals(type) && event.bone().equals(track.bone)) {
+                if (hit != null && !event.details().has("hit")) {
+                    event.details().add("hit", offset(hit.getLocation(), hitbox.position()));
+                }
+                return;
+            }
+        }
+        JsonObject details = new JsonObject();
+        details.addProperty("hand", hand == InteractionHand.MAIN_HAND ? "main_hand" : "off_hand");
+        details.addProperty("response", ((InteractionAccessor) hitbox).apeira$getResponse());
+        if (hit != null) {
+            details.add("hit", offset(hit.getLocation(), hitbox.position()));
+        }
+        current.events.add(new Event(current.tick, type, track.bone, details));
+    }
+
+    /** Where a click landed, in blocks from the interaction's position (the bottom centre of its hitbox). */
+    private static JsonArray offset(Vec3 location, Vec3 origin) {
+        JsonArray array = new JsonArray();
+        array.add(Math.round((location.x - origin.x) * 1000) / 1000.0);
+        array.add(Math.round((location.y - origin.y) * 1000) / 1000.0);
+        array.add(Math.round((location.z - origin.z) * 1000) / 1000.0);
+        return array;
     }
 
     private static Snapshot snapshot(ArmorStand stand) {
