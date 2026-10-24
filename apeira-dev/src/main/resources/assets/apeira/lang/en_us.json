@@ -9,5 +9,6 @@
   "message.apeira.dev.unbound": "Dev wand unbound",
   "message.apeira.dev.no_permission": "Only creative operators can tune furniture",
   "message.apeira.dev.exported": "Exported %s to %s",
-  "message.apeira.dev.export_failed": "Furniture export failed: %s"
+  "message.apeira.dev.export_failed": "Furniture export failed: %s",
+  "message.apeira.dev.sound.unknown": "No sound event %s in the loaded resource packs"
 }

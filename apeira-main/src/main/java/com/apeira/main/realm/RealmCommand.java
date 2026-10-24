@@ -20,8 +20,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 /**
- * {@code /realm} (Origin Realms' command set, see the project's {@code realms/design-answers.md}) and {@code /friend}
- * ({@code /friend} alone opens the Social page).
+ * {@code /realm} (Origin Realms' command set, see the project's {@code realms/design-answers.md}), {@code /friend}
+ * ({@code /friend} alone opens the Social page) and {@code /block <player>} / {@code /unblock <player>}.
  * Any player may use them; every change goes through {@link RealmService}, which only lets a player manage their own
  * realm. Player names may be offline players who have joined before.
  */
@@ -71,6 +71,8 @@ public final class RealmCommand {
                             : Component.translatable("message.apeira.realm.not_member", data.nameOf(target)));
                     return role.canBuild();
                 }))));
+        event.getDispatcher().register(Commands.literal("block").then(named("player", (player, target) -> block(player, target, true))));
+        event.getDispatcher().register(Commands.literal("unblock").then(named("player", (player, target) -> block(player, target, false))));
         event.getDispatcher().register(Commands.literal("friend")
                 .executes(context -> open(context, NavigatorPage.SOCIAL))
                 .then(Commands.literal("decline").then(named("player", RealmService::declineFriend)))
@@ -85,6 +87,22 @@ public final class RealmCommand {
                     player.sendSystemMessage(Component.translatable("message.apeira.friend.list", names.isEmpty() ? "-" : names));
                     return 1;
                 })));
+    }
+
+    /** Blocks or unblocks a player for the caller ({@code /pay} refuses blocked players). */
+    private static boolean block(ServerPlayer player, UUID target, boolean block) {
+        RealmData data = RealmData.get(player.level().getServer());
+        String name = data.nameOf(target);
+        if (target.equals(player.getUUID())) {
+            RealmService.fail(player, "block.self");
+            return false;
+        }
+        if (!data.setBlocked(player.getUUID(), target, block)) {
+            RealmService.fail(player, block ? "block.already" : "block.not_blocked", name);
+            return false;
+        }
+        RealmService.done(player, block ? "block.blocked" : "block.unblocked", name);
+        return true;
     }
 
     private static int home(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
