@@ -68,6 +68,9 @@ import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
  * limits are not reached. The answers go in the log under {@code server_suggestions} (input, start of the completed word,
  * completions with their tooltips) and in {@code /apeiracommands <root>}'s chat lines. Probing sends only those
  * completion requests, as typing in the chat box does; nothing else is sent.
+ *
+ * <p>Each command the player sends to the server (Fabric's {@code ClientSendMessageEvents.COMMAND}, so client commands
+ * are left out) goes to the game log as it is sent and into the log under {@code ran_commands}.
  */
 public final class CommandLogger {
     static final String LOG = "logs/apeira_command_capture.json";
@@ -77,7 +80,8 @@ public final class CommandLogger {
     private static final int PROBE_ID_BASE = 0x40000000;
     /** Ticks between probe requests: Paper allows about one completion request a tick before it kicks for spam. */
     static final int PROBE_INTERVAL = 5;
-    private static final int PROBE_TIMEOUT = 100;
+    /** Ticks a probe waits for its answer; servers may send none when nothing completes, so this stays short. */
+    private static final int PROBE_TIMEOUT = 40;
     private static final int PROBE_MAX_REQUESTS = 400;
     /** How many words after the root command a probe completes. */
     private static final int PROBE_MAX_DEPTH = 4;
@@ -87,6 +91,8 @@ public final class CommandLogger {
     /** The server's completions by input ("/realm "), for the current connection. */
     private static final Map<String, JsonObject> SUGGESTIONS = new TreeMap<>();
     private static @Nullable ClientPacketListener suggestionsConnection;
+    /** The commands the player sent to the server, oldest first, for the current connection. */
+    private static final JsonArray RAN = new JsonArray();
     private static int chatRequest = -1;
     private static @Nullable String chatInput;
 
@@ -188,6 +194,7 @@ public final class CommandLogger {
         JsonArray answers = new JsonArray();
         SUGGESTIONS.values().forEach(answers::add);
         root.add("server_suggestions", answers);
+        root.add("ran_commands", RAN);
         Path file = FabricLoader.getInstance().getGameDir().resolve(LOG);
         try {
             Files.createDirectories(file.getParent());
@@ -325,6 +332,16 @@ public final class CommandLogger {
                 .withStyle(ChatFormatting.GOLD));
     }
 
+    /** Records a command the player sent to the server ({@code ClientSendMessageEvents.COMMAND}), without its slash. */
+    public static void ran(String command) {
+        forgetOldConnection(Minecraft.getInstance().getConnection());
+        JsonObject entry = new JsonObject();
+        entry.addProperty("time", LocalDateTime.now().toString());
+        entry.addProperty("command", "/" + command);
+        RAN.add(entry);
+        UiCaptureClient.LOGGER.info("[command logger] ran /{}", command);
+    }
+
     /** Notes the chat box's completion request, which the client sends under {@code id}. */
     public static void requested(int id, String input) {
         forgetOldConnection(Minecraft.getInstance().getConnection());
@@ -402,6 +419,7 @@ public final class CommandLogger {
         if (connection != suggestionsConnection) {
             suggestionsConnection = connection;
             SUGGESTIONS.clear();
+            RAN.asList().clear();
             chatRequest = -1;
             chatInput = null;
         }
