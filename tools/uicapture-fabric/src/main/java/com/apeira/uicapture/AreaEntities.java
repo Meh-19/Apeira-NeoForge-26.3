@@ -31,6 +31,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import com.apeira.uicapture.mixin.BlockDisplayAccessor;
 import com.apeira.uicapture.mixin.DisplayAccessor;
@@ -161,6 +162,19 @@ final class AreaEntities {
         if (!items.isEmpty()) {
             chat.accept(Component.translatable("message.apeira.armor_stands.dump_items", items.size()).withStyle(ChatFormatting.GOLD));
             items.forEach((item, count) -> chat.accept(Component.literal("  " + count + "x " + item).withStyle(ChatFormatting.GRAY)));
+        }
+        // Each item display's transform chain, from the area's bottom centre (the export's origin).
+        Vec3 origin = new Vec3((box.minX + box.maxX) / 2, box.minY, (box.minZ + box.maxZ) / 2);
+        ItemModels models = new ItemModels(minecraft.getResourceManager(), new CapturedAssets(minecraft.getResourceManager(), null));
+        for (Entity entity : entities) {
+            if (entity instanceof Display.ItemDisplay display) {
+                JsonObject state = state(display, com.mojang.serialization.JsonOps.INSTANCE);
+                JsonObject item = state.get("item").isJsonObject() ? state.getAsJsonObject("item") : null;
+                String context = state.get("item_display").getAsString();
+                DisplayDiagnostics.describe(kind(display) + "#" + display.getId(), display.getId(), display.position(), origin, display.getYRot(),
+                        display.getXRot(), item, context, transform(display), item == null ? List.of() : models.resolve(item, context).models())
+                        .forEach(line -> chat.accept(Component.literal(line).withStyle(ChatFormatting.GRAY)));
+            }
         }
     }
 

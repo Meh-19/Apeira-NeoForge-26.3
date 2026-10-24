@@ -23,6 +23,7 @@ import com.mojang.brigadier.context.CommandContext;
 
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -311,7 +312,10 @@ public final class ArmorStandRecorder {
         Recording recording = new Recording(done.name, done.min, done.max, done.tick, new ArrayList<>(done.tracks.values()),
                 new ArrayList<>(done.hitboxes.values()), new ArrayList<>(done.props.values()), done.events);
         try {
-            Path folder = ArmorStandExporter.write(recording);
+            Path folder = ArmorStandExporter.write(recording, line -> {
+                context.getSource().sendFeedback(Component.literal(line).withStyle(ChatFormatting.GRAY));
+                UiCaptureClient.LOGGER.info("[display diagnostics] {}", line);
+            });
             UiCaptureClient.LOGGER.info("Armor stand recording written to {}", folder);
             context.getSource().sendFeedback(Component.translatable("message.apeira.armor_stands.done",
                     done.tracks.size(), done.hitboxes.size(), done.props.size(), done.tick, done.events.size(), folder.getFileName().toString()));

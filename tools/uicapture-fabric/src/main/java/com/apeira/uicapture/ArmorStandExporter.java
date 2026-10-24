@@ -94,13 +94,15 @@ public final class ArmorStandExporter {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static final Gson COMPACT = new GsonBuilder().disableHtmlEscaping().create();
     private static final double STEP = 0.001;
+    /** The top-level bone every stand, hitbox and prop hangs from, at the area's bottom centre, so the whole rig moves as one. */
+    static final String ROOT = "root_rig";
     private static final String[] PARTS = {"head", "body", "left_arm", "right_arm", "left_leg", "right_leg"};
     private static final String[] SLOT_NAMES = {"head", "chest", "legs", "feet", "mainhand", "offhand"};
 
     private ArmorStandExporter() {
     }
 
-    public static Path write(Recording recording) throws IOException {
+    public static Path write(Recording recording, java.util.function.Consumer<String> log) throws IOException {
         String name = recording.name().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_.-]", "_");
         Path folder = FabricLoader.getInstance().getGameDir().resolve(FOLDER).resolve(LocalDateTime.now().format(TIME) + "_" + name);
         Files.createDirectories(folder);
@@ -124,6 +126,9 @@ public final class ArmorStandExporter {
             Files.writeString(folder.resolve(name + ".geo.json"), GSON.toJson(geometry), StandardCharsets.UTF_8);
             Files.writeString(folder.resolve(name + ".animation.json"), GSON.toJson(animation(recording, name, origin, items)), StandardCharsets.UTF_8);
             Files.writeString(folder.resolve("item_models.json"), GSON.toJson(itemIndex(items, atlas, assets)), StandardCharsets.UTF_8);
+            List<String> diagnostics = diagnostics(recording, origin, items);
+            Files.write(folder.resolve("display_diagnostics.txt"), diagnostics, StandardCharsets.UTF_8);
+            diagnostics.forEach(log);
             if (!atlas.isEmpty()) {
                 Files.writeString(folder.resolve(name + ".bbmodel"),
                         GSON.toJson(Bbmodel.of(geometry, name, folder.resolve(name + ".png"), atlas.width(), atlas.height())), StandardCharsets.UTF_8);
@@ -172,6 +177,23 @@ public final class ArmorStandExporter {
             }
         }
         return items;
+    }
+
+    /** {@link DisplayDiagnostics} for every item display's first recorded frame. */
+    private static List<String> diagnostics(Recording recording, Vec3 origin, Map<String, List<ItemVariant>> items) {
+        List<String> lines = new ArrayList<>();
+        for (PropTrack track : recording.props()) {
+            if (track.frames.isEmpty() || !track.kind.equals("item_display")) {
+                continue;
+            }
+            PropSnapshot first = track.frames.values().iterator().next();
+            String key = itemKey(first);
+            ItemVariant variant = items.getOrDefault(track.bone, List.of()).stream().filter(v -> v.key().equals(key)).findFirst().orElse(null);
+            lines.addAll(DisplayDiagnostics.describe(track.bone, track.entityId, first.pos(), origin, first.yaw(), first.pitch(),
+                    variant == null ? null : variant.item(), variant == null ? "-" : variant.context(), first.transform(),
+                    variant == null ? List.of() : variant.resolved().models()));
+        }
+        return lines;
     }
 
     /** What picks an item display's look: its item and display context, or null while it shows nothing. */
@@ -394,9 +416,10 @@ public final class ArmorStandExporter {
 
     private static JsonObject geometry(Recording recording, String name, Map<String, List<ItemVariant>> items, TextureAtlas atlas) {
         JsonArray bones = new JsonArray();
+        bones.add(bone(ROOT, null, 0, 0, 0));
         for (Track track : recording.tracks()) {
             String b = track.bone;
-            bones.add(bone(b, null, 0, 0, 0));
+            bones.add(bone(b, ROOT, 0, 0, 0));
             bones.add(bone(b + "_head", b, 0, 23, 0));
             bones.add(bone(b + "_head_model", b + "_head", 0, 23, 0, cube(-1, 23, -1, 2, 7, 2, 0, 0, false)));
             bones.add(bone(b + "_body", b, 0, 24, 0));
@@ -425,7 +448,7 @@ public final class ArmorStandExporter {
                 continue;
             }
             HitboxSnapshot first = track.frames.values().iterator().next();
-            JsonObject bone = bone(track.bone, null, 0, 0, 0);
+            JsonObject bone = bone(track.bone, ROOT, 0, 0, 0);
             JsonObject locators = new JsonObject();
             locators.add(track.bone, array(0, 0, 0));
             bone.add("locators", locators);
@@ -437,7 +460,7 @@ public final class ArmorStandExporter {
             if (track.frames.isEmpty()) {
                 continue;
             }
-            JsonObject bone = bone(track.bone, null, 0, 0, 0);
+            JsonObject bone = bone(track.bone, ROOT, 0, 0, 0);
             JsonObject locators = new JsonObject();
             locators.add(track.bone, array(0, 0, 0));
             bone.add("locators", locators);
@@ -512,6 +535,12 @@ public final class ArmorStandExporter {
     private static JsonObject animation(Recording recording, String name, Vec3 origin, Map<String, List<ItemVariant>> items) {
         int ticks = Math.max(1, recording.ticks());
         JsonObject bones = new JsonObject();
+        // Held at rest, for moving or turning the whole rig in Blockbench.
+        JsonObject rig = new JsonObject();
+        rig.add("position", continuous(ticks, t -> new double[3], false));
+        rig.add("rotation", continuous(ticks, t -> new double[3], true));
+        rig.add("scale", continuous(ticks, t -> new double[] {1, 1, 1}, false));
+        bones.add(ROOT, rig);
         for (Track track : recording.tracks()) {
             String b = track.bone;
             // Ticks the stand was in the area; the others hold its last state, hidden.
@@ -605,17 +634,15 @@ public final class ArmorStandExporter {
                 states[t] = last;
             }
             JsonObject root = new JsonObject();
-            root.add("position", continuous(ticks, t -> new double[] {
-                    -(states[t].pos().x - origin.x) * 16, (states[t].pos().y - origin.y) * 16, (states[t].pos().z - origin.z) * 16}, false));
+            root.add("position", continuous(ticks, t -> position(states[t].pos(), origin), false));
             root.add("scale", discrete(ticks, t -> track.frames.containsKey(t) ? 1.0 : 0.0));
             if (first.transform() != null) {
                 // A fixed billboard turns the display by yaw, then pitch.
-                root.add("rotation", continuous(ticks, t -> euler(new Quaternionf().rotationYXZ(
-                        (float) Math.toRadians(-states[t].yaw()), (float) Math.toRadians(states[t].pitch()), 0)), true));
+                root.add("rotation", continuous(ticks, t -> billboard(states[t].yaw(), states[t].pitch()), true));
                 JsonObject transform = new JsonObject();
                 transform.add("position", continuous(ticks, t -> {
                     AreaEntities.Transform tr = states[t].transform();
-                    return tr == null ? new double[3] : new double[] {-tr.translation().x() * 16, tr.translation().y() * 16, tr.translation().z() * 16};
+                    return tr == null ? new double[3] : translation(tr);
                 }, false));
                 // Vanilla's matrix is translation * left rotation * scale * right rotation; a bone is translation * rotation * scale,
                 // so the right rotation is a child bone of its own.
@@ -692,6 +719,21 @@ public final class ArmorStandExporter {
      * A world rotation as a GeckoLib bone rotation in degrees: GeckoLib turns a bone about z, then y, then x, and negates
      * the x and y it reads, as it does for the stands' poses.
      */
+    /** A fixed billboard's turn (vanilla's {@code rotationYXZ(-yaw, pitch, 0)}) as the prop bone's rotation. */
+    static double[] billboard(float yaw, float pitch) {
+        return euler(new Quaternionf().rotationYXZ((float) Math.toRadians(-yaw), (float) Math.toRadians(pitch), 0));
+    }
+
+    /** A display's translation as the {@code _transform} bone's position: pixels, x mirrored. */
+    static double[] translation(AreaEntities.Transform tr) {
+        return new double[] {-tr.translation().x() * 16, tr.translation().y() * 16, tr.translation().z() * 16};
+    }
+
+    /** A display's position as its prop bone's position: pixels from the area's bottom centre, x mirrored. */
+    static double[] position(Vec3 pos, Vec3 origin) {
+        return new double[] {-(pos.x - origin.x) * 16, (pos.y - origin.y) * 16, (pos.z - origin.z) * 16};
+    }
+
     static double[] euler(Quaternionfc rotation) {
         Vector3f angles = rotation.getEulerAnglesZYX(new Vector3f());
         return new double[] {-Math.toDegrees(angles.x), -Math.toDegrees(angles.y), Math.toDegrees(angles.z)};

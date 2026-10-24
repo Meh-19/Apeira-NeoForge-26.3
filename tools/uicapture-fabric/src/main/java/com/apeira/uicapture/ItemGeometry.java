@@ -175,12 +175,8 @@ final class ItemGeometry {
         return face;
     }
 
-    /**
-     * The bone transform that draws a model in an item display: the display entity's half turn about y, then the model's
-     * {@code display.<context>} transform (translation, rotation in x, y, z order, scale), as Bedrock position, rotation and
-     * scale (geometry bones have no position or scale, so the animation holds them).
-     */
-    static double[][] displayTransform(ItemModels.Model model, String context) {
+    /** A model's {@code display.<context>} transform as vanilla applies it: translation (pixels, within ±80), rotation (degrees, x, y, z order), scale (within ±4). */
+    static double[][] rawDisplay(ItemModels.Model model, String context) {
         double[] t = {0, 0, 0}, r = {0, 0, 0}, s = {1, 1, 1};
         JsonObject display = model.display().getAsJsonObject(context.toLowerCase(Locale.ROOT));
         if (display != null) {
@@ -200,10 +196,21 @@ final class ItemGeometry {
                 }
             }
         }
+        return new double[][] {t, r, s};
+    }
+
+    /**
+     * The bone transform that draws a model in an item display: the display entity's half turn about y, then the model's
+     * {@link #rawDisplay} transform, as Bedrock position, rotation and scale (geometry bones have no position or scale, so
+     * the animation holds them).
+     */
+    static double[][] displayTransform(ItemModels.Model model, String context) {
+        double[][] raw = rawDisplay(model, context);
+        double[] t = raw[0], r = raw[1];
         Quaternionf rotation = new Quaternionf().rotationY((float) Math.PI)
                 .mul(new Quaternionf().rotationXYZ((float) Math.toRadians(r[0]), (float) Math.toRadians(r[1]), (float) Math.toRadians(r[2])));
         // The half turn takes (x, y, z) to (-x, y, -z); Bedrock mirrors x back.
-        return new double[][] {{t[0], t[1], -t[2]}, ArmorStandExporter.euler(rotation), s};
+        return new double[][] {{t[0], t[1], -t[2]}, ArmorStandExporter.euler(rotation), raw[2]};
     }
 
     private static double[] vec(@Nullable JsonArray array) {
