@@ -16,9 +16,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
- * The ruby deposit's screen, drawn as Origin Realms' (captured at GUI scale 4): vanilla's 4-row chest (its top 89
- * pixels and the player inventory part of {@code generic_54}), then the server pack's {@code ruby_deposit_menu.png}
- * (256x256) at 6 pixels above the frame, with its five ruby slots, the arrows into the balance box and the question
+ * The ruby deposit's screen, drawn as Origin Realms' (captured at GUI scale 4): only the player inventory part of
+ * vanilla's {@code generic_54} (no chest rows or title bar behind the menu), then the server pack's
+ * {@code ruby_deposit_menu.png} (256x256) at 6 pixels above the frame, with its five ruby slots, the arrows into the balance box and the question
  * mark button. The balance is written in the menu's digit font at (65, 76), after the box's ruby; the question mark
  * shows "Learn more about Rubies". Origin Realms' title and inventory label are blank, so no labels are drawn.
  */
@@ -27,7 +27,7 @@ public class RubyDepositScreen extends AbstractContainerScreen<ApeiraRubyDeposit
     private static final Identifier MENU = ApeiraIds.id("textures/gui/ruby/deposit_menu.png");
     private static final int WIDTH = 176;
     private static final int HEIGHT = 186;
-    /** The chest's title bar and four rows, then where its player inventory part starts in {@code generic_54}. */
+    /** Where the player inventory part goes (below a 4-row chest's title bar and rows) and starts in {@code generic_54}. */
     private static final int CHEST_TOP = 17 + 4 * 18;
     private static final int INVENTORY_V = 126;
     private static final int INVENTORY_HEIGHT = 96;
@@ -49,7 +49,6 @@ public class RubyDepositScreen extends AbstractContainerScreen<ApeiraRubyDeposit
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos, topPos, 0.0F, 0.0F, WIDTH, CHEST_TOP, 256, 256);
         graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos, topPos + CHEST_TOP, 0.0F, INVENTORY_V, WIDTH, INVENTORY_HEIGHT, 256, 256);
         graphics.blit(RenderPipelines.GUI_TEXTURED, MENU, leftPos, topPos + MENU_Y, 0.0F, 0.0F, 256, 256, 256, 256);
         if (isHovering(INFO_X, INFO_Y, INFO_SIZE, INFO_SIZE, mouseX, mouseY)) {
