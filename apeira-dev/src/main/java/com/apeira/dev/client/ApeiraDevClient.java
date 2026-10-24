@@ -28,7 +28,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Client entrypoint for Apeira Dev: binds the dev wand to the furniture piece it right-clicks, turns Ctrl + scroll and
- * Alt + scroll into edits while it is held, and adds the HUD, the in-world visualizer and the editor key.
+ * Alt + scroll into edits while it is held, and adds the HUD, the in-world visualizer and the editor key, and the sound
+ * inspector command ({@link SoundInspector}).
  */
 @Mod(value = ApeiraDev.MOD_ID, dist = Dist.CLIENT)
 public final class ApeiraDevClient {
@@ -44,6 +45,7 @@ public final class ApeiraDevClient {
         NeoForge.EVENT_BUS.addListener(ApeiraDevClient::onClientTick);
         NeoForge.EVENT_BUS.addListener(ApeiraDevClient::onLoggingOut);
         NeoForge.EVENT_BUS.addListener(TuningHud::onRenderGui);
+        NeoForge.EVENT_BUS.addListener(SoundInspector::register);
         ApeiraClientNetwork.create()
                 .handle(FurnitureTuningPayload.TYPE, ApeiraDevClient::onTuning)
                 .register(modEventBus);

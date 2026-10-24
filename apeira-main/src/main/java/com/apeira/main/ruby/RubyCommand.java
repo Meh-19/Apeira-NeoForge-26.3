@@ -2,11 +2,14 @@ package com.apeira.main.ruby;
 
 import java.util.Collection;
 
+import com.apeira.main.realm.ChatIcons;
+import com.apeira.main.realm.RealmData;
 import com.apeira.main.realm.RealmService;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -17,7 +20,8 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 /**
  * The ruby commands. {@code /pay <player> <amount>} (any player) moves rubies from the sender's balance to another
- * online player's. {@code /rubies add|remove <players> <amount>} and {@code /rubies reset <players>} (operators) change
+ * online player's, unless the sender has blocked them ({@code /block}): "You have [name] blocked!" in red, or on
+ * success "You've paid [#] rubies to [name]!" in green, each behind Origin Realms' chat icon ({@link ChatIcons}). {@code /rubies add|remove <players> <amount>} and {@code /rubies reset <players>} (operators) change
  * balances; {@code /rubies} alone shows one's own. Every change goes through {@link Rubies}.
  */
 public final class RubyCommand {
@@ -59,6 +63,10 @@ public final class RubyCommand {
             RealmService.fail(sender, "rubies.pay.self");
             return 0;
         }
+        if (RealmData.get(sender.level().getServer()).hasBlocked(sender.getUUID(), target.getUUID())) {
+            sender.sendSystemMessage(ChatIcons.line(ChatIcons.ERROR, "rubies.pay.blocked", ChatFormatting.RED, target.getDisplayName()));
+            return 0;
+        }
         if (Rubies.get(target) + amount > Rubies.MAX) {
             RealmService.fail(sender, "rubies.pay.full", target.getDisplayName());
             return 0;
@@ -68,7 +76,8 @@ public final class RubyCommand {
             return 0;
         }
         Rubies.give(target, amount);
-        RealmService.done(sender, "rubies.pay.sent", Rubies.format(amount), target.getDisplayName());
+        sender.sendSystemMessage(ChatIcons.line(ChatIcons.SUCCESS, "rubies.pay.sent", ChatFormatting.GREEN, Rubies.format(amount),
+                target.getDisplayName()));
         RealmService.done(target, "rubies.pay.received", sender.getDisplayName(), Rubies.format(amount));
         return 1;
     }

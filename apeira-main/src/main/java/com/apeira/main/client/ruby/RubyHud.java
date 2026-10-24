@@ -11,19 +11,21 @@ import net.minecraft.network.chat.Component;
 /**
  * The HUD's ruby counter, where Origin Realms draws it in the action bar: the balance and the ruby icon over the right
  * end of the food row, the icon's left edge 79 pixels right of the screen's centre (the hotbar's right end is at 91) and
- * the digits ending before it, 49 pixels above the bottom (the icon one higher), tinted {@code #FEFD04} with the text
- * shadow. Shown like the food bar: in survival and adventure, while the HUD is not hidden (F1).
+ * the digits ending before it, 49 pixels above the bottom (the icon one higher), in the font textures' own colours (drawn
+ * white, so nothing tints them) with the text shadow. Shown in survival, adventure and creative (where the food bar it
+ * sits over is not drawn), not in spectator, while the HUD is not hidden (F1).
  */
 public final class RubyHud {
     private static final int ICON_X = 79;
     private static final int BOTTOM = 49;
-    private static final int COLOR = 0xFFFEFD04;
+    /** White leaves the glyphs' own colours as they are. */
+    private static final int COLOR = 0xFFFFFFFF;
 
     private RubyHud() {}
 
     public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || minecraft.gameMode == null || !minecraft.gameMode.canHurtPlayer() || minecraft.gui.hud.isHidden()) {
+        if (minecraft.player == null || minecraft.gameMode == null || minecraft.player.isSpectator() || minecraft.gui.hud.isHidden()) {
             return;
         }
         Font font = minecraft.font;

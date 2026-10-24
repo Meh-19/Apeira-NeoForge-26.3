@@ -1,0 +1,22 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/chat/error_red.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꑜ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/chat/error_green.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꑠ"
+      ]
+    }
+  ]
+}

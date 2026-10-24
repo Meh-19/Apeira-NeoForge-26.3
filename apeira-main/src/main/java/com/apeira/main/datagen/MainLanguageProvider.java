@@ -190,7 +190,13 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         addId("message", "rubies.pay.self", "You can't pay yourself.");
         addId("message", "rubies.pay.full", "%s can't hold that many rubies.");
         addId("message", "rubies.pay.not_enough", "You don't have %s rubies (you have %s).");
-        addId("message", "rubies.pay.sent", "You sent %s rubies to %s.");
+        addId("message", "block.self", "You can't block yourself.");
+        addId("message", "block.already", "You already have %s blocked.");
+        addId("message", "block.not_blocked", "You don't have %s blocked.");
+        addId("message", "block.blocked", "You blocked %s.");
+        addId("message", "block.unblocked", "You unblocked %s.");
+        addId("message", "rubies.pay.blocked", "You have %s blocked!");
+        addId("message", "rubies.pay.sent", "You've paid %s rubies to %s!");
         addId("message", "rubies.pay.received", "%s sent you %s rubies.");
         addId("message", "rubies.set", "%s now has %s rubies.");
     }
