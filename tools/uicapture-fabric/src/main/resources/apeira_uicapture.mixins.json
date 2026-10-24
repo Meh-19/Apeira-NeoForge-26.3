@@ -13,6 +13,7 @@
     "GuiGraphicsMixin",
     "GuiMixin",
     "GuiRenderStateMixin",
+    "InteractionAccessor",
     "PlayerTabOverlayAccessor",
     "ScreenAccessor"
   ],

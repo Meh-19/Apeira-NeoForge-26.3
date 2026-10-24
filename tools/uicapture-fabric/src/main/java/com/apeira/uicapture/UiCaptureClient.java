@@ -16,6 +16,8 @@ import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -55,6 +57,8 @@ public final class UiCaptureClient implements ClientModInitializer {
         KeyBindingHelper.registerKeyBinding(LOG_CHAT);
         ClientTickEvents.END_CLIENT_TICK.register(UiCaptureClient::onClientTick);
         ClientSendMessageEvents.COMMAND.register(CommandLogger::ran);
+        AttackEntityCallback.EVENT.register(ArmorStandRecorder::onAttack);
+        UseEntityCallback.EVENT.register(ArmorStandRecorder::onUse);
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> {
             SoundInspector.register(dispatcher);
             CommandLogger.register(dispatcher);

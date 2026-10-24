@@ -23,15 +23,15 @@
   "message.apeira.sound_inspector.listen_chat_on": "Sound log on, also in chat -> %s",
   "message.apeira.armor_stands.corner": "Recording area corner %s set to %s",
   "message.apeira.armor_stands.no_area": "Set both corners first with /apeiradev area pos1 and pos2 (pos1 %s, pos2 %s)",
-  "message.apeira.armor_stands.area": "Recording area %s to %s (%s x %s x %s blocks), %s armor stands inside",
+  "message.apeira.armor_stands.area": "Recording area %s to %s (%s x %s x %s blocks), %s armor stands and %s interactions inside",
   "message.apeira.armor_stands.outline_on": "Recording area outline shown",
   "message.apeira.armor_stands.outline_off": "Recording area outline hidden",
   "message.apeira.armor_stands.cleared": "Recording area cleared",
   "message.apeira.armor_stands.busy": "A recording is running: /apeiradev record stop or cancel first",
   "message.apeira.armor_stands.started": "Recording armor stands as %s: /apeiradev record stop to export",
-  "message.apeira.armor_stands.recording": "Recording %s: %s armor stands, %ss",
+  "message.apeira.armor_stands.recording": "Recording %s: %s armor stands, %s interactions, %ss",
   "message.apeira.armor_stands.not_recording": "No recording is running",
   "message.apeira.armor_stands.cancelled": "Recording cancelled",
-  "message.apeira.armor_stands.done": "Recorded %s armor stands over %s ticks with %s events -> %s",
+  "message.apeira.armor_stands.done": "Recorded %s armor stands and %s interactions over %s ticks with %s events -> %s",
   "message.apeira.armor_stands.failed": "Armor stand export failed: %s"
 }
