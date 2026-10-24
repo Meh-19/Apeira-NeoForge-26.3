@@ -700,19 +700,18 @@ public final class ArmorStandExporter {
     }
 
     /**
-     * An event as a timeline instruction: {@code <type> <bone>}, and for swaps {@code swap <bone> <slot> <item JSON or empty>};
-     * spawns, entries and the first tick's stands add their state's JSON (flags and items).
+     * An event as a timeline instruction Blockbench accepts as Molang: {@code v.event = '<type> <bone>';}, and for swaps
+     * {@code v.event = 'swap <bone> <slot> <item|empty>';} with the item as {@link AreaEntities#itemLabel} (quotes dropped,
+     * as a Molang string cannot hold them). The full state and items of every event are in {@code recording.json}'s events.
      */
     static String instruction(Event event) {
         StringBuilder text = new StringBuilder(event.type()).append(' ').append(event.bone());
         if (event.type().equals("swap")) {
             JsonElement to = event.details().get("to");
             text.append(' ').append(event.details().get("slot").getAsString()).append(' ')
-                    .append(to == null || to.isJsonNull() ? "empty" : COMPACT.toJson(to));
-        } else if (!event.details().isEmpty()) {
-            text.append(' ').append(COMPACT.toJson(event.details()));
+                    .append(to == null || !to.isJsonObject() ? "empty" : AreaEntities.itemLabel(to.getAsJsonObject()));
         }
-        return text.toString();
+        return "v.event = '" + text.toString().replaceAll("['\"\\\\]", "") + "';";
     }
 
     /**
