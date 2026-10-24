@@ -434,13 +434,13 @@ public final class ArmorStandExporter {
             if (track.frames.values().iterator().next().transform() != null) {
                 bones.add(bone(track.bone + "_transform", track.bone, 0, 0, 0));
                 for (ItemVariant variant : items.getOrDefault(track.bone, List.of())) {
-                    JsonObject bone = bone(variant.bone(track.bone), track.bone + "_transform", 0, 0, 0);
+                    JsonObject itemBone = bone(variant.bone(track.bone), track.bone + "_transform", 0, 0, 0);
                     JsonArray cubes = new JsonArray();
                     variant.resolved().models().forEach(model -> cubes.addAll(ItemGeometry.cubes(model, atlas)));
                     if (!cubes.isEmpty()) {
-                        bone.add("cubes", cubes);
+                        itemBone.add("cubes", cubes);
                     }
-                    bones.add(bone);
+                    bones.add(itemBone);
                 }
             }
         }
