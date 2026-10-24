@@ -14,5 +14,11 @@
   "message.apeira.sound_inspector.listen_off": "Sound log off: %s sounds logged",
   "message.apeira.command_logger.done": "Logged %s commands (%s from the server, %s usages) -> %s",
   "message.apeira.command_logger.failed": "Command log failed: %s",
-  "message.apeira.command_logger.unknown": "The server sent no command %s"
+  "message.apeira.command_logger.unknown": "The server sent no command %s",
+  "message.apeira.command_logger.probe_start": "Asking the server to complete %s commands, one request every %s ticks...",
+  "message.apeira.command_logger.probe_busy": "A probe is already running",
+  "message.apeira.command_logger.probe_done": "Probe done: %s requests, %s answered, %s timed out%s -> %s",
+  "message.apeira.command_logger.probe_limit": " (stopped at the request limit)",
+  "message.apeira.command_logger.probe_stopped": "Probe stopped: the connection changed",
+  "message.apeira.sound_inspector.listen_chat_on": "Sound log on, also in chat -> %s"
 }

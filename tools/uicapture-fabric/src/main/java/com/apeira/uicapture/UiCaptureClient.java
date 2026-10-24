@@ -29,8 +29,8 @@ import net.minecraft.network.chat.Component;
  * formatting and fonts. "Log HUD Elements" (F10, no screen open) captures the HUD like F8 and adds what it shows as
  * text ({@link HudLog}); "Toggle Chat Logger" (F7, also inside screens) logs chat messages ({@link ChatCapture}).
  * {@code /apeirasound} inspects a sound event and logs played sounds ({@link SoundInspector}); {@code /apeiracommands}
- * logs the server's command tree ({@link CommandLogger}).
- * Nothing is registered and nothing is sent, so it works on any server.
+ * logs the server's command tree and, with {@code probe}, the server's completions ({@link CommandLogger}).
+ * Nothing is registered and nothing is sent but a probe's completion requests, so it works on any server.
  */
 public final class UiCaptureClient implements ClientModInitializer {
     public static final String MOD_ID = "apeira_uicapture";
@@ -94,6 +94,7 @@ public final class UiCaptureClient implements ClientModInitializer {
     }
 
     private static void onClientTick(Minecraft minecraft) {
+        CommandLogger.tick(minecraft);
         boolean noScreen = minecraft.screen == null;
         if ((pending == Pending.SCREEN || pending == Pending.INSPECT) && noScreen) {
             // The screen closed before it drew again.

@@ -49,7 +49,8 @@ import net.fabricmc.loader.api.FabricLoader;
  * sound log on or off: while on, every sound the client plays (the server's included) is appended to
  * {@code logs/apeira_sound_log.jsonl} with its time since the log started, so sequences can be timed: event, file,
  * pack, category, volume, pitch, attenuation and distance, position and distance from the player, looping, delay and
- * length. A client command, as only the client knows the resource packs' {@code sounds.json}; nothing is sent to the
+ * length. Each logged sound is also written to the game log as one line (event, file, volume, pitch, attenuation
+ * distance, subtitle key), and with {@code /apeirasound listen chat} to chat as well. A client command, as only the client knows the resource packs' {@code sounds.json}; nothing is sent to the
  * server.
  */
 public final class SoundInspector {
@@ -59,6 +60,7 @@ public final class SoundInspector {
     private static final Map<Identifier, Double> LENGTHS = new HashMap<>();
 
     private static boolean listening;
+    private static boolean toChat;
     private static boolean listenerAdded;
     private static long started;
     private static int logged;
@@ -67,7 +69,9 @@ public final class SoundInspector {
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(ClientCommandManager.literal("apeirasound")
-                .then(ClientCommandManager.literal("listen").executes(SoundInspector::toggleListening))
+                .then(ClientCommandManager.literal("listen")
+                        .executes(context -> toggleListening(context, false))
+                        .then(ClientCommandManager.literal("chat").executes(context -> toggleListening(context, true))))
                 .then(ClientCommandManager.argument("sound", IdentifierArgument.id())
                         .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(
                                 Minecraft.getInstance().getSoundManager().getAvailableSounds(), builder))
@@ -119,20 +123,22 @@ public final class SoundInspector {
         return 1;
     }
 
-    private static int toggleListening(CommandContext<FabricClientCommandSource> context) {
+    private static int toggleListening(CommandContext<FabricClientCommandSource> context, boolean chat) {
         Minecraft minecraft = Minecraft.getInstance();
         if (!listenerAdded) {
             listenerAdded = true;
             minecraft.getSoundManager().addListener(new Listener());
         }
         listening = !listening;
+        toChat = listening && chat;
         if (listening) {
             started = System.nanoTime();
             logged = 0;
             JsonObject start = new JsonObject();
             start.addProperty("start", LocalDateTime.now().toString());
             append(start);
-            context.getSource().sendFeedback(Component.translatable("message.apeira.sound_inspector.listen_on", LOG).withStyle(ChatFormatting.GOLD));
+            context.getSource().sendFeedback(Component.translatable(chat ? "message.apeira.sound_inspector.listen_chat_on"
+                    : "message.apeira.sound_inspector.listen_on", LOG).withStyle(ChatFormatting.GOLD));
         } else {
             context.getSource().sendFeedback(Component.translatable("message.apeira.sound_inspector.listen_off", logged).withStyle(ChatFormatting.GOLD));
         }
@@ -178,12 +184,21 @@ public final class SoundInspector {
             entry.addProperty("relative", instance.isRelative());
             entry.addProperty("looping", instance.isLooping());
             entry.addProperty("delay", instance.getDelay());
+            String subtitle = "-";
             if (event.getSubtitle() != null) {
-                entry.addProperty("subtitle", event.getSubtitle().getContents() instanceof TranslatableContents translatable
-                        ? translatable.getKey() : event.getSubtitle().getString());
+                subtitle = event.getSubtitle().getContents() instanceof TranslatableContents translatable
+                        ? translatable.getKey() : event.getSubtitle().getString();
+                entry.addProperty("subtitle", subtitle);
             }
             logged++;
             append(entry);
+            String line = instance.getIdentifier() + " | " + (sound == null ? "-" : sound.getPath()) + " | volume " + format(instance.getVolume())
+                    + " | pitch " + format(instance.getPitch()) + " | attenuation " + (sound == null ? "-" : sound.getAttenuationDistance())
+                    + " (" + instance.getAttenuation().name().toLowerCase(Locale.ROOT) + ") | subtitle " + subtitle;
+            UiCaptureClient.LOGGER.info("[sound log] {}", line);
+            if (toChat && player != null) {
+                player.displayClientMessage(Component.literal(line).withStyle(ChatFormatting.GRAY), false);
+            }
         }
     }
 
