@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -158,6 +159,37 @@ public final class ArmorStandRecorder {
     private static boolean showOutline = true;
     private static @Nullable Session session;
 
+    /**
+     * A bone name from an item's model: the last part of the first model its definition resolves to ({@code badger_head}),
+     * else the item's path and custom model data ({@code paper_cmd2319}).
+     */
+    static String modelName(Session session, JsonObject item, String context) {
+        try {
+            List<ItemModels.Model> models = session.models.resolve(item, context).models();
+            if (!models.isEmpty()) {
+                return boneName(models.getFirst().id().getPath().replaceAll(".*/", ""));
+            }
+        } catch (RuntimeException e) {
+            UiCaptureClient.LOGGER.debug("Could not resolve {}", item, e);
+        }
+        return boneName(itemName(item));
+    }
+
+    /** An item as a bone name: its path, and its first custom model data float ({@code paper_cmd2319}). */
+    static String itemName(JsonObject item) {
+        String name = Identifier.parse(item.get("id").getAsString()).getPath();
+        if (item.has("custom_model_data") && item.getAsJsonObject("custom_model_data").has("floats")
+                && !item.getAsJsonObject("custom_model_data").getAsJsonArray("floats").isEmpty()) {
+            name += "_cmd" + Math.round(item.getAsJsonObject("custom_model_data").getAsJsonArray("floats").get(0).getAsDouble());
+        }
+        return name;
+    }
+
+    static String boneName(String text) {
+        String name = text.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_]", "_");
+        return name.isEmpty() ? "bone" : name;
+    }
+
     private static final class Session {
         final String name;
         final BlockPos min;
@@ -171,11 +203,24 @@ public final class ArmorStandRecorder {
         /** The props in the area last tick, and how many of each kind have been seen, for their bone names. */
         Set<UUID> propsInside = new HashSet<>();
         final Map<String, Integer> kindCounts = new HashMap<>();
+        /** Every bone name given out, and the models items resolve to, for bones named after their model. */
+        final Set<String> names = new HashSet<>();
+        final ItemModels models = new ItemModels(Minecraft.getInstance().getResourceManager(),
+                new CapturedAssets(Minecraft.getInstance().getResourceManager(), null));
         @Nullable UUID targeted;
         final List<Event> events = new ArrayList<>();
         /** The stands in the area last tick. */
         Set<UUID> inside = new HashSet<>();
         int tick;
+
+        /** {@code base}, or {@code base_2}, {@code base_3} ... when it is taken. */
+        String name(String base) {
+            String name = base;
+            for (int n = 2; !names.add(name); n++) {
+                name = base + "_" + n;
+            }
+            return name;
+        }
 
         Session(String name, BlockPos min, BlockPos max) {
             this.name = name;
@@ -374,7 +419,12 @@ public final class ArmorStandRecorder {
             Track track = session.tracks.get(uuid);
             if (track == null) {
                 Component custom = stand.getCustomName();
-                track = new Track(uuid, "stand_" + session.tracks.size(), stand.getId(), custom == null ? null : custom.getString(), tick);
+                String model = null;
+                for (JsonObject item : snapshot.items()) {
+                    model = model != null || item == null ? model : modelName(session, item, "head");
+                }
+                track = new Track(uuid, session.name(model == null ? "stand_" + session.tracks.size() : model + "_stand"), stand.getId(),
+                        custom == null ? null : custom.getString(), tick);
                 session.tracks.put(uuid, track);
             }
             Snapshot last = track.frames.get(tick - 1);
@@ -469,7 +519,10 @@ public final class ArmorStandRecorder {
             PropTrack track = session.props.computeIfAbsent(entity.getUUID(), uuid -> {
                 String kind = AreaEntities.kind(entity);
                 int index = session.kindCounts.merge(kind, 1, Integer::sum) - 1;
-                return new PropTrack(uuid, kind + "_" + index, kind, AreaEntities.typeId(entity), entity.getId(), tick);
+                JsonObject state = AreaEntities.state(entity, ops);
+                String model = state.get("item") instanceof JsonObject item
+                        ? modelName(session, item, state.has("item_display") ? state.get("item_display").getAsString() : "fixed") : null;
+                return new PropTrack(uuid, session.name(model == null ? kind + "_" + index : model), kind, AreaEntities.typeId(entity), entity.getId(), tick);
             });
             PropSnapshot snapshot = new PropSnapshot(entity.position(), entity.getYRot(), entity.getXRot(), AreaEntities.state(entity, ops),
                     AreaEntities.transform(entity));
@@ -513,7 +566,7 @@ public final class ArmorStandRecorder {
 
     private static HitboxTrack hitboxTrack(Session session, Interaction hitbox) {
         return session.hitboxes.computeIfAbsent(hitbox.getUUID(),
-                uuid -> new HitboxTrack(uuid, "interaction_" + session.hitboxes.size(), hitbox.getId(), session.tick));
+                uuid -> new HitboxTrack(uuid, session.name("interaction_" + session.hitboxes.size()), hitbox.getId(), session.tick));
     }
 
     private static JsonObject describe(HitboxSnapshot snapshot) {
