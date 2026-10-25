@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -67,15 +68,18 @@ import com.apeira.uicapture.ArmorStandRecorder.Track;
  * fixed billboard draws them, {@code rotationYXZ(-yaw, pitch, 0)}) and have their transformation as vanilla's matrix,
  * translation * left rotation * scale * right rotation, in two bones, as a bone is translation * rotation * scale: a
  * {@code <bone>_transform} child with the translation, left rotation and scale, and its {@code <bone>_transform_right}
- * child with the right rotation, so non-uniform scale with a right rotation is exact. Every pivot is 0, the entity's
- * origin, which vanilla turns and scales about: item models are drawn centred on it (their cubes moved -8 pixels, as the
- * item renderer draws from the model's centre), block displays from the block's corner. {@code recording.json} lists
+ * child with the right rotation, so non-uniform scale with a right rotation is exact. Each bone's first recorded
+ * translation and rotation are its rest pose, held by the geometry ({@link #bake}): its pivot is its parent's plus that
+ * translation, the point vanilla turns and scales it about (the entity's position, then the transformation's translation;
+ * item models are centred on it by their -8 pixel cube offset, block displays drawn from the block's corner), its cubes
+ * and locators move with it and its rotation is the rest rotation, so the static model stands assembled. The animation
+ * keys positions and rotations as the change from that rest pose, never the offset again; scales are absolute. {@code recording.json} lists
  * each prop's frames with its state (item or block, custom model data, billboard, text, frame rotation) and full
  * transformation, and the {@code change} events hold the state keys that changed.
  * Item displays' items are drawn: each distinct item (and display context) a display shows is resolved to its model
  * ({@link ItemModels}) and becomes a {@code <bone>_item_<k>} child of {@code <bone>_transform_right}, with a
  * {@code <bone>_item_<k>_model_<m>} child per model (composite definitions have several) holding its cubes
- * ({@link ItemGeometry}) and, held by the animation, the display's half turn and that model's {@code display.<context>}
+ * ({@link ItemGeometry}) and, as its rest pose, the display's half turn and that model's {@code display.<context>}
  * transform, which vanilla applies to the model before the entity's matrix; the animation scales each variant bone
  * to 0 while the display shows another item or none, so item, custom model data and visibility swaps are keyframes. The
  * textures (and the model and item definition files read) are copied to {@code assets/<namespace>/...}, packed into
@@ -122,15 +126,16 @@ public final class ArmorStandExporter {
                 atlas.pack();
                 atlas.write(folder.resolve(name + ".png"));
             }
-            JsonObject geometry = geometry(recording, name, items, atlas);
+            Map<String, Rest> rest = rest(recording, origin, items);
+            JsonObject geometry = geometry(recording, name, items, atlas, rest);
             Files.writeString(folder.resolve(name + ".geo.json"), GSON.toJson(geometry), StandardCharsets.UTF_8);
-            Files.writeString(folder.resolve(name + ".animation.json"), GSON.toJson(animation(recording, name, origin, items)), StandardCharsets.UTF_8);
+            Files.writeString(folder.resolve(name + ".animation.json"), GSON.toJson(animation(recording, name, origin, items, rest)), StandardCharsets.UTF_8);
             // The loop and the clips around it, each a file of its own over the same bones.
             AnimationSegments.Result segments = AnimationSegments.find(recording);
             for (AnimationSegments.Segment segment : segments.segments()) {
                 Recording slice = AnimationSegments.slice(recording, segment.from(), segment.ticks());
                 Files.writeString(folder.resolve(AnimationSegments.file(name, segment)), GSON.toJson(animation(slice,
-                        "animation." + name + "." + segment.name(), origin, items, segment.loop(), AnimationSegments.length(segment))), StandardCharsets.UTF_8);
+                        "animation." + name + "." + segment.name(), origin, items, rest, segment.loop(), AnimationSegments.length(segment))), StandardCharsets.UTF_8);
             }
             Files.writeString(folder.resolve("segments.json"), GSON.toJson(AnimationSegments.json(segments, name)), StandardCharsets.UTF_8);
             log.accept(segments.segments().isEmpty() ? "Not split: " + segments.note()
@@ -444,7 +449,7 @@ public final class ArmorStandExporter {
 
     // <name>.geo.json
 
-    private static JsonObject geometry(Recording recording, String name, Map<String, List<ItemVariant>> items, TextureAtlas atlas) {
+    private static JsonObject geometry(Recording recording, String name, Map<String, List<ItemVariant>> items, TextureAtlas atlas, Map<String, Rest> rest) {
         JsonArray bones = new JsonArray();
         bones.add(bone(ROOT, null, 0, 0, 0));
         for (Track track : recording.tracks()) {
@@ -512,6 +517,7 @@ public final class ArmorStandExporter {
                 }
             }
         }
+        bake(bones, rest);
         int width = Math.max(recording.max().getX() - recording.min().getX(), recording.max().getZ() - recording.min().getZ()) + 3;
         JsonObject description = new JsonObject();
         description.addProperty("identifier", "geometry." + name);
@@ -529,6 +535,116 @@ public final class ArmorStandExporter {
         root.addProperty("format_version", "1.12.0");
         root.add("minecraft:geometry", list);
         return root;
+    }
+
+    // Rest poses
+
+    /**
+     * A bone's rest pose, its first recorded local translation (pixels, x mirrored) and rotation (degrees), which the geometry
+     * holds so the static model stands assembled; the animation keys only the change from it.
+     */
+    record Rest(double[] position, double[] rotation) {
+    }
+
+    /** Every animated bone's rest pose, from its track's first frame. */
+    private static Map<String, Rest> rest(Recording recording, Vec3 origin, Map<String, List<ItemVariant>> items) {
+        Map<String, Rest> rest = new HashMap<>();
+        for (Track track : recording.tracks()) {
+            if (track.frames.isEmpty()) {
+                continue;
+            }
+            Snapshot first = track.frames.values().iterator().next();
+            rest.put(track.bone, new Rest(position(first.pos(), origin), new double[] {0, first.yaw() - 180, 0}));
+            Rotations[] poses = poses(first);
+            for (int i = 0; i < PARTS.length; i++) {
+                rest.put(track.bone + "_" + PARTS[i], new Rest(new double[3], new double[] {poses[i].x(), poses[i].y(), poses[i].z()}));
+            }
+        }
+        for (HitboxTrack track : recording.hitboxes()) {
+            if (!track.frames.isEmpty()) {
+                rest.put(track.bone, new Rest(position(track.frames.values().iterator().next().pos(), origin), new double[3]));
+            }
+        }
+        for (PropTrack track : recording.props()) {
+            if (track.frames.isEmpty()) {
+                continue;
+            }
+            PropSnapshot first = track.frames.values().iterator().next();
+            AreaEntities.@Nullable Transform tr = first.transform();
+            rest.put(track.bone, new Rest(position(first.pos(), origin), tr == null ? new double[3] : billboard(first.yaw(), first.pitch())));
+            if (tr == null) {
+                continue;
+            }
+            rest.put(track.bone + "_transform", new Rest(translation(tr), euler(tr.left())));
+            rest.put(track.bone + "_transform_right", new Rest(new double[3], euler(tr.right())));
+            for (ItemVariant variant : items.getOrDefault(track.bone, List.of())) {
+                List<ItemModels.Model> models = variant.resolved().models();
+                for (int m = 0; m < models.size(); m++) {
+                    double[][] display = ItemGeometry.displayTransform(models.get(m), variant.context());
+                    rest.put(variant.model(track.bone, m), new Rest(display[0], display[1]));
+                }
+            }
+        }
+        return rest;
+    }
+
+    /**
+     * Moves every bone to its rest pose: a bone's offset is its parent's plus its own rest translation (in the parent's
+     * unturned frame, as Bedrock bones are bound), added to its pivot, cubes, cube pivots and locators, so the pivot is the
+     * point the display turns and scales about; its rest rotation becomes the bone's rotation. Bones come parents first.
+     */
+    private static void bake(JsonArray bones, Map<String, Rest> rest) {
+        Map<String, double[]> offsets = new HashMap<>();
+        for (JsonElement element : bones) {
+            JsonObject bone = element.getAsJsonObject();
+            String name = bone.get("name").getAsString();
+            double[] offset = bone.has("parent") ? offsets.get(bone.get("parent").getAsString()).clone() : new double[3];
+            Rest pose = rest.get(name);
+            if (pose != null) {
+                for (int i = 0; i < 3; i++) {
+                    offset[i] += pose.position()[i];
+                }
+                if (pose.rotation()[0] != 0 || pose.rotation()[1] != 0 || pose.rotation()[2] != 0) {
+                    bone.add("rotation", array(pose.rotation()));
+                }
+            }
+            offsets.put(name, offset);
+            bone.add("pivot", shifted(bone.getAsJsonArray("pivot"), offset));
+            if (bone.has("cubes")) {
+                for (JsonElement c : bone.getAsJsonArray("cubes")) {
+                    JsonObject cube = c.getAsJsonObject();
+                    cube.add("origin", shifted(cube.getAsJsonArray("origin"), offset));
+                    if (cube.has("pivot")) {
+                        cube.add("pivot", shifted(cube.getAsJsonArray("pivot"), offset));
+                    }
+                }
+            }
+            if (bone.has("locators")) {
+                JsonObject locators = bone.getAsJsonObject("locators");
+                for (String locator : List.copyOf(locators.keySet())) {
+                    locators.add(locator, shifted(locators.getAsJsonArray(locator), offset));
+                }
+            }
+        }
+    }
+
+    private static JsonArray shifted(JsonArray point, double[] offset) {
+        return array(point.get(0).getAsDouble() + offset[0], point.get(1).getAsDouble() + offset[1], point.get(2).getAsDouble() + offset[2]);
+    }
+
+    /** A track's values as the change from the bone's rest pose (angles wrapped to the nearest turn). */
+    private static Function<Integer, double[]> delta(Function<Integer, double[]> value, @Nullable Rest rest, boolean angles) {
+        if (rest == null) {
+            return value;
+        }
+        double[] base = angles ? rest.rotation() : rest.position();
+        return t -> {
+            double[] v = value.apply(t);
+            for (int i = 0; i < v.length; i++) {
+                v[i] = angles ? wrap(v[i] - base[i]) : v[i] - base[i];
+            }
+            return v;
+        };
     }
 
     private static JsonObject bone(String name, @Nullable String parent, double x, double y, double z, JsonObject... cubes) {
@@ -562,15 +678,17 @@ public final class ArmorStandExporter {
 
     // <name>.animation.json
 
-    private static JsonObject animation(Recording recording, String name, Vec3 origin, Map<String, List<ItemVariant>> items) {
-        return animation(recording, "animation." + name + ".recorded", origin, items, false, recording.ticks());
+    private static JsonObject animation(Recording recording, String name, Vec3 origin, Map<String, List<ItemVariant>> items, Map<String, Rest> rest) {
+        return animation(recording, "animation." + name + ".recorded", origin, items, rest, false, recording.ticks());
     }
 
     /**
      * One clip over the recording's ticks ({@code length} ticks long, looping or not). Tracks with no frames in it (a slice
-     * from {@link AnimationSegments}) are held hidden.
+     * from {@link AnimationSegments}) are held hidden. Positions and rotations are keyed as the change from each bone's
+     * {@link Rest} pose, which the geometry already holds; scales are absolute.
      */
-    private static JsonObject animation(Recording recording, String clipName, Vec3 origin, Map<String, List<ItemVariant>> items, boolean loop, int length) {
+    private static JsonObject animation(Recording recording, String clipName, Vec3 origin, Map<String, List<ItemVariant>> items, Map<String, Rest> rest,
+            boolean loop, int length) {
         int ticks = Math.max(1, recording.ticks());
         JsonObject bones = new JsonObject();
         // Held at rest, for moving or turning the whole rig in Blockbench.
@@ -605,19 +723,18 @@ public final class ArmorStandExporter {
             }
 
             JsonObject root = new JsonObject();
-            root.add("position", continuous(ticks, t -> new double[] {
-                    -(states[t].pos().x - origin.x) * 16, (states[t].pos().y - origin.y) * 16, (states[t].pos().z - origin.z) * 16}, false));
-            root.add("rotation", continuous(ticks, t -> new double[] {0, states[t].yaw() - 180, 0}, true));
+            root.add("position", continuous(ticks, delta(t -> position(states[t].pos(), origin), rest.get(b), false), false));
+            root.add("rotation", continuous(ticks, delta(t -> new double[] {0, states[t].yaw() - 180, 0}, rest.get(b), true), true));
             root.add("scale", discrete(ticks, t -> present[t] ? states[t].small() ? 0.5 : 1.0 : 0.0));
             bones.add(b, root);
 
             for (int i = 0; i < PARTS.length; i++) {
                 int part = i;
                 JsonObject bone = new JsonObject();
-                bone.add("rotation", continuous(ticks, t -> {
+                bone.add("rotation", continuous(ticks, delta(t -> {
                     Rotations r = poses(states[t])[part];
                     return new double[] {r.x(), r.y(), r.z()};
-                }, true));
+                }, rest.get(b + "_" + PARTS[i]), true), true));
                 bones.add(b + "_" + PARTS[i], bone);
                 boolean arm = PARTS[i].endsWith("_arm");
                 JsonObject model = new JsonObject();
@@ -650,8 +767,7 @@ public final class ArmorStandExporter {
                 states[t] = t < track.firstTick && h == null ? first : last;
             }
             JsonObject root = new JsonObject();
-            root.add("position", continuous(ticks, t -> new double[] {
-                    -(states[t].pos().x - origin.x) * 16, (states[t].pos().y - origin.y) * 16, (states[t].pos().z - origin.z) * 16}, false));
+            root.add("position", continuous(ticks, delta(t -> position(states[t].pos(), origin), rest.get(track.bone), false), false));
             root.add("scale", discrete(ticks, t -> track.frames.containsKey(t) ? 1.0 : 0.0));
             bones.add(track.bone, root);
             JsonObject hitbox = new JsonObject();
@@ -678,45 +794,45 @@ public final class ArmorStandExporter {
                 states[t] = last;
             }
             JsonObject root = new JsonObject();
-            root.add("position", continuous(ticks, t -> position(states[t].pos(), origin), false));
+            root.add("position", continuous(ticks, delta(t -> position(states[t].pos(), origin), rest.get(track.bone), false), false));
             root.add("scale", discrete(ticks, t -> track.frames.containsKey(t) ? 1.0 : 0.0));
             if (first.transform() != null) {
                 // A fixed billboard turns the display by yaw, then pitch.
-                root.add("rotation", continuous(ticks, t -> billboard(states[t].yaw(), states[t].pitch()), true));
+                root.add("rotation", continuous(ticks, delta(t -> billboard(states[t].yaw(), states[t].pitch()), rest.get(track.bone), true), true));
                 JsonObject transform = new JsonObject();
-                transform.add("position", continuous(ticks, t -> {
+                Rest transformRest = rest.get(track.bone + "_transform");
+                transform.add("position", continuous(ticks, delta(t -> {
                     AreaEntities.Transform tr = states[t].transform();
                     return tr == null ? new double[3] : translation(tr);
-                }, false));
+                }, transformRest, false), false));
                 // Vanilla's matrix is translation * left rotation * scale * right rotation; a bone is translation * rotation * scale,
                 // so the right rotation is a child bone of its own.
-                transform.add("rotation", continuous(ticks, t -> {
+                transform.add("rotation", continuous(ticks, delta(t -> {
                     AreaEntities.Transform tr = states[t].transform();
                     return tr == null ? new double[3] : euler(tr.left());
-                }, true));
+                }, transformRest, true), true));
                 transform.add("scale", continuous(ticks, t -> {
                     AreaEntities.Transform tr = states[t].transform();
                     return tr == null ? new double[] {1, 1, 1} : new double[] {tr.scale().x(), tr.scale().y(), tr.scale().z()};
                 }, false));
                 bones.add(track.bone + "_transform", transform);
                 JsonObject right = new JsonObject();
-                right.add("rotation", continuous(ticks, t -> {
+                right.add("rotation", continuous(ticks, delta(t -> {
                     AreaEntities.Transform tr = states[t].transform();
                     return tr == null ? new double[3] : euler(tr.right());
-                }, true));
+                }, rest.get(track.bone + "_transform_right"), true), true));
                 bones.add(track.bone + "_transform_right", right);
                 for (ItemVariant variant : items.getOrDefault(track.bone, List.of())) {
                     // Scale 0 while the display shows another item or none.
                     JsonObject item = new JsonObject();
                     item.add("scale", discrete(ticks, t -> variant.key().equals(itemKey(states[t])) ? 1.0 : 0.0));
                     bones.add(variant.bone(track.bone), item);
-                    // Each model's display transform (its half turn and display.<context>), held.
+                    // Each model's display transform (its half turn and display.<context>): the geometry holds its translation
+                    // and rotation as the bone's rest pose, so only its scale is keyed.
                     List<ItemModels.Model> models = variant.resolved().models();
                     for (int m = 0; m < models.size(); m++) {
                         double[][] display = ItemGeometry.displayTransform(models.get(m), variant.context());
                         JsonObject model = new JsonObject();
-                        model.add("position", continuous(ticks, t -> display[0].clone(), false));
-                        model.add("rotation", continuous(ticks, t -> display[1].clone(), true));
                         model.add("scale", continuous(ticks, t -> display[2].clone(), false));
                         bones.add(variant.model(track.bone, m), model);
                     }
