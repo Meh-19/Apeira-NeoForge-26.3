@@ -125,6 +125,17 @@ public final class ArmorStandExporter {
             JsonObject geometry = geometry(recording, name, items, atlas);
             Files.writeString(folder.resolve(name + ".geo.json"), GSON.toJson(geometry), StandardCharsets.UTF_8);
             Files.writeString(folder.resolve(name + ".animation.json"), GSON.toJson(animation(recording, name, origin, items)), StandardCharsets.UTF_8);
+            // The loop and the clips around it, each a file of its own over the same bones.
+            AnimationSegments.Result segments = AnimationSegments.find(recording);
+            for (AnimationSegments.Segment segment : segments.segments()) {
+                Recording slice = AnimationSegments.slice(recording, segment.from(), segment.ticks());
+                Files.writeString(folder.resolve(AnimationSegments.file(name, segment)), GSON.toJson(animation(slice,
+                        "animation." + name + "." + segment.name(), origin, items, segment.loop(), AnimationSegments.length(segment))), StandardCharsets.UTF_8);
+            }
+            Files.writeString(folder.resolve("segments.json"), GSON.toJson(AnimationSegments.json(segments, name)), StandardCharsets.UTF_8);
+            log.accept(segments.segments().isEmpty() ? "Not split: " + segments.note()
+                    : "Clips: " + String.join(", ", segments.segments().stream().map(segment -> segment.name() + " ticks " + segment.from() + "-"
+                            + (segment.from() + segment.ticks() - 1)).toList()) + " (loop of " + segments.period() + " ticks, seen " + segments.repeats() + "x)");
             Files.writeString(folder.resolve("item_models.json"), GSON.toJson(itemIndex(items, atlas, assets)), StandardCharsets.UTF_8);
             List<String> diagnostics = diagnostics(recording, origin, items);
             Files.write(folder.resolve("display_diagnostics.txt"), diagnostics, StandardCharsets.UTF_8);
@@ -141,16 +152,30 @@ public final class ArmorStandExporter {
 
     // Item display models
 
-    /** One item (and display context) an item display shows during the recording, drawn by the {@code <bone>_item_<index>} bone. */
-    private record ItemVariant(int index, String key, JsonObject item, String context, ItemModels.Resolved resolved) {
+    /**
+     * One item (and display context) an item display shows during the recording, drawn by the {@code <bone>_<name>} bone
+     * ({@code name} the item and its custom model data, {@code paper_cmd2319}), whose models are {@code <bone>_<name>_<model>}
+     * bones named after each model ({@code badger_head}).
+     */
+    private record ItemVariant(int index, String key, JsonObject item, String context, ItemModels.Resolved resolved, String name,
+            List<String> modelNames) {
         String bone(String prop) {
-            return prop + "_item_" + index;
+            return prop + "_" + name;
         }
 
         /** The bone holding the variant's {@code m}th model (composite definitions have several). */
         String model(String prop, int m) {
-            return bone(prop) + "_model_" + m;
+            return bone(prop) + "_" + modelNames.get(m);
         }
+    }
+
+    /** {@code base}, or {@code base_2} ... when {@code taken} has it. */
+    private static String unique(java.util.Set<String> taken, String base) {
+        String name = base;
+        for (int n = 2; !taken.add(name); n++) {
+            name = base + "_" + n;
+        }
+        return name;
     }
 
     /** Every item display's distinct items, resolved, with their textures added to the atlas. */
@@ -161,6 +186,7 @@ public final class ArmorStandExporter {
                 continue;
             }
             List<ItemVariant> variants = new ArrayList<>();
+            java.util.Set<String> names = new java.util.HashSet<>();
             for (PropSnapshot frame : track.frames.values()) {
                 String key = itemKey(frame);
                 if (key == null || variants.stream().anyMatch(v -> v.key().equals(key))) {
@@ -170,7 +196,11 @@ public final class ArmorStandExporter {
                 String context = frame.state().get("item_display").getAsString();
                 ItemModels.Resolved resolved = models.resolve(item, context);
                 resolved.models().forEach(model -> ItemGeometry.collect(model, atlas));
-                variants.add(new ItemVariant(variants.size(), key, item, context, resolved));
+                java.util.Set<String> modelsTaken = new java.util.HashSet<>();
+                List<String> modelNames = resolved.models().stream()
+                        .map(m -> unique(modelsTaken, ArmorStandRecorder.boneName(m.id().getPath().replaceAll(".*/", "")))).toList();
+                variants.add(new ItemVariant(variants.size(), key, item, context, resolved,
+                        unique(names, ArmorStandRecorder.boneName(ArmorStandRecorder.itemName(item))), modelNames));
             }
             if (!variants.isEmpty()) {
                 items.put(track.bone, variants);
@@ -533,6 +563,14 @@ public final class ArmorStandExporter {
     // <name>.animation.json
 
     private static JsonObject animation(Recording recording, String name, Vec3 origin, Map<String, List<ItemVariant>> items) {
+        return animation(recording, "animation." + name + ".recorded", origin, items, false, recording.ticks());
+    }
+
+    /**
+     * One clip over the recording's ticks ({@code length} ticks long, looping or not). Tracks with no frames in it (a slice
+     * from {@link AnimationSegments}) are held hidden.
+     */
+    private static JsonObject animation(Recording recording, String clipName, Vec3 origin, Map<String, List<ItemVariant>> items, boolean loop, int length) {
         int ticks = Math.max(1, recording.ticks());
         JsonObject bones = new JsonObject();
         // Held at rest, for moving or turning the whole rig in Blockbench.
@@ -543,6 +581,10 @@ public final class ArmorStandExporter {
         bones.add(ROOT, rig);
         for (Track track : recording.tracks()) {
             String b = track.bone;
+            if (track.frames.isEmpty()) {
+                bones.add(b, hidden(ticks));
+                continue;
+            }
             // Ticks the stand was in the area; the others hold its last state, hidden.
             Snapshot[] states = new Snapshot[ticks];
             Snapshot last = null;
@@ -594,6 +636,7 @@ public final class ArmorStandExporter {
         }
         for (HitboxTrack track : recording.hitboxes()) {
             if (track.frames.isEmpty()) {
+                bones.add(track.bone, hidden(ticks));
                 continue;
             }
             HitboxSnapshot[] states = new HitboxSnapshot[ticks];
@@ -621,6 +664,7 @@ public final class ArmorStandExporter {
         }
         for (PropTrack track : recording.props()) {
             if (track.frames.isEmpty()) {
+                bones.add(track.bone, hidden(ticks));
                 continue;
             }
             PropSnapshot[] states = new PropSnapshot[ticks];
@@ -688,15 +732,25 @@ public final class ArmorStandExporter {
         byTick.forEach((tick, list) -> timeline.add(time(tick), list));
 
         JsonObject clip = new JsonObject();
-        clip.addProperty("animation_length", ticks / 20.0);
+        if (loop) {
+            clip.addProperty("loop", true);
+        }
+        clip.addProperty("animation_length", length / 20.0);
         clip.add("bones", bones);
         clip.add("timeline", timeline);
         JsonObject animations = new JsonObject();
-        animations.add("animation." + name + ".recorded", clip);
+        animations.add(clipName, clip);
         JsonObject root = new JsonObject();
         root.addProperty("format_version", "1.8.0");
         root.add("animations", animations);
         return root;
+    }
+
+    /** A bone held at scale 0 for the whole clip. */
+    private static JsonObject hidden(int ticks) {
+        JsonObject bone = new JsonObject();
+        bone.add("scale", discrete(ticks, t -> 0.0));
+        return bone;
     }
 
     /**
