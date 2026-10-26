@@ -110,7 +110,6 @@ public final class Apeira {
         NeoForge.EVENT_BUS.addListener(RealmProtection::onLeftClickBlock);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onRightClickItem);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onInteractEntity);
-        NeoForge.EVENT_BUS.addListener(RealmProtection::onInteractEntitySpecific);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onAttack);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onItemPickup);
         NeoForge.EVENT_BUS.addListener(RealmVisitors::onChangeTarget);

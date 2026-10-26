@@ -163,13 +163,6 @@ public final class RealmProtection {
         }
     }
 
-    /** Armor stands and other entities that take a click at a point. */
-    public static void onInteractEntitySpecific(PlayerInteractEvent.EntityInteractSpecific event) {
-        if (deniesEntityUse(event.getEntity(), event.getTarget())) {
-            event.setCanceled(true);
-        }
-    }
-
     /** Visitors attack nothing; Residents only players and hostile mobs. */
     public static void onAttack(AttackEntityEvent event) {
         role(event.getEntity()).ifPresent(role -> {
