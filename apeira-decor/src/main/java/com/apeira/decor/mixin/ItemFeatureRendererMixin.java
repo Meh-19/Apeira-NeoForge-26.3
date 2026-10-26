@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
+import com.apeira.decor.client.EmissiveRenderTypes;
 import com.apeira.decor.client.FinishRenderTypes;
 import com.mojang.blaze3d.vertex.QuadInstance;
 
@@ -13,9 +14,10 @@ import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
 /**
- * Draws item quads tinted with a paint finish with the finish's render type ({@link FinishRenderTypes#forQuad}). Every
- * item goes through here: in the world, in hands, on players and in the GUI's item atlas. The quad's tint is already in
- * the quad instance when its vertex builder is asked for.
+ * Draws item quads tinted with a paint finish with the finish's render type ({@link FinishRenderTypes#forQuad}), and
+ * translucent item quads with the emissive item type, whose texels of alpha 254 glow ({@link EmissiveRenderTypes#forItem}).
+ * Every item goes through here: in the world, in hands, on players and in the GUI's item atlas. The quad's tint is
+ * already in the quad instance when its vertex builder is asked for.
  */
 @Mixin(ItemFeatureRenderer.class)
 public abstract class ItemFeatureRendererMixin {
@@ -26,6 +28,6 @@ public abstract class ItemFeatureRendererMixin {
     @ModifyArg(method = "prepareMainSubmit", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/feature/ItemFeatureRenderer;getVertexBuilder(Lnet/minecraft/client/renderer/rendertype/RenderType;)Lcom/mojang/blaze3d/vertex/VertexConsumer;"))
     private RenderType apeira$drawFinish(RenderType renderType) {
-        return FinishRenderTypes.forQuad(renderType, quadInstance);
+        return EmissiveRenderTypes.forItem(FinishRenderTypes.forQuad(renderType, quadInstance));
     }
 }

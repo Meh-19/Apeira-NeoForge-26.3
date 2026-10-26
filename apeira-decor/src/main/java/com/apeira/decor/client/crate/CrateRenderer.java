@@ -2,6 +2,7 @@ package com.apeira.decor.client.crate;
 
 import org.jspecify.annotations.Nullable;
 
+import com.apeira.decor.client.EmissiveRenderTypes;
 import com.apeira.decor.crate.CrateBlock;
 import com.apeira.decor.crate.CrateBlockEntity;
 import com.geckolib.constant.dataticket.DataTicket;
@@ -11,6 +12,8 @@ import com.mojang.math.Axis;
 
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 
 /**
@@ -46,5 +49,11 @@ public class CrateRenderer extends GeoBlockRenderer<CrateBlockEntity, BlockEntit
     @Override
     public AABB getRenderBoundingBox(CrateBlockEntity crate) {
         return new AABB(crate.getBlockPos()).inflate(1.0).expandTowards(0.0, 2.0, 0.0);
+    }
+
+    /** Translucent, with the alpha 254 texels glowing ({@link EmissiveRenderTypes}). */
+    @Override
+    public RenderType getRenderType(BlockEntityRenderState renderState, Identifier texture) {
+        return EmissiveRenderTypes.entityTranslucent(texture);
     }
 }

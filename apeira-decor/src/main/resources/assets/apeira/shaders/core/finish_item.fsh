@@ -3,6 +3,7 @@
 
 // Vanilla's core/item.fsh (without the glint) for the apeira:pipeline/finish_item_* pipelines, plus CosmoLib's finish
 // branch: a finish (see finish_item.vsh) replaces the texel's colour before it is lit, as CosmoLib's entity shaders did.
+// Texels with alpha 254 are emissive (apeira:emissive.glsl): unlit, opaque, finished all the same.
 
 #include <minecraft:globals.glsl>
 #include <minecraft:fog.glsl>
@@ -25,6 +26,7 @@ layout(location = 4) in vec4 overlayColor;
 layout(location = 5) in vec2 texCoord0;
 layout(location = 7) flat in float finish;
 layout(location = 8) in vec4 normal;
+layout(location = 9) in vec4 vertexTint;
 
 #ifndef OIT_ALPHA_ONLY
 layout(location = 0) out vec4 fragColor;
@@ -34,11 +36,14 @@ layout(location = 0) out vec4 fragColor;
 #include <apeira:finish/atlas.glsl>
 #include <apeira:finish/phantom.glsl>
 #include <apeira:finish/finishes.glsl>
+#include <apeira:emissive.glsl>
 
 #ifndef OIT_ALPHA_ONLY
-vec4 calculateFinalColor(vec4 color) {
+vec4 calculateFinalColor(vec4 color, bool emissive) {
     color.rgb = mix(overlayColor.rgb, color.rgb, overlayColor.a);
-    color *= lightMapColor;
+    if (!emissive) {
+        color *= lightMapColor;
+    }
 
     #ifdef OIT_ACCUMULATE
     color = sampleColorForAccumulation(color);
@@ -53,6 +58,10 @@ vec4 calculateFinalColor(vec4 color) {
 
 void main() {
     vec4 color = texture(Sampler0, texCoord0);
+    bool emissive = apeira_isEmissive(color.a);
+    if (emissive) {
+        color.a = 1.0;
+    }
     #ifdef ALPHA_CUTOUT
     if (color.a < ALPHA_CUTOUT) {
         discard;
@@ -63,7 +72,7 @@ void main() {
         color = finishGet(color, texCoord0, finish);
     }
 
-    color *= vertexColor * ColorModulator;
+    color *= (emissive ? vertexTint : vertexColor) * ColorModulator;
 
     // Phantom and Snow lower the alpha; CosmoLib dropped what they made fully clear.
     if (color.a < 0.01) {
@@ -73,6 +82,6 @@ void main() {
     #ifdef OIT_ALPHA_ONLY
     executeAlphaOnlyPhase(gl_FragCoord.z, color.a);
     #else
-    fragColor = calculateFinalColor(color);
+    fragColor = calculateFinalColor(color, emissive);
     #endif
 }
