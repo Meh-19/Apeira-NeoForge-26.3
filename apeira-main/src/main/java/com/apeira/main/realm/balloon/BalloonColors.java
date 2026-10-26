@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.decor.paint.FinishType;
 import com.apeira.decor.paint.PaintColor;
+import com.apeira.main.realm.RealmPreset;
 
 import net.minecraft.network.chat.Component;
 
@@ -39,6 +40,20 @@ public final class BalloonColors {
     /** The popup's colour {@code index}; 0 is unpainted ({@code null}). */
     public static @Nullable Integer at(int index) {
         return PALETTE.get(index);
+    }
+
+    /**
+     * The colour a new balloon in {@code preset}'s region is painted until its owner picks one: red in lush realms,
+     * yellow in arid ones, blue in cold and arctic ones, green in tropical ones, each at its default shade.
+     */
+    public static int forPreset(RealmPreset preset) {
+        PaintColor color = switch (preset) {
+            case LUSH -> PaintColor.RED;
+            case ARID -> PaintColor.YELLOW;
+            case COLD, ARCTIC -> PaintColor.BLUE;
+            case TROPICAL -> PaintColor.GREEN;
+        };
+        return color.shade(color.defaultShade());
     }
 
     /** The names {@code /realm balloon} takes: {@code none} and the paint colours' ids. */

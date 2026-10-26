@@ -407,8 +407,8 @@ public final class RealmService {
             fail(owner, "realm.setspawn.blocked");
             return false;
         }
-        // Arriving players look the way the owner looked when placing it.
-        access.spawnFacing = owner.getDirection();
+        // The balloon's front faces the owner who placed it; arriving players step out of that front.
+        access.spawnFacing = owner.getDirection().getOpposite();
         StarterBalloon.move(level, access.balloon.orElse(null), balloon, access.spawnFacing, access.balloonPaint.orElse(null));
         access.balloon = Optional.of(balloon);
         access.starterBuilt = true;
@@ -460,8 +460,13 @@ public final class RealmService {
         }
         MinecraftServer server = owner.level().getServer();
         ServerLevel old = owner.level();
+        RealmPreset was = data(server).realmOf(owner.getUUID()).map(RealmData.Realm::preset).orElse(null);
         RealmPool.take(server, owner.getUUID(), preset);
         access.spawn = Optional.empty();
+        // A region's own balloon colour is not carried to the next region; one the owner picked is.
+        if (was != null && access.balloonPaint.equals(Optional.of(BalloonColors.forPreset(was)))) {
+            access.balloonPaint = Optional.empty();
+        }
         // The new realm gets its own starter platform and balloon when the owner arrives.
         access.balloon = Optional.empty();
         access.starterBuilt = false;
