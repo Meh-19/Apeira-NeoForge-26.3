@@ -239,6 +239,8 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         addId("navigator", "realm_teleport.own", "Teleport to your Realm");
         addId("navigator", "action.open_world_teleport", "Left-click to teleport");
         addId("navigator", "action.open_world_list", "Right-click to view all worlds");
+        addId("navigator", "action.set_spawn_balloon", "Left-click to edit with balloon");
+        addId("navigator", "action.set_spawn_here", "Right-click to set without balloon");
         addId("navigator", "realm_spawn", "Teleport to Realm Spawn");
         addId("navigator", "gravestones", "Gravestones");
         addId("navigator", "player_settings", "Player settings");
@@ -382,7 +384,6 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         addId("navigator", "realm_access_toggle.always", "Always accessible");
         addId("navigator", "realm_access_toggle.online", "If you're online");
         addId("navigator", "set_spawn", "Change Realm spawnpoint");
-        addId("navigator", "set_spawn.desc", "Click to move the balloon");
         addId("navigator", "reset", "Reset a Realm dimension");
         addId("navigator", "reset.overworld", "Reset your Overworld");
         addId("navigator", "reset.overworld.off", "Travel to your Overworld");
@@ -446,12 +447,12 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("realm.left", "You left %s's Realm");
         message("realm.not_in_realm", "Stand in your Realm to do that");
         message("realm.spawn_set", "Realm spawn moved to the balloon");
+        message("realm.spawn_set_here", "Realm spawn set where you stand");
         message("realm.setspawn.blocked", "The balloon doesn't fit there");
         message("realm.balloon.painted", "Realm balloon painted %s");
         message("realm.balloon.unpainted", "Unpainted");
         message("realm.balloon.unknown", "Unknown balloon colour %s");
         block(MainRealmBlocks.STARTER_BALLOON, "Starter Balloon");
-        block(MainRealmBlocks.STARTER_BALLOON_PART, "Starter Balloon");
         add("hud.apeira.setspawn.aim", "Look at where the balloon should stand");
         add("hud.apeira.setspawn.clear", "The balloon fits here");
         add("hud.apeira.setspawn.blocked", "Something is in the way");
@@ -467,6 +468,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("realm.private_chat", "[Realm] <%s> %s");
         message("realm.denied.build", "You can't build in this Realm");
         message("realm.denied.trusted", "Only Trusted members can do that here");
+        message("realm.denied.balloon", "The balloon only moves with /realm setspawn");
         message("friend.request", "%s wants to be friends! %s");
         message("friend.requested", "Sent a friend request to %s");
         message("friend.added", "You are now friends with %s");

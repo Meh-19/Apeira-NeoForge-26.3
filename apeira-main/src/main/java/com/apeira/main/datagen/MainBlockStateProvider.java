@@ -113,7 +113,6 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
         blockItemModel(MainRubies.RUBY_DEPOSIT.get(), modLoc("item/ruby_deposit"));
         // The starter balloon is drawn by its block entity and its floor not at all; their models only give particles.
         existingModelBlock(MainRealmBlocks.STARTER_BALLOON.get());
-        existingModelBlock(MainRealmBlocks.STARTER_BALLOON_PART.get());
     }
 
     /**

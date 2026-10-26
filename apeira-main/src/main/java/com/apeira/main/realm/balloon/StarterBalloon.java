@@ -27,9 +27,10 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.AABB;
 
 /**
- * A realm's starter balloon: a {@link StarterBalloonBlock} and its 3x3 basket floor ({@link StarterBalloonPartBlock}),
- * on which the realm's players arrive. When a realm is first visited, {@link #build} places the
- * {@code apeira:starter_balloon_<wood>_platform} structure at its origin (Ren's, in the region's wood: oak, acacia,
+ * A realm's starter balloon: a {@link StarterBalloonBlock} and its 3x3 basket floor, eight vanilla barriers around it,
+ * on which the realm's players arrive ({@link #isFootprint}; no player can break or change them, {@code RealmProtection}).
+ * Standing on it opens the navigator ({@code navigator/BalloonNavigatorTrigger}). When a realm is first visited,
+ * {@link #build} places the {@code apeira:starter_balloon_<wood>_platform} structure at its origin (Ren's, in the region's wood: oak, acacia,
  * spruce for the cold and arctic regions, or jungle, {@link #wood}) with beam legs down to the ground, and the balloon in
  * it; the platform is ordinary blocks and can be broken. {@code /realm setspawn} moves the balloon ({@link #move}), and
  * the realm settings paint it ({@link #paint}).
@@ -154,7 +155,12 @@ public final class StarterBalloon {
     }
 
     private static boolean isBalloon(BlockState state) {
-        return state.is(MainRealmBlocks.STARTER_BALLOON.get()) || state.is(MainRealmBlocks.STARTER_BALLOON_PART.get());
+        return state.is(MainRealmBlocks.STARTER_BALLOON.get()) || state.is(Blocks.BARRIER);
+    }
+
+    /** Whether {@code pos} is a cell of the balloon's 3x3 footprint at {@code balloon}: the balloon or one of its barriers. */
+    public static boolean isFootprint(BlockPos balloon, BlockPos pos) {
+        return pos.getY() == balloon.getY() && Math.abs(pos.getX() - balloon.getX()) <= RADIUS && Math.abs(pos.getZ() - balloon.getZ()) <= RADIUS;
     }
 
     /**
@@ -169,8 +175,9 @@ public final class StarterBalloon {
         paint(level, balloon, paint);
     }
 
-    private static void placeBlocks(ServerLevel level, BlockPos balloon) {
-        BlockState part = MainRealmBlocks.STARTER_BALLOON_PART.get().defaultBlockState();
+    /** The balloon at {@code balloon} and the eight barriers of its floor around it. */
+    static void placeBlocks(ServerLevel level, BlockPos balloon) {
+        BlockState part = Blocks.BARRIER.defaultBlockState();
         for (BlockPos pos : BlockPos.betweenClosed(balloon.offset(-RADIUS, 0, -RADIUS), balloon.offset(RADIUS, 0, RADIUS))) {
             if (!pos.equals(balloon)) {
                 level.setBlock(pos, part, Block.UPDATE_ALL);
@@ -189,10 +196,10 @@ public final class StarterBalloon {
         }
     }
 
-    /** Removes the basket floor around the balloon at {@code balloon}. */
+    /** Removes the barrier floor around the balloon at {@code balloon}. */
     static void removeParts(ServerLevel level, BlockPos balloon) {
         for (BlockPos pos : BlockPos.betweenClosed(balloon.offset(-RADIUS, 0, -RADIUS), balloon.offset(RADIUS, 0, RADIUS))) {
-            if (level.getBlockState(pos).is(MainRealmBlocks.STARTER_BALLOON_PART.get())) {
+            if (level.getBlockState(pos).is(Blocks.BARRIER)) {
                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
             }
         }

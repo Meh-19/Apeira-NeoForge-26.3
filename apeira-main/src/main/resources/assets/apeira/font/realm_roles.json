@@ -1,0 +1,40 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/role/visitor_playerlist.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/role/resident_playerlist.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/role/trusted_playerlist.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/role/owner_playerlist.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        ""
+      ]
+    }
+  ]
+}

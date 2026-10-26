@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.apeira.decor.block.ApeiraFurnitureBlock;
+import com.apeira.main.realm.balloon.StarterBalloon;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -33,7 +34,8 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * visitors cannot break, place or use items on blocks, open containers or touch non-hostile entities; Residents build
  * but cannot open or break containers and furniture; Trusted players and the owner may do everything. Players who may
  * not visit a realm cannot travel into it and are sent out once a second if the rules change while they are inside.
- * Private realm chat keeps a realm's messages among the players in it. Operators bypass every check.
+ * Private realm chat keeps a realm's messages among the players in it. Operators bypass every check, except that no
+ * one breaks or waterlogs the starter balloon and the barriers of its floor ({@link StarterBalloon#isFootprint}).
  */
 public final class RealmProtection {
     private static final int EVICT_INTERVAL = 20;
@@ -58,7 +60,26 @@ public final class RealmProtection {
         player.sendOverlayMessage(Component.translatable("message.apeira.realm.denied." + key).withStyle(ChatFormatting.RED));
     }
 
+    /** Where the starter balloon of the realm {@code level} stands, if it is a realm with one. */
+    public static Optional<BlockPos> balloon(Level level) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return Optional.empty();
+        }
+        return RealmService.ownerOf(serverLevel).flatMap(owner -> RealmData.get(serverLevel.getServer()).access(owner).balloon());
+    }
+
+    /** Whether {@code pos} is the balloon or one of its floor's barriers, which no one may break or change. */
+    private static boolean isBalloonFootprint(Level level, BlockPos pos) {
+        return balloon(level).filter(balloon -> StarterBalloon.isFootprint(balloon, pos)).isPresent();
+    }
+
     public static void onBreak(BreakBlockEvent event) {
+        if (event.getLevel() instanceof Level level && isBalloonFootprint(level, event.getPos())) {
+            // Operators and creative players too: only /realm setspawn moves the balloon and its barriers.
+            event.setCanceled(true);
+            deny(event.getPlayer(), "balloon");
+            return;
+        }
         role(event.getPlayer()).ifPresent(role -> {
             if (!role.canBuild()) {
                 event.setCanceled(true);
@@ -78,6 +99,10 @@ public final class RealmProtection {
     }
 
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getItemStack().getItem() instanceof BucketItem && isBalloonFootprint(event.getLevel(), event.getPos())) {
+            // Barriers take water: buckets would waterlog the balloon's floor.
+            event.setUseItem(TriState.FALSE);
+        }
         role(event.getEntity()).ifPresent(role -> {
             if (!role.canBuild()) {
                 // Visitors may still press buttons, open doors and sit; items never act on blocks.
