@@ -5,10 +5,15 @@ import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.network.client.ApeiraClientNetwork;
+import com.apeira.decor.cosmetic.BackOffset;
+import com.apeira.decor.cosmetic.BackOffsets;
+import com.apeira.decor.cosmetic.CosmeticSlot;
 import com.apeira.decor.furniture.FurnitureBlock;
 import com.apeira.decor.furniture.FurnitureTuning;
 import com.apeira.decor.furniture.FurnitureTunings;
 import com.apeira.dev.DevItems;
+import com.apeira.decor.registry.DecorAttachments;
+import com.apeira.dev.network.BackOffsetPayload;
 import com.apeira.dev.network.FurnitureTuningPayload;
 
 import net.minecraft.client.Minecraft;
@@ -16,17 +21,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * The client's tuning session: the furniture piece the dev wand is bound to, the selected {@link TuningParameter} and
- * the selected box. Edits change the client's own {@link FurnitureTunings} at once, so the piece updates without
- * waiting, and go to the server, which sends everyone the result.
+ * the selected box, or, bound to nothing, the player's own back cosmetic and its selected {@link BackParameter}. Edits
+ * change the client's own {@link FurnitureTunings} or {@link BackOffsets} at once, so the piece or cosmetic updates
+ * without waiting, and go to the server, which sends everyone the result.
  */
 public final class DevSession {
     private static @Nullable BlockPos target;
     private static TuningParameter parameter = TuningParameter.MIN_X;
     private static int box;
+    private static BackParameter backParameter = BackParameter.Y;
 
     private DevSession() {}
 
@@ -119,6 +128,46 @@ public final class DevSession {
         FurnitureTunings.set(block, null);
         box = 0;
         ApeiraClientNetwork.sendToServer(new FurnitureTuningPayload(BuiltInRegistries.BLOCK.getKey(block), Optional.empty()));
+    }
+
+    public static BackParameter backParameter() {
+        return backParameter;
+    }
+
+    static void selectBackParameter(int steps) {
+        BackParameter[] values = BackParameter.values();
+        backParameter = values[Math.floorMod(backParameter.ordinal() + Integer.signum(steps), values.length)];
+    }
+
+    /**
+     * The back cosmetic the wand tunes: the player's own, while the wand is bound to no furniture piece; {@code null}
+     * otherwise or when nothing is worn on the back.
+     */
+    public static @Nullable Item backCosmetic() {
+        Player player = Minecraft.getInstance().player;
+        if (player == null || block() != null) {
+            return null;
+        }
+        ItemStack back = player.getData(DecorAttachments.WARDROBE.get()).get(CosmeticSlot.BACK);
+        return back.isEmpty() ? null : back.getItem();
+    }
+
+    /** {@code item}'s offset, or the fixed transform's while it has none. */
+    public static BackOffset backOffset(Item item) {
+        BackOffset offset = BackOffsets.get(item);
+        return offset != null ? offset : BackOffset.DEFAULT;
+    }
+
+    /** Moves the back cosmetic and sends the change to the server. */
+    static void applyBack(Item item, BackOffset offset) {
+        BackOffsets.set(item, offset);
+        ApeiraClientNetwork.sendToServer(new BackOffsetPayload(BuiltInRegistries.ITEM.getKey(item), Optional.of(offset)));
+    }
+
+    /** Gives the back cosmetic back the fixed transform. */
+    static void resetBack(Item item) {
+        BackOffsets.set(item, null);
+        ApeiraClientNetwork.sendToServer(new BackOffsetPayload(BuiltInRegistries.ITEM.getKey(item), Optional.empty()));
     }
 
     static boolean holdingWand(@Nullable Player player) {

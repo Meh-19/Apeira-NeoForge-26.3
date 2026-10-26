@@ -10,5 +10,6 @@ public final class DevPayloads {
     public static void init(ApeiraNetwork network) {
         // Clients send edits, the server sends the result to everyone; the client side is handled in client/ApeiraDevClient.
         network.bidirectional(FurnitureTuningPayload.TYPE, TuningSync::handleOnServer);
+        network.bidirectional(BackOffsetPayload.TYPE, TuningSync::handleBackOnServer);
     }
 }
