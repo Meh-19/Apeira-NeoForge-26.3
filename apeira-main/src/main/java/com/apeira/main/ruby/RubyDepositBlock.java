@@ -15,8 +15,6 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -29,7 +27,7 @@ import com.apeira.main.registry.MainRubies;
 /**
  * Origin Realms' ruby deposit (its ruby ATM): right-click opens the {@link ApeiraRubyDepositMenu}, where rubies put in
  * are added to the player's balance. The block is drawn by its block entity ({@code client/ruby/RubyDepositRenderer}:
- * the base and a crystal spinning and bobbing over it), which also plays its ambient loop on the client; the block
+ * the base and a crystal spinning and bobbing over it); the block
  * model only gives the breaking particles. Mined like an enchanting table: a pickaxe, strength 5, blast resistance 1200.
  */
 public class RubyDepositBlock extends BaseEntityBlock {
@@ -56,11 +54,6 @@ public class RubyDepositBlock extends BaseEntityBlock {
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new RubyDepositBlockEntity(pos, state);
-    }
-
-    @Override
-    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide() ? createTickerHelper(type, MainRubies.RUBY_DEPOSIT_ENTITY.get(), RubyDepositBlockEntity::clientTick) : null;
     }
 
     @Override

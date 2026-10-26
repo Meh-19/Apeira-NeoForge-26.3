@@ -28,7 +28,8 @@ public final class RubyHud {
     private static final int COLOR = 0xFFFFFFFF;
 
     private static final int BANNER_RISE = 9;
-    private static final int BANNER_FLOAT = 3;
+    /** Half the banner's height: it scales about its right end's middle. */
+    private static final int BANNER_MIDDLE = 4;
     private static final float BANNER_ALPHA = 0.85F;
 
     private RubyHud() {}
@@ -57,8 +58,9 @@ public final class RubyHud {
     }
 
     /**
-     * The ruby ticker's banner, right-aligned with the counter's icon and {@link #BANNER_RISE} pixels over it, floating up
-     * {@link #BANNER_FLOAT} more as it fades in and semi-transparent ({@link #BANNER_ALPHA}).
+     * The ruby ticker's banner, right-aligned with the counter's icon and {@link #BANNER_RISE} pixels over it,
+     * semi-transparent ({@link #BANNER_ALPHA}); its fade, scale and float come from {@link RubyTickerAnimation} and it
+     * scales about its right end, so it grows out of the counter's side.
      */
     private static void banner(GuiGraphicsExtractor graphics, Font font, int right, int counterY, long now) {
         float alpha = RubyTickerAnimation.alpha(now);
@@ -67,7 +69,11 @@ public final class RubyHud {
             return;
         }
         Component banner = RubyCounter.hudBanner(RubyTickerAnimation.sign(), RubyTickerAnimation.bannerAmount());
-        int y = counterY - BANNER_RISE - Math.round(alpha * BANNER_FLOAT);
-        graphics.text(font, banner, right - font.width(banner), y, argb, true);
+        float scale = RubyTickerAnimation.scale(now);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(right, counterY - BANNER_RISE + BANNER_MIDDLE - RubyTickerAnimation.rise(now));
+        graphics.pose().scale(scale, scale);
+        graphics.text(font, banner, -font.width(banner), -BANNER_MIDDLE, argb, true);
+        graphics.pose().popMatrix();
     }
 }

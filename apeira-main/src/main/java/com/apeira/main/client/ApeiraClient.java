@@ -13,7 +13,6 @@ import com.apeira.main.client.realm.SpawnPlacement;
 import com.apeira.main.client.realm.StarterBalloonRenderer;
 import com.apeira.main.client.ruby.RubyDepositRenderer;
 import com.apeira.main.client.ruby.RubyDepositScreen;
-import com.apeira.main.client.ruby.RubyDepositSound;
 import com.apeira.main.client.ruby.RubyHud;
 import com.apeira.main.client.ruby.RubyTickerAnimation;
 import com.apeira.main.ruby.RubyChangePayload;
@@ -28,7 +27,6 @@ import com.apeira.main.realm.SpawnPlacementPayload;
 import com.apeira.main.registry.MainEntities;
 import com.apeira.main.registry.MainRealmBlocks;
 import com.apeira.main.registry.MainRubies;
-import com.apeira.main.ruby.RubyDepositBlockEntity;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -60,7 +58,6 @@ public final class ApeiraClient {
         modEventBus.addListener(ApeiraClient::registerKeys);
         modEventBus.addListener(ApeiraClient::registerScreens);
         modEventBus.addListener(ApeiraClient::registerGuiLayers);
-        RubyDepositBlockEntity.ambience = RubyDepositSound::tick;
         NeoForge.EVENT_BUS.addListener(ApeiraClient::openProfile);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onClientTick);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onInteraction);
@@ -70,6 +67,7 @@ public final class ApeiraClient {
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onSubmitGeometry);
         NeoForge.EVENT_BUS.addListener(RealmTopBar::onLoggingOut);
         NeoForge.EVENT_BUS.addListener(RubyTickerAnimation::onLoggingOut);
+        NeoForge.EVENT_BUS.addListener(RubyDepositScreen::hideHud);
         ApeiraClientNetwork.create()
                 .handle(OpenNavigatorPayload.TYPE, ApeiraNavigatorScreen::onOpen)
                 .handle(OpenOnboardingPayload.TYPE, OnboardingScreen::onOpen)

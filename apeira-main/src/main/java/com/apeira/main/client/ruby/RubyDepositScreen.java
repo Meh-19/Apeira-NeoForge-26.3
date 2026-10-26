@@ -8,19 +8,22 @@ import com.apeira.main.ruby.ApeiraRubyDepositMenu;
 import com.apeira.main.ruby.Rubies;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 /**
  * The ruby deposit's screen, drawn as Origin Realms' (captured at GUI scale 4): vanilla's 4-row chest (its top 89
  * pixels and the player inventory part of {@code generic_54}), then the server pack's {@code ruby_deposit_menu.png}
  * (256x256) at 6 pixels above the frame, with its five ruby slots, the arrows into the balance box and the question
  * mark button. The balance is written in the menu's digit font at (65, 76), after the box's ruby; the question mark
- * shows "Learn more about Rubies". Origin Realms' title and inventory label are blank, so no labels are drawn.
+ * shows "Learn more about Rubies". Origin Realms' title and inventory label are blank, so no labels are drawn. While it is
+ * open the gameplay HUD (hotbar, hearts, the ruby counter and every other layer) is not drawn behind it ({@link #hideHud}).
  */
 public class RubyDepositScreen extends AbstractContainerScreen<ApeiraRubyDepositMenu> {
     private static final Identifier CHEST = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
@@ -41,6 +44,13 @@ public class RubyDepositScreen extends AbstractContainerScreen<ApeiraRubyDeposit
             Component.translatable("container.apeira.ruby_deposit.info"),
             Component.translatable("container.apeira.ruby_deposit.info1").withStyle(ChatFormatting.GRAY),
             Component.translatable("container.apeira.ruby_deposit.info2").withStyle(ChatFormatting.GRAY));
+
+    /** Skips the whole HUD for the frame while this screen is open, so nothing shows through around or behind the menu. */
+    public static void hideHud(RenderGuiEvent.Pre event) {
+        if (Minecraft.getInstance().screen instanceof RubyDepositScreen) {
+            event.setCanceled(true);
+        }
+    }
 
     public RubyDepositScreen(ApeiraRubyDepositMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, WIDTH, HEIGHT);

@@ -184,7 +184,6 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("container.apeira.ruby_deposit.info", "Learn more about Rubies");
         add("container.apeira.ruby_deposit.info1", "Put rubies in the slots above");
         add("container.apeira.ruby_deposit.info2", "to add them to your balance.");
-        add("subtitles.apeira.entity.atm_ruby.ambient", "Ruby ATM Sparkles");
         add("subtitles.apeira.ui.ruby_gain", "Rubies gained");
         addId("navigator", "lore.rubies", "Rubies: %s");
         addId("message", "rubies.balance", "You have %s rubies.");
