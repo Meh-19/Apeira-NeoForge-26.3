@@ -71,7 +71,7 @@ public final class RealmCommand {
                 .then(Commands.literal("unban").then(named("player", RealmService::unban)))
                 .then(Commands.literal("remove").then(named("player", RealmService::removeMember)))
                 .then(Commands.literal("leave").then(named("owner", RealmService::leave)))
-                .then(Commands.literal("tp").then(named("owner", RealmService::visit)))
+                .then(Commands.literal("tp").executes(RealmCommand::home).then(named("owner", RealmService::visit)))
                 .then(Commands.literal("member").then(named("player", (player, target) -> {
                     RealmData data = RealmData.get(player.level().getServer());
                     if (data.realmOf(player.getUUID()).isEmpty()) {

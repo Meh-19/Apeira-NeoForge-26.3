@@ -19,7 +19,8 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * Origin Realms' role badges in the player list: a player standing in a realm is listed with the badge of their role
  * there (Ren's {@code textures/gui/role/<role>_playerlist.png}: V grey, R green, T blue, O red, glyphs E000-E003 of the
  * {@code apeira:realm_roles} font, in {@link RealmRole}'s order) before their name. Names are checked twice a second and
- * refreshed when a player's realm or role changed.
+ * refreshed when a player's realm or role changed, which also sends the player's top bar its new role tag
+ * ({@link RealmHudPayload}).
  */
 public final class RealmRoleBadges {
     private static final Style FONT = Style.EMPTY.withFont(new FontDescription.Resource(ApeiraIds.id("realm_roles")));
@@ -53,6 +54,7 @@ public final class RealmRoleBadges {
             if (!role.equals(Optional.ofNullable(LISTED.get(player.getUUID())))) {
                 role.ifPresentOrElse(value -> LISTED.put(player.getUUID(), value), () -> LISTED.remove(player.getUUID()));
                 player.refreshTabListName();
+                RealmHudPayload.sync(player);
             }
         }
     }

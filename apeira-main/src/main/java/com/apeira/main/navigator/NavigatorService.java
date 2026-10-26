@@ -34,6 +34,7 @@ import com.apeira.main.realm.RealmPreset;
 import com.apeira.main.realm.RealmRole;
 import com.apeira.main.realm.RealmService;
 import com.apeira.main.realm.VisitingRule;
+import com.apeira.main.realm.balloon.BalloonColors;
 import com.apeira.main.ruby.Rubies;
 
 import net.minecraft.ChatFormatting;
@@ -264,8 +265,12 @@ public final class NavigatorService {
                 }
             }
             case BALLOON_COLOR -> {
-                if (page.isSettings()) {
-                    RealmService.cycleBalloonPaint(player, payload.secondary() ? -1 : 1);
+                if (page == NavigatorPage.REALM_BALLOON_COLOR) {
+                    if (argument >= 0 && argument < BalloonColors.size() && RealmService.setBalloonPaint(player, BalloonColors.at(argument))) {
+                        session.page = NavigatorPage.REALM_SETTINGS;
+                    }
+                } else if (page.isSettings()) {
+                    session.page = NavigatorPage.REALM_BALLOON_COLOR;
                 }
             }
             case RESET_DIMENSION -> resetDimension(player, session, argument);
@@ -414,7 +419,7 @@ public final class NavigatorService {
             case EDIT_PARTY, EDIT_PARTY_MEMBER -> NavigatorPage.SOCIAL;
             case EDIT_PLAYER -> NavigatorPage.REALM_IN_REALM;
             case EDIT_MEMBER -> NavigatorPage.REALM_MEMBERS;
-            case REALM_RESET, REALM_RESET_PRESET, REALM_RESET_CONFIRM -> NavigatorPage.REALM_SETTINGS;
+            case REALM_RESET, REALM_RESET_PRESET, REALM_RESET_CONFIRM, REALM_BALLOON_COLOR -> NavigatorPage.REALM_SETTINGS;
             default -> session.page;
         };
     }
@@ -888,16 +893,21 @@ public final class NavigatorService {
     /** An action line drawn wholly in {@code color}, its mouse glyph included, as the Change Realm spawnpoint lines are. */
     public static Component action(int button, String key, int color) {
         return Component.empty().withStyle(Style.EMPTY.withItalic(false))
-                .append(Component.literal(Character.toString(0xE100 + button)).withStyle(Style.EMPTY.withFont(KEYS).withColor(color)))
+                .append(mouse(button))
                 .append(" ")
                 .append(Component.translatable("navigator.apeira.action." + key).withStyle(Style.EMPTY.withColor(color)));
     }
 
     public static Component action(int button, String key) {
         return Component.empty().withStyle(Style.EMPTY.withItalic(false))
-                .append(Component.literal(Character.toString(0xE100 + button)).withStyle(Style.EMPTY.withFont(KEYS).withColor(VALUE)))
+                .append(mouse(button))
                 .append(" ")
                 .append(Component.translatable("navigator.apeira.action." + key).withStyle(Style.EMPTY.withColor(ACTION)));
+    }
+
+    /** The mouse-button glyph (0 left, 1 right, 2 middle) as the texture draws it, with no colour of its own. */
+    private static Component mouse(int button) {
+        return Component.literal(Character.toString(0xE100 + button)).withStyle(Style.EMPTY.withFont(KEYS).withColor(0xFFFFFF));
     }
 
     public static MutableComponent role(RealmRole role) {

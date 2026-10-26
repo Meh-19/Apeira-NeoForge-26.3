@@ -13,7 +13,7 @@ import com.apeira.decor.paint.PaintColor;
 import net.minecraft.network.chat.Component;
 
 /**
- * The colours the realm settings' balloon colour button steps through: unpainted, then each paint table colour at its
+ * The colours of the realm settings' balloon colour popup, in its order: unpainted, then each paint table colour at its
  * default shade, in the painting table's order. {@code /realm balloon} takes the same names.
  */
 public final class BalloonColors {
@@ -31,10 +31,14 @@ public final class BalloonColors {
         return palette;
     }
 
-    /** The colour {@code steps} after {@code paint} in the palette; a paint not in it counts as unpainted. */
-    public static @Nullable Integer step(@Nullable Integer paint, int steps) {
-        int index = Math.max(0, PALETTE.indexOf(paint));
-        return PALETTE.get(Math.floorMod(index + steps, PALETTE.size()));
+    /** How many colours the popup offers. */
+    public static int size() {
+        return PALETTE.size();
+    }
+
+    /** The popup's colour {@code index}; 0 is unpainted ({@code null}). */
+    public static @Nullable Integer at(int index) {
+        return PALETTE.get(index);
     }
 
     /** The names {@code /realm balloon} takes: {@code none} and the paint colours' ids. */

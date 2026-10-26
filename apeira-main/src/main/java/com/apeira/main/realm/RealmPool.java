@@ -19,6 +19,7 @@ import com.apeira.main.Apeira;
 import com.apeira.main.realm.balloon.StarterBalloon;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -157,9 +158,8 @@ public final class RealmPool {
             return false;
         }
         ServerLevel level = RealmLevels.create(server, realm);
-        BlockPos spawn = spawnOf(level, realm, RealmData.get(server).access(player.getUUID()));
-        player.teleport(new TeleportTransition(level, Vec3.atBottomCenterOf(spawn), Vec3.ZERO, player.getYRot(), player.getXRot(),
-                TeleportTransition.DO_NOTHING));
+        RealmAccess access = RealmData.get(server).access(player.getUUID());
+        player.teleport(arrival(level, spawnOf(level, realm, access, player.getDirection()), access));
         player.sendSystemMessage(Component.translatable("message.apeira.realm.home"));
         return true;
     }
@@ -167,12 +167,14 @@ public final class RealmPool {
     /**
      * Where players arrive in {@code realm}: the spawn its owner set (the starter balloon's floor), else the top block at
      * 0, 0. The first arrival builds the starter platform and balloon at the origin ({@link StarterBalloon#build}), which
-     * becomes the spawn unless the owner had already set one.
+     * becomes the spawn unless the owner had already set one; it faces {@code facing}, the arriving player's way, which
+     * becomes the realm's spawn facing.
      */
-    static BlockPos spawnOf(ServerLevel level, RealmData.Realm realm, RealmAccess access) {
+    static BlockPos spawnOf(ServerLevel level, RealmData.Realm realm, RealmAccess access, Direction facing) {
         if (!access.starterBuilt) {
             access.starterBuilt = true;
-            BlockPos balloon = StarterBalloon.build(level, realm.preset());
+            access.spawnFacing = facing.getAxis().isHorizontal() ? facing : Direction.NORTH;
+            BlockPos balloon = StarterBalloon.build(level, realm.preset(), access.spawnFacing);
             access.balloon = Optional.of(balloon);
             if (access.spawn.isEmpty()) {
                 access.spawn = Optional.of(balloon.above());
@@ -181,6 +183,15 @@ public final class RealmPool {
             RealmData.get(level.getServer()).setDirty();
         }
         return access.spawn().orElseGet(() -> realm.generated() ? realm.spawn() : surface(level));
+    }
+
+    /**
+     * The teleport to a realm's spawn: on its block, looking straight ahead along the realm's spawn facing, whatever way
+     * the player looked before.
+     */
+    static TeleportTransition arrival(ServerLevel level, BlockPos spawn, RealmAccess access) {
+        return new TeleportTransition(level, Vec3.atBottomCenterOf(spawn), Vec3.ZERO, access.spawnFacing.toYRot(), 0.0F,
+                TeleportTransition.DO_NOTHING);
     }
 
     private static void fill(MinecraftServer server, RealmPreset preset) {

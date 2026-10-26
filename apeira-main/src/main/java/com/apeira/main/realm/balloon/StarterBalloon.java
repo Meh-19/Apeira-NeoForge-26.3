@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -72,9 +73,11 @@ public final class StarterBalloon {
      * Builds the platform and the balloon at the realm's origin. Ren's platforms are 5x5 and 3 high: a beam-framed base,
      * the floor with steps up on its north side, and a fence ring around a 3x3 opening, where the balloon's basket
      * stands. The base replaces the top block at 0, 0, the space over the platform is cleared first, and beams reach
-     * down from the base's corners to the ground. Returns the balloon's position, its floor's centre.
+     * down from the base's corners to the ground. The platform and the balloon are turned so their front (north as Ren
+     * built them) faces {@code facing}, the way the arriving player looks. Returns the balloon's position, its floor's
+     * centre.
      */
-    public static BlockPos build(ServerLevel level, RealmPreset preset) {
+    public static BlockPos build(ServerLevel level, RealmPreset preset, Direction facing) {
         level.getChunk(0, 0);
         int top = Math.max(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, 0, 0), level.getSeaLevel() + 1);
         BlockPos base = new BlockPos(0, top - 1, 0);
@@ -88,7 +91,10 @@ public final class StarterBalloon {
         BlockPos corner = base.offset(-PLATFORM_RADIUS, 0, -PLATFORM_RADIUS);
         Optional<StructureTemplate> template = level.getStructureTemplateManager().get(platform(wood));
         if (template.isPresent()) {
-            template.get().placeInWorld(level, corner, corner, new StructurePlaceSettings(), RandomSource.create(), Block.UPDATE_CLIENTS);
+            // Turned about the platform's centre column, so it stays on the same 5x5.
+            StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rotation(facing))
+                    .setRotationPivot(new BlockPos(PLATFORM_RADIUS, 0, PLATFORM_RADIUS));
+            template.get().placeInWorld(level, corner, corner, settings, RandomSource.create(), Block.UPDATE_CLIENTS);
         } else {
             Apeira.LOGGER.warn("Missing structure {}; building a plain platform", platform(wood));
             BlockState planks = block(Identifier.withDefaultNamespace(wood + "_planks"), Blocks.OAK_PLANKS);
@@ -109,8 +115,18 @@ public final class StarterBalloon {
         }
         // Inside the fence ring, on the floor.
         BlockPos balloon = base.above(PLATFORM_HEIGHT - 1);
-        placeBlocks(level, balloon);
+        placeBlocks(level, balloon, facing);
         return balloon;
+    }
+
+    /** The turn that takes the platform's north front to {@code facing}. */
+    static Rotation rotation(Direction facing) {
+        return switch (facing) {
+            case EAST -> Rotation.CLOCKWISE_90;
+            case SOUTH -> Rotation.CLOCKWISE_180;
+            case WEST -> Rotation.COUNTERCLOCKWISE_90;
+            default -> Rotation.NONE;
+        };
     }
 
     /** {@code id}'s default state, standing up if it has an axis, or {@code fallback}'s when it is not registered. */
@@ -165,25 +181,26 @@ public final class StarterBalloon {
 
     /**
      * Moves the balloon to {@code balloon} (its floor's centre): the old one at {@code current}, if any, is removed first.
-     * The caller has checked {@link #isClear}.
+     * Its front faces {@code facing}. The caller has checked {@link #isClear}.
      */
-    public static void move(ServerLevel level, @Nullable BlockPos current, BlockPos balloon, @Nullable Integer paint) {
+    public static void move(ServerLevel level, @Nullable BlockPos current, BlockPos balloon, Direction facing, @Nullable Integer paint) {
         if (current != null) {
             remove(level, current);
         }
-        placeBlocks(level, balloon);
+        placeBlocks(level, balloon, facing);
         paint(level, balloon, paint);
     }
 
-    /** The balloon at {@code balloon} and the eight barriers of its floor around it. */
-    static void placeBlocks(ServerLevel level, BlockPos balloon) {
+    /** The balloon at {@code balloon}, facing {@code facing}, and the eight barriers of its floor around it. */
+    static void placeBlocks(ServerLevel level, BlockPos balloon, Direction facing) {
         BlockState part = Blocks.BARRIER.defaultBlockState();
         for (BlockPos pos : BlockPos.betweenClosed(balloon.offset(-RADIUS, 0, -RADIUS), balloon.offset(RADIUS, 0, RADIUS))) {
             if (!pos.equals(balloon)) {
                 level.setBlock(pos, part, Block.UPDATE_ALL);
             }
         }
-        level.setBlock(balloon, MainRealmBlocks.STARTER_BALLOON.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(balloon, MainRealmBlocks.STARTER_BALLOON.get().defaultBlockState().setValue(StarterBalloonBlock.FACING, facing),
+                Block.UPDATE_ALL);
     }
 
     /** Removes the balloon at {@code balloon} and its floor, if they are still there. */

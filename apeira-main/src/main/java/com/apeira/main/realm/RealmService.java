@@ -99,9 +99,8 @@ public final class RealmService {
             return false;
         }
         ServerLevel level = RealmLevels.create(server, realm);
-        BlockPos spawn = RealmPool.spawnOf(level, realm, data.access(owner));
-        player.teleport(new TeleportTransition(level, Vec3.atBottomCenterOf(spawn), Vec3.ZERO, player.getYRot(), player.getXRot(),
-                TeleportTransition.DO_NOTHING));
+        RealmAccess access = data.access(owner);
+        player.teleport(RealmPool.arrival(level, RealmPool.spawnOf(level, realm, access, player.getDirection()), access));
         player.sendSystemMessage(owner.equals(player.getUUID()) ? Component.translatable("message.apeira.realm.home")
                 : Component.translatable("message.apeira.realm.visiting", data.nameOf(owner)));
         return true;
@@ -361,8 +360,9 @@ public final class RealmService {
     }
 
     /**
-     * Sets the realm's spawn where the owner stands, leaving the starter balloon where it is: the settings' Set Spawn
-     * right-click ("set without balloon") and {@code /realm setspawn here}.
+     * Sets the realm's spawn where the owner stands, facing the way they look, and takes the starter balloon and its
+     * barriers away: the settings' Set Spawn right-click ("set without balloon") and {@code /realm setspawn here}. Setting
+     * the spawn with the balloon again ({@link #moveSpawn}) places a new one.
      */
     public static boolean setSpawnHere(ServerPlayer owner) {
         RealmAccess access = owned(owner);
@@ -373,8 +373,14 @@ public final class RealmService {
             fail(owner, "realm.not_in_realm");
             return false;
         }
+        ServerLevel level = owner.level();
+        access.balloon.ifPresent(balloon -> StarterBalloon.remove(level, balloon));
+        access.balloon = Optional.empty();
+        access.starterBuilt = true;
         access.spawn = Optional.of(owner.blockPosition());
-        data(owner.level().getServer()).setDirty();
+        access.spawnFacing = owner.getDirection();
+        data(level.getServer()).setDirty();
+        RealmHudPayload.syncLevel(level);
         done(owner, "realm.spawn_set_here");
         return true;
     }
@@ -401,7 +407,9 @@ public final class RealmService {
             fail(owner, "realm.setspawn.blocked");
             return false;
         }
-        StarterBalloon.move(level, access.balloon.orElse(null), balloon, access.balloonPaint.orElse(null));
+        // Arriving players look the way the owner looked when placing it.
+        access.spawnFacing = owner.getDirection();
+        StarterBalloon.move(level, access.balloon.orElse(null), balloon, access.spawnFacing, access.balloonPaint.orElse(null));
         access.balloon = Optional.of(balloon);
         access.starterBuilt = true;
         access.spawn = Optional.of(balloon.above());
@@ -429,12 +437,6 @@ public final class RealmService {
         }
         done(owner, "realm.balloon.painted", BalloonColors.name(access.balloonPaint.orElse(null)));
         return true;
-    }
-
-    /** Steps the balloon's colour through {@link BalloonColors} by {@code steps}: the settings button's clicks. */
-    public static boolean cycleBalloonPaint(ServerPlayer owner, int steps) {
-        RealmAccess access = owned(owner);
-        return access != null && setBalloonPaint(owner, BalloonColors.step(access.balloonPaint.orElse(null), steps));
     }
 
     /** Whether {@code owner} stands in their realm's overworld, which the overworld reset button needs. */

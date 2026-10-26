@@ -26,6 +26,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -371,7 +372,7 @@ public final class DummyPlayers {
         RealmData data = RealmData.get(server);
         Optional<RealmData.Realm> own = data.realmOf(dummy.id()).filter(realm -> !realm.levelKey().equals(dummy.level()));
         ServerLevel level = own.map(realm -> RealmLevels.create(server, realm)).orElseGet(server::findRespawnDimension);
-        Vec3 position = Vec3.atBottomCenterOf(own.map(realm -> RealmPool.spawnOf(level, realm, data.access(dummy.id())))
+        Vec3 position = Vec3.atBottomCenterOf(own.map(realm -> RealmPool.spawnOf(level, realm, data.access(dummy.id()), Direction.NORTH))
                 .orElseGet(() -> server.getRespawnData().pos()));
         discard(server, dummy);
         Dummy moved = new Dummy(dummy.id(), dummy.name(), level.dimension(), position);

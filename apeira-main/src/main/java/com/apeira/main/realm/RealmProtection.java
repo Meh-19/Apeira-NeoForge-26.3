@@ -75,9 +75,8 @@ public final class RealmProtection {
 
     public static void onBreak(BreakBlockEvent event) {
         if (event.getLevel() instanceof Level level && isBalloonFootprint(level, event.getPos())) {
-            // Operators and creative players too: only /realm setspawn moves the balloon and its barriers.
+            // Operators and creative players too, silently: only /realm setspawn moves the balloon and its barriers.
             event.setCanceled(true);
-            deny(event.getPlayer(), "balloon");
             return;
         }
         role(event.getPlayer()).ifPresent(role -> {

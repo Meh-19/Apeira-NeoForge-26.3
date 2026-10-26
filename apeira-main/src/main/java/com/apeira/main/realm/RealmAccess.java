@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
 
 /**
@@ -29,7 +30,8 @@ public final class RealmAccess {
             Codec.LONG.optionalFieldOf("created", 0L).forGetter(access -> access.created),
             BlockPos.CODEC.optionalFieldOf("balloon").forGetter(access -> access.balloon),
             Codec.INT.optionalFieldOf("balloon_paint").forGetter(access -> access.balloonPaint),
-            Codec.BOOL.optionalFieldOf("starter_built", false).forGetter(access -> access.starterBuilt)).apply(instance, RealmAccess::new));
+            Codec.BOOL.optionalFieldOf("starter_built", false).forGetter(access -> access.starterBuilt),
+            Direction.CODEC.optionalFieldOf("spawn_facing", Direction.NORTH).forGetter(access -> access.spawnFacing)).apply(instance, RealmAccess::new));
 
     final Map<UUID, Member> members = new HashMap<>();
     final Map<UUID, Long> banned = new HashMap<>();
@@ -45,14 +47,19 @@ public final class RealmAccess {
     Optional<Integer> balloonPaint;
     /** Whether the starter platform and balloon were built in the current realm dimension, which happens only once. */
     boolean starterBuilt;
+    /**
+     * The way players face when they arrive at the spawn, straight ahead and level: the balloon's front, or the way the
+     * owner looked when setting a spawn without it.
+     */
+    Direction spawnFacing;
 
     RealmAccess(long created) {
-        this(Map.of(), Map.of(), Map.of(), VisitingRule.EVERYONE, false, false, Optional.empty(), created, Optional.empty(), Optional.empty(), false);
+        this(Map.of(), Map.of(), Map.of(), VisitingRule.EVERYONE, false, false, Optional.empty(), created, Optional.empty(), Optional.empty(), false, Direction.NORTH);
     }
 
     private RealmAccess(Map<UUID, Member> members, Map<UUID, Long> banned, Map<UUID, Long> invites, VisitingRule visitingRule,
             boolean privateChat, boolean alwaysAccessible, Optional<BlockPos> spawn, long created, Optional<BlockPos> balloon,
-            Optional<Integer> balloonPaint, boolean starterBuilt) {
+            Optional<Integer> balloonPaint, boolean starterBuilt, Direction spawnFacing) {
         this.members.putAll(members);
         this.banned.putAll(banned);
         this.invites.putAll(invites);
@@ -64,6 +71,7 @@ public final class RealmAccess {
         this.balloon = balloon;
         this.balloonPaint = balloonPaint;
         this.starterBuilt = starterBuilt;
+        this.spawnFacing = spawnFacing.getAxis().isHorizontal() ? spawnFacing : Direction.NORTH;
     }
 
     /** {@code player}'s role here, given the realm's {@code owner}. Banned players are visitors (and cannot enter). */
@@ -105,6 +113,10 @@ public final class RealmAccess {
 
     public Optional<BlockPos> spawn() {
         return spawn;
+    }
+
+    public Direction spawnFacing() {
+        return spawnFacing;
     }
 
     public Optional<BlockPos> balloon() {

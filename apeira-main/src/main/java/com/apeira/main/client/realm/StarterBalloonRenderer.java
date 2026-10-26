@@ -22,11 +22,15 @@ import net.minecraft.world.phys.AABB;
  * Draws the realm's starter balloon: Ren's GeckoLib model ({@code geckolib/models/block/starter_balloon.geo.json}) with
  * its animated texture ({@code textures/block/starter_balloon.png}, three 256x256 frames of the burner's flame), looping
  * {@code RealmBalloonFloating}. The flame's texels have alpha 254, so the emissive render type draws them at full
- * brightness ({@link EmissiveRenderTypes}); the realm settings' paint tints the {@code balloon_tintable} bone, the
- * envelope ({@link TintedBones}).
+ * brightness ({@link EmissiveRenderTypes}); the realm settings' paint tints every bone whose
+ * name ends with {@code _tint} (the envelope, {@code balloon_tint}), and only those: their child bones and the rest
+ * keep the texture's colours ({@link TintedBones#submitSuffixed}). The block's {@code facing} turns the model, whose
+ * front is north (GeckoLib's own block rotation).
  */
 public class StarterBalloonRenderer extends GeoBlockRenderer<StarterBalloonBlockEntity, BlockEntityRenderState> {
     /** The paint's tint, or -1 for none. */
+    /** Bones whose name ends with this take the paint; the rest keep the texture's colours. */
+    private static final String TINT = "_tint";
     private static final DataTicket<Integer> PAINT = DataTicket.create("apeira_balloon_paint", Integer.class);
 
     public StarterBalloonRenderer(BlockEntityRendererProvider.Context context) {
@@ -48,7 +52,7 @@ public class StarterBalloonRenderer extends GeoBlockRenderer<StarterBalloonBlock
     @Override
     public void submitRenderTasks(RenderPassInfo<BlockEntityRenderState> renderPassInfo, OrderedSubmitNodeCollector renderTasks,
             @Nullable RenderType renderType) {
-        if (!TintedBones.submit(renderPassInfo, renderTasks, renderType, renderPassInfo.getOrDefaultGeckolibData(PAINT, -1))) {
+        if (!TintedBones.submitSuffixed(renderPassInfo, renderTasks, renderType, renderPassInfo.getOrDefaultGeckolibData(PAINT, -1), TINT)) {
             super.submitRenderTasks(renderPassInfo, renderTasks, renderType);
         }
     }

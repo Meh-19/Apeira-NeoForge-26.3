@@ -89,7 +89,7 @@ public record NavigatorActionPayload(Action action, int argument, Optional<UUID>
         TOGGLE_ACCESS,
         /** Start the spawn placement cursor; the menu closes. */
         SET_SPAWN,
-        /** Paint the starter balloon the next colour, or with a right-click the previous one. */
+        /** Settings: open the balloon colour popup. In it: paint the balloon {@code argument}, a {@code BalloonColors} index. */
         BALLOON_COLOR,
         /** Open the reset button into its dimension buttons, or pick one: 0 Overworld, 1 Nether, 2 Aether. */
         RESET_DIMENSION,
