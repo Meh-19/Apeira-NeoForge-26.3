@@ -25,7 +25,9 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * ("Air Balloon Platform" while they stand on the 5x5 platform round the starter balloon, only while the realm has
  * one, else the realm's name followed, in the same pill, by the player's role there as Origin Realms' role glyph:
  * the server's {@code default.json} and {@code boss_bar_1} glyphs ꑓ visitor, ꑘ resident, ꑕ trusted and ꑖ owner,
- * {@link #ROLE_GLYPHS}, drawn from Ren's {@code textures/gui/role/<role>_playerlist.png} at ascent 3), then the clock
+ * {@link #ROLE_GLYPHS}, drawn from the server's {@code custom_ui/role_<role>.png} labels, Apeira's
+ * {@code textures/gui/role/role_<role>.png}, at ascent 3 and height 7 as {@code boss_bar_1} has them; the small
+ * {@code <role>_playerlist.png} badges are the tab list's only), then the clock
  * icon and the time of day ("12:53 PM").
  *
  * <p>It is the server's own text, rebuilt glyph for glyph in the {@code apeira:top_bar} font (Origin Realms'

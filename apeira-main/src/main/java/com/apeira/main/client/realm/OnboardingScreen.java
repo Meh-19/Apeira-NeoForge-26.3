@@ -133,6 +133,12 @@ public final class OnboardingScreen extends Screen {
     public void tick() {
         stageTicks++;
         openTicks++;
+        // The region pictures are large (2276x1224): load one a tick while the screen fades in from black, instead of
+        // each on the frame it is first shown, which stalled the cross-fade.
+        RealmPreset[] regions = RealmPreset.values();
+        if (openTicks <= regions.length) {
+            minecraft.getTextureManager().getTexture(texture(regions[openTicks - 1].getSerializedName() + "_region"));
+        }
         if (fadeTicks > 0) {
             fadeTicks--;
         }

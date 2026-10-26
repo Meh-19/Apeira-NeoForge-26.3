@@ -3,7 +3,6 @@ package com.apeira.main.realm;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,19 +43,36 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * ({@link #claim}); the claimed slot is refilled straight away with a new dimension that generates in the background.
  * <p>
  * Generation runs on the chunk workers: each pool dimension loads its border area a 5x5-chunk batch at a time through
- * a loading ticket, and the server tick only checks whether the batch is done. Realm dimensions, owned or pooled, are
- * recreated from {@link RealmData} when the server starts, before players join.
+ * a loading ticket, and the server tick only checks whether the batch is done. Only one pool realm generates at a time,
+ * and none while a player is on the way to a realm or has just arrived ({@link #QUIET_TICKS}), so the chunk workers
+ * and the server thread are free for the chunks that player sees. The last step loads the origin's chunks
+ * ({@link #ORIGIN_RADIUS}) and reads the spawn while they are still loaded. A player claiming a realm has the same
+ * origin chunks loaded in the background during the onboarding cards ({@link #claim}), so the starter balloon's
+ * flat-ground search ({@link StarterBalloon#build}) and the arrival read loaded chunks instead of loading 81 at once on
+ * the server thread. Realm dimensions, owned or pooled, are recreated from {@link RealmData} when the server starts,
+ * before players join.
  */
 public final class RealmPool {
     public static final int READY_PER_PRESET = 1;
     /** Ticks from claiming a realm to arriving in it: the "Realm Created" then "Traveling Home..." cards. */
     private static final int TRAVEL_DELAY = 60;
     private static final int BATCH_RADIUS = 2;
+    /**
+     * Chunks around 0, 0 loaded before a realm is first visited: the starter balloon's flat-ground search reaches 50
+     * blocks from the origin, chunks -4 to 3.
+     */
+    private static final int ORIGIN_RADIUS = 4;
+    private static final ChunkPos ORIGIN = new ChunkPos(0, 0);
+    /** Ticks after a player arrives in a realm during which pool generation waits. */
+    private static final int QUIET_TICKS = 200;
     private static final List<ChunkPos> BATCHES = batches();
 
     private static final List<Pregeneration> GENERATING = new ArrayList<>();
     private static final Queue<RealmPreset> REFILLS = new ArrayDeque<>();
     private static final Map<UUID, Integer> TRAVELLERS = new HashMap<>();
+    /** The realm whose origin chunks each travelling player has loading, released when they arrive. */
+    private static final Map<UUID, ServerLevel> PRELOADS = new HashMap<>();
+    private static int quiet;
     private static final RandomSource RANDOM = RandomSource.create();
 
     private RealmPool() {}
@@ -82,6 +98,8 @@ public final class RealmPool {
         GENERATING.clear();
         REFILLS.clear();
         TRAVELLERS.clear();
+        PRELOADS.clear();
+        quiet = 0;
     }
 
     /** Players without a realm are shown the onboarding screen when they join. */
@@ -94,16 +112,23 @@ public final class RealmPool {
     public static void onServerTick(ServerTickEvent.Post event) {
         MinecraftServer server = event.getServer();
         // New dimensions are added here, after the levels have ticked, never while the server iterates them.
-        RealmPreset refill;
-        while ((refill = REFILLS.poll()) != null) {
+        if (quiet > 0) {
+            quiet--;
+        }
+        // Nothing new starts while anybody is travelling to or settling into a realm: no new pool dimension, at most
+        // one a tick, and no new batch, one realm at a time (a batch already loading finishes on the workers).
+        boolean calm = TRAVELLERS.isEmpty() && quiet == 0;
+        RealmPreset refill = calm ? REFILLS.poll() : null;
+        if (refill != null) {
             fill(server, refill);
         }
-        Iterator<Pregeneration> generating = GENERATING.iterator();
-        while (generating.hasNext()) {
-            Pregeneration job = generating.next();
+        if (!GENERATING.isEmpty() && calm) {
+            Pregeneration job = GENERATING.getFirst();
             if (job.advance()) {
+                // The origin's chunks are still loaded here, so reading the spawn loads nothing.
                 RealmData.get(server).updatePool(job.realm.withGenerated(surface(job.level)));
-                generating.remove();
+                job.release();
+                GENERATING.removeFirst();
                 Apeira.LOGGER.info("Realm {} ({}) is generated and ready", job.realm.dimension(), job.realm.preset().getSerializedName());
             }
         }
@@ -115,6 +140,11 @@ public final class RealmPool {
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
             if (player != null) {
                 sendHome(player);
+            }
+            // The player's own chunk loading holds the area now.
+            ServerLevel preloaded = PRELOADS.remove(entry.getKey());
+            if (preloaded != null) {
+                preloaded.getChunkSource().removeTicketWithRadius(TicketType.PLAYER_LOADING, ORIGIN, ORIGIN_RADIUS);
             }
             return true;
         });
@@ -131,6 +161,7 @@ public final class RealmPool {
             RealmData.Realm realm = take(server, player.getUUID(), preset);
             Apeira.LOGGER.info("{} claimed realm {} ({})", player.getName().getString(), realm.dimension(), preset.getSerializedName());
         }
+        RealmData.get(server).realmOf(player.getUUID()).ifPresent(realm -> preload(player.getUUID(), RealmLevels.create(server, realm)));
         ApeiraPackets.sendToPlayer(player, new RealmCreatedPayload());
         TRAVELLERS.put(player.getUUID(), TRAVEL_DELAY);
     }
@@ -153,6 +184,18 @@ public final class RealmPool {
         return realm;
     }
 
+    /**
+     * Starts loading {@code level}'s origin chunks on the chunk workers while {@code player} watches the onboarding
+     * cards, so their arrival (and the starter balloon's first build) finds them loaded.
+     */
+    private static void preload(UUID player, ServerLevel level) {
+        ServerLevel previous = PRELOADS.put(player, level);
+        if (previous != null) {
+            previous.getChunkSource().removeTicketWithRadius(TicketType.PLAYER_LOADING, ORIGIN, ORIGIN_RADIUS);
+        }
+        level.getChunkSource().addTicketAndLoadWithRadius(TicketType.PLAYER_LOADING, ORIGIN, ORIGIN_RADIUS);
+    }
+
     /** Teleports {@code player} to their realm's spawn. Returns false when they have none. */
     public static boolean sendHome(ServerPlayer player) {
         MinecraftServer server = player.level().getServer();
@@ -164,6 +207,7 @@ public final class RealmPool {
         RealmAccess access = RealmData.get(server).access(player.getUUID());
         player.teleport(arrival(level, spawnOf(level, realm, access, player.getDirection()), access));
         player.sendSystemMessage(Component.translatable("message.apeira.realm.home"));
+        quiet = QUIET_TICKS;
         return true;
     }
 
@@ -245,7 +289,10 @@ public final class RealmPool {
         return centres;
     }
 
-    /** Loads one realm's border area batch by batch, letting each batch go once it is generated. */
+    /**
+     * Loads one realm's border area batch by batch, letting each batch go once it is generated, then its origin's
+     * chunks, which stay loaded until {@link #release} so the spawn can be read.
+     */
     private static final class Pregeneration {
         private final ServerLevel level;
         private final RealmData.Realm realm;
@@ -257,18 +304,32 @@ public final class RealmPool {
             this.realm = realm;
         }
 
-        /** Moves on when the current batch is loaded; true once every batch is. */
+        /** Whether a batch is still loading. */
+        boolean loading() {
+            return loading != null && !loading.isDone();
+        }
+
+        /** Moves on when the current batch is loaded; true once every batch and the origin are. */
         boolean advance() {
-            if (loading != null && !loading.isDone()) {
+            if (loading()) {
                 return false;
+            }
+            if (batch == BATCHES.size()) {
+                return true;
             }
             release();
             batch++;
-            if (batch >= BATCHES.size()) {
-                return true;
-            }
-            loading = level.getChunkSource().addTicketAndLoadWithRadius(TicketType.PLAYER_LOADING, BATCHES.get(batch), BATCH_RADIUS);
+            loading = level.getChunkSource().addTicketAndLoadWithRadius(TicketType.PLAYER_LOADING, centre(), radius());
             return false;
+        }
+
+        /** The current step's centre and radius: a border batch, or the origin after the last batch. */
+        private ChunkPos centre() {
+            return batch < BATCHES.size() ? BATCHES.get(batch) : ORIGIN;
+        }
+
+        private int radius() {
+            return batch < BATCHES.size() ? BATCH_RADIUS : ORIGIN_RADIUS;
         }
 
         boolean cancelIfFor(RealmData.Realm claimed) {
@@ -279,9 +340,9 @@ public final class RealmPool {
             return true;
         }
 
-        private void release() {
+        void release() {
             if (loading != null) {
-                level.getChunkSource().removeTicketWithRadius(TicketType.PLAYER_LOADING, BATCHES.get(batch), BATCH_RADIUS);
+                level.getChunkSource().removeTicketWithRadius(TicketType.PLAYER_LOADING, centre(), radius());
                 loading = null;
             }
         }

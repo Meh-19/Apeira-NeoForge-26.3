@@ -406,7 +406,7 @@ public final class ApeiraNavigatorScreen extends Screen {
     /**
      * A profile, the player's own or another's: their player model ({@link #model}), standing still with its arms a little
      * out and drawn with a black toon outline ({@link OutlinedEntityRenderer}), on their skin's accent colour
-     * ({@link SkinAccent}) in the dark panel, with no name under it, as on the server; the status icon (online, AFK or offline) in the panel's corner; the
+     * ({@link SkinAccent}: their eyes' or face's most distinct colour, fading to near black at the bottom) in the dark panel, with no name under it, as on the server; the status icon (online, AFK or offline) in the panel's corner; the
      * cosmetic slots down the left, each showing what is worn as its 3D model or, when empty, the slot's icon; and the
      * "Name's Profile" title. The model wears no cosmetics: they are shown in the sidebar.
      */
@@ -436,7 +436,11 @@ public final class ApeiraNavigatorScreen extends Screen {
         int y1 = topPos + PROFILE_Y1;
         PlayerSkin skin = minecraft.playerSkinRenderCache().getOrDefault(target.skin()).playerSkin();
         int accent = SkinAccent.of(skin.body().texturePath());
-        graphics.fillGradient(x0, y0, x1, y1, ARGB.scaleRGB(accent, 1.1F), ARGB.scaleRGB(accent, 0.55F));
+        // The accent at full strength at the top, half way down at half, then on to near black at the bottom edge.
+        int middle = y0 + (y1 - y0) * 11 / 20;
+        int half = ARGB.scaleRGB(accent, 0.5F);
+        graphics.fillGradient(x0, y0, x1, middle, ARGB.scaleRGB(accent, 1.1F), half);
+        graphics.fillGradient(x0, middle, x1, y1, half, ARGB.scaleRGB(accent, 0.08F));
 
         AvatarRenderState state = new AvatarRenderState();
         state.skin = skin;
