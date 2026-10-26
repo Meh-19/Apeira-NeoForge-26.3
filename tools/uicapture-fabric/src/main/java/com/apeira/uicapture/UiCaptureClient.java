@@ -34,6 +34,7 @@ import net.minecraft.network.chat.Component;
  * {@code /apeirasound} inspects a sound event and logs played sounds ({@link SoundInspector}); {@code /apeiracommands}
  * logs the server's command tree and, with {@code probe}, the server's completions, and records the commands the player runs ({@link CommandLogger});
  * {@code /apeiradev area} and {@code /apeiradev record} record the armor stands in an area as a GeckoLib model and animation ({@link ArmorStandRecorder}).
+ * {@code /apeiradev export_datapack} writes the server's data as a datapack and {@code export_structure} the area as a structure ({@link DatapackExporter}).
  * Nothing is registered and nothing is sent but a probe's completion requests, so it works on any server.
  */
 public final class UiCaptureClient implements ClientModInitializer {
@@ -63,6 +64,7 @@ public final class UiCaptureClient implements ClientModInitializer {
             SoundInspector.register(dispatcher);
             CommandLogger.register(dispatcher);
             ArmorStandRecorder.register(dispatcher);
+            DatapackExporter.register(dispatcher);
         });
         ScreenEvents.AFTER_INIT.register((minecraft, screen, width, height) -> {
             // Key mappings are not clicked while a screen is open, so the screen's own key event arms the capture.
