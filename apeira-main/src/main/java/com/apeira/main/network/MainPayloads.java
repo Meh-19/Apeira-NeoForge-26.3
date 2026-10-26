@@ -10,6 +10,7 @@ import com.apeira.main.realm.RealmCreatedPayload;
 import com.apeira.main.realm.SelectRealmPresetPayload;
 import com.apeira.main.realm.RealmHudPayload;
 import com.apeira.main.realm.SpawnPlacementPayload;
+import com.apeira.main.ruby.RubyChangePayload;
 
 /** Payloads of the main module, passed to {@link com.apeira.main.Apeira#NETWORK}. */
 public final class MainPayloads {
@@ -27,5 +28,6 @@ public final class MainPayloads {
         network.toClient(RealmCreatedPayload.TYPE);
         network.toClient(SpawnPlacementPayload.TYPE);
         network.toClient(RealmHudPayload.TYPE);
+        network.toClient(RubyChangePayload.TYPE);
     }
 }

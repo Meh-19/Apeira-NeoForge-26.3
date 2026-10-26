@@ -15,6 +15,8 @@ import com.apeira.main.client.ruby.RubyDepositRenderer;
 import com.apeira.main.client.ruby.RubyDepositScreen;
 import com.apeira.main.client.ruby.RubyDepositSound;
 import com.apeira.main.client.ruby.RubyHud;
+import com.apeira.main.client.ruby.RubyTickerAnimation;
+import com.apeira.main.ruby.RubyChangePayload;
 import com.apeira.main.registry.MainBlockEntities;
 import com.apeira.main.navigator.OpenNavigatorPayload;
 import com.apeira.main.navigator.OpenProfilePayload;
@@ -33,7 +35,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
@@ -49,7 +53,8 @@ public final class ApeiraClient {
     /** Opens the profile of the player aimed at, or the player's own; Shift-right-clicking a player does the same. */
     public static final KeyMapping OPEN_PROFILE = new KeyMapping("key.apeira.open_profile", InputConstants.KEY_O, KeyMapping.Category.MULTIPLAYER);
 
-    public ApeiraClient(IEventBus modEventBus) {
+    public ApeiraClient(IEventBus modEventBus, ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.CLIENT, MainClientConfig.SPEC);
         modEventBus.addListener(ApeiraClient::registerRenderers);
         modEventBus.addListener(ApeiraClient::registerItemProperties);
         modEventBus.addListener(ApeiraClient::registerKeys);
@@ -64,12 +69,14 @@ public final class ApeiraClient {
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onLoggingOut);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onSubmitGeometry);
         NeoForge.EVENT_BUS.addListener(RealmTopBar::onLoggingOut);
+        NeoForge.EVENT_BUS.addListener(RubyTickerAnimation::onLoggingOut);
         ApeiraClientNetwork.create()
                 .handle(OpenNavigatorPayload.TYPE, ApeiraNavigatorScreen::onOpen)
                 .handle(OpenOnboardingPayload.TYPE, OnboardingScreen::onOpen)
                 .handle(RealmCreatedPayload.TYPE, OnboardingScreen::onCreated)
                 .handle(SpawnPlacementPayload.TYPE, SpawnPlacement::onStart)
                 .handle(RealmHudPayload.TYPE, RealmTopBar::onSync)
+                .handle(RubyChangePayload.TYPE, RubyTickerAnimation::onChange)
                 .register(modEventBus);
     }
 
