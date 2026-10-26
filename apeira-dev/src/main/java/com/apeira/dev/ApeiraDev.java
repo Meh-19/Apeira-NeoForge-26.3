@@ -16,8 +16,8 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 /**
- * Entrypoint for Apeira Dev, the dev-only tools: the furniture dev wand, which tunes decor furniture live
- * ({@link FurnitureTunings}). apeira-main loads it in its runs only, so it never ships with the content mods.
+ * Entrypoint for Apeira Dev, the dev-only tools: the furniture dev wand, which tunes decor furniture
+ * ({@link FurnitureTunings}) and back cosmetics' offsets ({@link com.apeira.decor.cosmetic.BackOffsets}) live. apeira-main loads it in its runs only, so it never ships with the content mods.
  */
 @Mod(ApeiraDev.MOD_ID)
 public final class ApeiraDev {
@@ -26,7 +26,7 @@ public final class ApeiraDev {
     /** Owns the dev wand, in the shared {@code apeira} namespace. */
     public static final ApeiraRegistrar REGISTRAR = ApeiraRegistrar.create();
     /** The dev module's payloads; bump the version when one of their codecs changes. */
-    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("1");
+    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("2");
 
     public ApeiraDev(IEventBus modEventBus, ModContainer modContainer) {
         // Before blocks cache their shapes, so furniture reads tuned shapes live.

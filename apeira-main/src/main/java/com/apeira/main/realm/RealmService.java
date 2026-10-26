@@ -5,6 +5,10 @@ import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
 
+import com.apeira.core.network.ApeiraPackets;
+import com.apeira.main.realm.balloon.BalloonColors;
+import com.apeira.main.realm.balloon.StarterBalloon;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
@@ -339,7 +343,10 @@ public final class RealmService {
         }
     }
 
-    /** Moves the realm's spawn to where the owner stands, which must be inside their own realm. */
+    /**
+     * Starts {@code /realm setspawn}: the owner, standing in their realm, gets the client's 3x3x2 placement cursor
+     * ({@link SpawnPlacementPayload}) and confirms a spot with a left-click, which comes back as {@link #moveSpawn}.
+     */
     public static boolean setSpawn(ServerPlayer owner) {
         RealmAccess access = owned(owner);
         if (access == null) {
@@ -349,10 +356,66 @@ public final class RealmService {
             fail(owner, "realm.not_in_realm");
             return false;
         }
-        access.spawn = Optional.of(owner.blockPosition());
-        data(owner.level().getServer()).setDirty();
+        ApeiraPackets.sendToPlayer(owner, new SpawnPlacementPayload(access.balloon));
+        return true;
+    }
+
+    /** The farthest from the owner a placement may be: the client's cursor reach, and a little more. */
+    private static final double SPAWN_REACH = SpawnPlacementPayload.REACH + 8.0;
+
+    /**
+     * Moves the starter balloon, and the realm's spawn with it, so that its floor's centre is {@code balloon}: checked
+     * again here as the client checked it ({@link StarterBalloon#canPlace}), within reach and inside the border.
+     */
+    public static boolean moveSpawn(ServerPlayer owner, BlockPos balloon) {
+        RealmAccess access = owned(owner);
+        if (access == null) {
+            return false;
+        }
+        ServerLevel level = owner.level();
+        if (!ownerOf(level).equals(Optional.of(owner.getUUID()))) {
+            fail(owner, "realm.not_in_realm");
+            return false;
+        }
+        if (!balloon.closerToCenterThan(owner.position(), SPAWN_REACH)
+                || !StarterBalloon.canPlace(level, balloon, access.balloon.orElse(null))) {
+            fail(owner, "realm.setspawn.blocked");
+            return false;
+        }
+        StarterBalloon.move(level, access.balloon.orElse(null), balloon, access.balloonPaint.orElse(null));
+        access.balloon = Optional.of(balloon);
+        access.starterBuilt = true;
+        access.spawn = Optional.of(balloon.above());
+        data(level.getServer()).setDirty();
+        RealmHudPayload.syncLevel(level);
         done(owner, "realm.spawn_set");
         return true;
+    }
+
+    /**
+     * Paints the owner's starter balloon, or clears its paint with {@code null}, wherever the owner is: the realm
+     * settings' balloon colour and {@code /realm balloon}.
+     */
+    public static boolean setBalloonPaint(ServerPlayer owner, @Nullable Integer paint) {
+        RealmAccess access = owned(owner);
+        if (access == null) {
+            return false;
+        }
+        MinecraftServer server = owner.level().getServer();
+        access.balloonPaint = Optional.ofNullable(paint).map(value -> value & 0xFFFFFF);
+        data(server).setDirty();
+        Optional<RealmData.Realm> realm = data(server).realmOf(owner.getUUID());
+        if (realm.isPresent() && access.balloon.isPresent()) {
+            StarterBalloon.paint(RealmLevels.create(server, realm.get()), access.balloon.get(), access.balloonPaint.orElse(null));
+        }
+        done(owner, "realm.balloon.painted", BalloonColors.name(access.balloonPaint.orElse(null)));
+        return true;
+    }
+
+    /** Steps the balloon's colour through {@link BalloonColors} by {@code steps}: the settings button's clicks. */
+    public static boolean cycleBalloonPaint(ServerPlayer owner, int steps) {
+        RealmAccess access = owned(owner);
+        return access != null && setBalloonPaint(owner, BalloonColors.step(access.balloonPaint.orElse(null), steps));
     }
 
     /** Whether {@code owner} stands in their realm's overworld, which the overworld reset button needs. */
@@ -378,6 +441,9 @@ public final class RealmService {
         ServerLevel old = owner.level();
         RealmPool.take(server, owner.getUUID(), preset);
         access.spawn = Optional.empty();
+        // The new realm gets its own starter platform and balloon when the owner arrives.
+        access.balloon = Optional.empty();
+        access.starterBuilt = false;
         data(server).setDirty();
         for (ServerPlayer player : old.players().toArray(ServerPlayer[]::new)) {
             if (player != owner) {

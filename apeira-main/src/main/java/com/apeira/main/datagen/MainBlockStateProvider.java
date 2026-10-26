@@ -22,6 +22,7 @@ import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainRealmBlocks;
 import com.apeira.main.registry.MainRubies;
 import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
@@ -110,6 +111,9 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
         // The ruby deposit is drawn by its block entity too; its item is the hand-made display model of its base.
         existingModelBlock(MainRubies.RUBY_DEPOSIT.get());
         blockItemModel(MainRubies.RUBY_DEPOSIT.get(), modLoc("item/ruby_deposit"));
+        // The starter balloon is drawn by its block entity and its floor not at all; their models only give particles.
+        existingModelBlock(MainRealmBlocks.STARTER_BALLOON.get());
+        existingModelBlock(MainRealmBlocks.STARTER_BALLOON_PART.get());
     }
 
     /**

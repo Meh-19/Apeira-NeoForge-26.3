@@ -1,6 +1,10 @@
 package com.apeira.decor.client;
 
+import org.jspecify.annotations.Nullable;
+
 import com.apeira.core.registry.ApeiraIds;
+import com.apeira.decor.cosmetic.BackOffset;
+import com.apeira.decor.cosmetic.BackOffsets;
 import com.apeira.decor.cosmetic.CosmeticSlot;
 import com.apeira.decor.cosmetic.Wardrobe;
 import com.apeira.decor.registry.DecorAttachments;
@@ -29,16 +33,16 @@ import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 /**
  * Draws the cosmetics in a player's (or mannequin's) wardrobe: the hat on the head, the back cosmetic on the body
  * and the hand cosmetic in the off hand while it holds nothing. Transforms are CosmoLib's {@code CosmeticPlayerLayer}.
- * Models are resolved under {@link WornCosmetic}, so item definitions draw the cosmetic's 3D model here and its token
- * everywhere else.
+ * The back cosmetic also takes its tuned {@link BackOffset}, if any. Models are resolved under {@link WornCosmetic}, so
+ * item definitions draw the cosmetic's 3D model here and its token everywhere else.
  */
 public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
     /** CosmoLib's {@code BackOffsetData.DEFAULT_Y}: lifts back cosmetics from the body's pivot onto the back. */
     private static final float BACK_Y = -0.57625F;
     private static final ContextKey<Worn> WORN = new ContextKey<>(ApeiraIds.id("cosmetics"));
 
-    /** The resolved models of the worn cosmetics, collected while extracting the render state. */
-    private record Worn(ItemStackRenderState hat, ItemStackRenderState back, ItemStackRenderState hand) {}
+    /** The resolved models of the worn cosmetics, collected while extracting the render state, and the back one's offset. */
+    private record Worn(ItemStackRenderState hat, ItemStackRenderState back, @Nullable BackOffset backOffset, ItemStackRenderState hand) {}
 
     public CosmeticLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent) {
         super(parent);
@@ -58,6 +62,7 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
             state.setRenderData(WORN, new Worn(
                     resolve(resolver, avatar, wardrobe.get(CosmeticSlot.HAT), ItemDisplayContext.HEAD),
                     resolve(resolver, avatar, wardrobe.get(CosmeticSlot.BACK), ItemDisplayContext.HEAD),
+                    BackOffsets.get(wardrobe.get(CosmeticSlot.BACK).getItem()),
                     resolve(resolver, avatar, wardrobe.get(CosmeticSlot.HAND), offArm == HumanoidArm.LEFT
                             ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                             : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)));
@@ -94,6 +99,15 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
             poseStack.translate(0.0F, BACK_Y, 0.0F);
             poseStack.rotateDegrees(Axis.YP, 180.0F);
             poseStack.scale(0.625F, -0.625F, -0.625F);
+            BackOffset offset = worn.backOffset();
+            if (offset != null) {
+                // In the cosmetic's own model pixels, as the dev wand tunes it.
+                poseStack.translate(offset.x() / 16.0F, offset.y() / 16.0F, offset.z() / 16.0F);
+                poseStack.rotateDegrees(Axis.XP, offset.pitch());
+                poseStack.rotateDegrees(Axis.YP, offset.yaw());
+                poseStack.rotateDegrees(Axis.ZP, offset.roll());
+                poseStack.scale(offset.scale(), offset.scale(), offset.scale());
+            }
             worn.back().submit(poseStack, collector, lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
             poseStack.popPose();
         }

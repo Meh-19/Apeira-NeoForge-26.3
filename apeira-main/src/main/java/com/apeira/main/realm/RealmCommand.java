@@ -7,6 +7,7 @@ import java.util.function.BiPredicate;
 import com.apeira.core.network.ApeiraPackets;
 import com.apeira.main.navigator.NavigatorPage;
 import com.apeira.main.navigator.NavigatorService;
+import com.apeira.main.realm.balloon.BalloonColors;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -42,6 +43,17 @@ public final class RealmCommand {
                 .then(Commands.literal("home").executes(RealmCommand::home))
                 .then(Commands.literal("spawn").executes(RealmCommand::home))
                 .then(Commands.literal("setspawn").executes(context -> result(RealmService.setSpawn(context.getSource().getPlayerOrException()))))
+                .then(Commands.literal("balloon").then(Commands.argument("colour", StringArgumentType.word())
+                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(BalloonColors.names(), builder))
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            String colour = StringArgumentType.getString(context, "colour");
+                            if (!BalloonColors.names().contains(colour)) {
+                                RealmService.fail(player, "realm.balloon.unknown", colour);
+                                return 0;
+                            }
+                            return result(RealmService.setBalloonPaint(player, BalloonColors.byName(colour)));
+                        })))
                 .then(Commands.literal("members").executes(context -> open(context, NavigatorPage.REALM_MEMBERS)))
                 .then(Commands.literal("settings").executes(context -> open(context, NavigatorPage.REALM_SETTINGS)))
                 .then(Commands.literal("reset").executes(context -> open(context, NavigatorPage.REALM_SETTINGS)))

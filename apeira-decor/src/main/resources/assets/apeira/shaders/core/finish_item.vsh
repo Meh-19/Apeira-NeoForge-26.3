@@ -34,6 +34,8 @@ layout(location = 4) out vec4 overlayColor;
 layout(location = 5) out vec2 texCoord0;
 layout(location = 7) flat out float finish;
 layout(location = 8) out vec4 normal;
+// The unlit vertex colour, for emissive texels (finish_item.fsh).
+layout(location = 9) out vec4 vertexTint;
 
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
@@ -46,6 +48,7 @@ void main() {
     #endif
 
     texCoord0 = UV0;
+    vertexTint = Color.xz == vec2(1.0) && Color.y < 1.0 ? vec4(1.0) : Color;
     normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
 
     if (Color.xz == vec2(1.0) && Color.y < 1.0) {

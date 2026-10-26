@@ -1,11 +1,14 @@
 package com.apeira.main.client.ruby;
 
+import com.apeira.decor.client.EmissiveRenderTypes;
 import com.apeira.main.registry.MainRubies;
 import com.apeira.main.ruby.RubyDepositBlockEntity;
 import com.geckolib.renderer.GeoBlockRenderer;
 
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 
 /**
@@ -22,5 +25,11 @@ public class RubyDepositRenderer extends GeoBlockRenderer<RubyDepositBlockEntity
     @Override
     public AABB getRenderBoundingBox(RubyDepositBlockEntity deposit) {
         return new AABB(deposit.getBlockPos()).expandTowards(0.0, 1.5, 0.0);
+    }
+
+    /** Translucent, with the alpha 254 texels glowing ({@link EmissiveRenderTypes}). */
+    @Override
+    public RenderType getRenderType(BlockEntityRenderState renderState, Identifier texture) {
+        return EmissiveRenderTypes.entityTranslucent(texture);
     }
 }

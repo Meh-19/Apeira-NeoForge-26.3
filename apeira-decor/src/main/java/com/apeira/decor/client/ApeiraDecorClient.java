@@ -55,6 +55,7 @@ public final class ApeiraDecorClient {
         modEventBus.addListener(ApeiraDecorClient::registerItemTints);
         modEventBus.addListener(ApeiraDecorClient::registerItemConditions);
         modEventBus.addListener(FinishRenderTypes::registerPipelines);
+        modEventBus.addListener(EmissiveRenderTypes::registerPipelines);
         modEventBus.addListener(ApeiraDecorClient::registerPictureInPictureRenderers);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addPaintTooltip);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::openWardrobe);

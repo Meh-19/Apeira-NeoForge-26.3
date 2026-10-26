@@ -2,12 +2,16 @@
   "item.apeira.furniture_dev_wand": "Furniture Dev Wand",
   "key.apeira.dev.furniture_editor": "Furniture Editor (Dev Wand)",
   "screen.apeira.dev.furniture_editor": "Furniture Editor",
-  "hud.apeira.dev.unbound": "Right-click a furniture piece with the wand to tune it",
+  "hud.apeira.dev.unbound": "Right-click a furniture piece with the wand, or wear a back cosmetic, to tune it",
+  "hud.apeira.dev.back": "Back cosmetic: %s",
+  "hud.apeira.dev.back_export": "%s: export",
+  "hud.apeira.dev.back_reset": "Shift+%s: reset",
   "hud.apeira.dev.controls": "Ctrl+Scroll: change (Shift: fine)  Alt+Scroll: select",
   "hud.apeira.dev.editor": "%s: editor and export",
   "message.apeira.dev.bound": "Dev wand bound to %s at %s",
   "message.apeira.dev.unbound": "Dev wand unbound",
-  "message.apeira.dev.no_permission": "Only creative operators can tune furniture",
+  "message.apeira.dev.no_permission": "Only creative operators can tune furniture and cosmetics",
+  "message.apeira.dev.back_reset": "%s is back on the default back transform",
   "message.apeira.dev.exported": "Exported %s to %s",
-  "message.apeira.dev.export_failed": "Furniture export failed: %s"
+  "message.apeira.dev.export_failed": "Export failed: %s"
 }

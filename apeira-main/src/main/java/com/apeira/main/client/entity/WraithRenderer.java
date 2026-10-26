@@ -1,6 +1,7 @@
 package com.apeira.main.client.entity;
 
 import com.apeira.core.registry.ApeiraIds;
+import com.apeira.decor.client.EmissiveRenderTypes;
 import com.apeira.main.entity.WraithEntity;
 import com.geckolib.constant.dataticket.DataTicket;
 import com.geckolib.model.DefaultedEntityGeoModel;
@@ -13,7 +14,6 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -55,7 +55,7 @@ public class WraithRenderer extends GeoEntityRenderer<WraithEntity, LivingEntity
     /** Always translucent, for a ghostly look. */
     @Override
     public RenderType getRenderType(LivingEntityRenderState renderState, Identifier texture) {
-        return RenderTypes.entityTranslucent(texture);
+        return EmissiveRenderTypes.entityTranslucent(texture);
     }
 
     @Override
