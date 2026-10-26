@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.realm.RealmHudPayload;
+import com.apeira.main.realm.RealmVisitors;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -66,12 +67,14 @@ public final class RealmTopBar {
         owner = payload.owner();
         balloon = payload.balloon();
         role = payload.role();
+        RealmVisitors.setClientVisitor(payload.visitor());
     }
 
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         owner = Optional.empty();
         balloon = Optional.empty();
         role = -1;
+        RealmVisitors.setClientVisitor(false);
     }
 
     public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {

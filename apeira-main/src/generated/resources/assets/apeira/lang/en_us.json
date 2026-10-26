@@ -1136,6 +1136,7 @@
   "message.apeira.realm.cannot_visit": "You can't visit %s's Realm right now",
   "message.apeira.realm.denied.build": "You can't build in this Realm",
   "message.apeira.realm.denied.trusted": "Only Trusted members can do that here",
+  "message.apeira.realm.denied.visitor": "Visitors can only look around in this Realm",
   "message.apeira.realm.exists": "You already have a Realm",
   "message.apeira.realm.home": "Welcome home!",
   "message.apeira.realm.invite": "Invited %s to your Realm",

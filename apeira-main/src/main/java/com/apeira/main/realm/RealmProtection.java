@@ -4,25 +4,29 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.apeira.decor.block.ApeiraFurnitureBlock;
+import com.apeira.decor.crate.CrateBlock;
+import com.apeira.main.navigator.OpenProfilePayload;
 import com.apeira.main.realm.balloon.StarterBalloon;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -30,10 +34,13 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
- * Enforces realm roles and visiting rules on the server (registered in {@code Apeira}'s constructor). In a realm,
- * visitors cannot break, place or use items on blocks, open containers or touch non-hostile entities; Residents build
- * but cannot open or break containers and furniture; Trusted players and the owner may do everything. Players who may
- * not visit a realm cannot travel into it and are sent out once a second if the rules change while they are inside.
+ * Enforces realm roles and visiting rules on the server (registered in {@code Apeira}'s constructor). The permission
+ * matrix: the owner and Trusted players may do everything; Residents break and place blocks and use doors, buttons and
+ * seats, but cannot open anything with a menu or inventory ({@link #isGuardedUse}: containers, chests, barrels, the
+ * ruby deposit, crafting stations, crates) or break containers and furniture, and only touch players and hostile mobs;
+ * visitors only look around: no block, item or entity use (except eating and drinking and opening a player's profile),
+ * no attacks, no punching blocks and no item pickup, and {@link RealmVisitors} keeps mobs and pushes off them.
+ * Players who may not visit a realm cannot travel into it and are sent out once a second if the rules change while they are inside.
  * Private realm chat keeps a realm's messages among the players in it. Operators bypass every check, except that no
  * one breaks or waterlogs the starter balloon and the barriers of its floor ({@link StarterBalloon#isFootprint}).
  */
@@ -54,6 +61,12 @@ public final class RealmProtection {
     /** Containers and furniture need the Trusted role to open or break. */
     private static boolean isGuarded(Level level, BlockPos pos, BlockState state) {
         return state.getBlock() instanceof ApeiraFurnitureBlock || level.getBlockEntity(pos) instanceof Container;
+    }
+
+    /** Blocks Residents may not open: anything with an inventory or a menu, and crates. */
+    private static boolean isGuardedUse(Level level, BlockPos pos, BlockState state) {
+        return level.getBlockEntity(pos) instanceof Container || state.getMenuProvider(level, pos) != null
+                || state.getBlock() instanceof CrateBlock;
     }
 
     private static void deny(Player player, String key) {
@@ -104,36 +117,75 @@ public final class RealmProtection {
         }
         role(event.getEntity()).ifPresent(role -> {
             if (!role.canBuild()) {
-                // Visitors may still press buttons, open doors and sit; items never act on blocks.
+                // Visitors touch nothing: no doors, buttons, seats or menus, and items never act on blocks.
                 event.setUseItem(TriState.FALSE);
-            }
-            if (!role.canUseContainers() && event.getLevel().getBlockEntity(event.getPos()) instanceof Container) {
+                event.setUseBlock(TriState.FALSE);
+                deny(event.getEntity(), "visitor");
+            } else if (!role.canUseContainers() && isGuardedUse(event.getLevel(), event.getPos(), event.getLevel().getBlockState(event.getPos()))) {
                 event.setUseBlock(TriState.FALSE);
                 deny(event.getEntity(), "trusted");
             }
         });
     }
 
-    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        if (event.getItemStack().getItem() instanceof BucketItem && role(event.getEntity()).filter(role -> !role.canBuild()).isPresent()) {
+    /** Visitors don't punch blocks either (note blocks, crates, dragon eggs); breaking is {@link #onBreak}'s. */
+    public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        if (role(event.getEntity()).filter(role -> !role.canBuild()).isPresent()) {
             event.setCanceled(true);
-            deny(event.getEntity(), "build");
         }
+    }
+
+    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        // Visitors may still eat and drink; every other item use (buckets, throwing, shooting, fishing) acts on the world.
+        if (!event.getItemStack().has(DataComponents.CONSUMABLE) && role(event.getEntity()).filter(role -> !role.canBuild()).isPresent()) {
+            event.setCanceled(true);
+            deny(event.getEntity(), "visitor");
+        }
+    }
+
+    /** Whether {@code player} may right-click {@code target}: players and dummies (profiles) always, others by role. */
+    private static boolean deniesEntityUse(Player player, Entity target) {
+        if (OpenProfilePayload.profileOf(target) != null) {
+            return false;
+        }
+        return role(player).map(role -> {
+            if (!role.canTouchEntities()) {
+                deny(player, role.canBuild() ? "trusted" : "visitor");
+                return true;
+            }
+            return false;
+        }).orElse(false);
     }
 
     public static void onInteractEntity(PlayerInteractEvent.EntityInteract event) {
-        if (!(event.getTarget() instanceof Merchant) && !(event.getTarget() instanceof Player)
-                && role(event.getEntity()).filter(role -> !role.canBuild()).isPresent()) {
+        if (deniesEntityUse(event.getEntity(), event.getTarget())) {
             event.setCanceled(true);
-            deny(event.getEntity(), "build");
         }
     }
 
-    public static void onAttack(AttackEntityEvent event) {
-        if (!(event.getTarget() instanceof Enemy) && !(event.getTarget() instanceof Player)
-                && role(event.getEntity()).filter(role -> !role.canBuild()).isPresent()) {
+    /** Armor stands and other entities that take a click at a point. */
+    public static void onInteractEntitySpecific(PlayerInteractEvent.EntityInteractSpecific event) {
+        if (deniesEntityUse(event.getEntity(), event.getTarget())) {
             event.setCanceled(true);
-            deny(event.getEntity(), "build");
+        }
+    }
+
+    /** Visitors attack nothing; Residents only players and hostile mobs. */
+    public static void onAttack(AttackEntityEvent event) {
+        role(event.getEntity()).ifPresent(role -> {
+            if (!role.canBuild()) {
+                event.setCanceled(true);
+                deny(event.getEntity(), "visitor");
+            } else if (!role.canTouchEntities() && !(event.getTarget() instanceof Enemy) && !(event.getTarget() instanceof Player)) {
+                event.setCanceled(true);
+                deny(event.getEntity(), "trusted");
+            }
+        });
+    }
+
+    public static void onItemPickup(ItemEntityPickupEvent.Pre event) {
+        if (role(event.getPlayer()).filter(role -> !role.canBuild()).isPresent()) {
+            event.setCanPickup(TriState.FALSE);
         }
     }
 
