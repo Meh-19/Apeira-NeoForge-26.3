@@ -47,7 +47,7 @@ public class RubyDepositScreen extends AbstractContainerScreen<ApeiraRubyDeposit
 
     /** Skips the whole HUD for the frame while this screen is open, so nothing shows through around or behind the menu. */
     public static void hideHud(RenderGuiEvent.Pre event) {
-        if (Minecraft.getInstance().screen instanceof RubyDepositScreen) {
+        if (Minecraft.getInstance().gui.screen() instanceof RubyDepositScreen) {
             event.setCanceled(true);
         }
     }
