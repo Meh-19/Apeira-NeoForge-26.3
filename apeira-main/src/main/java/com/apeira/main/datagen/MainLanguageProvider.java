@@ -395,7 +395,8 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         addId("navigator", "reset.confirm", "Confirm reset");
         addId("navigator", "reset.confirm.desc", "Your Overworld becomes a new %s Realm");
         addId("navigator", "balloon_color", "Color Realm balloon");
-        addId("navigator", "balloon_color.desc", "Left-click: next colour, right-click: previous");
+        addId("navigator", "balloon_color.desc", "Pick a colour for your balloon");
+        addId("navigator", "action.balloon_paint", "Left-click to paint the balloon");
         addId("navigator", "preset.lush", "Lush");
         addId("navigator", "preset.arid", "Arid");
         addId("navigator", "preset.cold", "Cold");
@@ -447,7 +448,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("realm.left", "You left %s's Realm");
         message("realm.not_in_realm", "Stand in your Realm to do that");
         message("realm.spawn_set", "Realm spawn moved to the balloon");
-        message("realm.spawn_set_here", "Realm spawn set where you stand");
+        message("realm.spawn_set_here", "Realm spawn set where you stand, without the balloon");
         message("realm.setspawn.blocked", "The balloon doesn't fit there");
         message("realm.balloon.painted", "Realm balloon painted %s");
         message("realm.balloon.unpainted", "Unpainted");
@@ -468,7 +469,6 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("realm.private_chat", "[Realm] <%s> %s");
         message("realm.denied.build", "You can't build in this Realm");
         message("realm.denied.trusted", "Only Trusted members can do that here");
-        message("realm.denied.balloon", "The balloon only moves with /realm setspawn");
         message("friend.request", "%s wants to be friends! %s");
         message("friend.requested", "Sent a friend request to %s");
         message("friend.added", "You are now friends with %s");

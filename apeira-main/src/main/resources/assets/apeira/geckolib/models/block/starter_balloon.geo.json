@@ -2686,7 +2686,7 @@
 					]
 				},
 				{
-					"name": "balloon_tintable",
+					"name": "balloon_tint",
 					"parent": "group",
 					"pivot": [
 						0,

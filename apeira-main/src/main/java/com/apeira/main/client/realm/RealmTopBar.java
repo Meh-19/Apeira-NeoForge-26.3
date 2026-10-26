@@ -22,8 +22,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 /**
  * Origin Realms' top bar, shown while the player is in a realm: pills along the top of the screen, as the server draws
  * them in its first boss bar's name (Ren's HUD capture). The left pill is the waypoint icon and where the player is
- * ("Air Balloon Platform" on the starter balloon's platform, else the realm's name), the right one the clock icon and
- * the time of day ("12:53 PM").
+ * ("Air Balloon Platform" while they stand on the 5x5 platform round the starter balloon, only while the realm has
+ * one, else the realm's name), then the player's role tag there (Ren's {@code textures/gui/top_bar/role_<role>.png},
+ * glyphs B010-B013 in {@link com.apeira.main.realm.RealmRole}'s order), then the clock icon and the time of day
+ * ("12:53 PM").
  *
  * <p>It is the server's own text, rebuilt glyph for glyph in the {@code apeira:top_bar} font (Origin Realms'
  * {@code boss_bar_1}: the ASCII sheet at ascent 3, {@code textures/gui/top_bar/} background pieces at ascent 6 and icons
@@ -43,22 +45,32 @@ public final class RealmTopBar {
     private static final char[] BACK_GLYPHS = {'', '', '', '', '', '', ''};
     private static final char CLOCK = '뀁';
     private static final char WAYPOINT = '뀂';
-    /** How far from the balloon (blocks, sideways and up or down) counts as on its platform. */
-    private static final int PLATFORM_REACH = 4;
+    /** The platform is 5x5 round the balloon: two blocks to each side. */
+    private static final int PLATFORM_RADIUS = 2;
+    /** Feet from a block under the platform's floor to the top of the balloon's basket count as on it. */
+    private static final int PLATFORM_BELOW = 1;
+    private static final int PLATFORM_ABOVE = 3;
+    private static final char ROLE_TAG = '\uB010';
+    /** A -1 space, taking back the pixel a bitmap glyph's advance adds, and the 2 pixels between pills. */
+    private static final char BACK_ONE = '\uF801';
+    private static final char GAP = '\uF822';
 
     private static Optional<String> owner = Optional.empty();
     private static Optional<BlockPos> balloon = Optional.empty();
+    private static int role = -1;
 
     private RealmTopBar() {}
 
     public static void onSync(RealmHudPayload payload, IPayloadContext context) {
         owner = payload.owner();
         balloon = payload.balloon();
+        role = payload.role();
     }
 
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         owner = Optional.empty();
         balloon = Optional.empty();
+        role = -1;
     }
 
     public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
@@ -72,14 +84,18 @@ public final class RealmTopBar {
                 : Component.translatable("hud.apeira.top_bar.realm", owner.get()).getString();
         MutableComponent bar = Component.empty();
         pill(font, bar, WAYPOINT, place, false);
+        if (role >= 0) {
+            // A tag of its own, as wide as its badge, then the gap between pills.
+            bar.append(Component.literal(Character.toString(ROLE_TAG + role) + BACK_ONE + GAP).withStyle(FONT));
+        }
         pill(font, bar, CLOCK, time(minecraft.level.getOverworldClockTime()), true);
         graphics.text(font, bar, graphics.guiWidth() / 2 - font.width(bar) / 2, Y, COLOR, true);
     }
 
     private static boolean onPlatform(Player player) {
         BlockPos at = player.blockPosition();
-        return balloon.filter(pos -> Math.abs(at.getX() - pos.getX()) <= PLATFORM_REACH && Math.abs(at.getZ() - pos.getZ()) <= PLATFORM_REACH
-                && Math.abs(at.getY() - pos.getY()) <= PLATFORM_REACH).isPresent();
+        return balloon.filter(pos -> Math.abs(at.getX() - pos.getX()) <= PLATFORM_RADIUS && Math.abs(at.getZ() - pos.getZ()) <= PLATFORM_RADIUS
+                && at.getY() >= pos.getY() - PLATFORM_BELOW && at.getY() <= pos.getY() + PLATFORM_ABOVE).isPresent();
     }
 
     /** Appends one pill: its background, then the icon and text drawn back over it. */

@@ -17,6 +17,7 @@ import com.apeira.main.navigator.NavigatorPage;
 import com.apeira.main.navigator.NavigatorService;
 import com.apeira.main.navigator.NavigatorView;
 import com.apeira.main.realm.RealmRole;
+import com.apeira.main.realm.balloon.BalloonColors;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -436,6 +437,18 @@ final class NavigatorLayout {
                 int[] presetSlots = {30, 31, 32, 39, 40};
                 for (int i = 0; i < PRESETS.length; i++) {
                     buttons.add(button(slots(presetSlots[i]), "preset." + PRESETS[i], new NavigatorActionPayload(Action.RESET_PRESET, i)));
+                }
+                return;
+            }
+            case REALM_BALLOON_COLOR -> {
+                // The preset popup's frame with the balloon's colours: unpainted, then the paint colours, five a row.
+                settingsLayers(view, layers);
+                layer(layers, "realms/home/settings/balloon_color_modal");
+                buttons.add(button(slots(24), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
+                for (int i = 0; i < BalloonColors.size(); i++) {
+                    buttons.add(new Button(slots((i < 5 ? 29 : 33) + i), List.of(
+                            BalloonColors.name(BalloonColors.at(i)).copy().withColor(NavigatorService.LABEL),
+                            NavigatorService.action(0, "balloon_paint")), new NavigatorActionPayload(Action.BALLOON_COLOR, i)));
                 }
                 return;
             }

@@ -30,6 +30,8 @@ public enum NavigatorPage {
     REALM_RESET_PRESET,
     /** Settings with the reset button turned into Confirm, after a region was picked. */
     REALM_RESET_CONFIRM,
+    /** Popup over Settings: the starter balloon's colours (unpainted and the nine paint colours). */
+    REALM_BALLOON_COLOR,
     /** Popup over "In Realm": kick, ban or invite a player in the realm. */
     EDIT_PLAYER,
     /** Popup over "Members": kick, ban or change a member's role. */
@@ -75,6 +77,7 @@ public enum NavigatorPage {
 
     /** Whether this shows the Settings panel. */
     public boolean isSettings() {
-        return this == REALM_SETTINGS || this == REALM_RESET || this == REALM_RESET_PRESET || this == REALM_RESET_CONFIRM;
+        return this == REALM_SETTINGS || this == REALM_RESET || this == REALM_RESET_PRESET || this == REALM_RESET_CONFIRM
+                || this == REALM_BALLOON_COLOR;
     }
 }
