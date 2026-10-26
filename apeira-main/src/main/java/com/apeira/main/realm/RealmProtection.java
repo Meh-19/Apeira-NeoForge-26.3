@@ -52,7 +52,7 @@ public final class RealmProtection {
 
     /** The role {@code player} acts with at their position, or empty where no realm rules apply. */
     private static Optional<RealmRole> role(Player player) {
-        if (!(player instanceof ServerPlayer serverPlayer) || RealmService.bypasses(serverPlayer)) {
+        if (!(player instanceof ServerPlayer serverPlayer) || RealmService.bypassesRoles(serverPlayer)) {
             return Optional.empty();
         }
         return RealmService.roleIn(serverPlayer, serverPlayer.level());
