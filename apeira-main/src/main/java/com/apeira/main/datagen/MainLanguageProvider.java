@@ -469,6 +469,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("realm.private_chat", "[Realm] <%s> %s");
         message("realm.denied.build", "You can't build in this Realm");
         message("realm.denied.trusted", "Only Trusted members can do that here");
+        message("realm.denied.visitor", "Visitors can only look around in this Realm");
         message("friend.request", "%s wants to be friends! %s");
         message("friend.requested", "Sent a friend request to %s");
         message("friend.added", "You are now friends with %s");
