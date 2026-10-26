@@ -21,6 +21,7 @@ import com.apeira.main.party.PartyService;
 import com.apeira.main.network.MainPayloads;
 import com.apeira.main.realm.DummyPlayers;
 import com.apeira.main.realm.RealmCommand;
+import com.apeira.main.realm.RealmHudPayload;
 import com.apeira.main.realm.RealmPool;
 import com.apeira.main.realm.RealmProtection;
 import com.apeira.main.registry.MainBlockEntities;
@@ -93,6 +94,9 @@ public final class Apeira {
         NeoForge.EVENT_BUS.addListener(RealmPool::onServerStopped);
         NeoForge.EVENT_BUS.addListener(RealmPool::onServerTick);
         NeoForge.EVENT_BUS.addListener(RealmPool::onPlayerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(RealmHudPayload::onLoggedIn);
+        NeoForge.EVENT_BUS.addListener(RealmHudPayload::onChangedDimension);
+        NeoForge.EVENT_BUS.addListener(RealmHudPayload::onRespawn);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onBreak);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onPlace);
         NeoForge.EVENT_BUS.addListener(RealmProtection::onRightClickBlock);

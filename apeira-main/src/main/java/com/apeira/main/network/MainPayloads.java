@@ -8,6 +8,7 @@ import com.apeira.main.realm.ConfirmSpawnPayload;
 import com.apeira.main.realm.OpenOnboardingPayload;
 import com.apeira.main.realm.RealmCreatedPayload;
 import com.apeira.main.realm.SelectRealmPresetPayload;
+import com.apeira.main.realm.RealmHudPayload;
 import com.apeira.main.realm.SpawnPlacementPayload;
 
 /** Payloads of the main module, passed to {@link com.apeira.main.Apeira#NETWORK}. */
@@ -25,5 +26,6 @@ public final class MainPayloads {
         network.toClient(OpenOnboardingPayload.TYPE);
         network.toClient(RealmCreatedPayload.TYPE);
         network.toClient(SpawnPlacementPayload.TYPE);
+        network.toClient(RealmHudPayload.TYPE);
     }
 }

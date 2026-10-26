@@ -458,6 +458,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("hud.apeira.setspawn.confirm", "Left-click to set spawn");
         add("hud.apeira.setspawn.cancel", "Right-click/ESC to cancel");
         add("hud.apeira.top_bar.realm", "%s's Realm");
+        add("hud.apeira.top_bar.balloon_platform", "Air Balloon Platform");
         message("realm.reset.stand_in", "Stand in your Realm's Overworld to reset it");
         message("realm.reset.moved", "This Realm is being reset");
         message("realm.reset", "Your Overworld was reset as a %s Realm");

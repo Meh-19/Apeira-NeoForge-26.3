@@ -387,6 +387,7 @@ public final class RealmService {
         access.starterBuilt = true;
         access.spawn = Optional.of(balloon.above());
         data(level.getServer()).setDirty();
+        RealmHudPayload.syncLevel(level);
         done(owner, "realm.spawn_set");
         return true;
     }
