@@ -47,9 +47,18 @@ public final class RealmService {
         return ownerOf(level).map(owner -> data(level.getServer()).access(owner).roleOf(owner, player.getUUID()));
     }
 
-    /** Operators (permission level 2) may go anywhere and do anything in a realm. */
+    /** Operators (permission level 2) may go anywhere in a realm. */
     public static boolean bypasses(ServerPlayer player) {
         return player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
+    }
+
+    /**
+     * Whether {@code player} ignores realm roles ({@link RealmProtection}, {@link RealmVisitors}): operators in creative
+     * or spectator mode. An operator in survival or adventure plays by the role they have there, so roles can be tried
+     * out on one's own (in dummies' realms, for one).
+     */
+    public static boolean bypassesRoles(ServerPlayer player) {
+        return bypasses(player) && (player.isCreative() || player.isSpectator());
     }
 
     /**

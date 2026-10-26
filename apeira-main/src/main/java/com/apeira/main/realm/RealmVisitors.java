@@ -11,7 +11,7 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 /**
  * Visitors are observers: mobs ignore them ({@code mixin/RealmVisitorTargetMixin} on {@code LivingEntity#canAttack},
  * {@link #onChangeTarget}, {@link #onIncomingDamage}) and nothing pushes them or is pushed by them
- * ({@code mixin/RealmVisitorPushMixin}). Operators are never visitors here. On the server a player's role comes from
+ * ({@code mixin/RealmVisitorPushMixin}). Operators in creative or spectator are never visitors here ({@link RealmService#bypassesRoles}). On the server a player's role comes from
  * {@link RealmService#roleIn}; the client only simulates its own player, whose role arrives in {@link RealmHudPayload}
  * ({@link #setClientVisitor}), so its pushes agree with the server's.
  */
@@ -23,7 +23,7 @@ public final class RealmVisitors {
     /** Whether {@code entity} is a player who is a visitor in the realm they stand in. */
     public static boolean isVisitor(Entity entity) {
         if (entity instanceof ServerPlayer player) {
-            return !RealmService.bypasses(player) && RealmService.roleIn(player, player.level()).orElse(null) == RealmRole.VISITOR;
+            return !RealmService.bypassesRoles(player) && RealmService.roleIn(player, player.level()).orElse(null) == RealmRole.VISITOR;
         }
         return clientVisitor && entity instanceof Player player && player.isLocalPlayer();
     }

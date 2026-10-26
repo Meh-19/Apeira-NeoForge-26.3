@@ -100,6 +100,7 @@ public final class Apeira {
         NeoForge.EVENT_BUS.addListener(RealmHudPayload::onLoggedIn);
         NeoForge.EVENT_BUS.addListener(RealmHudPayload::onChangedDimension);
         NeoForge.EVENT_BUS.addListener(RealmHudPayload::onRespawn);
+        NeoForge.EVENT_BUS.addListener(RealmHudPayload::onChangeGameMode);
         NeoForge.EVENT_BUS.addListener(RealmRoleBadges::onTabListNameFormat);
         NeoForge.EVENT_BUS.addListener(RealmRoleBadges::onServerTick);
         NeoForge.EVENT_BUS.addListener(RealmRoleBadges::onLoggedOut);
