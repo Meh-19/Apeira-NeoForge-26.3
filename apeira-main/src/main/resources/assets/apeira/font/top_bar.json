@@ -131,7 +131,7 @@
     },
     {
       "type": "bitmap",
-      "file": "apeira:gui/role/visitor_playerlist.png",
+      "file": "apeira:gui/role/role_visitor.png",
       "ascent": 3,
       "height": 7,
       "chars": [
@@ -140,7 +140,7 @@
     },
     {
       "type": "bitmap",
-      "file": "apeira:gui/role/resident_playerlist.png",
+      "file": "apeira:gui/role/role_resident.png",
       "ascent": 3,
       "height": 7,
       "chars": [
@@ -149,7 +149,7 @@
     },
     {
       "type": "bitmap",
-      "file": "apeira:gui/role/trusted_playerlist.png",
+      "file": "apeira:gui/role/role_trusted.png",
       "ascent": 3,
       "height": 7,
       "chars": [
@@ -158,7 +158,7 @@
     },
     {
       "type": "bitmap",
-      "file": "apeira:gui/role/owner_playerlist.png",
+      "file": "apeira:gui/role/role_owner.png",
       "ascent": 3,
       "height": 7,
       "chars": [
