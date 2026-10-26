@@ -16,6 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.phys.AABB;
 
 /**
  * A realm's starter balloon: a {@link StarterBalloonBlock} and its 3x3 basket floor ({@link StarterBalloonPartBlock}),
@@ -115,6 +117,16 @@ public final class StarterBalloon {
         Block block = BuiltInRegistries.BLOCK.getValue(id);
         BlockState state = (block == Blocks.AIR ? fallback : block).defaultBlockState();
         return state.hasProperty(RotatedPillarBlock.AXIS) ? state.setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y) : state;
+    }
+
+    /**
+     * Whether the balloon may stand with its floor's centre at {@code balloon}: inside the world border and the build
+     * height, and {@link #isClear}. The client's placement cursor and the server ask the same.
+     */
+    public static boolean canPlace(Level level, BlockPos balloon, @Nullable BlockPos current) {
+        return level.getWorldBorder().isWithinBounds(new AABB(balloon).inflate(RADIUS, 0, RADIUS))
+                && level.isInWorldBounds(balloon.above(HEIGHT))
+                && isClear(level, balloon, current);
     }
 
     /**

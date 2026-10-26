@@ -19,7 +19,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.level.portal.TeleportTransition;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -366,7 +365,7 @@ public final class RealmService {
 
     /**
      * Moves the starter balloon, and the realm's spawn with it, so that its floor's centre is {@code balloon}: checked
-     * again here as the client checked it ({@link StarterBalloon#isClear}), within reach and inside the border.
+     * again here as the client checked it ({@link StarterBalloon#canPlace}), within reach and inside the border.
      */
     public static boolean moveSpawn(ServerPlayer owner, BlockPos balloon) {
         RealmAccess access = owned(owner);
@@ -379,9 +378,7 @@ public final class RealmService {
             return false;
         }
         if (!balloon.closerToCenterThan(owner.position(), SPAWN_REACH)
-                || !level.getWorldBorder().isWithinBounds(new AABB(balloon).inflate(StarterBalloon.RADIUS, 0, StarterBalloon.RADIUS))
-                || !level.isInWorldBounds(balloon.above(StarterBalloon.HEIGHT))
-                || !StarterBalloon.isClear(level, balloon, access.balloon.orElse(null))) {
+                || !StarterBalloon.canPlace(level, balloon, access.balloon.orElse(null))) {
             fail(owner, "realm.setspawn.blocked");
             return false;
         }

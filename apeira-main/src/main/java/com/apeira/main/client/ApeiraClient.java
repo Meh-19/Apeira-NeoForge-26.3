@@ -8,6 +8,7 @@ import com.apeira.main.client.entity.TurkeyRenderer;
 import com.apeira.main.client.entity.WraithRenderer;
 import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
 import com.apeira.main.client.realm.OnboardingScreen;
+import com.apeira.main.client.realm.SpawnPlacement;
 import com.apeira.main.client.realm.StarterBalloonRenderer;
 import com.apeira.main.client.ruby.RubyDepositRenderer;
 import com.apeira.main.client.ruby.RubyDepositScreen;
@@ -19,6 +20,7 @@ import com.apeira.main.navigator.OpenProfilePayload;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.main.realm.OpenOnboardingPayload;
 import com.apeira.main.realm.RealmCreatedPayload;
+import com.apeira.main.realm.SpawnPlacementPayload;
 import com.apeira.main.registry.MainEntities;
 import com.apeira.main.registry.MainRealmBlocks;
 import com.apeira.main.registry.MainRubies;
@@ -53,10 +55,16 @@ public final class ApeiraClient {
         modEventBus.addListener(ApeiraClient::registerGuiLayers);
         RubyDepositBlockEntity.ambience = RubyDepositSound::tick;
         NeoForge.EVENT_BUS.addListener(ApeiraClient::openProfile);
+        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onClientTick);
+        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onInteraction);
+        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onScreenOpening);
+        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onLoggingOut);
+        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onSubmitGeometry);
         ApeiraClientNetwork.create()
                 .handle(OpenNavigatorPayload.TYPE, ApeiraNavigatorScreen::onOpen)
                 .handle(OpenOnboardingPayload.TYPE, OnboardingScreen::onOpen)
                 .handle(RealmCreatedPayload.TYPE, OnboardingScreen::onCreated)
+                .handle(SpawnPlacementPayload.TYPE, SpawnPlacement::onStart)
                 .register(modEventBus);
     }
 
@@ -77,6 +85,7 @@ public final class ApeiraClient {
     /** The ruby counter is drawn with the food bar, over its right end. */
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.FOOD_LEVEL, Apeira.REGISTRAR.id("rubies"), RubyHud::render);
+        event.registerAbove(VanillaGuiLayers.CROSSHAIR, Apeira.REGISTRAR.id("spawn_placement"), SpawnPlacement::renderHud);
     }
 
     private static void registerKeys(RegisterKeyMappingsEvent event) {
