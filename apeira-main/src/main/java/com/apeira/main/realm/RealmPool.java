@@ -194,8 +194,8 @@ public final class RealmPool {
 
     /**
      * The teleport to a realm's spawn, whatever way the player looked before. A spawn on the starter balloon puts the
-     * player on its basket floor's front cell, the one its front faces out of ({@link StarterBalloonBlock#FACING}),
-     * looking out along that front; any other spawn is its block, looking along the realm's spawn facing.
+     * player in the middle of its basket, over the balloon block, looking out of its front
+     * ({@link StarterBalloonBlock#FACING}); any other spawn is its block, looking along the realm's spawn facing.
      */
     static TeleportTransition arrival(ServerLevel level, BlockPos spawn, RealmAccess access) {
         Direction facing = access.spawnFacing;
@@ -206,7 +206,8 @@ public final class RealmPool {
             if (state.hasProperty(StarterBalloonBlock.FACING)) {
                 facing = state.getValue(StarterBalloonBlock.FACING);
             }
-            at = balloon.relative(facing).above();
+            // The basket's centre: one block back from its front cell along the way the player looks.
+            at = balloon.above();
         }
         return new TeleportTransition(level, Vec3.atBottomCenterOf(at), Vec3.ZERO, facing.toYRot(), 0.0F,
                 TeleportTransition.DO_NOTHING);

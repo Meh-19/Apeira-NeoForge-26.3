@@ -31,9 +31,10 @@ import net.minecraft.world.phys.AABB;
  * A realm's starter balloon: a {@link StarterBalloonBlock} and its 3x3 basket floor, eight vanilla barriers around it,
  * on which the realm's players arrive ({@link #isFootprint}; no player can break or change them, {@code RealmProtection}).
  * Standing on it opens the navigator ({@code navigator/BalloonNavigatorTrigger}). When a realm is first visited,
- * {@link #build} places the {@code apeira:starter_balloon_<wood>_platform} structure at its origin (Ren's, in the region's wood: oak, acacia,
- * spruce for the cold and arctic regions, or jungle, {@link #wood}) with beam legs down to the ground, and the balloon in
- * it; the platform is ordinary blocks and can be broken. {@code /realm setspawn} moves the balloon ({@link #move}), and
+ * {@link #build} places the {@code apeira:starter_balloon_<wood>_platform} structure on the flat ground nearest its
+ * origin (Ren's, in the region's wood: oak, acacia, spruce for the cold and arctic regions, or jungle, {@link #wood})
+ * with beam legs down to the ground, and the balloon in it; the platform is ordinary blocks and can be broken.
+ * {@code /realm setspawn} moves the balloon ({@link #move}), and
  * the realm settings paint it ({@link #paint}).
  *
  * <p>The area the balloon takes is 3x3 blocks and 2 high above a solid floor ({@link #isClear}): its basket, and room to
@@ -70,18 +71,16 @@ public final class StarterBalloon {
     }
 
     /**
-     * Builds the platform and the balloon at the realm's origin. Ren's platforms are 5x5 and 3 high: a beam-framed base,
-     * the floor with steps up on its north side, and a fence ring around a 3x3 opening, where the balloon's basket
-     * stands. The base replaces the top block at 0, 0, the space over the platform is cleared first, and beams reach
-     * down from the base's corners to the ground. The balloon is turned so its front (north as Ren built it) faces
-     * {@code facing}, the way the arriving player looks, and the platform half a turn further, so its steps (north as
-     * Ren built it) are behind the balloon. Returns the balloon's position, its floor's
-     * centre.
+     * Builds the platform and the balloon on the flat ground nearest the realm's origin ({@link #flatSpot}). Ren's
+     * platforms are 5x5 and 3 high: a beam-framed base, the floor with steps up on its north side, and a fence ring
+     * around a 3x3 opening, where the balloon's basket stands. The base replaces that spot's top block, the space over
+     * the platform is cleared first, and beams reach down from the base's corners to the ground. The balloon is turned
+     * so its front (north as Ren built it) faces {@code facing}, the way the arriving player looks, and the platform half
+     * a turn further, so its steps (north as Ren built it) are behind the balloon. Returns the balloon's position, its
+     * floor's centre.
      */
     public static BlockPos build(ServerLevel level, RealmPreset preset, Direction facing) {
-        level.getChunk(0, 0);
-        int top = Math.max(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, 0, 0), level.getSeaLevel() + 1);
-        BlockPos base = new BlockPos(0, top - 1, 0);
+        BlockPos base = flatSpot(level);
         String wood = wood(preset);
         for (BlockPos pos : BlockPos.betweenClosed(base.offset(-PLATFORM_RADIUS, 1, -PLATFORM_RADIUS),
                 base.offset(PLATFORM_RADIUS, CLEAR_HEIGHT, PLATFORM_RADIUS))) {
@@ -118,6 +117,62 @@ public final class StarterBalloon {
         BlockPos balloon = base.above(PLATFORM_HEIGHT - 1);
         placeBlocks(level, balloon, facing);
         return balloon;
+    }
+
+    /** How far from the origin, in blocks along each axis, a flat spot for the platform is looked for. */
+    private static final int SEARCH_RADIUS = 48;
+
+    /**
+     * The top block of the column the platform is centred on: the nearest column to 0, 0 (within
+     * {@link #SEARCH_RADIUS}) whose 5x5 platform area is flat (every column's top block, leaves ignored, at the same
+     * height), dry and above sea level, so the player and the platform stand on level ground. Without one, the top
+     * block at 0, 0 (raised to sea level), as before.
+     */
+    static BlockPos flatSpot(ServerLevel level) {
+        int size = 2 * (SEARCH_RADIUS + PLATFORM_RADIUS) + 1;
+        int offset = SEARCH_RADIUS + PLATFORM_RADIUS;
+        // Each column's top: the surface block's y, or Integer.MIN_VALUE when it is a fluid or under sea level.
+        int[] tops = new int[size * size];
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        for (int x = 0; x < size; x++) {
+            for (int z = 0; z < size; z++) {
+                int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x - offset, z - offset) - 1;
+                pos.set(x - offset, y, z - offset);
+                boolean dry = level.getFluidState(pos).isEmpty() && level.getFluidState(pos.move(0, 1, 0)).isEmpty();
+                tops[x * size + z] = dry && y >= level.getSeaLevel() ? y : Integer.MIN_VALUE;
+            }
+        }
+        BlockPos best = null;
+        int bestDistance = Integer.MAX_VALUE;
+        for (int cx = -SEARCH_RADIUS; cx <= SEARCH_RADIUS; cx++) {
+            for (int cz = -SEARCH_RADIUS; cz <= SEARCH_RADIUS; cz++) {
+                int distance = cx * cx + cz * cz;
+                if (distance >= bestDistance) {
+                    continue;
+                }
+                int y = tops[(cx + offset) * size + cz + offset];
+                if (y != Integer.MIN_VALUE && isFlat(tops, size, cx + offset, cz + offset, y)) {
+                    best = new BlockPos(cx, y, cz);
+                    bestDistance = distance;
+                }
+            }
+        }
+        if (best != null) {
+            return best;
+        }
+        int top = Math.max(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, 0, 0), level.getSeaLevel() + 1);
+        return new BlockPos(0, top - 1, 0);
+    }
+
+    private static boolean isFlat(int[] tops, int size, int x, int z, int y) {
+        for (int dx = -PLATFORM_RADIUS; dx <= PLATFORM_RADIUS; dx++) {
+            for (int dz = -PLATFORM_RADIUS; dz <= PLATFORM_RADIUS; dz++) {
+                if (tops[(x + dx) * size + z + dz] != y) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /** The turn that takes the platform's north front to {@code facing}. */

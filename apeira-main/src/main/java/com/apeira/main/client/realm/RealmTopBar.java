@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.realm.RealmHudPayload;
-import com.apeira.main.realm.RealmRole;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -24,8 +23,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * Origin Realms' top bar, shown while the player is in a realm: pills along the top of the screen, as the server draws
  * them in its first boss bar's name (Ren's HUD capture). The left pill is the waypoint icon and where the player is
  * ("Air Balloon Platform" while they stand on the 5x5 platform round the starter balloon, only while the realm has
- * one, else the realm's name followed, in the same pill and the same small text, by the player's role there in its
- * colour: "Ren's Realm Owner"), then the clock icon and the time of day ("12:53 PM").
+ * one, else the realm's name followed, in the same pill, by the player's role there as Origin Realms' role glyph:
+ * the server's {@code default.json} and {@code boss_bar_1} glyphs ꑓ visitor, ꑘ resident, ꑕ trusted and ꑖ owner,
+ * {@link #ROLE_GLYPHS}, drawn from Ren's {@code textures/gui/role/<role>_playerlist.png} at ascent 3), then the clock
+ * icon and the time of day ("12:53 PM").
  *
  * <p>It is the server's own text, rebuilt glyph for glyph in the {@code apeira:top_bar} font (Origin Realms'
  * {@code boss_bar_1}: the ASCII sheet at ascent 3, {@code textures/gui/top_bar/} background pieces at ascent 6 and icons
@@ -50,11 +51,8 @@ public final class RealmTopBar {
     /** Feet from a block under the platform's floor to the top of the balloon's basket count as on it. */
     private static final int PLATFORM_BELOW = 1;
     private static final int PLATFORM_ABOVE = 3;
-    /**
-     * The role names' colours, in {@link RealmRole}'s order: the colours of Ren's role badges, lightened as Origin
-     * Realms' lore colours are, so they read on the pill.
-     */
-    private static final int[] ROLE_COLORS = {0xA7AEBA, 0x85CC16, 0x47B0D7, 0xF17F61};
+    /** Origin Realms' role glyphs in {@link com.apeira.main.realm.RealmRole}'s order: visitor, resident, trusted, owner. */
+    private static final char[] ROLE_GLYPHS = {'\uA453', '\uA458', '\uA455', '\uA456'};
 
     private static Optional<String> owner = Optional.empty();
     private static Optional<BlockPos> balloon = Optional.empty();
@@ -85,11 +83,9 @@ public final class RealmTopBar {
         String place = platform ? Component.translatable("hud.apeira.top_bar.balloon_platform").getString()
                 : Component.translatable("hud.apeira.top_bar.realm", owner.get()).getString();
         MutableComponent content = Component.literal(WAYPOINT + " " + place).withStyle(FONT);
-        RealmRole[] roles = RealmRole.values();
-        if (!platform && role >= 0 && role < roles.length) {
-            // Inline after the realm's name, in the same small text.
-            String name = Component.translatable("navigator.apeira.role." + roles[role].getSerializedName()).getString();
-            content.append(Component.literal(" " + name).withStyle(FONT.withColor(ROLE_COLORS[role])));
+        if (!platform && role >= 0 && role < ROLE_GLYPHS.length) {
+            // Inline after the realm's name.
+            content.append(Component.literal(" " + ROLE_GLYPHS[role]).withStyle(FONT));
         }
         MutableComponent bar = Component.empty();
         pill(font, bar, content, false);
