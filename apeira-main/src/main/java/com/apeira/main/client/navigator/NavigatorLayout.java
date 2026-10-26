@@ -457,7 +457,9 @@ final class NavigatorLayout {
             buttons.add(button(slots(37), "realm_access_toggle.info", null));
             buttons.add(new Button(slots(38, 39), options("realm_access_toggle", view.setting(NavigatorView.ALWAYS_ACCESSIBLE) ? 0 : 1,
                     "always", "online"), NavigatorActionPayload.of(Action.TOGGLE_ACCESS)));
-            buttons.add(button(slots(45), "set_spawn", NavigatorActionPayload.of(Action.SET_SPAWN)));
+            // Ren's capture: left-click moves the balloon (and the spawn with it), right-click sets the spawn alone.
+            buttons.add(new Button(slots(45), List.of(name("set_spawn"), NavigatorService.action(0, "set_spawn_balloon", NavigatorService.ACTION),
+                    NavigatorService.action(1, "set_spawn_here", NavigatorService.ACTION_SECONDARY)), NavigatorActionPayload.of(Action.SET_SPAWN)));
             switch (page) {
                 case REALM_RESET -> {
                     boolean overworld = view.has(NavigatorView.CAN_RESET_OVERWORLD);

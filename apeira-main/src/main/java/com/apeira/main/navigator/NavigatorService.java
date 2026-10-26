@@ -64,6 +64,8 @@ public final class NavigatorService {
     public static final int LABEL = 0xA7AEBA;
     public static final int VALUE = 0xFFFFFF;
     public static final int ACTION = 0x85CC16;
+    /** The blue of a right-click action line, as in Ren's capture of Change Realm spawnpoint. */
+    public static final int ACTION_SECONDARY = 0x0097D8;
     /** How long a player does nothing (no movement, chat or clicks) before their profile shows them AFK. */
     public static final long AFK_MS = 5 * 60_000;
     /** The mouse-button glyphs in front of an action line (left, right, middle click). */
@@ -253,8 +255,10 @@ public final class NavigatorService {
                 }
             }
             case SET_SPAWN -> {
-                // The placement cursor needs the world, so the menu closes.
-                if (page.isSettings() && RealmService.setSpawn(player)) {
+                if (page.isSettings() && payload.secondary()) {
+                    RealmService.setSpawnHere(player);
+                } else if (page.isSettings() && RealmService.setSpawn(player)) {
+                    // The placement cursor needs the world, so the menu closes.
                     close(player);
                     return;
                 }
@@ -881,6 +885,14 @@ public final class NavigatorService {
     }
 
     /** A green action line behind a mouse glyph: 0 left click, 1 right click. */
+    /** An action line drawn wholly in {@code color}, its mouse glyph included, as the Change Realm spawnpoint lines are. */
+    public static Component action(int button, String key, int color) {
+        return Component.empty().withStyle(Style.EMPTY.withItalic(false))
+                .append(Component.literal(Character.toString(0xE100 + button)).withStyle(Style.EMPTY.withFont(KEYS).withColor(color)))
+                .append(" ")
+                .append(Component.translatable("navigator.apeira.action." + key).withStyle(Style.EMPTY.withColor(color)));
+    }
+
     public static Component action(int button, String key) {
         return Component.empty().withStyle(Style.EMPTY.withItalic(false))
                 .append(Component.literal(Character.toString(0xE100 + button)).withStyle(Style.EMPTY.withFont(KEYS).withColor(VALUE)))

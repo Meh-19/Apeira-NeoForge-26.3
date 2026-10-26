@@ -360,6 +360,25 @@ public final class RealmService {
         return true;
     }
 
+    /**
+     * Sets the realm's spawn where the owner stands, leaving the starter balloon where it is: the settings' Set Spawn
+     * right-click ("set without balloon") and {@code /realm setspawn here}.
+     */
+    public static boolean setSpawnHere(ServerPlayer owner) {
+        RealmAccess access = owned(owner);
+        if (access == null) {
+            return false;
+        }
+        if (!ownerOf(owner.level()).equals(Optional.of(owner.getUUID()))) {
+            fail(owner, "realm.not_in_realm");
+            return false;
+        }
+        access.spawn = Optional.of(owner.blockPosition());
+        data(owner.level().getServer()).setDirty();
+        done(owner, "realm.spawn_set_here");
+        return true;
+    }
+
     /** The farthest from the owner a placement may be: the client's cursor reach, and a little more. */
     private static final double SPAWN_REACH = SpawnPlacementPayload.REACH + 8.0;
 

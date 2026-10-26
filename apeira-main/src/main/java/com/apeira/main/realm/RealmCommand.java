@@ -42,7 +42,8 @@ public final class RealmCommand {
                 }))
                 .then(Commands.literal("home").executes(RealmCommand::home))
                 .then(Commands.literal("spawn").executes(RealmCommand::home))
-                .then(Commands.literal("setspawn").executes(context -> result(RealmService.setSpawn(context.getSource().getPlayerOrException()))))
+                .then(Commands.literal("setspawn").executes(context -> result(RealmService.setSpawn(context.getSource().getPlayerOrException())))
+                        .then(Commands.literal("here").executes(context -> result(RealmService.setSpawnHere(context.getSource().getPlayerOrException())))))
                 .then(Commands.literal("balloon").then(Commands.argument("colour", StringArgumentType.word())
                         .suggests((context, builder) -> SharedSuggestionProvider.suggest(BalloonColors.names(), builder))
                         .executes(context -> {
