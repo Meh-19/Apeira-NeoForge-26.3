@@ -26,11 +26,18 @@ public final class Rubies {
         return player.getData(MainRubies.RUBIES);
     }
 
-    /** Sets {@code player}'s balance to {@code rubies}, clamped to 0 and {@link #MAX}. */
+    /**
+     * Sets {@code player}'s balance to {@code rubies}, clamped to 0 and {@link #MAX}, and tells their HUD's ruby ticker
+     * how much it changed ({@link RubyChangePayload}).
+     */
     public static void set(ServerPlayer player, long rubies) {
+        long previous = get(player);
         long clamped = Math.clamp(rubies, 0L, MAX);
         player.setData(MainRubies.RUBIES, clamped);
         RealmData.get(player.level().getServer()).rubiesChanged(player.getUUID(), clamped);
+        if (clamped != previous) {
+            RubyChangePayload.send(player, clamped - previous, clamped);
+        }
     }
 
     /** Adds {@code rubies} (at least 1) to {@code player}'s balance and plays the ruby gain sound to them alone. */

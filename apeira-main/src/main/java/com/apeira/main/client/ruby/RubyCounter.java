@@ -33,6 +33,16 @@ public final class RubyCounter {
         return Component.literal(GAP + ICON).withStyle(HUD);
     }
 
+    /**
+     * The ruby ticker's banner ({@link RubyTickerAnimation}): a green "+" or red "-" in the default font, then the ruby
+     * icon and the amount in the HUD font ("+ [ruby] 250").
+     */
+    public static Component hudBanner(int sign, long rubies) {
+        Component mark = Component.literal(sign < 0 ? "-" : "+").withColor(sign < 0 ? 0xF17F61 : 0x85CC16);
+        return Component.empty().append(mark).append(Component.literal(GAP + ICON + GAP + GAP + GAP).withStyle(HUD))
+                .append(hudDigits(rubies));
+    }
+
     /** The deposit menu's balance ("30,400"). */
     public static Component menu(long rubies) {
         return Component.literal(Rubies.format(rubies)).withStyle(MENU);

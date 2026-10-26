@@ -7,6 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Util;
 
 /**
  * The HUD's ruby counter, where Origin Realms draws it in the action bar: the balance and the ruby icon over the right
@@ -14,7 +16,8 @@ import net.minecraft.network.chat.Component;
  * the digits ending before it, 49 pixels above the bottom (the icon one higher), in the font textures' own colours (drawn
  * white, so nothing tints them) with the text shadow. In creative, where the hearts, food and experience bars are not
  * drawn, it moves down to sit as far above the hotbar as it sits above the food row otherwise (32 pixels above the
- * bottom). Not shown in spectator or while the HUD is hidden (F1).
+ * bottom). Not shown in spectator or while the HUD is hidden (F1). With the ruby ticker on ({@link RubyTickerAnimation}),
+ * the counter shows the ticker's balance and its +/- banner floats over it.
  */
 public final class RubyHud {
     private static final int ICON_X = 79;
@@ -24,6 +27,10 @@ public final class RubyHud {
     /** White leaves the glyphs' own colours as they are. */
     private static final int COLOR = 0xFFFFFFFF;
 
+    private static final int BANNER_RISE = 9;
+    private static final int BANNER_FLOAT = 3;
+    private static final float BANNER_ALPHA = 0.85F;
+
     private RubyHud() {}
 
     public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
@@ -32,11 +39,35 @@ public final class RubyHud {
             return;
         }
         Font font = minecraft.font;
-        Component digits = RubyCounter.hudDigits(Rubies.get(minecraft.player));
+        long now = Util.getMillis();
+        long balance = Rubies.get(minecraft.player);
+        if (RubyTickerAnimation.enabled()) {
+            RubyTickerAnimation.update(now);
+            balance = RubyTickerAnimation.displayed(balance);
+        }
+        Component digits = RubyCounter.hudDigits(balance);
         int iconX = graphics.guiWidth() / 2 + ICON_X;
         int y = graphics.guiHeight() - (minecraft.player.isCreative() ? CREATIVE_BOTTOM : BOTTOM);
         Component counter = Component.empty().append(digits).append(RubyCounter.hudIcon());
         // The gap glyph after the digits is 1 wide, so the icon starts one pixel after the digits end.
         graphics.text(font, counter, iconX - font.width(digits) - 1, y, COLOR, true);
+        if (RubyTickerAnimation.enabled() && RubyTickerAnimation.active()) {
+            banner(graphics, font, iconX + font.width(RubyCounter.hudIcon()), y, now);
+        }
+    }
+
+    /**
+     * The ruby ticker's banner, right-aligned with the counter's icon and {@link #BANNER_RISE} pixels over it, floating up
+     * {@link #BANNER_FLOAT} more as it fades in and semi-transparent ({@link #BANNER_ALPHA}).
+     */
+    private static void banner(GuiGraphicsExtractor graphics, Font font, int right, int counterY, long now) {
+        float alpha = RubyTickerAnimation.alpha(now);
+        int argb = ARGB.color(Math.round(alpha * BANNER_ALPHA * 255), 0xFFFFFF);
+        if (ARGB.alpha(argb) < 5) {
+            return;
+        }
+        Component banner = RubyCounter.hudBanner(RubyTickerAnimation.sign(), RubyTickerAnimation.bannerAmount());
+        int y = counterY - BANNER_RISE - Math.round(alpha * BANNER_FLOAT);
+        graphics.text(font, banner, right - font.width(banner), y, argb, true);
     }
 }
