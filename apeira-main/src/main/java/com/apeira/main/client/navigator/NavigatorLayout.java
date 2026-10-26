@@ -471,7 +471,7 @@ final class NavigatorLayout {
                         NavigatorActionPayload.of(Action.RESET_CONFIRM)));
                 default -> buttons.add(button(slots(46, 47, 48), "reset", new NavigatorActionPayload(Action.RESET_DIMENSION, 0)));
             }
-            buttons.add(unavailable(slots(51, 52, 53), "balloon_color"));
+            buttons.add(button(slots(51, 52, 53), "balloon_color", NavigatorActionPayload.of(Action.BALLOON_COLOR)));
             return;
         }
 

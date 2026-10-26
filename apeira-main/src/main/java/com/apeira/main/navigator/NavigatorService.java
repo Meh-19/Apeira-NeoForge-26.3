@@ -253,8 +253,15 @@ public final class NavigatorService {
                 }
             }
             case SET_SPAWN -> {
+                // The placement cursor needs the world, so the menu closes.
+                if (page.isSettings() && RealmService.setSpawn(player)) {
+                    close(player);
+                    return;
+                }
+            }
+            case BALLOON_COLOR -> {
                 if (page.isSettings()) {
-                    RealmService.setSpawn(player);
+                    RealmService.cycleBalloonPaint(player, payload.secondary() ? -1 : 1);
                 }
             }
             case RESET_DIMENSION -> resetDimension(player, session, argument);

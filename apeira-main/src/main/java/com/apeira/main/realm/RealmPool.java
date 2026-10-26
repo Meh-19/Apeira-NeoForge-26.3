@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -15,6 +16,7 @@ import org.jspecify.annotations.Nullable;
 import com.apeira.core.network.ApeiraPackets;
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.Apeira;
+import com.apeira.main.realm.balloon.StarterBalloon;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -162,8 +164,22 @@ public final class RealmPool {
         return true;
     }
 
-    /** Where players arrive in {@code realm}: the spawn its owner set, else the top block at 0, 0. */
+    /**
+     * Where players arrive in {@code realm}: the spawn its owner set (the starter balloon's floor), else the top block at
+     * 0, 0. The first arrival builds the starter platform and balloon at the origin ({@link StarterBalloon#build}), which
+     * becomes the spawn unless the owner had already set one.
+     */
     static BlockPos spawnOf(ServerLevel level, RealmData.Realm realm, RealmAccess access) {
+        if (!access.starterBuilt) {
+            access.starterBuilt = true;
+            BlockPos balloon = StarterBalloon.build(level, realm.preset());
+            access.balloon = Optional.of(balloon);
+            if (access.spawn.isEmpty()) {
+                access.spawn = Optional.of(balloon.above());
+            }
+            access.balloonPaint.ifPresent(paint -> StarterBalloon.paint(level, balloon, paint));
+            RealmData.get(level.getServer()).setDirty();
+        }
         return access.spawn().orElseGet(() -> realm.generated() ? realm.spawn() : surface(level));
     }
 

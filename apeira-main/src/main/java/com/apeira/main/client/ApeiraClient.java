@@ -8,6 +8,7 @@ import com.apeira.main.client.entity.TurkeyRenderer;
 import com.apeira.main.client.entity.WraithRenderer;
 import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
 import com.apeira.main.client.realm.OnboardingScreen;
+import com.apeira.main.client.realm.StarterBalloonRenderer;
 import com.apeira.main.client.ruby.RubyDepositRenderer;
 import com.apeira.main.client.ruby.RubyDepositScreen;
 import com.apeira.main.client.ruby.RubyDepositSound;
@@ -19,6 +20,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.main.realm.OpenOnboardingPayload;
 import com.apeira.main.realm.RealmCreatedPayload;
 import com.apeira.main.registry.MainEntities;
+import com.apeira.main.registry.MainRealmBlocks;
 import com.apeira.main.registry.MainRubies;
 import com.apeira.main.ruby.RubyDepositBlockEntity;
 
@@ -61,6 +63,7 @@ public final class ApeiraClient {
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(MainBlockEntities.ECHO_GLASS.get(), EchoGlassRenderer::new);
         event.registerBlockEntityRenderer(MainRubies.RUBY_DEPOSIT_ENTITY.get(), RubyDepositRenderer::new);
+        event.registerBlockEntityRenderer(MainRealmBlocks.STARTER_BALLOON_ENTITY.get(), StarterBalloonRenderer::new);
         event.registerEntityRenderer(MainEntities.TURKEY.get(), TurkeyRenderer::new);
         event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
         event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);

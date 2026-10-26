@@ -1,0 +1,19 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"RealmBalloonFloating": {
+			"loop": true,
+			"animation_length": 7.25,
+			"bones": {
+				"group": {
+					"rotation": {
+						"vector": [0, 0, 0]
+					},
+					"position": {
+						"vector": [0, "0.6426 - 0.666 * math.cos(math.clamp(math.mod(query.anim_time, 7.25) * 49.66, 0, 360))", 0]
+					}
+				}
+			}
+		}
+	}
+}
