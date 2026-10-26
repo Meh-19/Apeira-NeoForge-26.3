@@ -546,9 +546,14 @@ public final class ApeiraNavigatorScreen extends Screen {
             }
             stopRenaming();
         }
+        // The physical left and right buttons (SDL's ids in 26.x: left 1, right 3), not the attack and use bindings.
+        int mouseButton = event.button();
+        if (mouseButton != InputConstants.MOUSE_BUTTON_LEFT && mouseButton != InputConstants.MOUSE_BUTTON_RIGHT) {
+            return super.mouseClicked(event, doubleClick);
+        }
         int hover = hoverAt(event.x(), event.y());
         NavigatorActionPayload action = null;
-        boolean secondary = event.button() == 1;
+        boolean secondary = mouseButton == InputConstants.MOUSE_BUTTON_RIGHT;
         if (hover >= 0) {
             NavigatorLayout.Button button = layout.buttons().get(hover);
             action = button.action() == null ? null : button.action().withSecondary(secondary);

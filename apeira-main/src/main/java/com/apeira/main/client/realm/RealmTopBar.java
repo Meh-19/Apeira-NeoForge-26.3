@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.realm.RealmHudPayload;
+import com.apeira.main.realm.RealmRole;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -23,9 +24,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * Origin Realms' top bar, shown while the player is in a realm: pills along the top of the screen, as the server draws
  * them in its first boss bar's name (Ren's HUD capture). The left pill is the waypoint icon and where the player is
  * ("Air Balloon Platform" while they stand on the 5x5 platform round the starter balloon, only while the realm has
- * one, else the realm's name), then the player's role tag there (Ren's {@code textures/gui/top_bar/role_<role>.png},
- * glyphs B010-B013 in {@link com.apeira.main.realm.RealmRole}'s order), then the clock icon and the time of day
- * ("12:53 PM").
+ * one, else the realm's name followed, in the same pill and the same small text, by the player's role there in its
+ * colour: "Ren's Realm Owner"), then the clock icon and the time of day ("12:53 PM").
  *
  * <p>It is the server's own text, rebuilt glyph for glyph in the {@code apeira:top_bar} font (Origin Realms'
  * {@code boss_bar_1}: the ASCII sheet at ascent 3, {@code textures/gui/top_bar/} background pieces at ascent 6 and icons
@@ -50,10 +50,11 @@ public final class RealmTopBar {
     /** Feet from a block under the platform's floor to the top of the balloon's basket count as on it. */
     private static final int PLATFORM_BELOW = 1;
     private static final int PLATFORM_ABOVE = 3;
-    private static final char ROLE_TAG = '\uB010';
-    /** A -1 space, taking back the pixel a bitmap glyph's advance adds, and the 2 pixels between pills. */
-    private static final char BACK_ONE = '\uF801';
-    private static final char GAP = '\uF822';
+    /**
+     * The role names' colours, in {@link RealmRole}'s order: the colours of Ren's role badges, lightened as Origin
+     * Realms' lore colours are, so they read on the pill.
+     */
+    private static final int[] ROLE_COLORS = {0xA7AEBA, 0x85CC16, 0x47B0D7, 0xF17F61};
 
     private static Optional<String> owner = Optional.empty();
     private static Optional<BlockPos> balloon = Optional.empty();
@@ -80,15 +81,19 @@ public final class RealmTopBar {
             return;
         }
         Font font = minecraft.font;
-        String place = onPlatform(player) ? Component.translatable("hud.apeira.top_bar.balloon_platform").getString()
+        boolean platform = onPlatform(player);
+        String place = platform ? Component.translatable("hud.apeira.top_bar.balloon_platform").getString()
                 : Component.translatable("hud.apeira.top_bar.realm", owner.get()).getString();
-        MutableComponent bar = Component.empty();
-        pill(font, bar, WAYPOINT, place, false);
-        if (role >= 0) {
-            // A tag of its own, as wide as its badge, then the gap between pills.
-            bar.append(Component.literal(Character.toString(ROLE_TAG + role) + BACK_ONE + GAP).withStyle(FONT));
+        MutableComponent content = Component.literal(WAYPOINT + " " + place).withStyle(FONT);
+        RealmRole[] roles = RealmRole.values();
+        if (!platform && role >= 0 && role < roles.length) {
+            // Inline after the realm's name, in the same small text.
+            String name = Component.translatable("navigator.apeira.role." + roles[role].getSerializedName()).getString();
+            content.append(Component.literal(" " + name).withStyle(FONT.withColor(ROLE_COLORS[role])));
         }
-        pill(font, bar, CLOCK, time(minecraft.level.getOverworldClockTime()), true);
+        MutableComponent bar = Component.empty();
+        pill(font, bar, content, false);
+        pill(font, bar, Component.literal(CLOCK + " " + time(minecraft.level.getOverworldClockTime())).withStyle(FONT), true);
         graphics.text(font, bar, graphics.guiWidth() / 2 - font.width(bar) / 2, Y, COLOR, true);
     }
 
@@ -98,10 +103,9 @@ public final class RealmTopBar {
                 && at.getY() >= pos.getY() - PLATFORM_BELOW && at.getY() <= pos.getY() + PLATFORM_ABOVE).isPresent();
     }
 
-    /** Appends one pill: its background, then the icon and text drawn back over it. */
-    private static void pill(Font font, MutableComponent bar, char icon, String text, boolean last) {
-        String content = icon + " " + text;
-        int width = font.width(Component.literal(content).withStyle(FONT)) + 6;
+    /** Appends one pill: its background, then {@code content} (its icon and text, in the top bar font) drawn back over it. */
+    private static void pill(Font font, MutableComponent bar, Component content, boolean last) {
+        int width = font.width(content) + 6;
         StringBuilder glyphs = new StringBuilder().append(END).append('');
         int left = width;
         for (int bit = 6; bit >= 0; bit--) {
@@ -120,8 +124,8 @@ public final class RealmTopBar {
                 back -= BACK[i];
             }
         }
-        glyphs.append(content).append(last ? "" : "");
-        bar.append(Component.literal(glyphs.toString()).withStyle(FONT));
+        bar.append(Component.literal(glyphs.toString()).withStyle(FONT)).append(content)
+                .append(Component.literal(last ? "" : "").withStyle(FONT));
     }
 
     /** The time of day as Origin Realms writes it, "12:53 PM": day time 0 is 6 AM. */

@@ -73,8 +73,9 @@ public final class StarterBalloon {
      * Builds the platform and the balloon at the realm's origin. Ren's platforms are 5x5 and 3 high: a beam-framed base,
      * the floor with steps up on its north side, and a fence ring around a 3x3 opening, where the balloon's basket
      * stands. The base replaces the top block at 0, 0, the space over the platform is cleared first, and beams reach
-     * down from the base's corners to the ground. The platform and the balloon are turned so their front (north as Ren
-     * built them) faces {@code facing}, the way the arriving player looks. Returns the balloon's position, its floor's
+     * down from the base's corners to the ground. The balloon is turned so its front (north as Ren built it) faces
+     * {@code facing}, the way the arriving player looks, and the platform half a turn further, so its steps (north as
+     * Ren built it) are behind the balloon. Returns the balloon's position, its floor's
      * centre.
      */
     public static BlockPos build(ServerLevel level, RealmPreset preset, Direction facing) {
@@ -92,7 +93,7 @@ public final class StarterBalloon {
         Optional<StructureTemplate> template = level.getStructureTemplateManager().get(platform(wood));
         if (template.isPresent()) {
             // Turned about the platform's centre column, so it stays on the same 5x5.
-            StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rotation(facing))
+            StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rotation(facing.getOpposite()))
                     .setRotationPivot(new BlockPos(PLATFORM_RADIUS, 0, PLATFORM_RADIUS));
             template.get().placeInWorld(level, corner, corner, settings, RandomSource.create(), Block.UPDATE_CLIENTS);
         } else {

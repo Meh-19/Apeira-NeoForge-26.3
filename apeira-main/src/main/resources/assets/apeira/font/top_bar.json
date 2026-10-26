@@ -128,42 +128,6 @@
       "chars": [
         "\ub002"
       ]
-    },
-    {
-      "type": "bitmap",
-      "file": "apeira:gui/top_bar/role_visitor.png",
-      "ascent": 6,
-      "height": 14,
-      "chars": [
-        "\ub010"
-      ]
-    },
-    {
-      "type": "bitmap",
-      "file": "apeira:gui/top_bar/role_resident.png",
-      "ascent": 6,
-      "height": 14,
-      "chars": [
-        "\ub011"
-      ]
-    },
-    {
-      "type": "bitmap",
-      "file": "apeira:gui/top_bar/role_trusted.png",
-      "ascent": 6,
-      "height": 14,
-      "chars": [
-        "\ub012"
-      ]
-    },
-    {
-      "type": "bitmap",
-      "file": "apeira:gui/top_bar/role_owner.png",
-      "ascent": 6,
-      "height": 14,
-      "chars": [
-        "\ub013"
-      ]
     }
   ]
 }

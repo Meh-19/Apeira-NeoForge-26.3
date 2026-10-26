@@ -59,6 +59,7 @@ public final class ApeiraClient {
         NeoForge.EVENT_BUS.addListener(ApeiraClient::openProfile);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onClientTick);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onInteraction);
+        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onMouseButton);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onScreenOpening);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onLoggingOut);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onSubmitGeometry);

@@ -16,7 +16,9 @@ import org.jspecify.annotations.Nullable;
 import com.apeira.core.network.ApeiraPackets;
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.Apeira;
+import com.apeira.main.realm.balloon.BalloonColors;
 import com.apeira.main.realm.balloon.StarterBalloon;
+import com.apeira.main.realm.balloon.StarterBalloonBlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,6 +29,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
@@ -167,8 +170,9 @@ public final class RealmPool {
     /**
      * Where players arrive in {@code realm}: the spawn its owner set (the starter balloon's floor), else the top block at
      * 0, 0. The first arrival builds the starter platform and balloon at the origin ({@link StarterBalloon#build}), which
-     * becomes the spawn unless the owner had already set one; it faces {@code facing}, the arriving player's way, which
-     * becomes the realm's spawn facing.
+     * becomes the spawn unless the owner had already set one; the balloon faces {@code facing}, the arriving player's
+     * way, which becomes the realm's spawn facing, and is painted its region's colour unless the owner picked one
+     * ({@link BalloonColors#forPreset}).
      */
     static BlockPos spawnOf(ServerLevel level, RealmData.Realm realm, RealmAccess access, Direction facing) {
         if (!access.starterBuilt) {
@@ -179,6 +183,9 @@ public final class RealmPool {
             if (access.spawn.isEmpty()) {
                 access.spawn = Optional.of(balloon.above());
             }
+            if (access.balloonPaint.isEmpty()) {
+                access.balloonPaint = Optional.of(BalloonColors.forPreset(realm.preset()));
+            }
             access.balloonPaint.ifPresent(paint -> StarterBalloon.paint(level, balloon, paint));
             RealmData.get(level.getServer()).setDirty();
         }
@@ -186,11 +193,22 @@ public final class RealmPool {
     }
 
     /**
-     * The teleport to a realm's spawn: on its block, looking straight ahead along the realm's spawn facing, whatever way
-     * the player looked before.
+     * The teleport to a realm's spawn, whatever way the player looked before. A spawn on the starter balloon puts the
+     * player on its basket floor's front cell, the one its front faces out of ({@link StarterBalloonBlock#FACING}),
+     * looking out along that front; any other spawn is its block, looking along the realm's spawn facing.
      */
     static TeleportTransition arrival(ServerLevel level, BlockPos spawn, RealmAccess access) {
-        return new TeleportTransition(level, Vec3.atBottomCenterOf(spawn), Vec3.ZERO, access.spawnFacing.toYRot(), 0.0F,
+        Direction facing = access.spawnFacing;
+        BlockPos at = spawn;
+        BlockPos balloon = access.balloon.orElse(null);
+        if (balloon != null && StarterBalloon.isFootprint(balloon, spawn.below())) {
+            BlockState state = level.getBlockState(balloon);
+            if (state.hasProperty(StarterBalloonBlock.FACING)) {
+                facing = state.getValue(StarterBalloonBlock.FACING);
+            }
+            at = balloon.relative(facing).above();
+        }
+        return new TeleportTransition(level, Vec3.atBottomCenterOf(at), Vec3.ZERO, facing.toYRot(), 0.0F,
                 TeleportTransition.DO_NOTHING);
     }
 

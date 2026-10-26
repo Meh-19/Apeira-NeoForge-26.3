@@ -8,6 +8,7 @@ import com.apeira.decor.client.EmissiveRenderTypes;
 import com.apeira.main.realm.ConfirmSpawnPayload;
 import com.apeira.main.realm.SpawnPlacementPayload;
 import com.apeira.main.realm.balloon.StarterBalloon;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -105,23 +106,38 @@ public final class SpawnPlacement {
         }
     }
 
-    /** Left-click confirms, right-click cancels; nothing reaches the world while placing. */
-    public static void onInteraction(InputEvent.InteractionKeyMappingTriggered event) {
-        if (!active) {
+    /**
+     * The physical left mouse button confirms the spot (when it fits) and the right one cancels, whatever the attack and
+     * use keys are bound to; they never reach the game while placing.
+     */
+    public static void onMouseButton(InputEvent.MouseButton.Pre event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        int button = event.getButton();
+        if (!active || minecraft.gui.screen() != null
+                || (button != InputConstants.MOUSE_BUTTON_LEFT && button != InputConstants.MOUSE_BUTTON_RIGHT)) {
             return;
         }
         event.setCanceled(true);
-        event.setSwingHand(false);
-        Minecraft minecraft = Minecraft.getInstance();
-        if (event.isUseItem()) {
+        if (event.getAction() != InputConstants.PRESS) {
+            return;
+        }
+        if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
             stop();
-        } else if (event.isAttack() && minecraft.player != null) {
+        } else if (minecraft.player != null) {
             if (target != null && clear) {
                 ApeiraClientNetwork.sendToServer(new ConfirmSpawnPayload(target));
                 stop();
             } else {
                 minecraft.player.sendOverlayMessage(Component.translatable("hud.apeira.setspawn.blocked"));
             }
+        }
+    }
+
+    /** Attacks, item use and pick-block, from whatever keys they are bound to, do nothing while placing. */
+    public static void onInteraction(InputEvent.InteractionKeyMappingTriggered event) {
+        if (active) {
+            event.setCanceled(true);
+            event.setSwingHand(false);
         }
     }
 
