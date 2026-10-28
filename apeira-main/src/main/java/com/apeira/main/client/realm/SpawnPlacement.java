@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.apeira.core.network.client.ApeiraClientNetwork;
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.decor.client.EmissiveRenderTypes;
+import com.apeira.decor.client.GridGlide;
 import com.apeira.main.realm.ConfirmSpawnPayload;
 import com.apeira.main.realm.SpawnPlacementPayload;
 import com.apeira.main.realm.balloon.StarterBalloon;
@@ -47,7 +48,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  *
  * <p>The box is a ghost that only shows near the player: it fades out as the player's bounding box gets from
  * {@link #PREVIEW_CUTOFF} less {@link #PREVIEW_FADE} to {@link #PREVIEW_CUTOFF} blocks away from it and is gone, and
- * cannot be confirmed, beyond that ({@link #previewAlpha}).
+ * cannot be confirmed, beyond that ({@link #previewAlpha}). Moving from block to block, the drawn box slides to its new
+ * spot ({@link GridGlide}) instead of snapping.
  */
 public final class SpawnPlacement {
     private static final Identifier CLEAR_TEXTURE = ApeiraIds.id("textures/misc/spawn_selection.png");
@@ -68,6 +70,7 @@ public final class SpawnPlacement {
     private static boolean clear;
     /** The preview's opacity by the player's distance from it, 0 when it is too far to show. */
     private static float alpha;
+    private static final GridGlide GLIDE = new GridGlide();
 
     private SpawnPlacement() {}
 
@@ -87,6 +90,7 @@ public final class SpawnPlacement {
         balloon = payload.balloon().orElse(null);
         target = null;
         clear = false;
+        GLIDE.reset();
         if (minecraft.gui.screen() != null) {
             minecraft.gui.setScreen(null);
         }
@@ -97,6 +101,7 @@ public final class SpawnPlacement {
         level = null;
         balloon = null;
         target = null;
+        GLIDE.reset();
     }
 
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -172,13 +177,14 @@ public final class SpawnPlacement {
     public static void onSubmitGeometry(SubmitCustomGeometryEvent event) {
         BlockPos pos = target;
         if (!active || pos == null || alpha <= 0.0F) {
+            GLIDE.reset();
             return;
         }
+        Vec3 corner = GLIDE.toward(new Vec3(pos.getX() - StarterBalloon.RADIUS, pos.getY(), pos.getZ() - StarterBalloon.RADIUS));
         Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();
-        poseStack.translate(pos.getX() - StarterBalloon.RADIUS - camera.x, pos.getY() + LIFT - camera.y,
-                pos.getZ() - StarterBalloon.RADIUS - camera.z);
+        poseStack.translate(corner.x - camera.x, corner.y + LIFT - camera.y, corner.z - camera.z);
         float size = StarterBalloon.RADIUS * 2 + 1;
         float height = StarterBalloon.HEIGHT;
         int color = withAlpha(clear ? 0xFFFFFFFF : BLOCKED_TINT, alpha);
