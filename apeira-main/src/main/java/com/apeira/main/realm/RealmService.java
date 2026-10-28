@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.network.ApeiraPackets;
+import com.apeira.decor.placement.PlacementReach;
 import com.apeira.main.realm.balloon.BalloonColors;
 import com.apeira.main.realm.balloon.StarterBalloon;
 
@@ -395,7 +396,7 @@ public final class RealmService {
     }
 
     /** The farthest from the owner a placement may be: the client's cursor reach, and a little more. */
-    private static final double SPAWN_REACH = SpawnPlacementPayload.REACH + 8.0;
+    private static final double SPAWN_REACH = PlacementReach.SERVER;
 
     /**
      * Moves the starter balloon, and the realm's spawn with it, so that its floor's centre is {@code balloon}: checked
