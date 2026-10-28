@@ -13,6 +13,7 @@ import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainRubies;
 import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
@@ -51,6 +52,9 @@ public final class MainBlockTagProvider extends ApeiraBlockTagsProvider {
         add(BlockTags.MINEABLE_WITH_AXE, MainCrates.all().toArray(DeferredBlock<?>[]::new));
         // The ruby deposit is mined like an enchanting table: any pickaxe.
         add(BlockTags.MINEABLE_WITH_PICKAXE, MainRubies.RUBY_DEPOSIT);
+        // Farming: the planter box and wooden sprinkler with an axe, the iron sprinkler with a pickaxe.
+        add(BlockTags.MINEABLE_WITH_AXE, MainFarming.PLANTER_BOX, MainFarming.WOODEN_SPRINKLER);
+        add(BlockTags.MINEABLE_WITH_PICKAXE, MainFarming.IRON_SPRINKLER);
 
         // ORForged's other blocks, tagged as ORForged tagged them: the mineral bricks and pillars and the stone variants
         // with a pickaxe, packed dirt and sands and silt with a shovel, the lanterns with an axe. ORForged left some stone

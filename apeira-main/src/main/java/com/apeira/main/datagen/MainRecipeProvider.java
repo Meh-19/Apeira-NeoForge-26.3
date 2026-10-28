@@ -1,10 +1,13 @@
 package com.apeira.main.datagen;
 
+import java.util.List;
+
 import com.apeira.core.datagen.ApeiraRecipeProvider;
 import com.apeira.core.registry.PlankSet;
 import com.apeira.core.registry.ShapeSet;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainDyedBlocks;
+import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainMaterials;
@@ -23,6 +26,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -47,6 +51,44 @@ public final class MainRecipeProvider extends ApeiraRecipeProvider {
         super(recipes, advancements, namespace);
     }
 
+    /**
+     * Origin Realms' farming had no recipes (its tools came from NPCs and crates); these are Apeira's. Each crop's produce
+     * gives two of its seeds. Fertilizers have none: Origin Realms' came from an NPC and crate keys.
+     */
+    private void farming() {
+        List<ItemLike> produce = List.of(Items.APPLE, MainFarming.BANANA, MainFarming.MANGO, MainFarming.CORN, MainFarming.PINEAPPLE,
+                MainFarming.EGG_PLANT, MainFarming.LETTUCE, MainFarming.CHILLI);
+        for (int i = 0; i < produce.size(); i++) {
+            ItemLike crop = produce.get(i);
+            shapeless(RecipeCategory.MISC, MainFarming.seeds().get(i), 2).requires(crop)
+                    .unlockedBy(getHasName(crop), has(crop))
+                    .save(output);
+        }
+        shaped(RecipeCategory.MISC, MainFarming.PLANTER_BOX)
+                .define('P', ItemTags.PLANKS).define('D', Items.DIRT)
+                .pattern("P P").pattern("PDP").pattern("PPP")
+                .unlockedBy("has_planks", has(ItemTags.PLANKS))
+                .save(output);
+        shapeless(RecipeCategory.MISC, MainFarming.BAG_O_SOIL, 2).requires(Items.DIRT, 2).requires(Items.BONE_MEAL).requires(Items.PAPER)
+                .unlockedBy(getHasName(Items.BONE_MEAL), has(Items.BONE_MEAL))
+                .save(output);
+        shaped(RecipeCategory.TOOLS, MainFarming.WOODEN_WATERING_CAN)
+                .define('P', ItemTags.PLANKS).define('S', Items.STICK)
+                .pattern("S  ").pattern("PPP").pattern(" P ")
+                .unlockedBy("has_planks", has(ItemTags.PLANKS))
+                .save(output);
+        shaped(RecipeCategory.MISC, MainFarming.WOODEN_SPRINKLER)
+                .define('P', ItemTags.PLANKS).define('S', Items.STICK).define('B', Items.BUCKET)
+                .pattern("SSS").pattern("PBP").pattern(" P ")
+                .unlockedBy(getHasName(Items.BUCKET), has(Items.BUCKET))
+                .save(output);
+        shaped(RecipeCategory.MISC, MainFarming.IRON_SPRINKLER)
+                .define('I', Items.IRON_INGOT).define('B', Items.BUCKET).define('W', MainFarming.WOODEN_SPRINKLER)
+                .pattern("III").pattern("IWI").pattern(" B ")
+                .unlockedBy(getHasName(MainFarming.WOODEN_SPRINKLER), has(MainFarming.WOODEN_SPRINKLER))
+                .save(output);
+    }
+
     @Override
     protected void buildRecipes() {
         minerals(MainItems.PLATINUM.get(), MainBlocks.PLATINUM_BLOCK.get(), MainBlocks.PLATINUM_BRICKS.get(), MainBlocks.PLATINUM_PILLAR.get(),
@@ -64,6 +106,7 @@ public final class MainRecipeProvider extends ApeiraRecipeProvider {
                 .pattern("GGG").pattern("ORO").pattern("GOG")
                 .unlockedBy(getHasName(MainItems.RUBY), has(MainItems.RUBY))
                 .save(output);
+        farming();
 
         for (MainWoods.Wood wood : MainWoods.woods()) {
             planksFromLog(wood.planks().planks(), wood.logs().item(), 4);

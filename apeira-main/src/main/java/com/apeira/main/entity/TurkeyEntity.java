@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import com.apeira.main.farming.PlanterBoxBlock;
+import com.apeira.main.farming.PlanterBoxBlockEntity;
 import com.apeira.main.registry.MainEntities;
 import com.apeira.main.registry.MainSounds;
 import com.geckolib.animatable.GeoEntity;
@@ -339,7 +341,8 @@ public class TurkeyEntity extends Animal implements GeoEntity {
 
     /**
      * Now and then looks for the nearest fully grown crop within 12 blocks (2 up or down), walks to it and harvests
-     * it: the crop drops its produce and is set back to age 0.
+     * it: the crop drops its produce and is set back to age 0. A ripe planter box crop is harvested as an automated
+     * harvest (a 1-star crop on the box), and the box replants from its stock.
      */
     static class CropHarvestGoal extends Goal {
         private final TurkeyEntity turkey;
@@ -393,6 +396,10 @@ public class TurkeyEntity extends Animal implements GeoEntity {
         private void harvest() {
             if (targetCrop == null) return;
             Level level = turkey.level();
+            if (level.getBlockEntity(targetCrop) instanceof PlanterBoxBlockEntity planter) {
+                planter.harvest(null, ItemStack.EMPTY, true);
+                return;
+            }
             BlockState state = level.getBlockState(targetCrop);
             if (!(state.getBlock() instanceof CropBlock crop)) return;
             if (!crop.isMaxAge(state)) return;
@@ -410,9 +417,7 @@ public class TurkeyEntity extends Animal implements GeoEntity {
                 for (int dy = -2; dy <= 2; dy++) {
                     for (int dz = -range; dz <= range; dz++) {
                         BlockPos candidate = origin.offset(dx, dy, dz);
-                        BlockState state = turkey.level().getBlockState(candidate);
-                        if (!(state.getBlock() instanceof CropBlock crop)) continue;
-                        if (!crop.isMaxAge(state)) continue;
+                        if (!isRipe(candidate)) continue;
 
                         double dist = turkey.distanceToSqr(candidate.getX() + 0.5, candidate.getY(), candidate.getZ() + 0.5);
                         if (dist < bestDist) {
@@ -423,6 +428,15 @@ public class TurkeyEntity extends Animal implements GeoEntity {
                 }
             }
             return best;
+        }
+
+        private boolean isRipe(BlockPos pos) {
+            BlockState state = turkey.level().getBlockState(pos);
+            if (state.getBlock() instanceof CropBlock crop) {
+                return crop.isMaxAge(state);
+            }
+            return state.getBlock() instanceof PlanterBoxBlock && turkey.level().getBlockEntity(pos) instanceof PlanterBoxBlockEntity planter
+                    && planter.isRipe();
         }
     }
 }

@@ -8,6 +8,9 @@ import com.apeira.main.client.entity.CrocodileRenderer;
 import com.apeira.main.client.entity.GrizzlyBearRenderer;
 import com.apeira.main.client.entity.TurkeyRenderer;
 import com.apeira.main.client.entity.WraithRenderer;
+import com.apeira.main.client.farming.CropTooltip;
+import com.apeira.main.client.farming.PlanterBoxRenderer;
+import com.apeira.main.client.farming.PlanterBoxScreen;
 import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
 import com.apeira.main.client.npc.NpcRenderer;
 import com.apeira.main.client.npc.NpcAnchorPlacement;
@@ -34,6 +37,7 @@ import com.apeira.main.realm.RealmCreatedPayload;
 import com.apeira.main.realm.RealmHudPayload;
 import com.apeira.main.realm.SpawnPlacementPayload;
 import com.apeira.main.registry.MainEntities;
+import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainNpcs;
 import com.apeira.main.registry.MainRealmBlocks;
 import com.apeira.main.registry.MainRubies;
@@ -76,6 +80,7 @@ public final class ApeiraClient {
         NpcDialogueCamera.register();
         NeoForge.EVENT_BUS.addListener(RubyTickerAnimation::onLoggingOut);
         NeoForge.EVENT_BUS.addListener(RubyDepositScreen::hideHud);
+        NeoForge.EVENT_BUS.addListener(CropTooltip::onTooltip);
         ApeiraClientNetwork.create()
                 .handle(OpenNavigatorPayload.TYPE, ApeiraNavigatorScreen::onOpen)
                 .handle(OpenOnboardingPayload.TYPE, OnboardingScreen::onOpen)
@@ -92,6 +97,7 @@ public final class ApeiraClient {
         event.registerBlockEntityRenderer(MainBlockEntities.ECHO_GLASS.get(), EchoGlassRenderer::new);
         event.registerBlockEntityRenderer(MainRubies.RUBY_DEPOSIT_ENTITY.get(), RubyDepositRenderer::new);
         event.registerBlockEntityRenderer(MainRealmBlocks.STARTER_BALLOON_ENTITY.get(), StarterBalloonRenderer::new);
+        event.registerBlockEntityRenderer(MainFarming.PLANTER_BOX_ENTITY.get(), PlanterBoxRenderer::new);
         event.registerEntityRenderer(MainEntities.TURKEY.get(), TurkeyRenderer::new);
         event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
         event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);
@@ -104,6 +110,7 @@ public final class ApeiraClient {
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(MainRubies.RUBY_DEPOSIT_MENU.get(), RubyDepositScreen::new);
+        event.register(MainFarming.PLANTER_BOX_MENU.get(), PlanterBoxScreen::new);
     }
 
     /** The ruby counter is drawn with the food bar, over its right end. */

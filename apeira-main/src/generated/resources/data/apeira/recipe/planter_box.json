@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": "minecraft:dirt",
+    "P": "#minecraft:planks"
+  },
+  "pattern": [
+    "P P",
+    "PDP",
+    "PPP"
+  ],
+  "result": {
+    "id": "apeira:planter_box"
+  }
+}

@@ -8,6 +8,7 @@ import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
+import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainEffects;
 import com.apeira.main.registry.MainEntities;
 import com.apeira.main.registry.MainNpcs;
@@ -86,6 +87,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         block(MainCrates.ZODIAC_CRATE, "Zodiac Crate");
 
         rubies();
+        farming();
 
         creativeTab("content", "Apeira Content");
         creativeTab("cosmetics", "Cosmetics");
@@ -180,6 +182,82 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         realms();
         realmMenus();
         profilesAndParties();
+    }
+
+    /** Origin Realms' farming: its items and blocks, the planter box menu, crops, fertilizers and tooltips. */
+    private void farming() {
+        item(MainFarming.APPLE_SEEDS, "Apple Seed");
+        item(MainFarming.BANANA_SEEDS, "Banana Seed");
+        item(MainFarming.MANGO_PIT, "Mango Pit");
+        item(MainFarming.CORN_SEEDS, "Corn Seed");
+        item(MainFarming.PINEAPPLE_SEEDS, "Pineapple Seed");
+        item(MainFarming.EGG_PLANT_SEEDS, "Eggplant Seed");
+        item(MainFarming.LETTUCE_SEEDS, "Lettuce Seed");
+        item(MainFarming.CHILLI_SEEDS, "Chili Seed");
+        item(MainFarming.BANANA, "Banana");
+        item(MainFarming.MANGO, "Mango");
+        item(MainFarming.CORN, "Corn");
+        item(MainFarming.PINEAPPLE, "Pineapple");
+        item(MainFarming.EGG_PLANT, "Eggplant");
+        item(MainFarming.LETTUCE, "Lettuce");
+        item(MainFarming.CHILLI, "Chili");
+        item(MainFarming.GOLDEN_BANANA, "Golden Banana");
+        item(MainFarming.GOLDEN_MANGO, "Golden Mango");
+        item(MainFarming.GOLDEN_CORN, "Golden Corn");
+        item(MainFarming.GOLDEN_PINEAPPLE, "Golden Pineapple");
+        item(MainFarming.GOLDEN_EGG_PLANT, "Golden Eggplant");
+        item(MainFarming.GOLDEN_LETTUCE, "Golden Lettuce");
+        item(MainFarming.GOLDEN_CHILLI, "Golden Chili");
+        item(MainFarming.BAG_O_SOIL, "Bag O' Soil");
+        item(MainFarming.FERTILIZER_MULTIPLIER, "Produce Multiplier Fertilizer");
+        item(MainFarming.FERTILIZER_SPEED, "Speed-Grow Fertilizer");
+        item(MainFarming.FERTILIZER_STAR, "3-Star Guarantee Fertilizer");
+        item(MainFarming.FERTILIZER_GOLD, "Golden Goods Fertilizer");
+        item(MainFarming.WOODEN_WATERING_CAN, "Wooden Watering Can");
+        block(MainFarming.PLANTER_BOX, "Planter Box");
+        block(MainFarming.WOODEN_SPRINKLER, "Wooden Sprinkler");
+        block(MainFarming.IRON_SPRINKLER, "Iron Sprinkler");
+
+        add("crop.apeira.apple", "Apple Tree");
+        add("crop.apeira.banana", "Banana Tree");
+        add("crop.apeira.mango", "Mango Tree");
+        add("crop.apeira.corn", "Corn");
+        add("crop.apeira.pineapple", "Pineapple");
+        add("crop.apeira.egg_plant", "Eggplant");
+        add("crop.apeira.lettuce", "Lettuce");
+        add("crop.apeira.chilli", "Chili");
+        add("fertilizer.apeira.produce_multiplier", "Produce Multiplier");
+        add("fertilizer.apeira.produce_multiplier.description", "Harvests give 2 or 3 crops");
+        add("fertilizer.apeira.speed_grow", "Speed-Grow");
+        add("fertilizer.apeira.speed_grow.description", "The crop ripens after one watered day");
+        add("fertilizer.apeira.three_star_guarantee", "3-Star Guarantee");
+        add("fertilizer.apeira.three_star_guarantee.description", "Harvests are always 3-star");
+        add("fertilizer.apeira.golden_goods", "Golden Goods");
+        add("fertilizer.apeira.golden_goods.description", "The crop always ripens golden");
+
+        add("tooltip.apeira.farming.seed", "Grows in %s days");
+        add("tooltip.apeira.farming.plant_in_planter", "Plant in a Planter Box");
+        add("tooltip.apeira.farming.soil", "Raises a crop's star rating");
+        add("tooltip.apeira.farming.watering_can", "Water: %s/%s");
+        add("message.apeira.farming.sprinkler_full", "The sprinkler is full");
+
+        add("container.apeira.planter_box", "Planter Box");
+        add("container.apeira.planter_box.info", "Planter Box");
+        add("container.apeira.planter_box.info1", "Seeds, soil and fertilizer go in the slots;");
+        add("container.apeira.planter_box.info2", "the next crop is planted from them.");
+        add("container.apeira.planter_box.info3", "Water the box every day: crops grow");
+        add("container.apeira.planter_box.info4", "one stage each morning at 7:00 AM.");
+        add("container.apeira.planter_box.soiled", "Soiled");
+        add("container.apeira.planter_box.not_soiled", "Not soiled");
+        add("container.apeira.planter_box.watered", "Watered today");
+        add("container.apeira.planter_box.not_watered", "Not watered today");
+        add("container.apeira.planter_box.no_fertilizer", "No fertilizer");
+        add("container.apeira.planter_box.empty", "Nothing planted");
+        add("container.apeira.planter_box.empty1", "Put seeds in to plant them");
+        add("container.apeira.planter_box.growing", "Day %s of %s");
+        add("container.apeira.planter_box.needs_water", "Needs water to grow");
+        add("container.apeira.planter_box.ripe", "Ripe: right-click the box to harvest");
+        add("container.apeira.planter_box.ripe_golden", "Golden! Right-click the box to harvest");
     }
 
     /** The ruby deposit, its menu and sounds, the ruby commands' messages and the profile's ruby line. */

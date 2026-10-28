@@ -1,0 +1,37 @@
+{
+  "providers": [
+    {
+      "type": "space",
+      "advances": {
+        " ": 4
+      }
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/farming/lore_crop.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "\ue000"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/farming/crop_star.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "\ue001"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/farming/empty_crop_star.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "\ue002"
+      ]
+    }
+  ]
+}

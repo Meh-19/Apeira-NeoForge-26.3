@@ -1,0 +1,99 @@
+{
+  "textures": {
+    "0": "apeira:block/crop/egg_plant",
+    "particle": "apeira:block/crop/egg_plant"
+  },
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            0,
+            3.5,
+            6,
+            8
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            0,
+            3.5,
+            6,
+            8
+          ]
+        }
+      },
+      "from": [
+        1,
+        0,
+        8
+      ],
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          8
+        ]
+      },
+      "to": [
+        15,
+        9,
+        8
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            0,
+            3.5,
+            6,
+            8
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            0,
+            3.5,
+            6,
+            8
+          ]
+        }
+      },
+      "from": [
+        1,
+        0,
+        8
+      ],
+      "rotation": {
+        "angle": -45,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          8
+        ]
+      },
+      "to": [
+        15,
+        9,
+        8
+      ]
+    }
+  ],
+  "display": {
+    "fixed": {
+      "translation": [
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}

@@ -5,10 +5,14 @@ import java.util.List;
 import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.core.datagen.ApeiraDataMapProvider;
 import com.apeira.core.registry.PlankSet;
+import com.apeira.main.registry.MainFarming;
+import com.apeira.main.registry.MainGear;
+import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.world.item.Items;
 
 /**
  * NeoForge data maps for {@link MainWoods}: axes strip logs and woods ({@code neoforge:transformables}), and wood and
@@ -39,6 +43,17 @@ public final class MainDataMapProvider extends ApeiraDataMapProvider {
         MainWoods.VANILLA_VERTICAL_PLANKS.forEach(vertical -> flammable(vertical.vertical().get(), 5, 20));
         // Xenon had a stripped mycena stem but never registered the stripping; axes strip it here so it can be had.
         strippable(MainSpecialBlocks.MYCENA_MUSHROOM_STEM.get(), MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM.get());
+
+        // How much each hoe raises a hand harvest's star rating (CropQuality): netherite best.
+        item(MainFarming.HOE_QUALITY, Items.WOODEN_HOE, 0.3F);
+        item(MainFarming.HOE_QUALITY, Items.STONE_HOE, 0.4F);
+        item(MainFarming.HOE_QUALITY, Items.COPPER_HOE, 0.5F);
+        item(MainFarming.HOE_QUALITY, Items.IRON_HOE, 0.6F);
+        item(MainFarming.HOE_QUALITY, Items.GOLDEN_HOE, 0.6F);
+        item(MainFarming.HOE_QUALITY, Items.DIAMOND_HOE, 0.8F);
+        item(MainFarming.HOE_QUALITY, MainItems.PLATINUM_HOE, 0.8F);
+        item(MainFarming.HOE_QUALITY, MainGear.SHADOW_HOE, 0.9F);
+        item(MainFarming.HOE_QUALITY, Items.NETHERITE_HOE, 1.0F);
     }
 
     private void planks(PlankSet planks) {

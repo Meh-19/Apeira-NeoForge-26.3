@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": "minecraft:bucket",
+    "I": "minecraft:iron_ingot",
+    "W": "apeira:wooden_sprinkler"
+  },
+  "pattern": [
+    "III",
+    "IWI",
+    " B "
+  ],
+  "result": {
+    "id": "apeira:iron_sprinkler"
+  }
+}
