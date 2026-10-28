@@ -141,6 +141,7 @@ final class NavigatorLayout {
                 return new Page(List.copyOf(layers), List.copyOf(buttons), HOME_SLOTS, false);
             }
             case SOCIAL, EDIT_PARTY, EDIT_PARTY_MEMBER -> socialPage(view, self, layers, buttons, heads);
+            case EDIT_NPC -> npcPage(view, layers, buttons);
             case PROFILE_OTHER -> {
                 profilePage(view, layers, buttons);
                 return new Page(List.copyOf(layers), List.copyOf(buttons), new int[0], false, List.of(), -1, true);
@@ -164,6 +165,28 @@ final class NavigatorLayout {
             default -> false;
         };
         return new Page(List.copyOf(layers), List.copyOf(buttons), showsList ? LIST_SLOTS : new int[0], showsList, List.copyOf(heads), -1, false);
+    }
+
+    /**
+     * An NPC's settings (Ren's {@code npc/edit_npc} popup, placed as the Edit Member popup is): the close cross (24), the
+     * globe and the visibility switch (29-31, one button; {@code npc/visibility_off} moves the switch's knob to its left
+     * cell while the NPC is hidden) and Set Anchor (32).
+     */
+    private static void npcPage(NavigatorView view, List<Identifier> layers, List<Button> buttons) {
+        boolean shown = view.has(NavigatorView.NPC_SHOWN);
+        layer(layers, "npc/edit_npc");
+        if (!shown) {
+            layer(layers, "npc/visibility_off");
+        }
+        buttons.add(button(slots(24), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
+        buttons.add(new Button(slots(29, 30, 31), List.of(name("npc_visibility"),
+                grey(Component.translatable("navigator.apeira.npc_visibility.desc")), Component.translatable("navigator.apeira.npc_visibility.state",
+                        Component.translatable(shown ? "navigator.apeira.npc_visibility.visible" : "navigator.apeira.npc_visibility.invisible")
+                                .withColor(shown ? NavigatorService.ACTION : NavigatorService.LABEL))
+                        .withStyle(Style.EMPTY.withColor(NavigatorService.VALUE).withItalic(false)),
+                NavigatorService.action(0, shown ? "npc_hide" : "npc_show")), NavigatorActionPayload.of(Action.NPC_VISIBILITY)));
+        buttons.add(new Button(slots(32), List.of(name("npc_anchor"), grey(Component.translatable("navigator.apeira.npc_anchor.desc")),
+                NavigatorService.action(0, "npc_anchor_place")), NavigatorActionPayload.of(Action.NPC_ANCHOR)));
     }
 
     /**

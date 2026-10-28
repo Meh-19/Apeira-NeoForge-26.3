@@ -4,6 +4,8 @@ import com.apeira.core.network.ApeiraNetwork;
 import com.apeira.main.navigator.NavigatorActionPayload;
 import com.apeira.main.navigator.OpenNavigatorPayload;
 import com.apeira.main.navigator.OpenProfilePayload;
+import com.apeira.main.npc.ConfirmNpcAnchorPayload;
+import com.apeira.main.npc.NpcAnchorPayload;
 import com.apeira.main.realm.ConfirmSpawnPayload;
 import com.apeira.main.realm.OpenOnboardingPayload;
 import com.apeira.main.realm.RealmCreatedPayload;
@@ -22,11 +24,13 @@ public final class MainPayloads {
         network.toServer(SelectRealmPresetPayload.TYPE, SelectRealmPresetPayload::handle);
         network.toServer(OpenProfilePayload.TYPE, OpenProfilePayload::handle);
         network.toServer(ConfirmSpawnPayload.TYPE, ConfirmSpawnPayload::handle);
+        network.toServer(ConfirmNpcAnchorPayload.TYPE, ConfirmNpcAnchorPayload::handle);
         // Handled in client/ApeiraClient.
         network.toClient(OpenNavigatorPayload.TYPE);
         network.toClient(OpenOnboardingPayload.TYPE);
         network.toClient(RealmCreatedPayload.TYPE);
         network.toClient(SpawnPlacementPayload.TYPE);
+        network.toClient(NpcAnchorPayload.TYPE);
         network.toClient(RealmHudPayload.TYPE);
         network.toClient(RubyChangePayload.TYPE);
     }

@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.apeira.decor.block.ApeiraFurnitureBlock;
 import com.apeira.decor.crate.CrateBlock;
 import com.apeira.main.navigator.OpenProfilePayload;
+import com.apeira.main.npc.NpcEntity;
 import com.apeira.main.realm.balloon.StarterBalloon;
 
 import net.minecraft.ChatFormatting;
@@ -145,7 +146,8 @@ public final class RealmProtection {
 
     /** Whether {@code player} may right-click {@code target}: players and dummies (profiles) always, others by role. */
     private static boolean deniesEntityUse(Player player, Entity target) {
-        if (OpenProfilePayload.profileOf(target) != null) {
+        // Profiles open for everyone; NPCs check who may edit them themselves (NpcService).
+        if (OpenProfilePayload.profileOf(target) != null || target instanceof NpcEntity) {
             return false;
         }
         return role(player).map(role -> {

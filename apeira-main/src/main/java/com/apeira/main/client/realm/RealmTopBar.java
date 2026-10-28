@@ -63,6 +63,11 @@ public final class RealmTopBar {
 
     private RealmTopBar() {}
 
+    /** The client player's role in the realm they are in ({@link com.apeira.main.realm.RealmRole}'s ordinal), -1 outside realms. */
+    public static int role() {
+        return role;
+    }
+
     public static void onSync(RealmHudPayload payload, IPayloadContext context) {
         owner = payload.owner();
         balloon = payload.balloon();

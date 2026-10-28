@@ -173,7 +173,8 @@ public final class SpawnPlacement {
         poseStack.popPose();
     }
 
-    private static void box(PoseStack.Pose pose, VertexConsumer buffer, float s, float h, int color) {
+    /** A box {@code s} wide and deep and {@code h} high from the pose's origin, each face one copy of the texture. */
+    public static void box(PoseStack.Pose pose, VertexConsumer buffer, float s, float h, int color) {
         // Bottom, top, north, south, west, east; each face's texture once, its dashed edge along the box's edges.
         face(pose, buffer, color, 0, -1, 0, 0, 0, 0, s, 0, 0, s, 0, s, 0, 0, s);
         face(pose, buffer, color, 0, 1, 0, 0, h, s, s, h, s, s, h, 0, 0, h, 0);

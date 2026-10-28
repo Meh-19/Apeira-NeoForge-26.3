@@ -24,6 +24,8 @@ import com.apeira.decor.registry.DecorAttachments;
 import com.apeira.main.home.HomeData;
 import com.apeira.main.home.HomeService;
 import com.apeira.main.navigator.NavigatorActionPayload.Action;
+import com.apeira.main.npc.NpcEntity;
+import com.apeira.main.npc.NpcService;
 import com.apeira.main.party.Party;
 import com.apeira.main.party.PartyService;
 import com.apeira.main.realm.DummyPlayers;
@@ -136,6 +138,18 @@ public final class NavigatorService {
         send(player, session);
     }
 
+    /**
+     * Opens an NPC's settings ({@link NavigatorPage#EDIT_NPC}) for {@code player}, who may edit it
+     * ({@code NpcService#onEntityInteract} checked). Closing them closes the navigator.
+     */
+    public static void openNpc(ServerPlayer player, UUID npc) {
+        Session session = SESSIONS.computeIfAbsent(player.getUUID(), uuid -> new Session());
+        session.realmsRoot = false;
+        session.target = npc;
+        session.go(NavigatorPage.EDIT_NPC);
+        send(player, session);
+    }
+
     private static void open(ServerPlayer player, NavigatorPage page, boolean realmsRoot) {
         Session session = SESSIONS.computeIfAbsent(player.getUUID(), uuid -> new Session());
         if (needsRealm(page) && !hasRealm(player)) {
@@ -204,8 +218,9 @@ public final class NavigatorService {
                 }
             }
             case CLOSE_POPUP -> {
-                if (page == NavigatorPage.PARTY || page == NavigatorPage.PROFILE_OTHER && session.profileReturn == NavigatorPage.CLOSED) {
-                    // The roster's close button, and a profile opened from the world, have no page under them.
+                if (page == NavigatorPage.PARTY || page == NavigatorPage.EDIT_NPC
+                        || page == NavigatorPage.PROFILE_OTHER && session.profileReturn == NavigatorPage.CLOSED) {
+                    // The roster's close button, NPC settings and a profile opened from the world have no page under them.
                     close(player);
                     return;
                 }
@@ -350,6 +365,21 @@ public final class NavigatorService {
             }
             case WARDROBE -> {
                 // The client opens the wardrobe itself, through decor's payload.
+            }
+            case NPC_VISIBILITY -> {
+                if (page == NavigatorPage.EDIT_NPC && !NpcService.toggleShown(player, session.target)) {
+                    // The NPC is gone, or no longer the player's to edit.
+                    close(player);
+                    return;
+                }
+            }
+            case NPC_ANCHOR -> {
+                if (page == NavigatorPage.EDIT_NPC) {
+                    // The placement cursor needs the world, so the menu closes either way.
+                    NpcService.startAnchor(player, session.target);
+                    close(player);
+                    return;
+                }
             }
         }
         send(player, session);
@@ -622,6 +652,9 @@ public final class NavigatorService {
                     | (party.filter(theirs -> theirs.isInvited(id)).isPresent() ? NavigatorView.TARGET_PARTY_INVITED : 0);
             ServerPlayer profiled = server.getPlayerList().getPlayer(id);
             cosmetics = profiled == null ? Wardrobe.EMPTY : profiled.getData(DecorAttachments.WARDROBE);
+        } else if (page == NavigatorPage.EDIT_NPC) {
+            NpcEntity npc = NpcService.editable(player, session.target);
+            flags |= npc != null && npc.isShown() ? NavigatorView.NPC_SHOWN : 0;
         } else if ((page == NavigatorPage.PARTY_MEMBER || page == NavigatorPage.EDIT_PARTY_MEMBER) && session.target != null) {
             target = Optional.of(new NavigatorView.Entry(session.target, data.nameOf(session.target), List.of(onlineLine(server, data, session.target,
                     System.currentTimeMillis()))));
