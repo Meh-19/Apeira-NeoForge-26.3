@@ -3,7 +3,6 @@ package com.apeira.main.client.realm;
 import java.util.Locale;
 import java.util.Optional;
 
-import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.realm.RealmHudPayload;
@@ -19,7 +18,6 @@ import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -63,8 +61,6 @@ public final class RealmTopBar {
     private static Optional<String> owner = Optional.empty();
     private static Optional<BlockPos> balloon = Optional.empty();
     private static int role = -1;
-    /** The level the last sync arrived in, so a balloon in another realm is never taken for a moved one. */
-    private static @Nullable Level level;
 
     private RealmTopBar() {}
 
@@ -74,13 +70,6 @@ public final class RealmTopBar {
     }
 
     public static void onSync(RealmHudPayload payload, IPayloadContext context) {
-        Level current = Minecraft.getInstance().level;
-        // The same realm's balloon at a new spot: it was just moved (the spawn placement), so it glides there.
-        if (current != null && current == level && owner.isPresent() && owner.equals(payload.owner()) && balloon.isPresent()
-                && payload.balloon().isPresent() && !balloon.get().equals(payload.balloon().get())) {
-            StarterBalloonRenderer.glide(balloon.get(), payload.balloon().get());
-        }
-        level = current;
         owner = payload.owner();
         balloon = payload.balloon();
         role = payload.role();
@@ -91,7 +80,6 @@ public final class RealmTopBar {
         owner = Optional.empty();
         balloon = Optional.empty();
         role = -1;
-        level = null;
         RealmVisitors.setClientVisitor(false);
     }
 

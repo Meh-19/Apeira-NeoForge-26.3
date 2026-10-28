@@ -35,8 +35,9 @@ import net.neoforged.neoforge.common.NeoForge;
  * The one placement editor every "pick a spot in the world" tool builds on (the realm spawn balloon, NPC anchors): a box
  * the size of {@link #footprint} on the block surface under the crosshair, within {@link PlacementReach#CURSOR} blocks
  * and with no proximity cutoff, drawn with two selection textures, the clear one where {@link #fits} and the blocked
- * one tinted red where not. Their dashed edges have alpha 254, so they glow ({@link EmissiveRenderTypes}). The box
- * snaps to the block under the crosshair each tick, with no easing between blocks.
+ * one tinted red where not. Their dashed edges have alpha 254, so they glow ({@link EmissiveRenderTypes}). The target
+ * is the block under the crosshair each tick; the drawn box slides there from block to block ({@link GridGlide}).
+ * Confirming only sends the spot: what it places appears there at once, with no travel animation.
  *
  * <p>The physical mouse buttons drive it, whatever attack and use are bound to: left-click {@link #confirm}s a spot that
  * fits, right-click or Escape cancels; changing level, {@link #stillValid} turning false or leaving the server drops it.
@@ -57,6 +58,7 @@ public abstract class PlacementCursor {
     private @Nullable ClientLevel level;
     private @Nullable BlockPos target;
     private boolean clear;
+    private final GridGlide glide = new GridGlide();
 
     protected PlacementCursor(Identifier clearTexture, Identifier blockedTexture, String hudKey) {
         this.clearTexture = clearTexture;
@@ -88,6 +90,7 @@ public abstract class PlacementCursor {
         level = minecraft.level;
         target = null;
         clear = false;
+        glide.reset();
         if (minecraft.gui.screen() != null) {
             minecraft.gui.setScreen(null);
         }
@@ -106,6 +109,7 @@ public abstract class PlacementCursor {
         active = false;
         level = null;
         target = null;
+        glide.reset();
         onStop();
     }
 
@@ -181,17 +185,19 @@ public abstract class PlacementCursor {
         stop();
     }
 
-    /** Draws the box at the target block, camera-relative, through the emissive translucent entity type (no culling: seen from inside too). */
+    /** Draws the box sliding towards the target block, camera-relative, through the emissive translucent entity type (no culling: seen from inside too). */
     private void onSubmitGeometry(SubmitCustomGeometryEvent event) {
         BlockPos pos = target;
         if (!active || pos == null) {
+            glide.reset();
             return;
         }
         AABB box = footprint(pos);
+        Vec3 corner = glide.toward(new Vec3(box.minX, box.minY, box.minZ));
         Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();
-        poseStack.translate(box.minX - camera.x, box.minY + LIFT - camera.y, box.minZ - camera.z);
+        poseStack.translate(corner.x - camera.x, corner.y + LIFT - camera.y, corner.z - camera.z);
         float size = (float) box.getXsize();
         float height = (float) box.getYsize();
         int color = clear ? 0xFFFFFFFF : BLOCKED_TINT;
