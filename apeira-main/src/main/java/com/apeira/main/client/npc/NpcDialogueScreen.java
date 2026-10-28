@@ -2,6 +2,8 @@ package com.apeira.main.client.npc;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.apeira.main.Apeira;
 import com.apeira.main.npc.NpcDialoguePayload;
 import com.apeira.main.npc.NpcEntity;
@@ -47,7 +49,8 @@ public class NpcDialogueScreen extends Screen {
 
     private final int npc;
     private final Component name;
-    private final Identifier portrait;
+    /** The NPC's portrait, or null when it has none yet (the border's opening is left dark). */
+    private final @Nullable Identifier portrait;
     private final Component line;
     private List<String> rows = List.of();
     private int length;
@@ -59,7 +62,8 @@ public class NpcDialogueScreen extends Screen {
         this.npc = npc.getId();
         this.name = npc.getType().getDescription();
         Identifier type = BuiltInRegistries.ENTITY_TYPE.getKey(npc.getType());
-        this.portrait = Identifier.fromNamespaceAndPath(type.getNamespace(), "textures/gui/dialogue/portrait/" + type.getPath() + ".png");
+        Identifier portrait = Identifier.fromNamespaceAndPath(type.getNamespace(), "textures/gui/dialogue/portrait/" + type.getPath() + ".png");
+        this.portrait = Minecraft.getInstance().getResourceManager().getResource(portrait).isPresent() ? portrait : null;
         this.line = line;
     }
 
@@ -111,8 +115,10 @@ public class NpcDialogueScreen extends Screen {
         // The portrait sits in the border's 42x42 opening, the border drawn over it.
         int frameX = x + PADDING;
         int frameY = y + PADDING;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, portrait, frameX + EDGE, frameY + EDGE, 0.0F, 0.0F, PORTRAIT_SIZE, PORTRAIT_SIZE,
-                PORTRAIT_SIZE, PORTRAIT_SIZE);
+        if (portrait != null) {
+            graphics.blit(RenderPipelines.GUI_TEXTURED, portrait, frameX + EDGE, frameY + EDGE, 0.0F, 0.0F, PORTRAIT_SIZE, PORTRAIT_SIZE,
+                    PORTRAIT_SIZE, PORTRAIT_SIZE);
+        }
         graphics.blit(RenderPipelines.GUI_TEXTURED, BORDER, frameX, frameY, 0.0F, 0.0F, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE);
         int textX = frameX + BORDER_SIZE + PADDING;
         // All in the default font, which has ꢔ (assets/minecraft/font/default.json): a child component inherits its
