@@ -321,6 +321,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("hud.apeira.npc_anchor.blocked", "Something is in the way");
         add("hud.apeira.npc_anchor.confirm", "Left-click to place the NPC");
         add("hud.apeira.npc_anchor.cancel", "Right-click/ESC to cancel");
+        add("hud.apeira.placement.too_far", "Move closer to place it");
     }
 
     /** The navigator's title, its buttons' tooltips (Origin Realms' wording) and its messages. */

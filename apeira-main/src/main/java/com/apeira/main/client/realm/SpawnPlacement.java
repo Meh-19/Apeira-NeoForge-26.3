@@ -24,6 +24,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -42,6 +44,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * ({@link StarterBalloon#canPlace}, which the server checks again). Their dashed edges have alpha 254, so they glow in
  * the dark ({@link EmissiveRenderTypes}). Left-click sends {@link ConfirmSpawnPayload}; right-click or Escape cancels;
  * changing level or leaving the server drops it. While it is on, attack, use and pick-block do nothing else.
+ *
+ * <p>The box is a ghost that only shows near the player: it fades out as the player's bounding box gets from
+ * {@link #PREVIEW_CUTOFF} less {@link #PREVIEW_FADE} to {@link #PREVIEW_CUTOFF} blocks away from it and is gone, and
+ * cannot be confirmed, beyond that ({@link #previewAlpha}).
  */
 public final class SpawnPlacement {
     private static final Identifier CLEAR_TEXTURE = ApeiraIds.id("textures/misc/spawn_selection.png");
@@ -50,12 +56,18 @@ public final class SpawnPlacement {
     private static final int BLOCKED_TINT = 0xFFFF4A4A;
     /** Lifts the box off the surface it stands on, so its floor does not flicker against it. */
     private static final float LIFT = 0.005F;
+    /** How far, in blocks, the player may be from the preview box before it is gone. */
+    public static final double PREVIEW_CUTOFF = 1.5;
+    /** Over how many blocks, up to {@link #PREVIEW_CUTOFF}, the preview fades out. */
+    public static final double PREVIEW_FADE = 0.5;
 
     private static boolean active;
     private static @Nullable ClientLevel level;
     private static @Nullable BlockPos balloon;
     private static @Nullable BlockPos target;
     private static boolean clear;
+    /** The preview's opacity by the player's distance from it, 0 when it is too far to show. */
+    private static float alpha;
 
     private SpawnPlacement() {}
 
@@ -103,6 +115,7 @@ public final class SpawnPlacement {
             target = block.getDirection() == Direction.DOWN ? block.getBlockPos().below(StarterBalloon.HEIGHT)
                     : block.getBlockPos().relative(block.getDirection());
             clear = StarterBalloon.canPlace(minecraft.level, target, balloon);
+            alpha = previewAlpha(minecraft.player.getBoundingBox(), bounds(target));
         }
     }
 
@@ -124,9 +137,11 @@ public final class SpawnPlacement {
         if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
             stop();
         } else if (minecraft.player != null) {
-            if (target != null && clear) {
+            if (target != null && clear && alpha > 0.0F) {
                 ApeiraClientNetwork.sendToServer(new ConfirmSpawnPayload(target));
                 stop();
+            } else if (target != null && alpha <= 0.0F) {
+                minecraft.player.sendOverlayMessage(Component.translatable("hud.apeira.placement.too_far"));
             } else {
                 minecraft.player.sendOverlayMessage(Component.translatable("hud.apeira.setspawn.blocked"));
             }
@@ -156,7 +171,7 @@ public final class SpawnPlacement {
     /** Draws the box, camera-relative, through the emissive translucent entity type (no culling: seen from inside too). */
     public static void onSubmitGeometry(SubmitCustomGeometryEvent event) {
         BlockPos pos = target;
-        if (!active || pos == null) {
+        if (!active || pos == null || alpha <= 0.0F) {
             return;
         }
         Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
@@ -166,11 +181,31 @@ public final class SpawnPlacement {
                 pos.getZ() - StarterBalloon.RADIUS - camera.z);
         float size = StarterBalloon.RADIUS * 2 + 1;
         float height = StarterBalloon.HEIGHT;
-        int color = clear ? 0xFFFFFFFF : BLOCKED_TINT;
+        int color = withAlpha(clear ? 0xFFFFFFFF : BLOCKED_TINT, alpha);
         event.getSubmitNodeCollector().submitCustomGeometry(poseStack,
                 EmissiveRenderTypes.entityTranslucent(clear ? CLEAR_TEXTURE : BLOCKED_TEXTURE),
                 (pose, buffer) -> box(pose, buffer, size, height, color));
         poseStack.popPose();
+    }
+
+    /** The blocks the balloon's box takes when it stands on {@code target}. */
+    private static AABB bounds(BlockPos target) {
+        return new AABB(target.getX() - StarterBalloon.RADIUS, target.getY(), target.getZ() - StarterBalloon.RADIUS,
+                target.getX() + StarterBalloon.RADIUS + 1, target.getY() + StarterBalloon.HEIGHT, target.getZ() + StarterBalloon.RADIUS + 1);
+    }
+
+    /**
+     * The placement preview's opacity for a player whose bounding box is {@code player}: 1 within
+     * {@link #PREVIEW_CUTOFF} less {@link #PREVIEW_FADE} blocks of {@code bounds}, fading to 0 at {@link #PREVIEW_CUTOFF}.
+     */
+    public static float previewAlpha(AABB player, AABB bounds) {
+        double distance = Math.sqrt(bounds.distanceToSqr(player));
+        return (float) Mth.clamp((PREVIEW_CUTOFF - distance) / PREVIEW_FADE, 0.0, 1.0);
+    }
+
+    /** {@code color} with its alpha scaled by {@code alpha}. */
+    public static int withAlpha(int color, float alpha) {
+        return Math.round((color >>> 24) * alpha) << 24 | color & 0xFFFFFF;
     }
 
     /** A box {@code s} wide and deep and {@code h} high from the pose's origin, each face one copy of the texture. */
@@ -206,12 +241,13 @@ public final class SpawnPlacement {
         }
         Font font = minecraft.font;
         Component status = target == null ? Component.translatable("hud.apeira.setspawn.aim")
+                : alpha <= 0.0F ? Component.translatable("hud.apeira.placement.too_far")
                 : clear ? Component.translatable("hud.apeira.setspawn.clear") : Component.translatable("hud.apeira.setspawn.blocked");
         Component[] lines = {
                 status,
                 Component.translatable("hud.apeira.setspawn.confirm"),
                 Component.translatable("hud.apeira.setspawn.cancel")};
-        int[] colors = {target != null && clear ? 0xFF9FC544 : 0xFFF17F61, 0xFFFFFFFF, 0xFFA7AEBA};
+        int[] colors = {target != null && clear && alpha > 0.0F ? 0xFF9FC544 : 0xFFF17F61, 0xFFFFFFFF, 0xFFA7AEBA};
         int width = 0;
         for (Component line : lines) {
             width = Math.max(width, font.width(line));
