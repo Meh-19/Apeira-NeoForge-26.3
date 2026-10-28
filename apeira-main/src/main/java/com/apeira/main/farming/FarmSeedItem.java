@@ -2,7 +2,6 @@ package com.apeira.main.farming;
 
 import java.util.function.Consumer;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +29,7 @@ public class FarmSeedItem extends Item {
     @SuppressWarnings("deprecation")
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder,
             TooltipFlag flag) {
-        builder.accept(Component.translatable("tooltip.apeira.farming.seed", crop.days()).withStyle(ChatFormatting.GRAY));
-        builder.accept(Component.translatable("tooltip.apeira.farming.plant_in_planter").withStyle(ChatFormatting.DARK_GRAY));
+        builder.accept(FarmingLore.line("tooltip.apeira.farming.plant_in_planter"));
+        builder.accept(FarmingLore.line("tooltip.apeira.farming.seed", crop.days()));
     }
 }

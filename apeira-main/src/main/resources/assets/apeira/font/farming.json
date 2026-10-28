@@ -17,20 +17,31 @@
     },
     {
       "type": "bitmap",
-      "file": "apeira:gui/farming/crop_star.png",
+      "file": "apeira:gui/farming/crop_stars.png",
       "ascent": 7,
-      "height": 7,
+      "height": 9,
       "chars": [
-        "\ue001"
+        "\ue003",
+        "\ue004",
+        "\ue005"
       ]
     },
     {
       "type": "bitmap",
-      "file": "apeira:gui/farming/empty_crop_star.png",
+      "file": "apeira:gui/farming/empty_water_drop.png",
       "ascent": 7,
-      "height": 7,
+      "height": 8,
       "chars": [
-        "\ue002"
+        "\ue006"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/farming/water_drop.png",
+      "ascent": 7,
+      "height": 8,
+      "chars": [
+        "\ue007"
       ]
     }
   ]

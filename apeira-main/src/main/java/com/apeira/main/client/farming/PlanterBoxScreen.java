@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.farming.FarmCrop;
+import com.apeira.main.farming.FarmingLore;
 import com.apeira.main.farming.Fertilizer;
 import com.apeira.main.farming.PlanterBoxBlockEntity;
 import com.apeira.main.farming.PlanterBoxMenu;
@@ -56,10 +57,10 @@ public class PlanterBoxScreen extends AbstractContainerScreen<PlanterBoxMenu> {
     private static final int INFO_SIZE = 16;
     private static final List<Component> INFO = List.of(
             Component.translatable("container.apeira.planter_box.info"),
-            Component.translatable("container.apeira.planter_box.info1").withStyle(ChatFormatting.GRAY),
-            Component.translatable("container.apeira.planter_box.info2").withStyle(ChatFormatting.GRAY),
-            Component.translatable("container.apeira.planter_box.info3").withStyle(ChatFormatting.GRAY),
-            Component.translatable("container.apeira.planter_box.info4").withStyle(ChatFormatting.GRAY));
+            FarmingLore.line("container.apeira.planter_box.info1"),
+            FarmingLore.line("container.apeira.planter_box.info2"),
+            FarmingLore.line("container.apeira.planter_box.info3"),
+            FarmingLore.line("container.apeira.planter_box.info4"));
 
     public PlanterBoxScreen(PlanterBoxMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, WIDTH, HEIGHT);
@@ -115,7 +116,7 @@ public class PlanterBoxScreen extends AbstractContainerScreen<PlanterBoxMenu> {
         List<Component> lines = new ArrayList<>();
         if (crop == null) {
             lines.add(Component.translatable("container.apeira.planter_box.empty"));
-            lines.add(Component.translatable("container.apeira.planter_box.empty1").withStyle(ChatFormatting.GRAY));
+            lines.add(FarmingLore.line("container.apeira.planter_box.empty1"));
             return lines;
         }
         lines.add(Component.translatable(crop.translationKey()).withStyle(golden ? ChatFormatting.GOLD : ChatFormatting.WHITE));
@@ -123,7 +124,7 @@ public class PlanterBoxScreen extends AbstractContainerScreen<PlanterBoxMenu> {
             lines.add(Component.translatable(golden ? "container.apeira.planter_box.ripe_golden" : "container.apeira.planter_box.ripe")
                     .withStyle(ChatFormatting.GREEN));
         } else {
-            lines.add(Component.translatable("container.apeira.planter_box.growing", menu.stage() - 1, crop.days()).withStyle(ChatFormatting.GRAY));
+            lines.add(FarmingLore.line("container.apeira.planter_box.growing", menu.stage() - 1, crop.days()));
             if (!menu.has(PlanterBoxBlockEntity.FLAG_WET)) {
                 lines.add(Component.translatable("container.apeira.planter_box.needs_water").withStyle(ChatFormatting.AQUA));
             }
