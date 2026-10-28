@@ -1,24 +1,6 @@
 {
   "model": {
-    "type": "minecraft:select",
-    "cases": [
-      {
-        "model": {
-          "type": "minecraft:model",
-          "model": "apeira:item/wooden_sprinkler"
-        },
-        "when": [
-          "gui",
-          "ground",
-          "fixed",
-          "on_shelf"
-        ]
-      }
-    ],
-    "fallback": {
-      "type": "minecraft:model",
-      "model": "apeira:item/wooden_sprinkler_in_hand"
-    },
-    "property": "minecraft:display_context"
+    "type": "minecraft:model",
+    "model": "apeira:item/wooden_sprinkler"
   }
 }

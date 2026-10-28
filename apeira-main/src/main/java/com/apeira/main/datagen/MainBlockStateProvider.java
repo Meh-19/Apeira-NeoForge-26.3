@@ -32,7 +32,6 @@ import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.client.data.models.BlockModelGenerators;
-import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
@@ -129,7 +128,7 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
      * ({@code block/planter_box_rim}, north, turned for the others) left out where the box joins another, and the corner
      * post ({@code block/planter_box_post}, north-west) left out where it joins on both sides. Its item is the whole
      * model ({@code block/planter_box_inventory}). The sprinklers show Origin Realms' model for their water level,
-     * {@code block/<name>_<level>}, and a flat sprite in inventories ({@code item/<name>}) with the dry sprinkler in hand.
+     * {@code block/<name>_<level>}, and their item the flat {@code item/<name>} sprite everywhere.
      */
     private void farming() {
         Block planter = MainFarming.PLANTER_BOX.get();
@@ -162,8 +161,7 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
             generators().blockStateOutput.accept(MultiVariantGenerator.dispatch(sprinkler).with(PropertyDispatch.initial(SprinklerBlock.LEVEL)
                     .generate(level -> variant(blockModel(name + "_" + level)))));
             Identifier flat = ModelTemplates.FLAT_ITEM.create(sprinkler.asItem(), TextureMapping.layer0(sprinkler.asItem()), generators().modelOutput);
-            generators().itemModelOutput.accept(sprinkler.asItem(), ItemModelGenerators.createFlatModelDispatch(ItemModelUtils.plainModel(flat),
-                    ItemModelUtils.plainModel(modLoc("item/" + name + "_in_hand"))));
+            generators().itemModelOutput.accept(sprinkler.asItem(), ItemModelUtils.plainModel(flat));
         }
     }
 

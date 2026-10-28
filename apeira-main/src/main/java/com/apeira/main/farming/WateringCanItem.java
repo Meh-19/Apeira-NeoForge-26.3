@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import com.apeira.main.registry.MainFarming;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -30,6 +29,8 @@ import net.minecraft.world.phys.HitResult;
  */
 public class WateringCanItem extends Item {
     public static final int CAPACITY = 20;
+    /** Water drops in the tooltip, as Origin Realms' can shows: each one a fifth of {@link #CAPACITY}, rounded up. */
+    private static final int DROPS = 5;
     private static final int BAR_COLOUR = 0x3F76E4;
 
     public WateringCanItem(Item.Properties properties) {
@@ -93,6 +94,7 @@ public class WateringCanItem extends Item {
     @SuppressWarnings("deprecation")
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder,
             TooltipFlag flag) {
-        builder.accept(Component.translatable("tooltip.apeira.farming.watering_can", water(stack), CAPACITY).withStyle(ChatFormatting.AQUA));
+        int drops = Mth.ceil(DROPS * water(stack) / (float) CAPACITY);
+        builder.accept(FarmingLore.glyphs(FarmingLore.DROP.repeat(drops) + FarmingLore.EMPTY_DROP.repeat(DROPS - drops)));
     }
 }

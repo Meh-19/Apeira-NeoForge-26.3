@@ -20,7 +20,6 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.SelectItemModel;
-import net.minecraft.client.renderer.item.properties.numeric.Count;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -67,10 +66,8 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
     }
 
     /**
-     * Origin Realms' farming items, flat from {@code item/<name>}: Bag O' Soil looks fuller with more in the stack
-     * ({@code item/bag_o_soil_small}, {@code _medium} from 16, {@code _large} from 32), and the watering can shows
-     * whether it has water ({@code item/wooden_watering_can[_full]}), with Origin Realms' 3-D can in hand
-     * ({@code item/wooden_watering_can[_full]_in_hand}, hand-made).
+     * Origin Realms' farming items, flat from {@code item/<name>} in every context: Bag O' Soil is {@code item/bag_o_soil_large}
+     * at any count, and the watering can shows whether it has water ({@code item/wooden_watering_can[_full]}).
      */
     private void farming() {
         MainFarming.seeds().forEach(this::simpleItem);
@@ -78,16 +75,9 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
         MainFarming.goldenProduce().forEach(this::simpleItem);
         MainFarming.fertilizers().forEach(this::simpleItem);
 
-        ItemModel.Unbaked small = flat("bag_o_soil_small");
-        generators().itemModelOutput.accept(MainFarming.BAG_O_SOIL.get(), ItemModelUtils.rangeSelect(new Count(false), small,
-                ItemModelUtils.override(flat("bag_o_soil_medium"), 16.0F), ItemModelUtils.override(flat("bag_o_soil_large"), 32.0F)));
-
-        ItemModel.Unbaked empty = ItemModelGenerators.createFlatModelDispatch(flat("wooden_watering_can"),
-                ItemModelUtils.plainModel(modLoc("item/wooden_watering_can_in_hand")));
-        ItemModel.Unbaked full = ItemModelGenerators.createFlatModelDispatch(flat("wooden_watering_can_full"),
-                ItemModelUtils.plainModel(modLoc("item/wooden_watering_can_full_in_hand")));
-        generators().itemModelOutput.accept(MainFarming.WOODEN_WATERING_CAN.get(),
-                ItemModelUtils.conditional(ItemModelUtils.hasComponent(MainFarming.WATER.get()), full, empty));
+        generators().itemModelOutput.accept(MainFarming.BAG_O_SOIL.get(), flat("bag_o_soil_large"));
+        generators().itemModelOutput.accept(MainFarming.WOODEN_WATERING_CAN.get(), ItemModelUtils.conditional(
+                ItemModelUtils.hasComponent(MainFarming.WATER.get()), flat("wooden_watering_can_full"), flat("wooden_watering_can")));
     }
 
     /** Writes the flat model {@code item/<name>} from the texture of that name. */

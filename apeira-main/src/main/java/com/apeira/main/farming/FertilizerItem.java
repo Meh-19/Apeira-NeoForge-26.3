@@ -2,7 +2,6 @@ package com.apeira.main.farming;
 
 import java.util.function.Consumer;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +25,6 @@ public class FertilizerItem extends Item {
     @SuppressWarnings("deprecation")
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder,
             TooltipFlag flag) {
-        builder.accept(Component.translatable(fertilizer.translationKey() + ".description").withStyle(ChatFormatting.GRAY));
+        FarmingLore.describe(builder, fertilizer.translationKey() + ".description", 2);
     }
 }
