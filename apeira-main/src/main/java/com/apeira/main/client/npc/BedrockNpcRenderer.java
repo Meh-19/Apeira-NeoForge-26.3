@@ -6,7 +6,6 @@ import java.util.WeakHashMap;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.decor.client.EmissiveRenderTypes;
-import com.apeira.decor.client.PlacementGlide;
 import com.apeira.decor.client.bedrock.BedrockAnimation;
 import com.apeira.decor.client.bedrock.BedrockAssets;
 import com.apeira.decor.client.bedrock.BedrockModel;
@@ -27,7 +26,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * Draws an {@link NpcEntity} from a Bedrock model and animation ({@code assets/<namespace>/bedrock/}, loaded by decor's
@@ -35,8 +33,8 @@ import net.minecraft.world.phys.Vec3;
  * its front (Blockbench's north) turned to the entity's facing, the animation looping on the entity's age. It is drawn
  * with the emissive translucent entity type, so alpha 254 texels glow. A hidden NPC is not drawn at all until the
  * viewer comes within {@link #GHOST_REACH} block of it; then it fades in as a faint ghost ({@link #GHOST_ALPHA}) over
- * {@link #GHOST_FADE_MS}, and fades out again when they step away. When the NPC jumps to a new spot
- * (the anchor tool's teleport), it glides there from where it was drawn ({@link PlacementGlide}) instead of snapping.
+ * {@link #GHOST_FADE_MS}, and fades out again when they step away. A moved NPC (the anchor tool's teleport) is drawn at
+ * its new spot at once.
  */
 public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRenderer.State> {
     /** The ghost's alpha, for a hidden NPC seen up close. */
@@ -45,24 +43,13 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
     private static final double GHOST_REACH = 1.0;
     /** How long a hidden NPC's ghost takes to fade fully in or out. */
     private static final float GHOST_FADE_MS = 300.0F;
-    /** A move longer than this between two frames is a teleport, which glides; shorter ones are drawn as they are. */
-    private static final double JUMP = 0.5;
-
-    /** Each NPC's last drawn position and yaw, and its glide while one runs. */
+    /** Each NPC's ghost fade. */
     private static final Map<NpcEntity, Track> TRACKS = new WeakHashMap<>();
 
     private static final class Track {
-        Vec3 position;
-        float yaw;
-        @Nullable PlacementGlide glide;
         /** The ghost's fade, 0 (gone) to 1 (at {@link #GHOST_ALPHA}), and when it was last moved. */
         float ghost;
         long ghostMillis = Util.getMillis();
-
-        Track(Vec3 position, float yaw) {
-            this.position = position;
-            this.yaw = yaw;
-        }
     }
 
     private final Identifier model;
@@ -89,7 +76,6 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
         float yRot;
         boolean ghost;
         float ghostFade;
-        Vec3 glide = Vec3.ZERO;
     }
 
     @Override
@@ -101,30 +87,8 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
     public void extractRenderState(NpcEntity entity, State state, float partialTicks) {
         super.extractRenderState(entity, state, partialTicks);
         state.yRot = entity.getViewYRot(partialTicks);
-        Vec3 position = entity.getPosition(partialTicks);
-        Track track = TRACKS.get(entity);
-        if (track == null) {
-            TRACKS.put(entity, new Track(position, state.yRot));
-        } else {
-            if (track.position.distanceToSqr(position) > JUMP * JUMP) {
-                // Glide from where it was last drawn, mid-glide included.
-                Vec3 drawn = track.glide != null && !track.glide.done() ? track.position.add(track.glide.offset()) : track.position;
-                float drawnYaw = track.glide != null && !track.glide.done() ? track.glide.yaw(track.yaw) : track.yaw;
-                track.glide = PlacementGlide.between(drawn, position, drawnYaw);
-            }
-            track.position = position;
-            track.yaw = state.yRot;
-            if (track.glide != null) {
-                if (track.glide.done()) {
-                    track.glide = null;
-                } else {
-                    state.glide = track.glide.offset();
-                    state.yRot = track.glide.yaw(state.yRot);
-                }
-            }
-        }
         state.ghost = !entity.isShown();
-        Track ghostTrack = TRACKS.get(entity);
+        Track ghostTrack = TRACKS.computeIfAbsent(entity, npc -> new Track());
         long now = Util.getMillis();
         Player viewer = Minecraft.getInstance().player;
         boolean near = state.ghost && viewer != null && viewer.getBoundingBox().distanceToSqr(entity.getBoundingBox()) <= GHOST_REACH * GHOST_REACH;
@@ -143,7 +107,6 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
         if (bedrock != null && !state.isInvisible) {
             @Nullable BedrockAnimation idle = BedrockAssets.animation(animations, animation);
             poseStack.pushPose();
-            poseStack.translate(state.glide.x, state.glide.y, state.glide.z);
             poseStack.rotate(Axis.YP.rotationDegrees(180.0F - state.yRot));
             int color = state.ghost ? Math.round(GHOST_ALPHA * state.ghostFade) << 24 | 0xFFFFFF : 0xFFFFFFFF;
             BedrockRenderer.submit(bedrock, idle, state.ageInTicks / 20.0F, poseStack, submitNodeCollector,
@@ -156,10 +119,7 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
     /** The animation lifts and swings the model past its collision box, so it is culled by a larger box. */
     @Override
     protected AABB getBoundingBoxForCulling(NpcEntity entity, float partialTicks) {
-        AABB box = entity.getBoundingBox().inflate(1.0, 1.5, 1.0);
-        Track track = TRACKS.get(entity);
-        // While gliding it is drawn between its old and new spots.
-        return track != null && track.glide != null ? box.minmax(box.move(track.glide.from().subtract(track.glide.to()))) : box;
+        return entity.getBoundingBox().inflate(1.0, 1.5, 1.0);
     }
 
     @Override
