@@ -224,10 +224,21 @@ public class PlanterBoxBlockEntity extends BlockEntity implements Container {
 
     // Watering and growth
 
-    /** Whether the box is watered today: by hand, or by a sprinkler in range. Clients read the block state. */
+    /** Waters the box for today when rain falls on it, unless it already was by hand or rain. */
+    void rain(ServerLevel serverLevel) {
+        if (wateredDay != FarmingService.day(serverLevel)) {
+            water();
+        }
+    }
+
+    /**
+     * Whether the box shows watered today: by hand or rain, or by a sprinkler in range whose wave has reached it
+     * ({@link FarmingService#sprinklerReaches}). Clients read the block state.
+     */
     public boolean isWet() {
         if (level instanceof ServerLevel serverLevel) {
-            return wateredOn(serverLevel, FarmingService.day(serverLevel));
+            long day = FarmingService.day(serverLevel);
+            return wateredDay == day || FarmingService.sprinklerReaches(serverLevel, worldPosition, day);
         }
         return getBlockState().getValue(PlanterBoxBlock.WET);
     }

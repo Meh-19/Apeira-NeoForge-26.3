@@ -547,10 +547,10 @@
 						"60.0": [0, 0, 0],
 						"60.05": [0, 0, 0.0005]
 					},
-					"scale": 0.625
+					"scale": [0.625, 0.625, 0.625]
 				},
 				"balloon_conductor_head_paper_cmd2057_balloon_conductor_head": {
-					"scale": 1.6
+					"scale": [1.6, 1.6, 1.6]
 				},
 				"balloon_conductor_head": {
 					"position": {
@@ -4521,10 +4521,10 @@
 						"59.85": [0, 0, -0.0022],
 						"60.05": [0, 0, 0]
 					},
-					"scale": 0.625
+					"scale": [0.625, 0.625, 0.625]
 				},
 				"balloon_conductor_body_paper_cmd2229_balloon_conductor_body": {
-					"scale": 1.6
+					"scale": [1.6, 1.6, 1.6]
 				},
 				"balloon_conductor_body": {
 					"position": {
@@ -6953,32 +6953,6 @@
 						"60.05": [0, -0.0273, 0]
 					}
 				}
-			},
-			"timeline": {
-				"0.0": [
-					"v.event = 'present interaction_0';",
-					"v.event = 'present interaction_1';",
-					"v.event = 'target_start interaction_0';",
-					"v.event = 'present balloon_conductor_head';",
-					"v.event = 'present balloon_conductor_arm';",
-					"v.event = 'present balloon_conductor_arm_2';",
-					"v.event = 'present balloon_conductor_body';",
-					"v.event = 'present balloon_conductor_leg';",
-					"v.event = 'present balloon_conductor_leg_2';",
-					"v.event = 'present text_display_0';"
-				],
-				"6.75": ["v.event = 'target_end interaction_0';", "v.event = 'target_start interaction_1';"],
-				"8.45": ["v.event = 'target_end interaction_1';", "v.event = 'target_start interaction_0';"],
-				"15.8": ["v.event = 'target_end interaction_0';", "v.event = 'target_start interaction_1';"],
-				"17.5": ["v.event = 'target_end interaction_1';", "v.event = 'target_start interaction_0';"],
-				"27.85": ["v.event = 'target_end interaction_0';", "v.event = 'target_start interaction_1';"],
-				"29.55": ["v.event = 'target_end interaction_1';", "v.event = 'target_start interaction_0';"],
-				"43.75": ["v.event = 'target_end interaction_0';", "v.event = 'target_start interaction_1';"],
-				"45.2": ["v.event = 'target_end interaction_1';", "v.event = 'target_start interaction_0';"],
-				"46.55": ["v.event = 'target_end interaction_0';", "v.event = 'target_start interaction_1';"],
-				"47.35": ["v.event = 'target_end interaction_1';", "v.event = 'target_start interaction_0';"],
-				"54.95": ["v.event = 'target_end interaction_0';", "v.event = 'target_start interaction_1';"],
-				"56.65": ["v.event = 'target_end interaction_1';", "v.event = 'target_start interaction_0';"]
 			}
 		}
 	}
