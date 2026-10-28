@@ -96,7 +96,7 @@ public final class ApeiraClient {
         event.registerEntityRenderer(MainEntities.WRAITH.get(), WraithRenderer::new);
         BedrockNpcRenderer.register(event, MainNpcs.CONDUCTOR_CARLO.get(), new BedrockNpcRenderer.Rig(Apeira.REGISTRAR.id("entity/conductor_carlo"),
                 Apeira.REGISTRAR.id("entity/conductor_carlo"), "animation.conductor_carlo.idle", Apeira.REGISTRAR.id("textures/entity/conductor_carlo.png"),
-                "balloon_conductor_head_paper_cmd2057_balloon_conductor_head"));
+                "balloon_conductor_head"));
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
