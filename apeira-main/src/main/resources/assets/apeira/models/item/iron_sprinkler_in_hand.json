@@ -1,7 +1,0 @@
-{
-  "parent": "apeira:item/wooden_sprinkler_in_hand",
-  "textures": {
-    "0": "apeira:block/iron_sprinkler",
-    "particle": "apeira:block/iron_sprinkler"
-  }
-}

@@ -107,6 +107,8 @@ public final class MainFarming {
                     .instrument(NoteBlockInstrument.BASS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
+                    // Its rims and posts stand above the block and take its own light; an occluding block has none there
+                    .noOcclusion()
                     .ignitedByLava(),
             properties -> properties);
     public static final DeferredBlock<SprinklerBlock> WOODEN_SPRINKLER = R.blockWithItem("wooden_sprinkler", p -> new SprinklerBlock(2, p),
