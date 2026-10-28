@@ -217,7 +217,7 @@ public final class RealmPool {
      * 0, 0. The first arrival builds the starter platform and balloon at the origin ({@link StarterBalloon#build}), which
      * becomes the spawn unless the owner had already set one; the balloon faces {@code facing}, the arriving player's
      * way, which becomes the realm's spawn facing, and is painted its region's colour unless the owner picked one
-     * ({@link BalloonColors#forPreset}). A Lush realm also gets Conductor Carlo beside it ({@link NpcService#spawnConductor}).
+     * ({@link BalloonColors#forPreset}). Its region's balloon conductor stands beside it ({@link NpcService#spawnConductor}).
      */
     static BlockPos spawnOf(ServerLevel level, RealmData.Realm realm, RealmAccess access, Direction facing) {
         if (!access.starterBuilt) {
@@ -225,9 +225,7 @@ public final class RealmPool {
             access.spawnFacing = facing.getAxis().isHorizontal() ? facing : Direction.NORTH;
             BlockPos balloon = StarterBalloon.build(level, realm.preset(), access.spawnFacing);
             access.balloon = Optional.of(balloon);
-            if (realm.preset() == RealmPreset.LUSH) {
-                NpcService.spawnConductor(level, balloon, access.spawnFacing);
-            }
+            NpcService.spawnConductor(level, balloon, access.spawnFacing, realm.preset());
             if (access.spawn.isEmpty()) {
                 access.spawn = Optional.of(balloon.above());
             }

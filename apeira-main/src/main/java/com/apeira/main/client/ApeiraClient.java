@@ -1,5 +1,7 @@
 package com.apeira.main.client;
 
+import java.util.List;
+
 import com.apeira.core.network.client.ApeiraClientNetwork;
 import com.apeira.main.Apeira;
 import com.apeira.main.client.entity.CrocodileRenderer;
@@ -94,9 +96,12 @@ public final class ApeiraClient {
         event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
         event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);
         event.registerEntityRenderer(MainEntities.WRAITH.get(), WraithRenderer::new);
-        BedrockNpcRenderer.register(event, MainNpcs.CONDUCTOR_CARLO.get(), new BedrockNpcRenderer.Rig(Apeira.REGISTRAR.id("entity/conductor_carlo"),
-                Apeira.REGISTRAR.id("entity/conductor_carlo"), "animation.conductor_carlo.idle", Apeira.REGISTRAR.id("textures/entity/conductor_carlo.png"),
-                "balloon_conductor_head"));
+        // The balloon conductors share one model and animation, each with his own texture.
+        for (var conductor : List.of(MainNpcs.CONDUCTOR_CARLO, MainNpcs.CONDUCTOR_MARCO, MainNpcs.CONDUCTOR_GINO, MainNpcs.CONDUCTOR_ANTONIO)) {
+            BedrockNpcRenderer.register(event, conductor.get(), new BedrockNpcRenderer.Rig(Apeira.REGISTRAR.id("entity/balloon_conductor"),
+                    Apeira.REGISTRAR.id("entity/balloon_conductor"), "animation.balloon_conductor.idle",
+                    Apeira.REGISTRAR.id("textures/entity/" + conductor.getId().getPath() + ".png"), "balloon_conductor_head"));
+        }
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {

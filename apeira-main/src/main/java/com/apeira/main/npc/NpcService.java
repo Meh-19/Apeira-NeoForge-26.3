@@ -9,6 +9,7 @@ import com.apeira.decor.placement.PlacementReach;
 import com.apeira.main.Apeira;
 import com.apeira.main.navigator.NavigatorService;
 import com.apeira.main.realm.RealmService;
+import com.apeira.main.realm.RealmPreset;
 import com.apeira.main.registry.MainNpcs;
 import com.apeira.main.registry.MainSounds;
 
@@ -23,6 +24,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -31,7 +33,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  * The server side of realm NPCs: Shift-right-clicking an {@link NpcEntity} opens its settings in the navigator
  * ({@link NavigatorService#openNpc}, the {@code EDIT_NPC} popup) for whoever may edit it; the popup's buttons toggle its
  * visibility ({@link #toggleShown}) and start the anchor placement cursor ({@link #startAnchor}), whose left-click moves
- * it ({@link #anchor}). A plain right-click talks to it ({@link #talk}). {@link #spawnConductor} places Conductor Carlo by a
+ * it ({@link #anchor}). A plain right-click talks to it ({@link #talk}). {@link #spawnConductor} places a region's balloon conductor by a
  * Lush realm's new starter balloon.
  */
 public final class NpcService {
@@ -128,26 +130,28 @@ public final class NpcService {
     }
 
     /**
-     * Places Conductor Carlo by a Lush realm's new starter balloon, whose floor's centre is {@code balloon} and whose
+     * Places the region's balloon conductor ({@link MainNpcs#conductor(RealmPreset)}: Carlo, Marco, Gino or Antonio) by a
+     * realm's new starter balloon, whose floor's centre is {@code balloon} and whose
      * front faces {@code facing}: {@link #CONDUCTOR_FORWARD} blocks out of its front and {@link #CONDUCTOR_LEFT} to its left, on the ground there (the top block of that column, leaves ignored), facing the balloon turned a quarter turn counter-clockwise ({@link #CONDUCTOR_TURN}). Nothing is placed
      * when that spot has no room for him.
      */
-    public static void spawnConductor(ServerLevel level, BlockPos balloon, Direction facing) {
+    public static void spawnConductor(ServerLevel level, BlockPos balloon, Direction facing, RealmPreset preset) {
+        EntityType<NpcEntity> type = MainNpcs.conductor(preset);
         Direction left = facing.getCounterClockWise();
         int x = balloon.getX() + facing.getStepX() * CONDUCTOR_FORWARD + left.getStepX() * CONDUCTOR_LEFT;
         int z = balloon.getZ() + facing.getStepZ() * CONDUCTOR_FORWARD + left.getStepZ() * CONDUCTOR_LEFT;
         BlockPos anchor = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
-        if (!NpcEntity.canStandAt(level, MainNpcs.CONDUCTOR_CARLO.get(), anchor)) {
-            Apeira.LOGGER.warn("No room for Conductor Carlo at {} in {}", anchor, level.dimension().identifier());
+        if (!NpcEntity.canStandAt(level, type, anchor)) {
+            Apeira.LOGGER.warn("No room for {} at {} in {}", EntityType.getKey(type), anchor, level.dimension().identifier());
             return;
         }
-        NpcEntity carlo = MainNpcs.CONDUCTOR_CARLO.get().create(level, EntitySpawnReason.EVENT);
-        if (carlo == null) {
+        NpcEntity conductor = type.create(level, EntitySpawnReason.EVENT);
+        if (conductor == null) {
             return;
         }
-        carlo.snapTo(Vec3.atBottomCenterOf(anchor));
-        carlo.face(Vec3.atBottomCenterOf(balloon));
-        carlo.turn(CONDUCTOR_TURN);
-        level.addFreshEntity(carlo);
+        conductor.snapTo(Vec3.atBottomCenterOf(anchor));
+        conductor.face(Vec3.atBottomCenterOf(balloon));
+        conductor.turn(CONDUCTOR_TURN);
+        level.addFreshEntity(conductor);
     }
 }

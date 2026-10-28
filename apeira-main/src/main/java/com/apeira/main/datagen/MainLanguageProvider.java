@@ -149,6 +149,9 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add(MainEntities.CROCODILE.get(), "Crocodile");
         add(MainEntities.WRAITH.get(), "Wraith");
         add(MainNpcs.CONDUCTOR_CARLO.get(), "Conductor Carlo");
+        add(MainNpcs.CONDUCTOR_MARCO.get(), "Conductor Marco");
+        add(MainNpcs.CONDUCTOR_GINO.get(), "Conductor Gino");
+        add(MainNpcs.CONDUCTOR_ANTONIO.get(), "Conductor Antonio");
         add("subtitles.apeira.entity.wraith.ambient", "Wraith whispers");
         add("subtitles.apeira.entity.wraith.target", "Wraith notices you");
         add("subtitles.apeira.entity.wraith.hurt", "Wraith hurts");
@@ -308,6 +311,12 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("subtitles.apeira.npc.voice.male1", "NPC speaks");
         add("dialogue.apeira.conductor_carlo.greeting",
                 "Hi there, traveller! The skies are looking clear and perfect for flight! Where are we heading today?");
+        add("dialogue.apeira.conductor_marco.greeting",
+                "Full of air and ready to lift off. not a better day for it! Where are we flying today, traveler?");
+        add("dialogue.apeira.conductor_gino.greeting",
+                "Another perfect day for flight, I hope these trees don't get in the way! Now tell me, where's your destination?");
+        add("dialogue.apeira.conductor_antonio.greeting",
+                "What a lovely place to lift off, these fields make flying the joy of my day. Where would you like to go?");
         addId("navigator", "npc_anchor", "Set Anchor");
         addId("navigator", "npc_anchor.desc", "Pick the spot this NPC stands on");
         addId("navigator", "action.npc_anchor_place", "Left-click to place");
