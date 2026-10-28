@@ -30,8 +30,9 @@ import net.minecraft.world.phys.Vec3;
  * its settings ({@link NpcService}) for whoever may edit it ({@link #canEdit}): its visibility and its anchor, the spot it
  * stands on ({@link #anchor}).
  *
- * <p>An invisible NPC ({@link #isShown()} false) is not drawn and cannot be aimed at for players who may not edit it;
- * those who may see it as a faint ghost, so they can make it visible again.
+ * <p>An invisible NPC ({@link #isShown()} false) is not drawn until a player comes within a block of it, when it fades
+ * in as a faint ghost; it cannot be aimed at for players who may not edit it, while those who may can still Shift-click
+ * it to make it visible again.
  */
 public class NpcEntity extends Entity {
     private static final EntityDataAccessor<Boolean> DATA_SHOWN = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.BOOLEAN);
@@ -93,6 +94,13 @@ public class NpcEntity extends Entity {
             setYRot(yaw);
             this.yRotO = yaw;
         }
+    }
+
+    /** Turns the NPC {@code degrees} clockwise, seen from above. */
+    public void turn(float degrees) {
+        float yaw = Mth.wrapDegrees(getYRot() + degrees);
+        setYRot(yaw);
+        this.yRotO = yaw;
     }
 
     /**

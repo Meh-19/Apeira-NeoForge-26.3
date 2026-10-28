@@ -39,9 +39,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * cursor ({@link SpawnPlacement}) sized to the NPC's collision box ({@link NpcEntity#footprint}), standing on the block
  * surface under the crosshair, green where the NPC fits and red where not ({@link NpcEntity#canStandAt}, which the server
  * checks again). Left-click sends {@link ConfirmNpcAnchorPayload}, and the server moves the NPC there facing the player;
- * right-click or Escape cancels; changing level, the NPC leaving it or leaving the server drops it. Like the spawn
- * cursor's, the box is a ghost that fades out and cannot be confirmed beyond {@link SpawnPlacement#PREVIEW_CUTOFF} blocks
- * from the player ({@link SpawnPlacement#previewAlpha}).
+ * right-click or Escape cancels; changing level, the NPC leaving it or leaving the server drops it. Unlike the spawn
+ * cursor's, its box has no distance cutoff: it shows and places anywhere within reach.
  */
 public final class NpcAnchorPlacement {
     private static final Identifier CLEAR_TEXTURE = ApeiraIds.id("textures/misc/spawn_selection.png");
@@ -55,7 +54,6 @@ public final class NpcAnchorPlacement {
     private static @Nullable EntityType<?> type;
     private static @Nullable BlockPos target;
     private static boolean clear;
-    private static float alpha;
 
     private NpcAnchorPlacement() {}
 
@@ -100,7 +98,6 @@ public final class NpcAnchorPlacement {
             target = block.getDirection() == Direction.DOWN ? block.getBlockPos().below(height)
                     : block.getBlockPos().relative(block.getDirection());
             clear = NpcEntity.canStandAt(minecraft.level, type, target);
-            alpha = SpawnPlacement.previewAlpha(minecraft.player.getBoundingBox(), NpcEntity.footprint(type, target));
         }
     }
 
@@ -119,11 +116,9 @@ public final class NpcAnchorPlacement {
         if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
             stop();
         } else if (minecraft.player != null) {
-            if (target != null && clear && alpha > 0.0F) {
+            if (target != null && clear) {
                 ApeiraClientNetwork.sendToServer(new ConfirmNpcAnchorPayload(npc, target));
                 stop();
-            } else if (target != null && alpha <= 0.0F) {
-                minecraft.player.sendOverlayMessage(Component.translatable("hud.apeira.placement.too_far"));
             } else {
                 minecraft.player.sendOverlayMessage(Component.translatable("hud.apeira.npc_anchor.blocked"));
             }
@@ -152,7 +147,7 @@ public final class NpcAnchorPlacement {
     public static void onSubmitGeometry(SubmitCustomGeometryEvent event) {
         BlockPos pos = target;
         EntityType<?> npcType = type;
-        if (!active || pos == null || npcType == null || alpha <= 0.0F) {
+        if (!active || pos == null || npcType == null) {
             return;
         }
         AABB box = NpcEntity.footprint(npcType, pos);
@@ -162,7 +157,7 @@ public final class NpcAnchorPlacement {
         poseStack.translate(box.minX - camera.x, box.minY + LIFT - camera.y, box.minZ - camera.z);
         float size = (float) box.getXsize();
         float height = (float) box.getYsize();
-        int color = SpawnPlacement.withAlpha(clear ? 0xFFFFFFFF : BLOCKED_TINT, alpha);
+        int color = clear ? 0xFFFFFFFF : BLOCKED_TINT;
         event.getSubmitNodeCollector().submitCustomGeometry(poseStack,
                 EmissiveRenderTypes.entityTranslucent(clear ? CLEAR_TEXTURE : BLOCKED_TEXTURE),
                 (pose, buffer) -> SpawnPlacement.box(pose, buffer, size, height, color));
@@ -176,13 +171,12 @@ public final class NpcAnchorPlacement {
         }
         Font font = minecraft.font;
         Component status = target == null ? Component.translatable("hud.apeira.npc_anchor.aim")
-                : alpha <= 0.0F ? Component.translatable("hud.apeira.placement.too_far")
                 : clear ? Component.translatable("hud.apeira.npc_anchor.clear") : Component.translatable("hud.apeira.npc_anchor.blocked");
         Component[] lines = {
                 status,
                 Component.translatable("hud.apeira.npc_anchor.confirm"),
                 Component.translatable("hud.apeira.npc_anchor.cancel")};
-        int[] colors = {target != null && clear && alpha > 0.0F ? 0xFF9FC544 : 0xFFF17F61, 0xFFFFFFFF, 0xFFA7AEBA};
+        int[] colors = {target != null && clear ? 0xFF9FC544 : 0xFFF17F61, 0xFFFFFFFF, 0xFFA7AEBA};
         int width = 0;
         for (Component line : lines) {
             width = Math.max(width, font.width(line));
