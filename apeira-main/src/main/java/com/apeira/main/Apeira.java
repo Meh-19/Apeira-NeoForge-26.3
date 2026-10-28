@@ -72,7 +72,7 @@ public final class Apeira {
     /** Generates the models, language, recipes, loot tables, tags and data maps for {@link #REGISTRAR}'s entries. */
     public static final ApeiraDataGenerators DATA = ApeiraDataGenerators.create(REGISTRAR);
     /** The main module's payloads; bump the version when one of their codecs changes. */
-    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("4");
+    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("5");
 
     public Apeira(IEventBus modEventBus, ModContainer modContainer) {
         // Content holder classes (blocks, items, ...) are passed here as they are added.

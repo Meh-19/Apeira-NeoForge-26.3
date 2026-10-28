@@ -1,0 +1,12 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "apeira:custom_ui/speech.png",
+      "ascent": 7,
+      "chars": [
+        "ꢔ"
+      ]
+    }
+  ]
+}

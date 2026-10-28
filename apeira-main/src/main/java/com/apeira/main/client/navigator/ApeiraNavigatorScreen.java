@@ -147,6 +147,7 @@ public final class ApeiraNavigatorScreen extends Screen {
      * grey left transparent, so the gradient runs on behind the badge's rounded corners instead of a grey square.
      */
     private static final NavigatorBounds.Rect INFO_ICON = new NavigatorBounds.Rect(82, 56, 92, 66);
+    private static final NavigatorBounds.Rect NPC_GLOBE = new NavigatorBounds.Rect(48, 75, 58, 85);
     private static final NavigatorBounds.Rect FEATURED_BADGE = new NavigatorBounds.Rect(26, 54, 42, 70);
     private static final Identifier INFO_ICON_TEXTURE = icon("info_icon");
     private static final Identifier FEATURED_BADGE_TEXTURE = icon("featured_badge");
@@ -247,6 +248,15 @@ public final class ApeiraNavigatorScreen extends Screen {
                 } else if (slots.length == 1 && slots[0] == NavigatorLayout.BADGE_SLOTS[0] && view.page() == NavigatorPage.PROFILE) {
                     // The featured badge is drawn over the gradient from its own texture, so its box is the highlight.
                     buttons.set(i, List.of(FEATURED_BADGE));
+                }
+            }
+        }
+        if (view.page() == NavigatorPage.EDIT_NPC) {
+            // The globe's black lines would cut its fill short: its highlight is the icon's outlined box.
+            for (int i = 0; i < layout.buttons().size(); i++) {
+                int[] slots = layout.buttons().get(i).slots();
+                if (slots.length == 1 && slots[0] == NavigatorLayout.NPC_GLOBE_SLOT) {
+                    buttons.set(i, List.of(NPC_GLOBE));
                 }
             }
         }

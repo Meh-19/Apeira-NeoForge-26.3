@@ -16,9 +16,17 @@ import net.minecraft.util.Mth;
  * mirrored, z, y, x order), then scales; each cube turns about its own pivot. The model's origin is the pose stack's
  * origin, a block is 16 pixels, and Blockbench's north (-z) is the model's front. Every cube is one custom geometry
  * submission with the caller's render type, so an emissive type ({@code EmissiveRenderTypes}) keeps alpha 254 texels lit.
+ * An {@link Attachment} draws extra things on named bones (the NPCs' {@code chat_display} speech bubble).
  */
 public final class BedrockRenderer {
     private BedrockRenderer() {}
+
+    /** Something drawn on a bone, in the bone's own frame: its pivot as the origin, turned and scaled as the bone is, in blocks. */
+    @FunctionalInterface
+    public interface Attachment {
+        /** Called once per {@code bone} drawn; the pose stack must be left as it was. */
+        void submit(String bone, PoseStack poseStack, SubmitNodeCollector collector);
+    }
 
     /**
      * Submits {@code model} posed at {@code seconds} into {@code animation} (its rest pose without one), tinted
@@ -26,15 +34,21 @@ public final class BedrockRenderer {
      */
     public static void submit(BedrockModel model, @Nullable BedrockAnimation animation, float seconds, PoseStack poseStack,
             SubmitNodeCollector collector, RenderType renderType, int light, int overlay, int color) {
+        submit(model, animation, seconds, poseStack, collector, renderType, light, overlay, color, null);
+    }
+
+    /** As {@link #submit(BedrockModel, BedrockAnimation, float, PoseStack, SubmitNodeCollector, RenderType, int, int, int)}, calling {@code attachment} on every bone drawn. */
+    public static void submit(BedrockModel model, @Nullable BedrockAnimation animation, float seconds, PoseStack poseStack,
+            SubmitNodeCollector collector, RenderType renderType, int light, int overlay, int color, @Nullable Attachment attachment) {
         float time = animation == null ? 0 : animation.timeAt(seconds);
         float[] scratch = new float[3];
         for (BedrockModel.Bone bone : model.bones()) {
-            bone(bone, animation, time, scratch, poseStack, collector, renderType, light, overlay, color);
+            bone(bone, animation, time, scratch, poseStack, collector, renderType, light, overlay, color, attachment);
         }
     }
 
     private static void bone(BedrockModel.Bone bone, @Nullable BedrockAnimation animation, float time, float[] scratch, PoseStack poseStack,
-            SubmitNodeCollector collector, RenderType renderType, int light, int overlay, int color) {
+            SubmitNodeCollector collector, RenderType renderType, int light, int overlay, int color, @Nullable Attachment attachment) {
         BedrockAnimation.BoneTrack track = animation == null ? null : animation.bones().get(bone.name());
         poseStack.pushPose();
         float rotX = bone.rotX();
@@ -66,12 +80,15 @@ public final class BedrockRenderer {
         // A bone scaled to 0 (hidden) draws nothing, nor do its children.
         if (scaleX != 0 || scaleY != 0 || scaleZ != 0) {
             poseStack.scale(scaleX, scaleY, scaleZ);
+            if (attachment != null) {
+                attachment.submit(bone.name(), poseStack, collector);
+            }
             poseStack.translate(-bone.pivotX() / 16.0F, -bone.pivotY() / 16.0F, -bone.pivotZ() / 16.0F);
             for (BedrockModel.Cube cube : bone.cubes()) {
                 cube(cube, poseStack, collector, renderType, light, overlay, color);
             }
             for (BedrockModel.Bone child : bone.children()) {
-                bone(child, animation, time, scratch, poseStack, collector, renderType, light, overlay, color);
+                bone(child, animation, time, scratch, poseStack, collector, renderType, light, overlay, color, attachment);
             }
         }
         poseStack.popPose();

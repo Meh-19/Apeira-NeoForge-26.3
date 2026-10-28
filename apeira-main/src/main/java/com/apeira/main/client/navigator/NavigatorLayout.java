@@ -79,6 +79,9 @@ final class NavigatorLayout {
      * @param action  what clicking it asks the server to do; null for areas that only explain themselves
      * @param lit     whether hovering it lights its face; the profile's model panel only shows its tooltip
      */
+    /** The NPC settings popup's globe, whose icon has black lines inside it, so its highlight is its drawn box. */
+    static final int NPC_GLOBE_SLOT = 29;
+
     record Button(int[] slots, List<Component> tooltip, @Nullable NavigatorActionPayload action, boolean lit) {
         Button(int[] slots, List<Component> tooltip, @Nullable NavigatorActionPayload action) {
             this(slots, tooltip, action, true);
@@ -169,22 +172,21 @@ final class NavigatorLayout {
 
     /**
      * An NPC's settings (Ren's {@code npc/edit_npc} popup, placed as the Edit Member popup is): the close cross (24), the
-     * globe and the visibility switch (29-31, one button; {@code npc/visibility_off} moves the switch's knob to its left
-     * cell while the NPC is hidden) and Set Anchor (32).
+     * globe (29, an info button, as the realm settings' toggles have), the visibility toggle (30-31, the mod's standard
+     * toggle: {@code edit_npc} draws it off, knob left and the dark cell right; {@code npc/visibility_on} draws it on,
+     * the green "I" cell left and the knob right, copied from the realm settings' {@code accessibility} layer) and Set
+     * Anchor (32).
      */
     private static void npcPage(NavigatorView view, List<Identifier> layers, List<Button> buttons) {
         boolean shown = view.has(NavigatorView.NPC_SHOWN);
         layer(layers, "npc/edit_npc");
-        if (!shown) {
-            layer(layers, "npc/visibility_off");
+        if (shown) {
+            layer(layers, "npc/visibility_on");
         }
         buttons.add(button(slots(24), "close", NavigatorActionPayload.of(Action.CLOSE_POPUP)));
-        buttons.add(new Button(slots(29, 30, 31), List.of(name("npc_visibility"),
-                grey(Component.translatable("navigator.apeira.npc_visibility.desc")), Component.translatable("navigator.apeira.npc_visibility.state",
-                        Component.translatable(shown ? "navigator.apeira.npc_visibility.visible" : "navigator.apeira.npc_visibility.invisible")
-                                .withColor(shown ? NavigatorService.ACTION : NavigatorService.LABEL))
-                        .withStyle(Style.EMPTY.withColor(NavigatorService.VALUE).withItalic(false)),
-                NavigatorService.action(0, shown ? "npc_hide" : "npc_show")), NavigatorActionPayload.of(Action.NPC_VISIBILITY)));
+        buttons.add(button(slots(NPC_GLOBE_SLOT), "npc_visibility.info", null));
+        buttons.add(new Button(slots(30, 31), options("npc_visibility", shown ? 0 : 1, "visible", "invisible"),
+                NavigatorActionPayload.of(Action.NPC_VISIBILITY)));
         buttons.add(new Button(slots(32), List.of(name("npc_anchor"), grey(Component.translatable("navigator.apeira.npc_anchor.desc")),
                 NavigatorService.action(0, "npc_anchor_place")), NavigatorActionPayload.of(Action.NPC_ANCHOR)));
     }

@@ -155,5 +155,14 @@
     "sounds": [
       "apeira:mono/ui/ruby_gain"
     ]
+  },
+  "npc.voice.male1": {
+    "subtitle": "subtitles.apeira.npc.voice.male1",
+    "sounds": [
+      "apeira:mono/voices/male1/1",
+      "apeira:mono/voices/male1/2",
+      "apeira:mono/voices/male1/3",
+      "apeira:mono/voices/male1/4"
+    ]
   }
 }

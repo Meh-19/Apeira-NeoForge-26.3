@@ -10,11 +10,15 @@ import com.apeira.main.Apeira;
 import com.apeira.main.navigator.NavigatorService;
 import com.apeira.main.realm.RealmService;
 import com.apeira.main.registry.MainNpcs;
+import com.apeira.main.registry.MainSounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +31,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  * The server side of realm NPCs: Shift-right-clicking an {@link NpcEntity} opens its settings in the navigator
  * ({@link NavigatorService#openNpc}, the {@code EDIT_NPC} popup) for whoever may edit it; the popup's buttons toggle its
  * visibility ({@link #toggleShown}) and start the anchor placement cursor ({@link #startAnchor}), whose left-click moves
- * it ({@link #anchor}). {@link #spawnConductor} places Conductor Carlo by a Lush realm's new starter balloon.
+ * it ({@link #anchor}). A plain right-click talks to it ({@link #talk}). {@link #spawnConductor} places Conductor Carlo by a
+ * Lush realm's new starter balloon.
  */
 public final class NpcService {
     /** The farthest from the player an anchor may be: the client's cursor reach, and a little more. */
@@ -41,13 +46,15 @@ public final class NpcService {
 
     private NpcService() {}
 
-    /** Shift-right-clicking an NPC opens its settings; anyone who may not edit it is told so. */
+    /** Shift-right-clicking an NPC opens its settings (anyone who may not edit it is told so); a plain right-click talks to it. */
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        if (!(event.getTarget() instanceof NpcEntity npc) || !event.getEntity().isShiftKeyDown() || event.getHand() != InteractionHand.MAIN_HAND) {
+        if (!(event.getTarget() instanceof NpcEntity npc) || event.getHand() != InteractionHand.MAIN_HAND) {
             return;
         }
         if (event.getEntity() instanceof ServerPlayer player && !player.isSpectator()) {
-            if (npc.canEdit(player)) {
+            if (!player.isShiftKeyDown()) {
+                talk(player, npc);
+            } else if (npc.canEdit(player)) {
                 NavigatorService.openNpc(player, npc.getUUID());
             } else {
                 RealmService.fail(player, "npc.not_owner");
@@ -55,6 +62,20 @@ public final class NpcService {
         }
         event.setCancellationResult(InteractionResult.SUCCESS);
         event.setCanceled(true);
+    }
+
+    /**
+     * {@code player} speaks to {@code npc}: it answers in its voice ({@link MainSounds#NPC_VOICE_MALE1}, heard by everyone
+     * near) and the player's client opens its dialogue with the NPC's greeting, {@code dialogue.<namespace>.<npc>.greeting}.
+     * A hidden NPC only talks to those who may edit it.
+     */
+    public static void talk(ServerPlayer player, NpcEntity npc) {
+        if (!npc.isShown() && !npc.canEdit(player)) {
+            return;
+        }
+        npc.level().playSound(null, npc.getX(), npc.getEyeY(), npc.getZ(), MainSounds.NPC_VOICE_MALE1.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+        Identifier type = BuiltInRegistries.ENTITY_TYPE.getKey(npc.getType());
+        ApeiraPackets.sendToPlayer(player, new NpcDialoguePayload(npc.getId(), "dialogue." + type.getNamespace() + "." + type.getPath() + ".greeting"));
     }
 
     /** The NPC with {@code id} in {@code player}'s level, if {@code player} may edit it. */
