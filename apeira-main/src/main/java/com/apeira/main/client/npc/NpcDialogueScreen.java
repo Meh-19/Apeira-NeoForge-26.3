@@ -16,7 +16,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
@@ -27,7 +26,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * bottom of the screen ({@link #MAX_WIDTH} by {@link #BOX_HEIGHT} GUI pixels at most), the NPC's portrait
  * ({@code textures/gui/dialogue/portrait/<npc>.png}, 42x42) on its left inside the framed border
  * ({@code textures/gui/dialogue/border.png}, 50x50 drawn 1:1, its {@link #EDGE}-pixel band round the portrait), and
- * beside it the NPC's name in bold white after the speech glyph ꢔ of the {@code apeira:dialogue} font, over its line,
+ * beside it the NPC's name in bold white after the speech glyph ꢔ (U+A894, added to {@code minecraft:default}), over its line,
  * typed out {@link #MILLIS_PER_CHAR} a character. A click, Space, Enter or F shows the whole line at once, then closes; Escape
  * closes. The game keeps running behind it, and {@link NpcDialogueCamera} keeps the view on the NPC while it is open.
  */
@@ -35,7 +34,6 @@ public class NpcDialogueScreen extends Screen {
     private static final Identifier BORDER = Apeira.REGISTRAR.id("textures/gui/dialogue/border.png");
     private static final int BORDER_SIZE = 50;
     private static final int EDGE = 4;
-    private static final FontDescription DIALOGUE_FONT = new FontDescription.Resource(Apeira.REGISTRAR.id("dialogue"));
     private static final int PORTRAIT_SIZE = 42;
     private static final int BOX_HEIGHT = 66;
     private static final int MAX_WIDTH = 340;
@@ -117,8 +115,9 @@ public class NpcDialogueScreen extends Screen {
                 PORTRAIT_SIZE, PORTRAIT_SIZE);
         graphics.blit(RenderPipelines.GUI_TEXTURED, BORDER, frameX, frameY, 0.0F, 0.0F, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE);
         int textX = frameX + BORDER_SIZE + PADDING;
-        Component title = Component.literal("ꢔ").withStyle(style -> style.withFont(DIALOGUE_FONT))
-                .append(Component.literal(" ").append(name.copy()).withStyle(ChatFormatting.BOLD));
+        // All in the default font, which has ꢔ (assets/minecraft/font/default.json): a child component inherits its
+        // parent's font, so a separate glyph font round the name turned every letter into a missing-glyph box.
+        Component title = Component.literal("\uA894 ").append(name.copy().withStyle(ChatFormatting.BOLD));
         graphics.text(font, title, textX, frameY + EDGE, WHITE, true);
         int left = shown();
         int rowY = frameY + EDGE + LINE_HEIGHT + 3;

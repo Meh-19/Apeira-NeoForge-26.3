@@ -26,6 +26,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
@@ -47,7 +48,8 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  * <p>The model's {@code chat_display} bone (the text display Origin Realms showed over the NPC) carries a speech
  * bubble, always shown: the first of the six 16x16 frames of {@code textures/custom/ui/speech_bubble.png}, a
  * {@link #BUBBLE_SIZE}-block billboard at that bone's animated pivot (through {@link BedrockRenderer.Attachment}),
- * always facing the camera, centred across with its bottom edge on the pivot.
+ * always facing the camera, centred across with its bottom edge on the pivot. It is full bright: its texels are alpha 254
+ * (emissive, section 5) and its vertices carry full-bright light, so it stays pure white in the dark.
  */
 public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRenderer.State> {
     /** The ghost's alpha, for a hidden NPC seen up close. */
@@ -62,7 +64,7 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
     /** The bubble texture's frames, stacked top to bottom; the first is drawn. */
     private static final int BUBBLE_FRAMES = 6;
     /** The bubble's width and height, in blocks. */
-    private static final float BUBBLE_SIZE = 1.0F;
+    private static final float BUBBLE_SIZE = 0.5F;
     /** Each NPC's ghost fade. */
     private static final Map<NpcEntity, Track> TRACKS = new WeakHashMap<>();
 
@@ -81,7 +83,8 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
      * @param model      the model, {@code bedrock/models/<path>.geo.json} as {@code <namespace>:<path>}
      * @param animations the animation file, {@code bedrock/animations/<path>.animation.json} as {@code <namespace>:<path>}
      * @param animation  the looping animation's name in it
-     * @param headBone   the bone the dialogue camera looks at ({@link #head})
+     * @param headBone   the bone the dialogue camera looks at ({@link #head}); a bone without cubes of its own is located by its
+     *                   animated pivot, which is how a Blockbench locator exported as a bone is followed
      */
     public record Rig(Identifier model, Identifier animations, String animation, Identifier texture, String headBone) {}
 
@@ -157,7 +160,7 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
             BedrockRenderer.submit(bedrock, idle, state.ageInTicks / 20.0F, poseStack, submitNodeCollector,
                     EmissiveRenderTypes.entityTranslucent(rig.texture()), light, OverlayTexture.NO_OVERLAY, color, (bone, pose, collector) -> {
                         if (CHAT_BONE.equals(bone)) {
-                            bubble(pose, collector, camera.orientation, light, color);
+                            bubble(pose, collector, camera.orientation, color);
                         }
                     });
             poseStack.popPose();
@@ -169,7 +172,7 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
      * The speech bubble's first frame: a square at the bone's pivot, turned to face the camera (as name tags are), its
      * bottom edge on the pivot, drawn from both sides.
      */
-    private static void bubble(PoseStack poseStack, SubmitNodeCollector collector, Quaternionf facing, int light, int color) {
+    private static void bubble(PoseStack poseStack, SubmitNodeCollector collector, Quaternionf facing, int color) {
         Vector3f anchor = poseStack.last().pose().getTranslation(new Vector3f());
         poseStack.pushPose();
         poseStack.last().pose().translation(anchor).rotate(facing);
@@ -177,16 +180,16 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
         float half = BUBBLE_SIZE / 2.0F;
         float v = 1.0F / BUBBLE_FRAMES;
         collector.submitCustomGeometry(poseStack, EmissiveRenderTypes.entityTranslucent(BUBBLE), (pose, buffer) -> {
-            bubbleVertex(buffer, pose, -half, 0.0F, 0.0F, v, light, color);
-            bubbleVertex(buffer, pose, half, 0.0F, 1.0F, v, light, color);
-            bubbleVertex(buffer, pose, half, BUBBLE_SIZE, 1.0F, 0.0F, light, color);
-            bubbleVertex(buffer, pose, -half, BUBBLE_SIZE, 0.0F, 0.0F, light, color);
+            bubbleVertex(buffer, pose, -half, 0.0F, 0.0F, v, color);
+            bubbleVertex(buffer, pose, half, 0.0F, 1.0F, v, color);
+            bubbleVertex(buffer, pose, half, BUBBLE_SIZE, 1.0F, 0.0F, color);
+            bubbleVertex(buffer, pose, -half, BUBBLE_SIZE, 0.0F, 0.0F, color);
         });
         poseStack.popPose();
     }
 
-    private static void bubbleVertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, float u, float v, int light, int color) {
-        buffer.addVertex(pose, x, y, 0.0F).setColor(color).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light)
+    private static void bubbleVertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, float u, float v, int color) {
+        buffer.addVertex(pose, x, y, 0.0F).setColor(color).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightCoordsUtil.FULL_BRIGHT)
                 .setNormal(pose, 0.0F, 0.0F, -1.0F);
     }
 
