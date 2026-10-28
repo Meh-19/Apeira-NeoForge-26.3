@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "apeira:item/bag_o_soil_medium"
+  }
+}

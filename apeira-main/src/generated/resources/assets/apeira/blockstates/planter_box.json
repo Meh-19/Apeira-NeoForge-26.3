@@ -1,0 +1,138 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "apeira:block/planter_box"
+      },
+      "when": {
+        "soiled": "false",
+        "wet": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_soil"
+      },
+      "when": {
+        "soiled": "true",
+        "wet": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_wet"
+      },
+      "when": {
+        "soiled": "false",
+        "wet": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_wet_soil"
+      },
+      "when": {
+        "soiled": "true",
+        "wet": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_rim"
+      },
+      "when": {
+        "north": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_rim",
+        "y": 90
+      },
+      "when": {
+        "east": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_rim",
+        "y": 180
+      },
+      "when": {
+        "south": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_rim",
+        "y": 270
+      },
+      "when": {
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_post"
+      },
+      "when": {
+        "OR": [
+          {
+            "north": "false"
+          },
+          {
+            "west": "false"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_post",
+        "y": 90
+      },
+      "when": {
+        "OR": [
+          {
+            "north": "false"
+          },
+          {
+            "east": "false"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_post",
+        "y": 180
+      },
+      "when": {
+        "OR": [
+          {
+            "south": "false"
+          },
+          {
+            "east": "false"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "apeira:block/planter_box_post",
+        "y": 270
+      },
+      "when": {
+        "OR": [
+          {
+            "south": "false"
+          },
+          {
+            "west": "false"
+          }
+        ]
+      }
+    }
+  ]
+}

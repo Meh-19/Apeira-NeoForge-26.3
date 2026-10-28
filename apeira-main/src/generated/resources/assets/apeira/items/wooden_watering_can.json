@@ -1,0 +1,51 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "component": "apeira:water",
+    "on_false": {
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/wooden_watering_can"
+          },
+          "when": [
+            "gui",
+            "ground",
+            "fixed",
+            "on_shelf"
+          ]
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "apeira:item/wooden_watering_can_in_hand"
+      },
+      "property": "minecraft:display_context"
+    },
+    "on_true": {
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "apeira:item/wooden_watering_can_full"
+          },
+          "when": [
+            "gui",
+            "ground",
+            "fixed",
+            "on_shelf"
+          ]
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "apeira:item/wooden_watering_can_full_in_hand"
+      },
+      "property": "minecraft:display_context"
+    },
+    "property": "minecraft:has_component"
+  }
+}

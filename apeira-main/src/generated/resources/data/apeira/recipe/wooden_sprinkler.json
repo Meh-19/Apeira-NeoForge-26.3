@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": "minecraft:bucket",
+    "P": "#minecraft:planks",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "SSS",
+    "PBP",
+    " P "
+  ],
+  "result": {
+    "id": "apeira:wooden_sprinkler"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "values": {
+    "apeira:platinum_hoe": 0.8,
+    "apeira:shadow_hoe": 0.9,
+    "minecraft:copper_hoe": 0.5,
+    "minecraft:diamond_hoe": 0.8,
+    "minecraft:golden_hoe": 0.6,
+    "minecraft:iron_hoe": 0.6,
+    "minecraft:netherite_hoe": 1.0,
+    "minecraft:stone_hoe": 0.4,
+    "minecraft:wooden_hoe": 0.3
+  }
+}

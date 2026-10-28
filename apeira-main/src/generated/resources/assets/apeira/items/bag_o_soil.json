@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "entries": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:item/bag_o_soil_medium"
+        },
+        "threshold": 16.0
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "apeira:item/bag_o_soil_large"
+        },
+        "threshold": 32.0
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "apeira:item/bag_o_soil_small"
+    },
+    "normalize": false,
+    "property": "minecraft:count"
+  }
+}
