@@ -299,15 +299,15 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("realm.none", "You don't have a Realm yet. Use /realm create to make one");
     }
 
-    /** The NPC settings popup, its messages and the anchor placement cursor. */
+    /** The NPC settings popup, its messages, the anchor placement cursor, voices and dialogue. */
     private void npcs() {
+        addId("navigator", "npc_visibility.info", "Set your npc visibility to visible or invisible");
         addId("navigator", "npc_visibility", "NPC Visibility");
-        addId("navigator", "npc_visibility.desc", "Set your npc visibility to visible or invisible");
-        addId("navigator", "npc_visibility.state", "Currently: %s");
         addId("navigator", "npc_visibility.visible", "Visible");
         addId("navigator", "npc_visibility.invisible", "Invisible");
-        addId("navigator", "action.npc_hide", "Left-click to make invisible");
-        addId("navigator", "action.npc_show", "Left-click to make visible");
+        add("subtitles.apeira.npc.voice.male1", "NPC speaks");
+        add("dialogue.apeira.conductor_carlo.greeting",
+                "Hi there, traveller! The skies are looking clear and perfect for flight! Where are we heading today?");
         addId("navigator", "npc_anchor", "Set Anchor");
         addId("navigator", "npc_anchor.desc", "Pick the spot this NPC stands on");
         addId("navigator", "action.npc_anchor_place", "Left-click to place");

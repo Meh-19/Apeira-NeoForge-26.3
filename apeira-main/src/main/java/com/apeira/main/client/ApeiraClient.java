@@ -10,6 +10,8 @@ import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
 import com.apeira.main.client.npc.BedrockNpcRenderer;
 import com.apeira.main.client.npc.NpcAnchorPlacement;
 import com.apeira.main.client.npc.NpcClient;
+import com.apeira.main.client.npc.NpcDialogueCamera;
+import com.apeira.main.client.npc.NpcDialogueScreen;
 import com.apeira.main.client.realm.OnboardingScreen;
 import com.apeira.main.client.realm.RealmTopBar;
 import com.apeira.main.client.realm.SpawnPlacement;
@@ -23,6 +25,7 @@ import com.apeira.main.registry.MainBlockEntities;
 import com.apeira.main.navigator.OpenNavigatorPayload;
 import com.apeira.main.navigator.OpenProfilePayload;
 import com.apeira.main.npc.NpcAnchorPayload;
+import com.apeira.main.npc.NpcDialoguePayload;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.main.realm.OpenOnboardingPayload;
 import com.apeira.main.realm.RealmCreatedPayload;
@@ -68,6 +71,7 @@ public final class ApeiraClient {
         NpcAnchorPlacement.CURSOR.register();
         NeoForge.EVENT_BUS.addListener(RealmTopBar::onLoggingOut);
         NpcClient.init();
+        NpcDialogueCamera.register();
         NeoForge.EVENT_BUS.addListener(RubyTickerAnimation::onLoggingOut);
         NeoForge.EVENT_BUS.addListener(RubyDepositScreen::hideHud);
         ApeiraClientNetwork.create()
@@ -76,6 +80,7 @@ public final class ApeiraClient {
                 .handle(RealmCreatedPayload.TYPE, OnboardingScreen::onCreated)
                 .handle(SpawnPlacementPayload.TYPE, SpawnPlacement::onStart)
                 .handle(NpcAnchorPayload.TYPE, NpcAnchorPlacement::onStart)
+                .handle(NpcDialoguePayload.TYPE, NpcDialogueScreen::onOpen)
                 .handle(RealmHudPayload.TYPE, RealmTopBar::onSync)
                 .handle(RubyChangePayload.TYPE, RubyTickerAnimation::onChange)
                 .register(modEventBus);

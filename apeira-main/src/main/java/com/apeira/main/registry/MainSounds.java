@@ -25,6 +25,9 @@ public final class MainSounds {
     /** Played to a player when rubies are added to their balance (Origin Realms' {@code ruby-gain}). */
     public static final DeferredHolder<SoundEvent, SoundEvent> RUBY_GAIN = sound("ui.ruby_gain");
 
+    /** An NPC's voice when spoken to: one of Origin Realms' four {@code mono/voices/male1} clips, picked at random. */
+    public static final DeferredHolder<SoundEvent, SoundEvent> NPC_VOICE_MALE1 = sound("npc.voice.male1");
+
     private MainSounds() {}
 
     private static DeferredHolder<SoundEvent, SoundEvent> sound(String name) {
