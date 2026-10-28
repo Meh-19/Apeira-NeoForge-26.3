@@ -35,8 +35,8 @@ public final class NpcService {
     static final int CONDUCTOR_FORWARD = 3;
     /** ... and this many to its left, as seen looking out of the balloon's front. */
     static final int CONDUCTOR_LEFT = 2;
-    /** He faces the balloon turned this far clockwise, seen from above (yaw grows clockwise). */
-    static final float CONDUCTOR_TURN = 90.0F;
+    /** He faces the balloon turned this far clockwise, seen from above (yaw grows clockwise): -90, a quarter turn counter-clockwise. */
+    static final float CONDUCTOR_TURN = -90.0F;
 
     private NpcService() {}
 
@@ -107,7 +107,7 @@ public final class NpcService {
 
     /**
      * Places Conductor Carlo by a Lush realm's new starter balloon, whose floor's centre is {@code balloon} and whose
-     * front faces {@code facing}: {@link #CONDUCTOR_FORWARD} blocks out of its front and {@link #CONDUCTOR_LEFT} to its left, on the ground there (the top block of that column, leaves ignored), facing the balloon turned {@link #CONDUCTOR_TURN} degrees clockwise. Nothing is placed
+     * front faces {@code facing}: {@link #CONDUCTOR_FORWARD} blocks out of its front and {@link #CONDUCTOR_LEFT} to its left, on the ground there (the top block of that column, leaves ignored), facing the balloon turned a quarter turn counter-clockwise ({@link #CONDUCTOR_TURN}). Nothing is placed
      * when that spot has no room for him.
      */
     public static void spawnConductor(ServerLevel level, BlockPos balloon, Direction facing) {

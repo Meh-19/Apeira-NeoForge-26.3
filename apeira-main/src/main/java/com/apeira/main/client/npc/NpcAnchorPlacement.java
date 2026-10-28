@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.apeira.core.network.client.ApeiraClientNetwork;
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.decor.client.EmissiveRenderTypes;
+import com.apeira.decor.client.GridGlide;
 import com.apeira.main.client.realm.SpawnPlacement;
 import com.apeira.main.npc.ConfirmNpcAnchorPayload;
 import com.apeira.main.npc.NpcAnchorPayload;
@@ -40,7 +41,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * surface under the crosshair, green where the NPC fits and red where not ({@link NpcEntity#canStandAt}, which the server
  * checks again). Left-click sends {@link ConfirmNpcAnchorPayload}, and the server moves the NPC there facing the player;
  * right-click or Escape cancels; changing level, the NPC leaving it or leaving the server drops it. Unlike the spawn
- * cursor's, its box has no distance cutoff: it shows and places anywhere within reach.
+ * cursor's, its box has no distance cutoff: it shows and places anywhere within reach. Like it, the drawn box slides
+ * from block to block ({@link GridGlide}).
  */
 public final class NpcAnchorPlacement {
     private static final Identifier CLEAR_TEXTURE = ApeiraIds.id("textures/misc/spawn_selection.png");
@@ -54,6 +56,7 @@ public final class NpcAnchorPlacement {
     private static @Nullable EntityType<?> type;
     private static @Nullable BlockPos target;
     private static boolean clear;
+    private static final GridGlide GLIDE = new GridGlide();
 
     private NpcAnchorPlacement() {}
 
@@ -68,6 +71,7 @@ public final class NpcAnchorPlacement {
         type = entity.getType();
         target = null;
         clear = false;
+        GLIDE.reset();
         if (minecraft.gui.screen() != null) {
             minecraft.gui.setScreen(null);
         }
@@ -78,6 +82,7 @@ public final class NpcAnchorPlacement {
         level = null;
         type = null;
         target = null;
+        GLIDE.reset();
     }
 
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -148,13 +153,15 @@ public final class NpcAnchorPlacement {
         BlockPos pos = target;
         EntityType<?> npcType = type;
         if (!active || pos == null || npcType == null) {
+            GLIDE.reset();
             return;
         }
         AABB box = NpcEntity.footprint(npcType, pos);
+        Vec3 corner = GLIDE.toward(new Vec3(box.minX, box.minY, box.minZ));
         Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();
-        poseStack.translate(box.minX - camera.x, box.minY + LIFT - camera.y, box.minZ - camera.z);
+        poseStack.translate(corner.x - camera.x, corner.y + LIFT - camera.y, corner.z - camera.z);
         float size = (float) box.getXsize();
         float height = (float) box.getYsize();
         int color = clear ? 0xFFFFFFFF : BLOCKED_TINT;
