@@ -45,11 +45,6 @@ public class SprinklerBlock extends BaseEntityBlock {
 
     private final int radius;
 
-    /** Blocks watered to each side of it. */
-    public int radius() {
-        return radius;
-    }
-
     /** A sprinkler watering {@code radius} blocks to each side: 2 is 5x5, 3 is 7x7. */
     public SprinklerBlock(int radius, BlockBehaviour.Properties properties) {
         super(properties);
