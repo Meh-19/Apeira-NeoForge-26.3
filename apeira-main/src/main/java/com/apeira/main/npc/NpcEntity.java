@@ -4,6 +4,12 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import com.apeira.main.realm.RealmService;
+import com.geckolib.animatable.GeoEntity;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.util.GeckoLibUtil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -25,8 +31,8 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * A realm NPC, such as Conductor Carlo ({@link com.apeira.main.registry.MainNpcs}): a plain entity, not a mob, with no
- * AI, physics or health. It stands where it was placed, facing its way, plays its Bedrock model's animation
- * ({@code client/npc/BedrockNpcRenderer}) and cannot be hurt, pushed or moved by pistons. Shift-right-clicking it opens
+ * AI, physics or health. It stands where it was placed, facing its way, loops its GeckoLib idle animation
+ * ({@link #idle}, drawn by {@code client/npc/NpcRenderer}) and cannot be hurt, pushed or moved by pistons. Shift-right-clicking it opens
  * its settings ({@link NpcService}) for whoever may edit it ({@link #canEdit}): its visibility and its anchor, the spot it
  * stands on ({@link #anchor}).
  *
@@ -34,7 +40,7 @@ import net.minecraft.world.phys.Vec3;
  * in as a faint ghost; it cannot be aimed at for players who may not edit it, while those who may can still Shift-click
  * it to make it visible again.
  */
-public class NpcEntity extends Entity {
+public class NpcEntity extends Entity implements GeoEntity {
     private static final EntityDataAccessor<Boolean> DATA_SHOWN = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.BOOLEAN);
     private static final String TAG_SHOWN = "shown";
 
@@ -44,8 +50,13 @@ public class NpcEntity extends Entity {
      */
     public static Predicate<NpcEntity> clientCanEdit = npc -> false;
 
-    public NpcEntity(EntityType<? extends NpcEntity> type, Level level) {
+    /** The animation it loops, from its model's animation file. */
+    private final RawAnimation idle;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
+    public NpcEntity(EntityType<? extends NpcEntity> type, Level level, RawAnimation idle) {
         super(type, level);
+        this.idle = idle;
         this.noPhysics = true;
         this.setNoGravity(true);
     }
@@ -192,5 +203,15 @@ public class NpcEntity extends Entity {
     @Override
     public boolean displayFireAnimation() {
         return false;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<NpcEntity>("idle", 0, test -> test.setAndContinue(idle)));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 }

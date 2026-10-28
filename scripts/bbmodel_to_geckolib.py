@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-"""Exports a Bedrock-format Blockbench project (``.bbmodel``) as Bedrock geometry (``.geo.json``).
+"""Exports a GeckoLib or Bedrock-format Blockbench project (``.bbmodel``) as GeckoLib geometry (``.geo.json``).
 
-Apeira's own Bedrock entity renderer (apeira-decor ``client/bedrock``) reads ``assets/<namespace>/bedrock/models/
-<path>.geo.json``; this writes the same file Blockbench's "Export Bedrock Geometry" would, so a model can be updated
-from its project without opening Blockbench. Outliner groups become bones (pivot and rotation with Bedrock's mirrored
-x), cubes keep their per-face UVs (or box UV), up and down faces are flipped as Blockbench flips them, and faces whose
-UV has no area are left out. Locators, meshes and groups or cubes set not to export are skipped.
+GeckoLib reads ``assets/<namespace>/geckolib/models/<path>.geo.json``, Bedrock's geometry format; this writes the same
+file Blockbench's GeckoLib "Export Geo Model" would, so a model can be updated from its project without opening
+Blockbench. Outliner groups become bones (pivot and rotation with Bedrock's mirrored x), cubes keep their per-face UVs
+(or box UV), up and down faces are flipped as Blockbench flips them, and faces whose UV has no area are left out.
+Locators go into their group's bone (``locators``: name to position, mirrored x, or ``offset`` and ``rotation`` when
+turned), which GeckoLib turns into ``GeoLocator``s. Meshes and groups or cubes set not to export are skipped.
 
 ``--texture`` also writes the project's first embedded texture as a PNG, and ``--animations`` writes its embedded
-animations as a Bedrock ``.animation.json`` (keyframes as plain values, linear).
+animations as a GeckoLib ``.animation.json`` (keyframes as plain values, linear).
 
 Example::
 
-    python scripts/bbmodel_to_bedrock.py ConductorCarlo.bbmodel \\
-        apeira-main/src/main/resources/assets/apeira/bedrock/models/entity/conductor_carlo.geo.json \\
-        --identifier geometry.conductor_carlo
+    python scripts/bbmodel_to_geckolib.py ConductorCarlo.bbmodel \\
+        apeira-main/src/main/resources/assets/apeira/geckolib/models/entity/balloon_conductor.geo.json \\
+        --identifier geometry.balloon_conductor
 """
 
 from __future__ import annotations
@@ -28,6 +29,10 @@ from typing import Any
 from asset_common import ScriptError, read_json, relative, run, write_json
 
 FACES = ("north", "east", "south", "west", "up", "down")
+
+
+# Blockbench's GeckoLib ("animated_entity_model") and Bedrock project formats, whose geometry is the same.
+FORMATS = ("animated_entity_model", "bedrock", "bedrock_old")
 
 
 def parse_args(argv: list[str] | None) -> argparse.Namespace:
@@ -94,8 +99,8 @@ def convert_cube(cube: dict[str, Any], box_uv: bool) -> dict[str, Any] | None:
 
 
 def convert(project: dict[str, Any], identifier: str) -> dict[str, Any]:
-    if project.get("meta", {}).get("model_format") not in ("bedrock", "bedrock_old"):
-        raise ScriptError("not a Bedrock-format project (File > Convert Project to Bedrock Entity first)")
+    if project.get("meta", {}).get("model_format") not in FORMATS:
+        raise ScriptError("not a GeckoLib or Bedrock-format project (File > Convert Project to GeckoLib Animated Model first)")
     box_uv = bool(project.get("meta", {}).get("box_uv"))
     groups = {group["uuid"]: group for group in project.get("groups", [])}
     elements = {element["uuid"]: element for element in project.get("elements", [])}
@@ -106,7 +111,15 @@ def convert(project: dict[str, Any], identifier: str) -> dict[str, Any]:
         for node in nodes:
             if isinstance(node, str):
                 element = elements.get(node)
-                if parent is None or not element or element.get("type", "cube") != "cube" or element.get("export") is False:
+                if parent is None or not element or element.get("export") is False:
+                    continue
+                if element.get("type") == "locator":
+                    position = vec([-element["position"][0], element["position"][1], element["position"][2]])
+                    rotation = element.get("rotation") or [0, 0, 0]
+                    locator: Any = {"offset": position, "rotation": bedrock_rotation(rotation)} if any(rotation) else position
+                    parent.setdefault("locators", {})[element["name"]] = locator
+                    continue
+                if element.get("type", "cube") != "cube":
                     continue
                 cube = convert_cube(element, box_uv)
                 if cube:

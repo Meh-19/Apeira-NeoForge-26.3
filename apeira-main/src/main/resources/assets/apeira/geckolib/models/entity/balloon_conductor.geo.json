@@ -40,7 +40,14 @@
             0,
             -76,
             0
-          ]
+          ],
+          "locators": {
+            "balloon_conductor_head": [
+              2.9805,
+              23.4414,
+              -2.1953
+            ]
+          }
         },
         {
           "name": "balloon_conductor_head_transform",
@@ -614,7 +621,14 @@
             0,
             -76,
             0
-          ]
+          ],
+          "locators": {
+            "balloon_conductor_arm": [
+              2.9805,
+              23.4414,
+              -2.1953
+            ]
+          }
         },
         {
           "name": "balloon_conductor_arm_transform",
@@ -816,7 +830,14 @@
             0,
             -76,
             0
-          ]
+          ],
+          "locators": {
+            "balloon_conductor_arm_2": [
+              2.9805,
+              23.4414,
+              -2.1953
+            ]
+          }
         },
         {
           "name": "balloon_conductor_arm_2_transform",
@@ -1018,7 +1039,14 @@
             0,
             -76,
             0
-          ]
+          ],
+          "locators": {
+            "balloon_conductor_body": [
+              3,
+              13.4688,
+              -2.2
+            ]
+          }
         },
         {
           "name": "balloon_conductor_body_transform",
@@ -1155,7 +1183,14 @@
             0,
             -76,
             0
-          ]
+          ],
+          "locators": {
+            "balloon_conductor_leg": [
+              3,
+              13.4688,
+              -2.2
+            ]
+          }
         },
         {
           "name": "balloon_conductor_leg_transform",
@@ -1346,7 +1381,14 @@
             0,
             -76,
             0
-          ]
+          ],
+          "locators": {
+            "balloon_conductor_leg_2": [
+              3,
+              13.4688,
+              -2.2
+            ]
+          }
         },
         {
           "name": "balloon_conductor_leg_2_transform",
@@ -1537,7 +1579,14 @@
             -174.1,
             76,
             180
-          ]
+          ],
+          "locators": {
+            "chat_display": [
+              3,
+              57.6,
+              -2.2
+            ]
+          }
         },
         {
           "name": "text_display_0_transform",
