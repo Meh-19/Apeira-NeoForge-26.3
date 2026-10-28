@@ -10,6 +10,7 @@ import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainEffects;
 import com.apeira.main.registry.MainEntities;
+import com.apeira.main.registry.MainNpcs;
 import com.apeira.main.registry.MainGear;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
@@ -147,6 +148,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add(MainEntities.GRIZZLY_BEAR.get(), "Grizzly Bear");
         add(MainEntities.CROCODILE.get(), "Crocodile");
         add(MainEntities.WRAITH.get(), "Wraith");
+        add(MainNpcs.CONDUCTOR_CARLO.get(), "Conductor Carlo");
         add("subtitles.apeira.entity.wraith.ambient", "Wraith whispers");
         add("subtitles.apeira.entity.wraith.target", "Wraith notices you");
         add("subtitles.apeira.entity.wraith.hurt", "Wraith hurts");
@@ -295,6 +297,30 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("realm.home", "Welcome home!");
         message("realm.exists", "You already have a Realm");
         message("realm.none", "You don't have a Realm yet. Use /realm create to make one");
+    }
+
+    /** The NPC settings popup, its messages and the anchor placement cursor. */
+    private void npcs() {
+        addId("navigator", "npc_visibility", "NPC Visibility");
+        addId("navigator", "npc_visibility.desc", "Set your npc visibility to visible or invisible");
+        addId("navigator", "npc_visibility.state", "Currently: %s");
+        addId("navigator", "npc_visibility.visible", "Visible");
+        addId("navigator", "npc_visibility.invisible", "Invisible");
+        addId("navigator", "action.npc_hide", "Left-click to make invisible");
+        addId("navigator", "action.npc_show", "Left-click to make visible");
+        addId("navigator", "npc_anchor", "Set Anchor");
+        addId("navigator", "npc_anchor.desc", "Pick the spot this NPC stands on");
+        addId("navigator", "action.npc_anchor_place", "Left-click to place");
+        message("npc.not_owner", "Only the Realm's owner can edit this NPC");
+        message("npc.shown", "%s is now visible");
+        message("npc.hidden", "%s is now invisible");
+        message("npc.anchored", "%s moved to its new anchor");
+        message("npc.anchor_blocked", "The NPC doesn't fit there");
+        add("hud.apeira.npc_anchor.aim", "Look at where the NPC should stand");
+        add("hud.apeira.npc_anchor.clear", "The NPC fits here");
+        add("hud.apeira.npc_anchor.blocked", "Something is in the way");
+        add("hud.apeira.npc_anchor.confirm", "Left-click to place the NPC");
+        add("hud.apeira.npc_anchor.cancel", "Right-click/ESC to cancel");
     }
 
     /** The navigator's title, its buttons' tooltips (Origin Realms' wording) and its messages. */
@@ -459,6 +485,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("hud.apeira.setspawn.confirm", "Left-click to set spawn");
         add("hud.apeira.setspawn.cancel", "Right-click/ESC to cancel");
         add("hud.apeira.top_bar.realm", "%s's Realm");
+        npcs();
         add("hud.apeira.top_bar.balloon_platform", "Air Balloon Platform");
         message("realm.reset.stand_in", "Stand in your Realm's Overworld to reset it");
         message("realm.reset.moved", "This Realm is being reset");

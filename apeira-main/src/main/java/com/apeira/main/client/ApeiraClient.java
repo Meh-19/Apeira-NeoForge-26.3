@@ -7,6 +7,9 @@ import com.apeira.main.client.entity.GrizzlyBearRenderer;
 import com.apeira.main.client.entity.TurkeyRenderer;
 import com.apeira.main.client.entity.WraithRenderer;
 import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
+import com.apeira.main.client.npc.BedrockNpcRenderer;
+import com.apeira.main.client.npc.NpcAnchorPlacement;
+import com.apeira.main.client.npc.NpcClient;
 import com.apeira.main.client.realm.OnboardingScreen;
 import com.apeira.main.client.realm.RealmTopBar;
 import com.apeira.main.client.realm.SpawnPlacement;
@@ -19,12 +22,14 @@ import com.apeira.main.ruby.RubyChangePayload;
 import com.apeira.main.registry.MainBlockEntities;
 import com.apeira.main.navigator.OpenNavigatorPayload;
 import com.apeira.main.navigator.OpenProfilePayload;
+import com.apeira.main.npc.NpcAnchorPayload;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.main.realm.OpenOnboardingPayload;
 import com.apeira.main.realm.RealmCreatedPayload;
 import com.apeira.main.realm.RealmHudPayload;
 import com.apeira.main.realm.SpawnPlacementPayload;
 import com.apeira.main.registry.MainEntities;
+import com.apeira.main.registry.MainNpcs;
 import com.apeira.main.registry.MainRealmBlocks;
 import com.apeira.main.registry.MainRubies;
 
@@ -65,7 +70,14 @@ public final class ApeiraClient {
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onScreenOpening);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onLoggingOut);
         NeoForge.EVENT_BUS.addListener(SpawnPlacement::onSubmitGeometry);
+        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onClientTick);
+        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onInteraction);
+        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onMouseButton);
+        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onScreenOpening);
+        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onLoggingOut);
+        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onSubmitGeometry);
         NeoForge.EVENT_BUS.addListener(RealmTopBar::onLoggingOut);
+        NpcClient.init();
         NeoForge.EVENT_BUS.addListener(RubyTickerAnimation::onLoggingOut);
         NeoForge.EVENT_BUS.addListener(RubyDepositScreen::hideHud);
         ApeiraClientNetwork.create()
@@ -73,6 +85,7 @@ public final class ApeiraClient {
                 .handle(OpenOnboardingPayload.TYPE, OnboardingScreen::onOpen)
                 .handle(RealmCreatedPayload.TYPE, OnboardingScreen::onCreated)
                 .handle(SpawnPlacementPayload.TYPE, SpawnPlacement::onStart)
+                .handle(NpcAnchorPayload.TYPE, NpcAnchorPlacement::onStart)
                 .handle(RealmHudPayload.TYPE, RealmTopBar::onSync)
                 .handle(RubyChangePayload.TYPE, RubyTickerAnimation::onChange)
                 .register(modEventBus);
@@ -86,6 +99,9 @@ public final class ApeiraClient {
         event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
         event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);
         event.registerEntityRenderer(MainEntities.WRAITH.get(), WraithRenderer::new);
+        event.registerEntityRenderer(MainNpcs.CONDUCTOR_CARLO.get(), context -> new BedrockNpcRenderer(context,
+                Apeira.REGISTRAR.id("entity/conductor_carlo"), Apeira.REGISTRAR.id("entity/conductor_carlo"), "animation.conductor_carlo.idle",
+                Apeira.REGISTRAR.id("textures/entity/conductor_carlo.png")));
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
@@ -97,6 +113,7 @@ public final class ApeiraClient {
         event.registerAbove(VanillaGuiLayers.FOOD_LEVEL, Apeira.REGISTRAR.id("rubies"), RubyHud::render);
         event.registerAbove(VanillaGuiLayers.BOSS_OVERLAY, Apeira.REGISTRAR.id("realm_top_bar"), RealmTopBar::render);
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, Apeira.REGISTRAR.id("spawn_placement"), SpawnPlacement::renderHud);
+        event.registerAbove(VanillaGuiLayers.CROSSHAIR, Apeira.REGISTRAR.id("npc_anchor_placement"), NpcAnchorPlacement::renderHud);
     }
 
     private static void registerKeys(RegisterKeyMappingsEvent event) {

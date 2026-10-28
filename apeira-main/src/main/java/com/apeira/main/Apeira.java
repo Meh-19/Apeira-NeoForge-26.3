@@ -20,6 +20,7 @@ import com.apeira.main.navigator.ProfileEvents;
 import com.apeira.main.party.PartyCommand;
 import com.apeira.main.party.PartyService;
 import com.apeira.main.network.MainPayloads;
+import com.apeira.main.npc.NpcService;
 import com.apeira.main.realm.DummyPlayers;
 import com.apeira.main.realm.RealmCommand;
 import com.apeira.main.realm.RealmHudPayload;
@@ -43,6 +44,7 @@ import com.apeira.main.registry.MainGear;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainMaterials;
+import com.apeira.main.registry.MainNpcs;
 import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
 import com.apeira.main.registry.MainRealmBlocks;
@@ -70,14 +72,14 @@ public final class Apeira {
     /** Generates the models, language, recipes, loot tables, tags and data maps for {@link #REGISTRAR}'s entries. */
     public static final ApeiraDataGenerators DATA = ApeiraDataGenerators.create(REGISTRAR);
     /** The main module's payloads; bump the version when one of their codecs changes. */
-    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("3");
+    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("4");
 
     public Apeira(IEventBus modEventBus, ModContainer modContainer) {
         // Content holder classes (blocks, items, ...) are passed here as they are added.
         REGISTRAR.register(modEventBus, MainItems::init, MainBlocks::init, MainWoods::init, MainStones::init, MainLanterns::init,
                 MainRocks::init, MainDyedBlocks::init, MainCrystals::init, MainBuildingBlocks::init, MainPlants::init,
                 MainSpecialBlocks::init, MainMaterials::init, MainRubies::init, MainBlockEntities::init, MainDataComponents::init, MainEffects::init,
-                MainGear::init, MainSounds::init, MainFeatures::init, MainEntities::init, MainCosmetics::init, MainCrates::init,
+                MainGear::init, MainSounds::init, MainFeatures::init, MainEntities::init, MainNpcs::init, MainCosmetics::init, MainCrates::init,
                 MainRealmBlocks::init, MainCreativeTabs::init);
         NETWORK.register(modEventBus, MainPayloads::init);
         // Data holder classes (models, recipes, ...) are passed here as they are added.
@@ -132,6 +134,7 @@ public final class Apeira {
         NeoForge.EVENT_BUS.addListener(PartyService::onLoggedOut);
         NeoForge.EVENT_BUS.addListener(PartyService::onServerStopped);
         NeoForge.EVENT_BUS.addListener(ProfileEvents::onEntityInteract);
+        NeoForge.EVENT_BUS.addListener(NpcService::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(StickPlacement::onUseItemOnBlock);
         NeoForge.EVENT_BUS.addListener(CaptureNetEvents::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(RocketBootsSafety::onPlayerTick);

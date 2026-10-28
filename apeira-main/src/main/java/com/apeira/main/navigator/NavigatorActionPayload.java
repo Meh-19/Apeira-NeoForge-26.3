@@ -116,7 +116,11 @@ public record NavigatorActionPayload(Action action, int argument, Optional<UUID>
         /** Hand the lead to the picked member. */
         PARTY_TRANSFER,
         /** Own profile: a cosmetic slot, which opens the wardrobe (the client sends decor's wardrobe payload instead). */
-        WARDROBE;
+        WARDROBE,
+        /** NPC settings: show or hide the NPC. */
+        NPC_VISIBILITY,
+        /** NPC settings: start the anchor placement cursor; the menu closes. */
+        NPC_ANCHOR;
 
         private static final IntFunction<Action> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
         public static final StreamCodec<ByteBuf, Action> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, Enum::ordinal);

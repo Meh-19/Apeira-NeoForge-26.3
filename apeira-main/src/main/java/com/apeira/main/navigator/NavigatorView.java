@@ -56,6 +56,8 @@ public record NavigatorView(NavigatorPage page, int pageIndex, int pageCount, in
     /** The popup's or profile's player is in the viewer's party, or has an open invite to it. */
     public static final int TARGET_IN_PARTY = 1 << 14;
     public static final int TARGET_PARTY_INVITED = 1 << 15;
+    /** The NPC whose settings are open is visible to everyone. */
+    public static final int NPC_SHOWN = 1 << 16;
     public static final int PRIVATE_CHAT = 1 << 8;
     public static final int ALWAYS_ACCESSIBLE = 1 << 9;
 

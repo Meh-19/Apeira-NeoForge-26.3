@@ -12,6 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import bbmodel_to_bedrock  # noqa: E402
 import flatten_textures  # noqa: E402
 import make_placeholder_textures as placeholders  # noqa: E402
 import parse_blockbench_hitboxes as hitboxes  # noqa: E402
@@ -274,6 +275,46 @@ class PlaceholderTexturesTest(TempDirTest):
         self.assertFalse((self.assets / "textures/block/brick.png").exists())
         self.assertEqual(self.run_script("--force"), 0)
         self.assertEqual((self.assets / "textures/item/gem.png").read_bytes(), placeholders.placeholder("item/gem"))
+
+
+
+class BbmodelToBedrockTest(unittest.TestCase):
+    PROJECT = {
+        "meta": {"model_format": "bedrock", "box_uv": False},
+        "resolution": {"width": 64, "height": 32},
+        "elements": [{"uuid": "c1", "type": "cube", "from": [-2, 0, -1], "to": [2, 4, 1], "origin": [0, 0, 0],
+                      "faces": {"north": {"uv": [0, 0, 4, 4], "texture": 0}, "up": {"uv": [4, 0, 8, 2], "texture": 0},
+                                "south": {"uv": [0, 0, 0, 0], "texture": 0}}}],
+        "groups": [{"uuid": "g1", "name": "body", "origin": [1, 2, 3], "rotation": [10, 20, 30]}],
+        "outliner": [{"uuid": "g1", "children": ["c1"]}],
+        "animations": [{"name": "animation.test.idle", "loop": "loop", "length": 2,
+                        "animators": {"g1": {"name": "body", "keyframes": [
+                            {"channel": "rotation", "time": 1, "data_points": [{"x": "5", "y": 0, "z": 0}]},
+                            {"channel": "rotation", "time": 0, "data_points": [{"x": 0, "y": 0, "z": 0}]}]}}}],
+    }
+
+    def test_converts_bones_cubes_and_faces(self) -> None:
+        geometry = bbmodel_to_bedrock.convert(self.PROJECT, "geometry.test")["minecraft:geometry"][0]
+        self.assertEqual(geometry["description"]["texture_width"], 64)
+        bone = geometry["bones"][0]
+        self.assertEqual(bone["pivot"], [-1, 2, 3])
+        self.assertEqual(bone["rotation"], [-10, -20, 30])
+        cube = bone["cubes"][0]
+        self.assertEqual(cube["origin"], [-2, 0, -1])
+        self.assertEqual(cube["size"], [4, 4, 2])
+        self.assertEqual(cube["uv"]["north"], {"uv": [0, 0], "uv_size": [4, 4]})
+        self.assertEqual(cube["uv"]["up"], {"uv": [8, 2], "uv_size": [-4, -2]})
+        self.assertNotIn("south", cube["uv"])
+
+    def test_animations_sorted_and_looping(self) -> None:
+        animation = bbmodel_to_bedrock.animations(self.PROJECT)["animations"]["animation.test.idle"]
+        self.assertTrue(animation["loop"])
+        self.assertEqual(list(animation["bones"]["body"]["rotation"]), ["0", "1"])
+        self.assertEqual(animation["bones"]["body"]["rotation"]["1"], [5, 0, 0])
+
+    def test_rejects_java_projects(self) -> None:
+        with self.assertRaises(bbmodel_to_bedrock.ScriptError):
+            bbmodel_to_bedrock.convert({"meta": {"model_format": "java_block"}}, "geometry.test")
 
 
 if __name__ == "__main__":

@@ -54,6 +54,8 @@ public enum NavigatorPage {
     EDIT_PARTY,
     /** Popup over Social, for the leader: hand the lead to a member or kick them. */
     EDIT_PARTY_MEMBER,
+    /** An NPC's settings, opened by Shift-right-clicking it: close, its visibility toggle and Set Anchor. */
+    EDIT_NPC,
     /** Not a page: the server asks the client to close the navigator, for example after a teleport. */
     CLOSED;
 
