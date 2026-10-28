@@ -22,6 +22,7 @@ import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
+import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainRubies;
 import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainStones;
@@ -121,6 +122,10 @@ public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
         // A closed crate drops itself; an open one cannot be broken.
         MainCrates.all().forEach(crate -> dropSelf(crate.get()));
         dropSelf(MainRubies.RUBY_DEPOSIT.get());
+        // Farming blocks drop themselves; a planter box's stock and crop drop from its block entity.
+        dropSelf(MainFarming.PLANTER_BOX.get());
+        dropSelf(MainFarming.WOODEN_SPRINKLER.get());
+        dropSelf(MainFarming.IRON_SPRINKLER.get());
     }
 
     /**

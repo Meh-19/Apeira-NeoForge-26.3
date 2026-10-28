@@ -1,0 +1,99 @@
+{
+  "textures": {
+    "0": "apeira:block/crop/lettuce",
+    "particle": "apeira:block/crop/lettuce"
+  },
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            3.5,
+            3.5
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            3.5,
+            0,
+            0,
+            3.5
+          ]
+        }
+      },
+      "from": [
+        6,
+        -1,
+        7
+      ],
+      "rotation": {
+        "angle": -45,
+        "axis": "y",
+        "origin": [
+          8,
+          0,
+          8
+        ]
+      },
+      "to": [
+        13,
+        6,
+        7
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            3.5,
+            0,
+            0,
+            3.5
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            3.5,
+            3.5
+          ]
+        }
+      },
+      "from": [
+        3,
+        0,
+        8
+      ],
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8,
+          0,
+          8
+        ]
+      },
+      "to": [
+        10,
+        7,
+        8
+      ]
+    }
+  ],
+  "display": {
+    "fixed": {
+      "translation": [
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}

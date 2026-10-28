@@ -14,11 +14,14 @@ import com.apeira.main.block.TwigBlock;
 import com.apeira.main.block.RandomRotationBlock;
 import com.apeira.main.block.SpikeTrapBlock;
 import com.apeira.main.block.TurkeyMeatBlock;
+import com.apeira.main.farming.PlanterBoxBlock;
+import com.apeira.main.farming.SprinklerBlock;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
+import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainLanterns;
 import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainRocks;
@@ -29,8 +32,12 @@ import com.apeira.main.registry.MainStones;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
@@ -113,6 +120,51 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
         blockItemModel(MainRubies.RUBY_DEPOSIT.get(), modLoc("item/ruby_deposit"));
         // The starter balloon is drawn by its block entity and its floor not at all; their models only give particles.
         existingModelBlock(MainRealmBlocks.STARTER_BALLOON.get());
+        farming();
+    }
+
+    /**
+     * The planter box is a multipart of Origin Realms' {@code plant_box} model cut in three: the box with its top for
+     * each wet and soiled state ({@code block/planter_box[_wet][_soil]}), the rim along one side
+     * ({@code block/planter_box_rim}, north, turned for the others) left out where the box joins another, and the corner
+     * post ({@code block/planter_box_post}, north-west) left out where it joins on both sides. Its item is the whole
+     * model ({@code block/planter_box_inventory}). The sprinklers show Origin Realms' model for their water level,
+     * {@code block/<name>_<level>}, and a flat sprite in inventories ({@code item/<name>}) with the dry sprinkler in hand.
+     */
+    private void farming() {
+        Block planter = MainFarming.PLANTER_BOX.get();
+        MultiPartGenerator box = MultiPartGenerator.multiPart(planter);
+        for (boolean wet : new boolean[] {false, true}) {
+            for (boolean soiled : new boolean[] {false, true}) {
+                box.with(BlockModelGenerators.condition().term(PlanterBoxBlock.WET, wet).term(PlanterBoxBlock.SOILED, soiled),
+                        variant(blockModel("planter_box" + (wet ? "_wet" : "") + (soiled ? "_soil" : ""))));
+            }
+        }
+        MultiVariant rim = variant(blockModel("planter_box_rim"));
+        box.with(BlockModelGenerators.condition().term(PlanterBoxBlock.NORTH, false), rim);
+        box.with(BlockModelGenerators.condition().term(PlanterBoxBlock.EAST, false), rim.with(BlockModelGenerators.Y_ROT_90));
+        box.with(BlockModelGenerators.condition().term(PlanterBoxBlock.SOUTH, false), rim.with(BlockModelGenerators.Y_ROT_180));
+        box.with(BlockModelGenerators.condition().term(PlanterBoxBlock.WEST, false), rim.with(BlockModelGenerators.Y_ROT_270));
+        MultiVariant post = variant(blockModel("planter_box_post"));
+        box.with(BlockModelGenerators.or(BlockModelGenerators.condition().term(PlanterBoxBlock.NORTH, false),
+                BlockModelGenerators.condition().term(PlanterBoxBlock.WEST, false)), post);
+        box.with(BlockModelGenerators.or(BlockModelGenerators.condition().term(PlanterBoxBlock.NORTH, false),
+                BlockModelGenerators.condition().term(PlanterBoxBlock.EAST, false)), post.with(BlockModelGenerators.Y_ROT_90));
+        box.with(BlockModelGenerators.or(BlockModelGenerators.condition().term(PlanterBoxBlock.SOUTH, false),
+                BlockModelGenerators.condition().term(PlanterBoxBlock.EAST, false)), post.with(BlockModelGenerators.Y_ROT_180));
+        box.with(BlockModelGenerators.or(BlockModelGenerators.condition().term(PlanterBoxBlock.SOUTH, false),
+                BlockModelGenerators.condition().term(PlanterBoxBlock.WEST, false)), post.with(BlockModelGenerators.Y_ROT_270));
+        generators().blockStateOutput.accept(box);
+        blockItemModel(planter, blockModel("planter_box_inventory"));
+
+        for (Block sprinkler : List.of(MainFarming.WOODEN_SPRINKLER.get(), MainFarming.IRON_SPRINKLER.get())) {
+            String name = modelOf(sprinkler).getPath().substring("block/".length());
+            generators().blockStateOutput.accept(MultiVariantGenerator.dispatch(sprinkler).with(PropertyDispatch.initial(SprinklerBlock.LEVEL)
+                    .generate(level -> variant(blockModel(name + "_" + level)))));
+            Identifier flat = ModelTemplates.FLAT_ITEM.create(sprinkler.asItem(), TextureMapping.layer0(sprinkler.asItem()), generators().modelOutput);
+            generators().itemModelOutput.accept(sprinkler.asItem(), ItemModelGenerators.createFlatModelDispatch(ItemModelUtils.plainModel(flat),
+                    ItemModelUtils.plainModel(modLoc("item/" + name + "_in_hand"))));
+        }
     }
 
     /**

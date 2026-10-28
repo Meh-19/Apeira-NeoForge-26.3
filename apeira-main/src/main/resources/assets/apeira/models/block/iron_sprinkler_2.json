@@ -1,0 +1,7 @@
+{
+  "parent": "apeira:block/wooden_sprinkler_2",
+  "textures": {
+    "0": "apeira:block/iron_sprinkler",
+    "particle": "apeira:block/iron_sprinkler"
+  }
+}

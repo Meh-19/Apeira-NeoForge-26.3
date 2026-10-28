@@ -1,0 +1,103 @@
+{
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "0": "apeira:block/crop/apple_tree_extra",
+    "particle": "apeira:block/crop/apple_tree_extra"
+  },
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            0.75,
+            14,
+            3,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            0.75,
+            14,
+            3,
+            16
+          ]
+        }
+      },
+      "from": [
+        3.5,
+        0,
+        8
+      ],
+      "rotation": {
+        "angle": -45,
+        "axis": "y",
+        "origin": [
+          8,
+          4,
+          8
+        ]
+      },
+      "to": [
+        13.5,
+        8,
+        8
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            0.75,
+            14,
+            3,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            0.75,
+            14,
+            3,
+            16
+          ]
+        }
+      },
+      "from": [
+        3.5,
+        0,
+        8
+      ],
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8,
+          4,
+          8
+        ]
+      },
+      "to": [
+        13.5,
+        8,
+        8
+      ]
+    }
+  ],
+  "display": {
+    "fixed": {
+      "translation": [
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}

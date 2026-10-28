@@ -1,0 +1,51 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "0": "apeira:block/planter_box",
+    "particle": "apeira:block/planter_box"
+  },
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            1,
+            7.5,
+            7,
+            8
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            1,
+            7.5,
+            7,
+            8
+          ]
+        },
+        "up": {
+          "rotation": 180,
+          "texture": "#0",
+          "uv": [
+            9,
+            15,
+            15,
+            16
+          ]
+        }
+      },
+      "from": [
+        2,
+        16,
+        0
+      ],
+      "to": [
+        14,
+        17,
+        2
+      ]
+    }
+  ]
+}

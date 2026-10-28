@@ -12,6 +12,7 @@ import com.apeira.main.event.BirchSaplingGrowth;
 import com.apeira.main.event.CaptureNetEvents;
 import com.apeira.main.event.RocketBootsSafety;
 import com.apeira.main.event.StickPlacement;
+import com.apeira.main.farming.FarmingService;
 import com.apeira.main.home.HomeCommand;
 import com.apeira.main.navigator.NavigatorCommand;
 import com.apeira.main.navigator.BalloonNavigatorTrigger;
@@ -39,6 +40,7 @@ import com.apeira.main.registry.MainDataComponents;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainEffects;
 import com.apeira.main.registry.MainEntities;
+import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainFeatures;
 import com.apeira.main.registry.MainGear;
 import com.apeira.main.registry.MainItems;
@@ -80,10 +82,11 @@ public final class Apeira {
                 MainRocks::init, MainDyedBlocks::init, MainCrystals::init, MainBuildingBlocks::init, MainPlants::init,
                 MainSpecialBlocks::init, MainMaterials::init, MainRubies::init, MainBlockEntities::init, MainDataComponents::init, MainEffects::init,
                 MainGear::init, MainSounds::init, MainFeatures::init, MainEntities::init, MainNpcs::init, MainCosmetics::init, MainCrates::init,
-                MainRealmBlocks::init, MainCreativeTabs::init);
+                MainRealmBlocks::init, MainFarming::init, MainCreativeTabs::init);
         NETWORK.register(modEventBus, MainPayloads::init);
         // Data holder classes (models, recipes, ...) are passed here as they are added.
         DATA.register(modEventBus, MainData::init);
+        modEventBus.addListener(MainFarming::registerDataMaps);
         modEventBus.addListener(MainEntityEvents::registerAttributes);
         modEventBus.addListener(MainEntityEvents::registerSpawnPlacements);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, CommandList::snapshot);
@@ -139,6 +142,8 @@ public final class Apeira {
         NeoForge.EVENT_BUS.addListener(CaptureNetEvents::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(RocketBootsSafety::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(BirchSaplingGrowth::onGrowFeature);
+        NeoForge.EVENT_BUS.addListener(FarmingService::onServerTick);
+        NeoForge.EVENT_BUS.addListener(FarmingService::onServerStopped);
         LOGGER.info("{} initialized", MOD_ID);
     }
 }

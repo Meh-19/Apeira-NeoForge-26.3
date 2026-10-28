@@ -1,0 +1,103 @@
+{
+  "texture_size": [
+    32,
+    32
+  ],
+  "textures": {
+    "0": "apeira:block/crop/banana_tree_extra",
+    "particle": "apeira:block/crop/banana_tree_extra"
+  },
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            10,
+            12.5,
+            14,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            10,
+            12.5,
+            14,
+            16
+          ]
+        }
+      },
+      "from": [
+        3,
+        0,
+        8
+      ],
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8,
+          3.5,
+          8
+        ]
+      },
+      "to": [
+        13,
+        7,
+        8
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            10,
+            12.5,
+            14,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            10,
+            12.5,
+            14,
+            16
+          ]
+        }
+      },
+      "from": [
+        3,
+        0,
+        8
+      ],
+      "rotation": {
+        "angle": -45,
+        "axis": "y",
+        "origin": [
+          8,
+          3.5,
+          8
+        ]
+      },
+      "to": [
+        13,
+        7,
+        8
+      ]
+    }
+  ],
+  "display": {
+    "fixed": {
+      "translation": [
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}
