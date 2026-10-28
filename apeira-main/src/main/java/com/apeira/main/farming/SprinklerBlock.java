@@ -31,10 +31,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * Origin Realms' sprinklers: a tank on a post with four spray arms that waters the planter boxes around it, a square of
  * {@link #radius} blocks to each side (its own block left out; one block up or down too), every day it has water.
  *
- * <p>It holds {@link #CAPACITY} days of water. A water bucket fills it; a watering can adds one day. Each 7:00 AM tick
+ * <p>It holds {@link #CAPACITY} days of water. A water bucket fills it; a watering can pours in a day per charge, as many
+ * as there is room for (a full can fills an empty sprinkler), and rain now and then adds a day. Each 7:00 AM tick
  * uses up a day ({@link FarmClock.Sprinkler}: the water is worked out from the farming clock, so a sprinkler needs no
  * ticking and keeps watering in unloaded chunks). {@link #LEVEL} is the days of water left and picks Origin Realms'
- * model for it, the tank's water lower each day and no spray when empty.
+ * model for it, the tank's water lower each day and no spray when empty. Its water reaches the boxes ring by ring
+ * ({@link FarmingService#startWave}).
  */
 public class SprinklerBlock extends BaseEntityBlock {
     public static final int CAPACITY = 5;
@@ -99,28 +101,19 @@ public class SprinklerBlock extends BaseEntityBlock {
         }
         if (level instanceof ServerLevel serverLevel) {
             if (bucket) {
-                fill(serverLevel, pos, CAPACITY);
+                FarmingService.setSprinklerWater(serverLevel, pos, CAPACITY, radius);
                 player.setItemInHand(hand, BucketItem.getEmptySuccessItem(stack, player));
                 level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
             } else {
-                WateringCanItem.use(stack, player);
-                fill(serverLevel, pos, -1);
+                FarmClock clock = FarmClock.get(serverLevel.getServer());
+                FarmClock.Sprinkler current = clock.sprinkler(serverLevel.dimension(), pos);
+                int left = current == null ? 0 : current.waterLeft(clock.day());
+                int poured = WateringCanItem.use(stack, CAPACITY - left);
+                FarmingService.setSprinklerWater(serverLevel, pos, left + poured, radius);
                 level.playSound(null, pos, SoundEvents.BOAT_PADDLE_WATER, SoundSource.BLOCKS, 1.0F, 1.2F);
             }
         }
         return InteractionResult.SUCCESS;
-    }
-
-    /** Fills the sprinkler to {@code days} of water from today, or adds one day when {@code days} is -1. */
-    private void fill(ServerLevel level, BlockPos pos, int days) {
-        FarmClock clock = FarmClock.get(level.getServer());
-        long day = clock.day();
-        FarmClock.Sprinkler current = clock.sprinkler(level.dimension(), pos);
-        int left = current == null ? 0 : current.waterLeft(day);
-        int water = days < 0 ? Math.min(CAPACITY, left + 1) : days;
-        clock.setSprinkler(new FarmClock.Sprinkler(level.dimension(), pos, day, water, radius));
-        FarmingService.refreshSprinkler(level, pos, clock);
-        FarmingService.refreshPlantersAround(level, pos, radius);
     }
 
     @Override

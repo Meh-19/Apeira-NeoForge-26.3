@@ -23,38 +23,36 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 /**
- * The wooden watering can. Right-clicking water fills it ({@link #CAPACITY} waterings, kept in the {@code apeira:water}
- * component, which its item model shows as the full can); each right-click on a planter box waters it for the day, and
- * on a sprinkler adds a day of water. The bar under it is the water left.
+ * The wooden watering can. Right-clicking water fills it with {@link #CAPACITY} charges, kept in the {@code apeira:water}
+ * component (which its item model shows as the full can): as many as a full sprinkler's days, so one fill fills one empty
+ * sprinkler. A right-click on a planter box waters it for the day for one charge; on a sprinkler it pours in as many
+ * charges as the sprinkler has room for days. Charges are used in creative too, and the bar under the can, one fifth per
+ * charge, goes down as they are.
  */
 public class WateringCanItem extends Item {
-    public static final int CAPACITY = 20;
-    /** Water drops in the tooltip, as Origin Realms' can shows: each one a fifth of {@link #CAPACITY}, rounded up. */
-    private static final int DROPS = 5;
+    /** A full can's charges: a full sprinkler's days, {@link SprinklerBlock#CAPACITY}. */
+    public static final int CAPACITY = SprinklerBlock.CAPACITY;
     private static final int BAR_COLOUR = 0x3F76E4;
 
     public WateringCanItem(Item.Properties properties) {
         super(properties);
     }
 
+    /** The charges left, at most {@link #CAPACITY} (cans filled when it was 20 read as full). */
     public static int water(ItemStack stack) {
-        return stack.getOrDefault(MainFarming.WATER.get(), 0);
+        return Math.min(CAPACITY, stack.getOrDefault(MainFarming.WATER.get(), 0));
     }
 
-    /** Uses one watering, unless the player is in creative. Returns false when the can is empty. */
-    public static boolean use(ItemStack stack, Player player) {
+    /** Uses up to {@code charges} charges and returns how many were used (0 when the can is empty). */
+    public static int use(ItemStack stack, int charges) {
         int water = water(stack);
-        if (water <= 0) {
-            return false;
+        int used = Math.min(water, Math.max(0, charges));
+        if (used == water) {
+            stack.remove(MainFarming.WATER.get());
+        } else if (used > 0) {
+            stack.set(MainFarming.WATER.get(), water - used);
         }
-        if (!player.getAbilities().instabuild) {
-            if (water == 1) {
-                stack.remove(MainFarming.WATER.get());
-            } else {
-                stack.set(MainFarming.WATER.get(), water - 1);
-            }
-        }
-        return true;
+        return used;
     }
 
     @Override
@@ -94,7 +92,7 @@ public class WateringCanItem extends Item {
     @SuppressWarnings("deprecation")
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder,
             TooltipFlag flag) {
-        int drops = Mth.ceil(DROPS * water(stack) / (float) CAPACITY);
-        builder.accept(FarmingLore.glyphs(FarmingLore.DROP.repeat(drops) + FarmingLore.EMPTY_DROP.repeat(DROPS - drops)));
+        int drops = water(stack);
+        builder.accept(FarmingLore.glyphs(FarmingLore.DROP.repeat(drops) + FarmingLore.EMPTY_DROP.repeat(CAPACITY - drops)));
     }
 }

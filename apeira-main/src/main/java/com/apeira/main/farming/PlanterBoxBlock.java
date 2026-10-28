@@ -19,6 +19,7 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
@@ -31,6 +32,9 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * Origin Realms' planter box: a wooden box of soil that grows one {@link FarmCrop} on its top, kept by a
@@ -58,6 +62,33 @@ public class PlanterBoxBlock extends BaseEntityBlock {
     private static final Map<Direction, BooleanProperty> CONNECTIONS = Map.of(Direction.NORTH, NORTH, Direction.EAST, EAST,
             Direction.SOUTH, SOUTH, Direction.WEST, WEST);
     private static final Component TITLE = Component.translatable("container.apeira.planter_box");
+    /**
+     * The box with its rims and corner posts, by the sides it joins (bit 0 north, 1 east, 2 south, 3 west). Never a
+     * full block while a rim stands: vanilla lights every face of a full-block shape from the block beside it, so the
+     * rims and posts, which stand above the box, were lit from the neighbouring blocks and drawn black.
+     */
+    private static final VoxelShape[] SHAPES = new VoxelShape[16];
+
+    static {
+        VoxelShape[] rims = {Block.box(0, 16, 0, 16, 17, 2), Block.box(14, 16, 0, 16, 17, 16), Block.box(0, 16, 14, 16, 17, 16),
+                Block.box(0, 16, 0, 2, 17, 16)};
+        // Posts at the north-west, north-east, south-east and south-west corners, each between two sides.
+        VoxelShape[] posts = {Block.box(0, 16, 0, 2, 18, 2), Block.box(14, 16, 0, 16, 18, 2), Block.box(14, 16, 14, 16, 18, 16),
+                Block.box(0, 16, 14, 2, 18, 16)};
+        for (int joined = 0; joined < 16; joined++) {
+            VoxelShape shape = Shapes.block();
+            for (int side = 0; side < 4; side++) {
+                if ((joined & 1 << side) == 0) {
+                    shape = Shapes.or(shape, rims[side]);
+                }
+                int next = (side + 3) % 4;
+                if ((joined & 1 << side) == 0 || (joined & 1 << next) == 0) {
+                    shape = Shapes.or(shape, posts[side]);
+                }
+            }
+            SHAPES[joined] = shape.optimize();
+        }
+    }
 
     public PlanterBoxBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -88,6 +119,13 @@ public class PlanterBoxBlock extends BaseEntityBlock {
     }
 
     @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        int joined = (state.getValue(NORTH) ? 1 : 0) | (state.getValue(EAST) ? 2 : 0) | (state.getValue(SOUTH) ? 4 : 0)
+                | (state.getValue(WEST) ? 8 : 0);
+        return SHAPES[joined];
+    }
+
+    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new PlanterBoxBlockEntity(pos, state);
     }
@@ -111,7 +149,7 @@ public class PlanterBoxBlock extends BaseEntityBlock {
                 return InteractionResult.TRY_WITH_EMPTY_HAND;
             }
             if (!level.isClientSide()) {
-                WateringCanItem.use(stack, player);
+                WateringCanItem.use(stack, 1);
                 box.water();
                 level.playSound(null, pos, SoundEvents.BOAT_PADDLE_WATER, SoundSource.BLOCKS, 1.0F, 1.2F);
             }

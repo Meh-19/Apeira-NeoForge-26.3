@@ -21,6 +21,7 @@ import com.mojang.serialization.Codec;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.MenuType;
@@ -53,7 +54,7 @@ public final class MainFarming {
             builder -> builder.persistent(Codec.intRange(1, 3)).networkSynchronized(ByteBufCodecs.VAR_INT));
     /** Uses of water left in a watering can; no component when empty. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> WATER = R.dataComponent("water",
-            builder -> builder.persistent(Codec.intRange(1, WateringCanItem.CAPACITY)).networkSynchronized(ByteBufCodecs.VAR_INT));
+            builder -> builder.persistent(ExtraCodecs.POSITIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
     /**
      * {@code apeira:hoe_quality} ({@code data/apeira/data_maps/item/hoe_quality.json}): how much a hoe raises a manual
      * harvest's rating, 0 to 1 (netherite 1). Hands and tools without an entry count as 0.
