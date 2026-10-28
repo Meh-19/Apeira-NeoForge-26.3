@@ -1,6 +1,7 @@
 package com.apeira.decor.client.bedrock;
 
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -49,8 +50,29 @@ public final class BedrockRenderer {
 
     private static void bone(BedrockModel.Bone bone, @Nullable BedrockAnimation animation, float time, float[] scratch, PoseStack poseStack,
             SubmitNodeCollector collector, RenderType renderType, int light, int overlay, int color, @Nullable Attachment attachment) {
-        BedrockAnimation.BoneTrack track = animation == null ? null : animation.bones().get(bone.name());
         poseStack.pushPose();
+        // A bone scaled to 0 (hidden) draws nothing, nor do its children.
+        if (pose(bone, animation, time, scratch, poseStack)) {
+            if (attachment != null) {
+                attachment.submit(bone.name(), poseStack, collector);
+            }
+            poseStack.translate(-bone.pivotX() / 16.0F, -bone.pivotY() / 16.0F, -bone.pivotZ() / 16.0F);
+            for (BedrockModel.Cube cube : bone.cubes()) {
+                cube(cube, poseStack, collector, renderType, light, overlay, color);
+            }
+            for (BedrockModel.Bone child : bone.children()) {
+                bone(child, animation, time, scratch, poseStack, collector, renderType, light, overlay, color, attachment);
+            }
+        }
+        poseStack.popPose();
+    }
+
+    /**
+     * Moves {@code poseStack} into {@code bone}'s frame, posed at {@code time}: its pivot as the origin, turned and scaled.
+     * Returns false when the bone is scaled to 0 (hidden).
+     */
+    private static boolean pose(BedrockModel.Bone bone, @Nullable BedrockAnimation animation, float time, float[] scratch, PoseStack poseStack) {
+        BedrockAnimation.BoneTrack track = animation == null ? null : animation.bones().get(bone.name());
         float rotX = bone.rotX();
         float rotY = bone.rotY();
         float rotZ = bone.rotZ();
@@ -77,21 +99,64 @@ public final class BedrockRenderer {
         }
         poseStack.translate(bone.pivotX() / 16.0F, bone.pivotY() / 16.0F, bone.pivotZ() / 16.0F);
         rotate(poseStack, rotX, rotY, rotZ);
-        // A bone scaled to 0 (hidden) draws nothing, nor do its children.
-        if (scaleX != 0 || scaleY != 0 || scaleZ != 0) {
-            poseStack.scale(scaleX, scaleY, scaleZ);
-            if (attachment != null) {
-                attachment.submit(bone.name(), poseStack, collector);
-            }
-            poseStack.translate(-bone.pivotX() / 16.0F, -bone.pivotY() / 16.0F, -bone.pivotZ() / 16.0F);
-            for (BedrockModel.Cube cube : bone.cubes()) {
-                cube(cube, poseStack, collector, renderType, light, overlay, color);
-            }
-            for (BedrockModel.Bone child : bone.children()) {
-                bone(child, animation, time, scratch, poseStack, collector, renderType, light, overlay, color, attachment);
+        if (scaleX == 0 && scaleY == 0 && scaleZ == 0) {
+            return false;
+        }
+        poseStack.scale(scaleX, scaleY, scaleZ);
+        return true;
+    }
+
+    /**
+     * Where {@code boneName} is in the model posed at {@code seconds} into {@code animation}, in blocks from the model's
+     * origin (before the caller's own turn): the centre of the bone's own cubes, or its pivot when it has none. Null when
+     * the model has no such bone. Cube turns are left out of the centre.
+     */
+    public static @Nullable Vector3f locate(BedrockModel model, @Nullable BedrockAnimation animation, float seconds, String boneName) {
+        float time = animation == null ? 0 : animation.timeAt(seconds);
+        float[] scratch = new float[3];
+        PoseStack poseStack = new PoseStack();
+        for (BedrockModel.Bone bone : model.bones()) {
+            Vector3f found = locate(bone, animation, time, scratch, poseStack, boneName);
+            if (found != null) {
+                return found;
             }
         }
-        poseStack.popPose();
+        return null;
+    }
+
+    private static @Nullable Vector3f locate(BedrockModel.Bone bone, @Nullable BedrockAnimation animation, float time, float[] scratch,
+            PoseStack poseStack, String boneName) {
+        poseStack.pushPose();
+        try {
+            pose(bone, animation, time, scratch, poseStack);
+            if (bone.name().equals(boneName)) {
+                Vector3f centre = new Vector3f();
+                int count = 0;
+                for (BedrockModel.Cube cube : bone.cubes()) {
+                    for (BedrockModel.Quad quad : cube.quads()) {
+                        for (float[] vertex : quad.vertices()) {
+                            centre.add(vertex[0], vertex[1], vertex[2]);
+                            count++;
+                        }
+                    }
+                }
+                if (count == 0) {
+                    return poseStack.last().pose().transformPosition(new Vector3f());
+                }
+                centre.div(count).sub(bone.pivotX() / 16.0F, bone.pivotY() / 16.0F, bone.pivotZ() / 16.0F);
+                return poseStack.last().pose().transformPosition(centre);
+            }
+            poseStack.translate(-bone.pivotX() / 16.0F, -bone.pivotY() / 16.0F, -bone.pivotZ() / 16.0F);
+            for (BedrockModel.Bone child : bone.children()) {
+                Vector3f found = locate(child, animation, time, scratch, poseStack, boneName);
+                if (found != null) {
+                    return found;
+                }
+            }
+            return null;
+        } finally {
+            poseStack.popPose();
+        }
     }
 
     private static void cube(BedrockModel.Cube cube, PoseStack poseStack, SubmitNodeCollector collector, RenderType renderType, int light,

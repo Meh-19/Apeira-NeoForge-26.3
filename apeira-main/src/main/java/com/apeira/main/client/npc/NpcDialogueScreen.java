@@ -23,11 +23,12 @@ import net.minecraft.util.Util;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
- * An NPC's dialogue, after Undertale's and Deltarune's text boxes: a black box along the bottom of the screen in the
- * framed border ({@code textures/gui/dialogue/border.png}, a nine-slice with {@link #EDGE}-pixel edges), the NPC's
- * portrait ({@code textures/gui/dialogue/portrait/<npc>.png}, 42x42) on its left, and beside it the NPC's name in bold
- * white after the speech glyph ꢔ of the {@code apeira:dialogue} font, over its line, typed out
- * {@link #MILLIS_PER_CHAR} a character. A click, Space, Enter or F shows the whole line at once, then closes; Escape
+ * An NPC's dialogue, after Undertale's and Deltarune's text boxes: a black box with a 1-pixel white outline along the
+ * bottom of the screen ({@link #MAX_WIDTH} by {@link #BOX_HEIGHT} GUI pixels at most), the NPC's portrait
+ * ({@code textures/gui/dialogue/portrait/<npc>.png}, 42x42) on its left inside the framed border
+ * ({@code textures/gui/dialogue/border.png}, 50x50 drawn 1:1, its {@link #EDGE}-pixel band round the portrait), and
+ * beside it the NPC's name in bold white after the speech glyph ꢔ of the {@code apeira:dialogue} font, over its line,
+ * typed out {@link #MILLIS_PER_CHAR} a character. A click, Space, Enter or F shows the whole line at once, then closes; Escape
  * closes. The game keeps running behind it, and {@link NpcDialogueCamera} keeps the view on the NPC while it is open.
  */
 public class NpcDialogueScreen extends Screen {
@@ -39,9 +40,10 @@ public class NpcDialogueScreen extends Screen {
     private static final int BOX_HEIGHT = 66;
     private static final int MAX_WIDTH = 340;
     private static final int MARGIN = 12;
-    private static final int PADDING = 12;
+    /** From the box's edge to the portrait frame, and between the frame and the text. */
+    private static final int PADDING = 8;
     private static final int LINE_HEIGHT = 11;
-    private static final long MILLIS_PER_CHAR = 30;
+    private static final long MILLIS_PER_CHAR = 12;
     private static final int FILL = 0xF0000000;
     private static final int WHITE = 0xFFFFFFFF;
 
@@ -74,7 +76,7 @@ public class NpcDialogueScreen extends Screen {
     @Override
     protected void init() {
         // The line is wrapped once to the text's width, then typed out row by row.
-        rows = font.splitIgnoringLanguage(line, boxWidth() - PADDING * 2 - PORTRAIT_SIZE - PADDING).stream().map(FormattedText::getString).toList();
+        rows = font.splitIgnoringLanguage(line, boxWidth() - PADDING * 3 - BORDER_SIZE).stream().map(FormattedText::getString).toList();
         length = rows.stream().mapToInt(String::length).sum();
     }
 
@@ -103,17 +105,23 @@ public class NpcDialogueScreen extends Screen {
         int w = boxWidth();
         int x = (width - w) / 2;
         int y = height - BOX_HEIGHT - MARGIN;
-        graphics.fill(x + EDGE, y + EDGE, x + w - EDGE, y + BOX_HEIGHT - EDGE, FILL);
-        border(graphics, x, y, w, BOX_HEIGHT);
-        int portraitY = y + (BOX_HEIGHT - PORTRAIT_SIZE) / 2;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, portrait, x + PADDING, portraitY, 0.0F, 0.0F, PORTRAIT_SIZE, PORTRAIT_SIZE, PORTRAIT_SIZE,
-                PORTRAIT_SIZE);
-        int textX = x + PADDING + PORTRAIT_SIZE + PADDING;
+        graphics.fill(x, y, x + w, y + BOX_HEIGHT, FILL);
+        graphics.fill(x, y, x + w, y + 1, WHITE);
+        graphics.fill(x, y + BOX_HEIGHT - 1, x + w, y + BOX_HEIGHT, WHITE);
+        graphics.fill(x, y + 1, x + 1, y + BOX_HEIGHT - 1, WHITE);
+        graphics.fill(x + w - 1, y + 1, x + w, y + BOX_HEIGHT - 1, WHITE);
+        // The portrait sits in the border's 42x42 opening, the border drawn over it.
+        int frameX = x + PADDING;
+        int frameY = y + PADDING;
+        graphics.blit(RenderPipelines.GUI_TEXTURED, portrait, frameX + EDGE, frameY + EDGE, 0.0F, 0.0F, PORTRAIT_SIZE, PORTRAIT_SIZE,
+                PORTRAIT_SIZE, PORTRAIT_SIZE);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BORDER, frameX, frameY, 0.0F, 0.0F, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE);
+        int textX = frameX + BORDER_SIZE + PADDING;
         Component title = Component.literal("ꢔ").withStyle(style -> style.withFont(DIALOGUE_FONT))
                 .append(Component.literal(" ").append(name.copy()).withStyle(ChatFormatting.BOLD));
-        graphics.text(font, title, textX, y + PADDING, WHITE, true);
+        graphics.text(font, title, textX, frameY + EDGE, WHITE, true);
         int left = shown();
-        int rowY = y + PADDING + LINE_HEIGHT + 3;
+        int rowY = frameY + EDGE + LINE_HEIGHT + 3;
         for (String row : rows) {
             if (left <= 0) {
                 break;
@@ -131,24 +139,6 @@ public class NpcDialogueScreen extends Screen {
             graphics.fill(ax + 2, ay + 2, ax + 3, ay + 3, WHITE);
         }
         super.extractRenderState(graphics, mouseX, mouseY, a);
-    }
-
-    /** The nine-slice frame: corners as they are, edges stretched along the box. */
-    private static void border(GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
-        int mid = BORDER_SIZE - EDGE * 2;
-        int[][] columns = {{x, 0, EDGE}, {x + EDGE, EDGE, w - EDGE * 2}, {x + w - EDGE, BORDER_SIZE - EDGE, EDGE}};
-        int[][] rows = {{y, 0, EDGE}, {y + EDGE, EDGE, h - EDGE * 2}, {y + h - EDGE, BORDER_SIZE - EDGE, EDGE}};
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (i == 1 && j == 1) {
-                    continue;
-                }
-                int[] column = columns[i];
-                int[] row = rows[j];
-                graphics.blit(RenderPipelines.GUI_TEXTURED, BORDER, column[0], row[0], column[1], row[1], column[2], row[2], i == 1 ? mid : EDGE,
-                        j == 1 ? mid : EDGE, BORDER_SIZE, BORDER_SIZE);
-            }
-        }
     }
 
     /** Shows the rest of the line, or closes once it is all shown. */

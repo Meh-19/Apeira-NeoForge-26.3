@@ -1,8 +1,11 @@
 package com.apeira.main.client.npc;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.decor.client.EmissiveRenderTypes;
@@ -26,8 +29,11 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 /**
  * Draws an {@link NpcEntity} from a Bedrock model and animation ({@code assets/<namespace>/bedrock/}, loaded by decor's
@@ -40,8 +46,8 @@ import net.minecraft.world.phys.AABB;
  *
  * <p>The model's {@code chat_display} bone (the text display Origin Realms showed over the NPC) carries a speech
  * bubble, always shown: the first of the six 16x16 frames of {@code textures/custom/ui/speech_bubble.png}, a
- * {@link #BUBBLE_SIZE}-block square drawn in that bone's own frame (its pivot, turn and scale, through
- * {@link BedrockRenderer.Attachment}), centred across it with its bottom edge on the pivot.
+ * {@link #BUBBLE_SIZE}-block billboard at that bone's animated pivot (through {@link BedrockRenderer.Attachment}),
+ * always facing the camera, centred across with its bottom edge on the pivot.
  */
 public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRenderer.State> {
     /** The ghost's alpha, for a hidden NPC seen up close. */
@@ -66,24 +72,48 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
         long ghostMillis = Util.getMillis();
     }
 
-    private final Identifier model;
-    private final Identifier animations;
-    private final String animation;
-    private final Identifier texture;
+    /** Each NPC type's model, by type, for {@link #head}. */
+    private static final Map<EntityType<?>, Rig> RIGS = new HashMap<>();
 
     /**
+     * An NPC type's model.
+     *
      * @param model      the model, {@code bedrock/models/<path>.geo.json} as {@code <namespace>:<path>}
      * @param animations the animation file, {@code bedrock/animations/<path>.animation.json} as {@code <namespace>:<path>}
      * @param animation  the looping animation's name in it
+     * @param headBone   the bone the dialogue camera looks at ({@link #head})
      */
-    public BedrockNpcRenderer(EntityRendererProvider.Context context, Identifier model, Identifier animations, String animation,
-            Identifier texture) {
+    public record Rig(Identifier model, Identifier animations, String animation, Identifier texture, String headBone) {}
+
+    private final Rig rig;
+
+    public BedrockNpcRenderer(EntityRendererProvider.Context context, Rig rig) {
         super(context);
-        this.model = model;
-        this.animations = animations;
-        this.animation = animation;
-        this.texture = texture;
+        this.rig = rig;
         this.shadowRadius = 0.5F;
+    }
+
+    /** Registers {@code type}'s renderer, drawing {@code rig}. */
+    public static void register(EntityRenderersEvent.RegisterRenderers event, EntityType<? extends NpcEntity> type, Rig rig) {
+        RIGS.put(type, rig);
+        event.registerEntityRenderer(type, context -> new BedrockNpcRenderer(context, rig));
+    }
+
+    /**
+     * Where the NPC's head bone is drawn this frame, in world coordinates: the centre of the bone's cubes, posed by its
+     * looping animation at the NPC's age as {@link #submit} poses it, and turned with the NPC. Its eyes when its model or
+     * the bone is missing.
+     */
+    public static Vec3 head(NpcEntity npc, float partialTick) {
+        Rig rig = RIGS.get(npc.getType());
+        BedrockModel bedrock = rig == null ? null : BedrockAssets.model(rig.model());
+        Vector3f local = bedrock == null ? null : BedrockRenderer.locate(bedrock, BedrockAssets.animation(rig.animations(), rig.animation()),
+                (npc.tickCount + partialTick) / 20.0F, rig.headBone());
+        if (local == null) {
+            return npc.getEyePosition(partialTick);
+        }
+        local.rotateY((180.0F - npc.getViewYRot(partialTick)) * Mth.DEG_TO_RAD);
+        return npc.getPosition(partialTick).add(local.x(), local.y(), local.z());
     }
 
     public static class State extends EntityRenderState {
@@ -117,17 +147,17 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
 
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        BedrockModel bedrock = BedrockAssets.model(model);
+        BedrockModel bedrock = BedrockAssets.model(rig.model());
         if (bedrock != null && !state.isInvisible) {
-            @Nullable BedrockAnimation idle = BedrockAssets.animation(animations, animation);
+            @Nullable BedrockAnimation idle = BedrockAssets.animation(rig.animations(), rig.animation());
             poseStack.pushPose();
             poseStack.rotate(Axis.YP.rotationDegrees(180.0F - state.yRot));
             int color = state.ghost ? Math.round(GHOST_ALPHA * state.ghostFade) << 24 | 0xFFFFFF : 0xFFFFFFFF;
             int light = state.lightCoords;
             BedrockRenderer.submit(bedrock, idle, state.ageInTicks / 20.0F, poseStack, submitNodeCollector,
-                    EmissiveRenderTypes.entityTranslucent(texture), light, OverlayTexture.NO_OVERLAY, color, (bone, pose, collector) -> {
+                    EmissiveRenderTypes.entityTranslucent(rig.texture()), light, OverlayTexture.NO_OVERLAY, color, (bone, pose, collector) -> {
                         if (CHAT_BONE.equals(bone)) {
-                            bubble(pose, collector, light, color);
+                            bubble(pose, collector, camera.orientation, light, color);
                         }
                     });
             poseStack.popPose();
@@ -135,16 +165,24 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
         super.submit(state, poseStack, submitNodeCollector, camera);
     }
 
-    /** The speech bubble's first frame, a square on the bone's x-y plane (drawn from both sides), bottom edge on the origin. */
-    private static void bubble(PoseStack poseStack, SubmitNodeCollector collector, int light, int color) {
+    /**
+     * The speech bubble's first frame: a square at the bone's pivot, turned to face the camera (as name tags are), its
+     * bottom edge on the pivot, drawn from both sides.
+     */
+    private static void bubble(PoseStack poseStack, SubmitNodeCollector collector, Quaternionf facing, int light, int color) {
+        Vector3f anchor = poseStack.last().pose().getTranslation(new Vector3f());
+        poseStack.pushPose();
+        poseStack.last().pose().translation(anchor).rotate(facing);
+        poseStack.last().normal().rotation(facing);
         float half = BUBBLE_SIZE / 2.0F;
         float v = 1.0F / BUBBLE_FRAMES;
         collector.submitCustomGeometry(poseStack, EmissiveRenderTypes.entityTranslucent(BUBBLE), (pose, buffer) -> {
-            bubbleVertex(buffer, pose, -half, 0.0F, 1.0F, v, light, color);
-            bubbleVertex(buffer, pose, half, 0.0F, 0.0F, v, light, color);
-            bubbleVertex(buffer, pose, half, BUBBLE_SIZE, 0.0F, 0.0F, light, color);
-            bubbleVertex(buffer, pose, -half, BUBBLE_SIZE, 1.0F, 0.0F, light, color);
+            bubbleVertex(buffer, pose, -half, 0.0F, 0.0F, v, light, color);
+            bubbleVertex(buffer, pose, half, 0.0F, 1.0F, v, light, color);
+            bubbleVertex(buffer, pose, half, BUBBLE_SIZE, 1.0F, 0.0F, light, color);
+            bubbleVertex(buffer, pose, -half, BUBBLE_SIZE, 0.0F, 0.0F, light, color);
         });
+        poseStack.popPose();
     }
 
     private static void bubbleVertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, float u, float v, int light, int color) {

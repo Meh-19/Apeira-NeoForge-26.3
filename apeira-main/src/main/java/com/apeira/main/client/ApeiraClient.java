@@ -94,9 +94,9 @@ public final class ApeiraClient {
         event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
         event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);
         event.registerEntityRenderer(MainEntities.WRAITH.get(), WraithRenderer::new);
-        event.registerEntityRenderer(MainNpcs.CONDUCTOR_CARLO.get(), context -> new BedrockNpcRenderer(context,
-                Apeira.REGISTRAR.id("entity/conductor_carlo"), Apeira.REGISTRAR.id("entity/conductor_carlo"), "animation.conductor_carlo.idle",
-                Apeira.REGISTRAR.id("textures/entity/conductor_carlo.png")));
+        BedrockNpcRenderer.register(event, MainNpcs.CONDUCTOR_CARLO.get(), new BedrockNpcRenderer.Rig(Apeira.REGISTRAR.id("entity/conductor_carlo"),
+                Apeira.REGISTRAR.id("entity/conductor_carlo"), "animation.conductor_carlo.idle", Apeira.REGISTRAR.id("textures/entity/conductor_carlo.png"),
+                "balloon_conductor_head_paper_cmd2057_balloon_conductor_head"));
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {

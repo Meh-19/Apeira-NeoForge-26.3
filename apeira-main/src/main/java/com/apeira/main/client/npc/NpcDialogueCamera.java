@@ -13,8 +13,8 @@ import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * Turns the player to the NPC they are talking to and zooms in a little while its dialogue is open: over
- * {@link #PAN_MS} the view eases (in and out) from where the player looked to the NPC's eyes, then stays on them as
- * the NPC moves; the field of view narrows by {@link #ZOOM} over {@link #ZOOM_MS} and widens back as smoothly when the
+ * {@link #PAN_MS} the view eases (in and out) from where the player looked to the NPC's head bone as its animation
+ * draws it this frame ({@link BedrockNpcRenderer#head}), then follows that bone as the animation moves it; the field of view narrows by {@link #ZOOM} over {@link #ZOOM_MS} and widens back as smoothly when the
  * dialogue closes. The player's own rotation follows the view each frame, so closing leaves them looking at the NPC.
  */
 public final class NpcDialogueCamera {
@@ -77,7 +77,7 @@ public final class NpcDialogueCamera {
             return;
         }
         float partialTick = (float) event.getPartialTick();
-        Vec3 delta = target.getEyePosition(partialTick).subtract(player.getEyePosition(partialTick));
+        Vec3 delta = BedrockNpcRenderer.head(target, partialTick).subtract(player.getEyePosition(partialTick));
         float yaw = (float) Math.toDegrees(Math.atan2(-delta.x, delta.z));
         float pitch = (float) -Math.toDegrees(Math.atan2(delta.y, delta.horizontalDistance()));
         float t = ease(Math.min(1.0F, (Util.getMillis() - started) / PAN_MS));
