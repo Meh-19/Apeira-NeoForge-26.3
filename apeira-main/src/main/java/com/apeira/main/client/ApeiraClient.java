@@ -64,18 +64,8 @@ public final class ApeiraClient {
         modEventBus.addListener(ApeiraClient::registerScreens);
         modEventBus.addListener(ApeiraClient::registerGuiLayers);
         NeoForge.EVENT_BUS.addListener(ApeiraClient::openProfile);
-        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onClientTick);
-        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onInteraction);
-        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onMouseButton);
-        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onScreenOpening);
-        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onLoggingOut);
-        NeoForge.EVENT_BUS.addListener(SpawnPlacement::onSubmitGeometry);
-        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onClientTick);
-        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onInteraction);
-        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onMouseButton);
-        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onScreenOpening);
-        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onLoggingOut);
-        NeoForge.EVENT_BUS.addListener(NpcAnchorPlacement::onSubmitGeometry);
+        SpawnPlacement.CURSOR.register();
+        NpcAnchorPlacement.CURSOR.register();
         NeoForge.EVENT_BUS.addListener(RealmTopBar::onLoggingOut);
         NpcClient.init();
         NeoForge.EVENT_BUS.addListener(RubyTickerAnimation::onLoggingOut);
@@ -112,8 +102,8 @@ public final class ApeiraClient {
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.FOOD_LEVEL, Apeira.REGISTRAR.id("rubies"), RubyHud::render);
         event.registerAbove(VanillaGuiLayers.BOSS_OVERLAY, Apeira.REGISTRAR.id("realm_top_bar"), RealmTopBar::render);
-        event.registerAbove(VanillaGuiLayers.CROSSHAIR, Apeira.REGISTRAR.id("spawn_placement"), SpawnPlacement::renderHud);
-        event.registerAbove(VanillaGuiLayers.CROSSHAIR, Apeira.REGISTRAR.id("npc_anchor_placement"), NpcAnchorPlacement::renderHud);
+        event.registerAbove(VanillaGuiLayers.CROSSHAIR, Apeira.REGISTRAR.id("spawn_placement"), SpawnPlacement.CURSOR::renderHud);
+        event.registerAbove(VanillaGuiLayers.CROSSHAIR, Apeira.REGISTRAR.id("npc_anchor_placement"), NpcAnchorPlacement.CURSOR::renderHud);
     }
 
     private static void registerKeys(RegisterKeyMappingsEvent event) {

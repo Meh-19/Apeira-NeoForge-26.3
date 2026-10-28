@@ -16,9 +16,6 @@ import net.minecraft.network.codec.StreamCodec;
  * @param balloon where the realm's starter balloon stands now, which the cursor may overlap
  */
 public record SpawnPlacementPayload(Optional<BlockPos> balloon) implements ApeiraPayload<SpawnPlacementPayload> {
-    /** How far the cursor reaches, in blocks. */
-    public static final double REACH = 32.0;
-
     public static final ApeiraPayloadType<SpawnPlacementPayload> TYPE = ApeiraPayloadType.of("spawn_placement",
             StreamCodec.composite(ByteBufCodecs.optional(BlockPos.STREAM_CODEC), SpawnPlacementPayload::balloon, SpawnPlacementPayload::new));
 

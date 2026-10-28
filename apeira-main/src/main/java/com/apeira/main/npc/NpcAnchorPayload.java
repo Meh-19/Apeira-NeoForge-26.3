@@ -11,9 +11,6 @@ import net.minecraft.network.codec.StreamCodec;
  * for the NPC with entity id {@code npc}; a left-click answers with a {@link ConfirmNpcAnchorPayload}.
  */
 public record NpcAnchorPayload(int npc) implements ApeiraPayload<NpcAnchorPayload> {
-    /** How far the cursor reaches, in blocks. */
-    public static final double REACH = 32.0;
-
     public static final ApeiraPayloadType<NpcAnchorPayload> TYPE = ApeiraPayloadType.of("npc_anchor",
             StreamCodec.composite(ByteBufCodecs.VAR_INT, NpcAnchorPayload::npc, NpcAnchorPayload::new));
 

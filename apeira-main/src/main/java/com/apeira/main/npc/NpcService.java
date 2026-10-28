@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.network.ApeiraPackets;
+import com.apeira.decor.placement.PlacementReach;
 import com.apeira.main.Apeira;
 import com.apeira.main.navigator.NavigatorService;
 import com.apeira.main.realm.RealmService;
@@ -30,7 +31,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  */
 public final class NpcService {
     /** The farthest from the player an anchor may be: the client's cursor reach, and a little more. */
-    private static final double ANCHOR_REACH = NpcAnchorPayload.REACH + 8.0;
+    private static final double ANCHOR_REACH = PlacementReach.SERVER;
     /** Conductor Carlo stands this many blocks in front of the starter balloon's centre ... */
     static final int CONDUCTOR_FORWARD = 3;
     /** ... and this many to its left, as seen looking out of the balloon's front. */
