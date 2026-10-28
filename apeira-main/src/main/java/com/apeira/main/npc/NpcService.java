@@ -31,13 +31,12 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 public final class NpcService {
     /** The farthest from the player an anchor may be: the client's cursor reach, and a little more. */
     private static final double ANCHOR_REACH = NpcAnchorPayload.REACH + 8.0;
-    /**
-     * Conductor Carlo stands this many blocks to the left of the starter balloon's centre, as seen looking out of the
-     * balloon's front ...
-     */
-    static final int CONDUCTOR_LEFT = 3;
-    /** ... and this many behind it: 3 forward and 2 left, turned 90 degrees counter-clockwise seen from above. */
-    static final int CONDUCTOR_BACK = 2;
+    /** Conductor Carlo stands this many blocks in front of the starter balloon's centre ... */
+    static final int CONDUCTOR_FORWARD = 3;
+    /** ... and this many to its left, as seen looking out of the balloon's front. */
+    static final int CONDUCTOR_LEFT = 2;
+    /** He faces the balloon turned this far clockwise, seen from above (yaw grows clockwise). */
+    static final float CONDUCTOR_TURN = 90.0F;
 
     private NpcService() {}
 
@@ -108,14 +107,13 @@ public final class NpcService {
 
     /**
      * Places Conductor Carlo by a Lush realm's new starter balloon, whose floor's centre is {@code balloon} and whose
-     * front faces {@code facing}: {@link #CONDUCTOR_LEFT} blocks to its left and {@link #CONDUCTOR_BACK} behind it, on the ground there (the top block of that column, leaves ignored), facing the balloon. Nothing is placed
+     * front faces {@code facing}: {@link #CONDUCTOR_FORWARD} blocks out of its front and {@link #CONDUCTOR_LEFT} to its left, on the ground there (the top block of that column, leaves ignored), facing the balloon turned {@link #CONDUCTOR_TURN} degrees clockwise. Nothing is placed
      * when that spot has no room for him.
      */
     public static void spawnConductor(ServerLevel level, BlockPos balloon, Direction facing) {
         Direction left = facing.getCounterClockWise();
-        Direction back = facing.getOpposite();
-        int x = balloon.getX() + left.getStepX() * CONDUCTOR_LEFT + back.getStepX() * CONDUCTOR_BACK;
-        int z = balloon.getZ() + left.getStepZ() * CONDUCTOR_LEFT + back.getStepZ() * CONDUCTOR_BACK;
+        int x = balloon.getX() + facing.getStepX() * CONDUCTOR_FORWARD + left.getStepX() * CONDUCTOR_LEFT;
+        int z = balloon.getZ() + facing.getStepZ() * CONDUCTOR_FORWARD + left.getStepZ() * CONDUCTOR_LEFT;
         BlockPos anchor = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
         if (!NpcEntity.canStandAt(level, MainNpcs.CONDUCTOR_CARLO.get(), anchor)) {
             Apeira.LOGGER.warn("No room for Conductor Carlo at {} in {}", anchor, level.dimension().identifier());
@@ -127,6 +125,7 @@ public final class NpcService {
         }
         carlo.snapTo(Vec3.atBottomCenterOf(anchor));
         carlo.face(Vec3.atBottomCenterOf(balloon));
+        carlo.turn(CONDUCTOR_TURN);
         level.addFreshEntity(carlo);
     }
 }

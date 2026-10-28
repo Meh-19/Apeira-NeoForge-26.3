@@ -15,6 +15,7 @@ import com.apeira.main.npc.NpcEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -22,6 +23,9 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -29,13 +33,18 @@ import net.minecraft.world.phys.Vec3;
  * Draws an {@link NpcEntity} from a Bedrock model and animation ({@code assets/<namespace>/bedrock/}, loaded by decor's
  * {@link BedrockAssets}) through decor's {@link BedrockRenderer}, not GeckoLib: the model's origin at the entity's feet,
  * its front (Blockbench's north) turned to the entity's facing, the animation looping on the entity's age. It is drawn
- * with the emissive translucent entity type, so alpha 254 texels glow. A hidden NPC is drawn as a faint ghost for a
- * player who may edit it ({@link NpcClient#canEdit}) and not at all for anyone else. When the NPC jumps to a new spot
+ * with the emissive translucent entity type, so alpha 254 texels glow. A hidden NPC is not drawn at all until the
+ * viewer comes within {@link #GHOST_REACH} block of it; then it fades in as a faint ghost ({@link #GHOST_ALPHA}) over
+ * {@link #GHOST_FADE_MS}, and fades out again when they step away. When the NPC jumps to a new spot
  * (the anchor tool's teleport), it glides there from where it was drawn ({@link PlacementGlide}) instead of snapping.
  */
 public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRenderer.State> {
-    /** The ghost's alpha, for a hidden NPC seen by one who may edit it. */
+    /** The ghost's alpha, for a hidden NPC seen up close. */
     private static final int GHOST_ALPHA = 0x60;
+    /** How near, in blocks between the viewer's and the NPC's bounding boxes, a hidden NPC shows as a ghost. */
+    private static final double GHOST_REACH = 1.0;
+    /** How long a hidden NPC's ghost takes to fade fully in or out. */
+    private static final float GHOST_FADE_MS = 300.0F;
     /** A move longer than this between two frames is a teleport, which glides; shorter ones are drawn as they are. */
     private static final double JUMP = 0.5;
 
@@ -46,6 +55,9 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
         Vec3 position;
         float yaw;
         @Nullable PlacementGlide glide;
+        /** The ghost's fade, 0 (gone) to 1 (at {@link #GHOST_ALPHA}), and when it was last moved. */
+        float ghost;
+        long ghostMillis = Util.getMillis();
 
         Track(Vec3 position, float yaw) {
             this.position = position;
@@ -76,6 +88,7 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
     public static class State extends EntityRenderState {
         float yRot;
         boolean ghost;
+        float ghostFade;
         Vec3 glide = Vec3.ZERO;
     }
 
@@ -111,7 +124,15 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
             }
         }
         state.ghost = !entity.isShown();
-        if (state.ghost && !NpcClient.canEdit(entity)) {
+        Track ghostTrack = TRACKS.get(entity);
+        long now = Util.getMillis();
+        Player viewer = Minecraft.getInstance().player;
+        boolean near = state.ghost && viewer != null && viewer.getBoundingBox().distanceToSqr(entity.getBoundingBox()) <= GHOST_REACH * GHOST_REACH;
+        float step = (now - ghostTrack.ghostMillis) / GHOST_FADE_MS;
+        ghostTrack.ghost = Mth.clamp(ghostTrack.ghost + (near ? step : -step), 0.0F, 1.0F);
+        ghostTrack.ghostMillis = now;
+        state.ghostFade = ghostTrack.ghost;
+        if (state.ghost && state.ghostFade <= 0.0F) {
             state.isInvisible = true;
         }
     }
@@ -124,7 +145,7 @@ public class BedrockNpcRenderer extends EntityRenderer<NpcEntity, BedrockNpcRend
             poseStack.pushPose();
             poseStack.translate(state.glide.x, state.glide.y, state.glide.z);
             poseStack.rotate(Axis.YP.rotationDegrees(180.0F - state.yRot));
-            int color = state.ghost ? GHOST_ALPHA << 24 | 0xFFFFFF : 0xFFFFFFFF;
+            int color = state.ghost ? Math.round(GHOST_ALPHA * state.ghostFade) << 24 | 0xFFFFFF : 0xFFFFFFFF;
             BedrockRenderer.submit(bedrock, idle, state.ageInTicks / 20.0F, poseStack, submitNodeCollector,
                     EmissiveRenderTypes.entityTranslucent(texture), state.lightCoords, OverlayTexture.NO_OVERLAY, color);
             poseStack.popPose();
