@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.apeira.core.network.client.ApeiraClientNetwork;
 import com.apeira.decor.ApeiraDecor;
-import com.apeira.decor.client.bedrock.BedrockAssets;
 import com.apeira.decor.client.crate.CrateCamera;
 import com.apeira.decor.client.crate.CrateHud;
 import com.apeira.decor.client.crate.CrateRenderer;
@@ -49,7 +48,6 @@ public final class ApeiraDecorClient {
 
     public ApeiraDecorClient(IEventBus modEventBus) {
         modEventBus.addListener(ApeiraDecorClient::registerRenderers);
-        modEventBus.addListener(BedrockAssets::register);
         modEventBus.addListener(ApeiraDecorClient::addCosmeticLayers);
         modEventBus.addListener(ApeiraDecorClient::registerRenderStateModifiers);
         modEventBus.addListener(ApeiraDecorClient::registerKeys);

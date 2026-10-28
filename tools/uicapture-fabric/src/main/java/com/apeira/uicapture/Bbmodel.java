@@ -13,7 +13,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
- * Converts the exported Bedrock geometry into a Blockbench project ({@code .bbmodel}, Bedrock format) with the atlas
+ * Converts the exported geometry (GeckoLib's, which is Bedrock's geometry format) into a Blockbench project
+ * ({@code .bbmodel}, GeckoLib's Animated Model format, {@code animated_entity_model}, which needs Blockbench's GeckoLib
+ * plugin, so it exports GeckoLib files rather than Bedrock entity files) with the atlas
  * embedded as its texture (and its file's absolute and relative path), so the model opens textured. Bones become groups,
  * cubes elements (box UV cubes keep their box UV, per-face cubes their face rectangles), locators locators; Blockbench's
  * own coordinates are Java's, so the Bedrock export's mirrored x and negated rotations are undone. The recorded
@@ -96,7 +98,7 @@ final class Bbmodel {
 
         JsonObject meta = new JsonObject();
         meta.addProperty("format_version", "4.10");
-        meta.addProperty("model_format", "bedrock");
+        meta.addProperty("model_format", "animated_entity_model");
         meta.addProperty("box_uv", false);
         JsonObject resolution = new JsonObject();
         resolution.addProperty("width", textureWidth);

@@ -9,7 +9,7 @@ import com.apeira.main.client.entity.GrizzlyBearRenderer;
 import com.apeira.main.client.entity.TurkeyRenderer;
 import com.apeira.main.client.entity.WraithRenderer;
 import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
-import com.apeira.main.client.npc.BedrockNpcRenderer;
+import com.apeira.main.client.npc.NpcRenderer;
 import com.apeira.main.client.npc.NpcAnchorPlacement;
 import com.apeira.main.client.npc.NpcClient;
 import com.apeira.main.client.npc.NpcDialogueCamera;
@@ -96,11 +96,9 @@ public final class ApeiraClient {
         event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
         event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);
         event.registerEntityRenderer(MainEntities.WRAITH.get(), WraithRenderer::new);
-        // The balloon conductors share one model and animation, each with his own texture.
+        // The balloon conductors share one GeckoLib model and animation, each with his own texture.
         for (var conductor : List.of(MainNpcs.CONDUCTOR_CARLO, MainNpcs.CONDUCTOR_MARCO, MainNpcs.CONDUCTOR_GINO, MainNpcs.CONDUCTOR_ANTONIO)) {
-            BedrockNpcRenderer.register(event, conductor.get(), new BedrockNpcRenderer.Rig(Apeira.REGISTRAR.id("entity/balloon_conductor"),
-                    Apeira.REGISTRAR.id("entity/balloon_conductor"), "animation.balloon_conductor.idle",
-                    Apeira.REGISTRAR.id("textures/entity/" + conductor.getId().getPath() + ".png"), "balloon_conductor_head"));
+            NpcRenderer.register(event, conductor.get(), Apeira.REGISTRAR.id("balloon_conductor"), Apeira.REGISTRAR.id(conductor.getId().getPath()));
         }
     }
 
