@@ -56,16 +56,27 @@ public record NpcShop(String portrait, Function<MinecraftServer, List<Offer>> of
             Offer.buy(255, () -> new ItemStack(MainFarming.WOODEN_SPRINKLER.get())),
             Offer.buy(1000, () -> new ItemStack(MainFarming.IRON_SPRINKLER.get()))));
 
-    /** What Jacko pays for the crop of the day by star rating (1 to 3) and golden, per day it takes to grow, over 2. */
-    private static final long[] SELL_PRICES = {4, 6, 8, 80};
-    /** Jacko's seed prices, one seed each, by {@link FarmCrop} ordinal, as captured. */
+    /**
+     * What Jacko pays for each crop, by {@link FarmCrop} ordinal: 1, 2 and 3 stars, then golden, from Ren's price sheet
+     * ("Jacko Buys").
+     */
+    private static final long[][] SELL_PRICES = {
+            {4, 12, 17, 255}, // apple
+            {7, 12, 17, 255}, // banana
+            {7, 12, 17, 255}, // mango
+            {6, 10, 14, 210}, // corn
+            {6, 10, 14, 210}, // pineapple
+            {5, 8, 11, 165}, // eggplant
+            {4, 6, 8, 80}, // lettuce
+            {4, 6, 8, 80}}; // chilli
+    /** Jacko's seed prices, one seed each, by {@link FarmCrop} ordinal, from the price sheet ("Jacko Sells"). */
     private static final long[] SEED_PRICES = {4, 4, 4, 3, 3, 2, 1, 1};
 
     /**
      * Jacko's market, as Ren's captures of it show (two pages): first he buys the crop of the day (one crop a farming
      * day, {@link FarmClock#day} through {@link FarmCrop}'s order) at 1, 2 and 3 stars and golden, then sells one seed of
-     * that crop and of every other crop in alphabetical order. The captured day was lettuce (4, 6, 8 and 80 rubies);
-     * other crops pay that times their days to ripen over lettuce's 2, which is Apeira's guess.
+     * that crop and of every other crop in alphabetical order, at the prices of Ren's price sheet ({@link #SELL_PRICES},
+     * {@link #SEED_PRICES}).
      */
     public static final NpcShop JACKO = new NpcShop("jacko", server -> {
         FarmCrop[] crops = FarmCrop.values();
@@ -90,7 +101,7 @@ public record NpcShop(String portrait, Function<MinecraftServer, List<Offer>> of
     public static final List<NpcShop> ALL = List.of(JECKYL, JACKO);
 
     private static long sellPrice(FarmCrop crop, int tier) {
-        return Math.max(1, Math.round(SELL_PRICES[tier] * crop.days() / 2.0));
+        return SELL_PRICES[crop.ordinal()][tier];
     }
 
     private static ItemStack rated(FarmCrop crop, int stars) {

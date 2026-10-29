@@ -2,6 +2,7 @@ package com.apeira.main.npc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
@@ -173,14 +174,33 @@ public class NpcShopMenu extends AbstractContainerMenu {
             NpcShop.Offer offer = offers.get(index);
             ItemStack item = offer.result().get();
             ItemLore lore = lore(offer, item, canAfford(row));
-            ItemStack price = offer.price() <= 64 ? new ItemStack(MainItems.RUBY.get(), (int) Math.max(1, offer.price()))
-                    : new ItemStack(MainBlocks.RUBY_BLOCK.get());
+            ItemStack price = priceIcon(offer.price());
             price.set(DataComponents.CUSTOM_NAME, item.getHoverName().copy().withStyle(style -> style.withItalic(false)));
             price.set(DataComponents.LORE, lore);
             item.set(DataComponents.LORE, lore);
             display.setItem(row * COLUMNS + (offer.sell() ? ITEM_COLUMN : PRICE_COLUMN), price);
             display.setItem(row * COLUMNS + (offer.sell() ? PRICE_COLUMN : ITEM_COLUMN), item);
         }
+    }
+
+    /** The prices that have their own ruby icon, Ren's {@code textures/item/ruby_price/<price>.png} (a ruby with the amount). */
+    private static final Set<Long> PRICE_ICONS = Set.of(80L, 128L, 165L, 210L, 255L, 600L, 750L, 1000L, 2000L, 3000L, 4000L, 5000L, 7000L,
+            8000L, 10000L, 15000L, 20000L, 25000L, 50000L);
+
+    /**
+     * What stands for a price: as many rubies as it is up to 64; above that a ruby drawn with Ren's icon for that amount
+     * ({@code apeira:ruby_price/<price>} as its item model), or a ruby block for an amount without one.
+     */
+    static ItemStack priceIcon(long price) {
+        if (price <= 64) {
+            return new ItemStack(MainItems.RUBY.get(), (int) Math.max(1, price));
+        }
+        if (!PRICE_ICONS.contains(price)) {
+            return new ItemStack(MainBlocks.RUBY_BLOCK.get());
+        }
+        ItemStack icon = new ItemStack(MainItems.RUBY.get());
+        icon.set(DataComponents.ITEM_MODEL, ApeiraIds.id("ruby_price/" + price));
+        return icon;
     }
 
     /** Origin Realms' trade lore. */

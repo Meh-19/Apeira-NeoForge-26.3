@@ -1,5 +1,7 @@
 package com.apeira.main.npc;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
@@ -89,6 +91,17 @@ public final class NpcService {
         }
         npc.level().playSound(null, npc.getX(), npc.getEyeY(), npc.getZ(), MainSounds.NPC_VOICE_MALE1.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
         ApeiraPackets.sendToPlayer(player, new NpcDialoguePayload(npc.getId(), npc.lineFor(player), npc.shop() != null));
+        meet(player, npc);
+    }
+
+    /** Records that {@code player} has talked to {@code npc}, which takes its question mark off their locator bar. */
+    private static void meet(ServerPlayer player, NpcEntity npc) {
+        List<UUID> met = player.getData(MainNpcs.MET_NPCS);
+        if (!met.contains(npc.getUUID())) {
+            List<UUID> updated = new ArrayList<>(met);
+            updated.add(npc.getUUID());
+            player.setData(MainNpcs.MET_NPCS, List.copyOf(updated));
+        }
     }
 
     /**
