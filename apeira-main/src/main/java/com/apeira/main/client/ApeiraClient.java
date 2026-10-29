@@ -17,6 +17,7 @@ import com.apeira.main.client.npc.NpcAnchorPlacement;
 import com.apeira.main.client.npc.NpcClient;
 import com.apeira.main.client.npc.NpcDialogueCamera;
 import com.apeira.main.client.npc.NpcDialogueScreen;
+import com.apeira.main.client.npc.NpcShopScreen;
 import com.apeira.main.client.realm.OnboardingScreen;
 import com.apeira.main.client.realm.RealmTopBar;
 import com.apeira.main.client.realm.SpawnPlacement;
@@ -106,11 +107,17 @@ public final class ApeiraClient {
         for (var conductor : List.of(MainNpcs.CONDUCTOR_CARLO, MainNpcs.CONDUCTOR_MARCO, MainNpcs.CONDUCTOR_GINO, MainNpcs.CONDUCTOR_ANTONIO)) {
             NpcRenderer.register(event, conductor.get(), Apeira.REGISTRAR.id("balloon_conductor"), Apeira.REGISTRAR.id(conductor.getId().getPath()));
         }
+        // Jeckyl and Jacko wear a floating ruby over their heads instead of the speech bubble.
+        event.registerEntityRenderer(MainNpcs.JECKYL.get(), context -> new NpcRenderer(context, Apeira.REGISTRAR.id("jeckyl"),
+                Apeira.REGISTRAR.id("jeckyl"), "jeckle_head", "text_display_0", NpcRenderer.Marker.RUBY));
+        event.registerEntityRenderer(MainNpcs.JACKO.get(), context -> new NpcRenderer(context, Apeira.REGISTRAR.id("jacko"),
+                Apeira.REGISTRAR.id("jacko"), "farmer_head", "text_display_0", NpcRenderer.Marker.RUBY));
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(MainRubies.RUBY_DEPOSIT_MENU.get(), RubyDepositScreen::new);
         event.register(MainFarming.PLANTER_BOX_MENU.get(), PlanterBoxScreen::new);
+        event.register(MainNpcs.NPC_SHOP_MENU.get(), NpcShopScreen::new);
     }
 
     /** The ruby counter is drawn with the food bar, over its right end. */

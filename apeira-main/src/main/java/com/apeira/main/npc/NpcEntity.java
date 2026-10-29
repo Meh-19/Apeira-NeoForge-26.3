@@ -3,6 +3,8 @@ package com.apeira.main.npc;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
+
 import com.apeira.main.realm.RealmService;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -12,6 +14,8 @@ import com.geckolib.animation.RawAnimation;
 import com.geckolib.util.GeckoLibUtil;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -94,6 +98,25 @@ public class NpcEntity extends Entity implements GeoEntity {
             return false;
         }
         return RealmService.bypassesRoles(player) || RealmService.ownerOf(level).filter(player.getUUID()::equals).isPresent();
+    }
+
+    /**
+     * The translation key of what the NPC says when {@code player} talks to it: {@code dialogue.<namespace>.<npc>.greeting}
+     * unless a subclass has more to say. Called once per talk on the server, so it may change the NPC (Jeckyl's first talk).
+     */
+    public String lineFor(ServerPlayer player) {
+        Identifier type = BuiltInRegistries.ENTITY_TYPE.getKey(getType());
+        return "dialogue." + type.getNamespace() + "." + type.getPath() + ".greeting";
+    }
+
+    /** The NPC's shop, opened by right-clicking it again while its dialogue is open; null when it has none. */
+    public @Nullable NpcShop shop() {
+        return null;
+    }
+
+    /** Whether the anchor tool may move it now (Jeckyl only once he has been talked to). */
+    public boolean canAnchor() {
+        return true;
     }
 
     /** Turns the NPC so its front (Blockbench's north) faces {@code target}. */

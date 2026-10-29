@@ -154,6 +154,8 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add(MainNpcs.CONDUCTOR_MARCO.get(), "Conductor Marco");
         add(MainNpcs.CONDUCTOR_GINO.get(), "Conductor Gino");
         add(MainNpcs.CONDUCTOR_ANTONIO.get(), "Conductor Antonio");
+        add(MainNpcs.JECKYL.get(), "Jeckyl");
+        add(MainNpcs.JACKO.get(), "Jacko");
         add("subtitles.apeira.entity.wraith.ambient", "Wraith whispers");
         add("subtitles.apeira.entity.wraith.target", "Wraith notices you");
         add("subtitles.apeira.entity.wraith.hurt", "Wraith hurts");
@@ -410,6 +412,22 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("npc.hidden", "%s is now invisible");
         message("npc.anchored", "%s moved to its new anchor");
         message("npc.anchor_blocked", "The NPC doesn't fit there");
+        message("npc.anchor_locked", "Talk to %s first: he wanders until you meet him");
+        message("npc.shop.too_poor", "You need %s rubies for that");
+        message("npc.jacko_arrived", "Jacko the farmer has arrived!");
+        add("dialogue.apeira.jeckyl.intro", "Wow! You don't look familiar, how long have you been here?");
+        add("dialogue.apeira.jeckyl.idle.1",
+                "I've been making improvements to farming technology. Take a look at these farming accessories!");
+        add("dialogue.apeira.jeckyl.idle.2",
+                "While the planter box is great on it's own, you should also try using these farming accessories!");
+        add("dialogue.apeira.jacko.welcome",
+                "Welcome to Jacko's Farm! It's a great day for farming, isn't it? Do you see anything that you like?");
+        add("dialogue.apeira.jacko.crops", "Have you been taking good care of your crops? Remember, the higher the rating, the higher the value!");
+        add("dialogue.apeira.hint.shop", "Right-click to trade · Sneak to leave");
+        add("container.apeira.npc_shop.price", "Price: %s Rubies");
+        add("container.apeira.npc_shop.buy", "Click to buy");
+        add("container.apeira.npc_shop.buy_stack", "Shift-click to buy %s for %s Rubies");
+        add("container.apeira.npc_shop.balance", "%s Rubies");
         add("hud.apeira.npc_anchor.aim", "Look at where the NPC should stand");
         add("hud.apeira.npc_anchor.clear", "The NPC fits here");
         add("hud.apeira.npc_anchor.blocked", "Something is in the way");

@@ -21,6 +21,7 @@ import com.apeira.main.navigator.ProfileEvents;
 import com.apeira.main.party.PartyCommand;
 import com.apeira.main.party.PartyService;
 import com.apeira.main.network.MainPayloads;
+import com.apeira.main.npc.JackoArrival;
 import com.apeira.main.npc.NpcService;
 import com.apeira.main.realm.DummyPlayers;
 import com.apeira.main.realm.RealmCommand;
@@ -74,7 +75,7 @@ public final class Apeira {
     /** Generates the models, language, recipes, loot tables, tags and data maps for {@link #REGISTRAR}'s entries. */
     public static final ApeiraDataGenerators DATA = ApeiraDataGenerators.create(REGISTRAR);
     /** The main module's payloads; bump the version when one of their codecs changes. */
-    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("5");
+    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("6");
 
     public Apeira(IEventBus modEventBus, ModContainer modContainer) {
         // Content holder classes (blocks, items, ...) are passed here as they are added.
@@ -143,6 +144,7 @@ public final class Apeira {
         NeoForge.EVENT_BUS.addListener(RocketBootsSafety::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(BirchSaplingGrowth::onGrowFeature);
         NeoForge.EVENT_BUS.addListener(FarmingService::onServerTick);
+        NeoForge.EVENT_BUS.addListener(JackoArrival::onServerTick);
         NeoForge.EVENT_BUS.addListener(FarmingService::onServerStopped);
         LOGGER.info("{} initialized", MOD_ID);
     }
