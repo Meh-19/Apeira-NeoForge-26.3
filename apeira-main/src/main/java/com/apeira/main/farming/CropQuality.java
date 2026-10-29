@@ -6,7 +6,9 @@ import com.apeira.main.registry.MainFarming;
 
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
 
 /**
  * Harvest quality: what a ripe crop gives and at how many stars.
@@ -43,10 +45,18 @@ public final class CropQuality {
             boolean automated, RandomSource random) {
         int count = fertilizer == Fertilizer.PRODUCE_MULTIPLIER ? (random.nextBoolean() ? 2 : 3) : 1;
         ItemStack produce = new ItemStack(crop.produce(golden), count);
-        if (!golden) {
+        if (golden) {
+            plainName(produce);
+        } else {
             produce.set(MainFarming.CROP_QUALITY.get(), stars(soiled, fertilizer, tool, automated, random));
         }
         return produce;
+    }
+
+    /** Draws a golden crop's name plain white: the apple crop's golden apple is vanilla's, which is rare (aqua). */
+    public static ItemStack plainName(ItemStack stack) {
+        stack.set(DataComponents.RARITY, Rarity.COMMON);
+        return stack;
     }
 
     static int stars(boolean soiled, @Nullable Fertilizer fertilizer, ItemStack tool, boolean automated, RandomSource random) {

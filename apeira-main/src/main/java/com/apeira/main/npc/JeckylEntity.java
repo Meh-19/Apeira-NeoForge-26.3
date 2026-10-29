@@ -6,7 +6,6 @@ import com.apeira.main.realm.RealmService;
 import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.object.PlayState;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -41,6 +40,8 @@ public class JeckylEntity extends NpcEntity {
     private static final EntityDataAccessor<Boolean> DATA_WALKING = SynchedEntityData.defineId(JeckylEntity.class, EntityDataSerializers.BOOLEAN);
     /** His legs' walk cycle ({@code animation.jeckyl.walk}), played over the idle while he walks. */
     private static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.jeckyl.walk");
+    /** His legs at rest: the legs controller plays this while he stands, as a stopped controller would carry on its last loop. */
+    private static final RawAnimation STAND = RawAnimation.begin().thenLoop("animation.jeckyl.stand");
     /** Ticks the legs take to blend into and out of the walk cycle. */
     private static final int WALK_BLEND_TICKS = 5;
     static final int WANDER_RADIUS = 8;
@@ -132,10 +133,8 @@ public class JeckylEntity extends NpcEntity {
     public void tick() {
         super.tick();
         if (level() instanceof ServerLevel level) {
-            if (!isAnchored()) {
-                wander(level);
-            }
-            boolean walking = !isAnchored() && target != null;
+            // Walking only while he actually moved this tick: not while paused, turning back or anchored.
+            boolean walking = !isAnchored() && wander(level);
             if (walking != isWalking()) {
                 entityData.set(DATA_WALKING, walking);
             }
@@ -143,17 +142,19 @@ public class JeckylEntity extends NpcEntity {
     }
 
     /**
-     * The idle, and a second controller for his legs: the walk cycle while {@link #isWalking}, blended in and out over
-     * {@link #WALK_BLEND_TICKS} ticks as a mob's limb swing eases, and nothing (the idle's still legs) otherwise.
+     * The idle, and a second controller for his legs: the walk cycle while {@link #isWalking}, else {@link #STAND} (legs
+     * straight), blended over {@link #WALK_BLEND_TICKS} ticks as a mob's limb swing eases. The controller never stops:
+     * GeckoLib keeps advancing a stopped controller's last loop, which left his legs walking while he stood still.
      */
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         super.registerControllers(controllers);
         controllers.add(new AnimationController<NpcEntity>("legs", WALK_BLEND_TICKS,
-                test -> test.animatable() instanceof JeckylEntity jeckyl && jeckyl.isWalking() ? test.setAndContinue(WALK) : PlayState.STOP));
+                test -> test.animatable() instanceof JeckylEntity jeckyl && jeckyl.isWalking() ? test.setAndContinue(WALK) : test.setAndContinue(STAND)));
     }
 
-    private void wander(ServerLevel level) {
+    /** Moves him a step along his wander; whether he moved. */
+    private boolean wander(ServerLevel level) {
         if (home == null) {
             home = blockPosition();
         }
@@ -162,14 +163,14 @@ public class JeckylEntity extends NpcEntity {
                 target = pickTarget(level, getRandom());
                 pause = Mth.nextInt(getRandom(), MIN_PAUSE, MAX_PAUSE);
             }
-            return;
+            return false;
         }
         double dx = target.x - getX();
         double dz = target.z - getZ();
         double distance = Math.sqrt(dx * dx + dz * dz);
         if (distance < 0.1) {
             target = null;
-            return;
+            return false;
         }
         double step = Math.min(SPEED, distance);
         double x = getX() + dx / distance * step;
@@ -178,11 +179,12 @@ public class JeckylEntity extends NpcEntity {
         BlockPos next = BlockPos.containing(x, ground, z);
         if (Math.abs(ground - getY()) > 1.0 || (!next.equals(blockPosition()) && !canStandAt(level, getType(), next))) {
             target = null;
-            return;
+            return false;
         }
         float yaw = (float) (Mth.atan2(dz, dx) * Mth.RAD_TO_DEG) - 90.0F;
         setYRot(Mth.approachDegrees(getYRot(), yaw, 15.0F));
         setPos(x, ground, z);
+        return true;
     }
 
     /** A spot near home he can stand on, on the ground there; null when the tries find none. */

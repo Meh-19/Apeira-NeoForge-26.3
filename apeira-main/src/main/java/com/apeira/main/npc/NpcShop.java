@@ -88,7 +88,7 @@ public record NpcShop(String portrait, Function<MinecraftServer, List<Offer>> of
                     stack -> stack.is(today.produce(false)) && CropQuality.starsOf(stack) == rating));
         }
         Item golden = today.produce(true);
-        offers.add(Offer.sell(sellPrice(today, CropQuality.MAX_STARS), () -> new ItemStack(golden), stack -> stack.is(golden)));
+        offers.add(Offer.sell(sellPrice(today, CropQuality.MAX_STARS), () -> CropQuality.plainName(new ItemStack(golden)), stack -> stack.is(golden)));
         offers.add(seed(today));
         List<FarmCrop> others = new ArrayList<>(List.of(crops));
         others.remove(today);

@@ -182,9 +182,12 @@ public final class MainFarming {
                 properties -> properties.food(new FoodProperties.Builder().nutrition(nutrition).saturationModifier(saturation).build()));
     }
 
-    /** Golden produce: two more nutrition than the crop's, saturation 1.2, always edible, as golden carrots and apples are. */
+    /**
+     * Golden produce: two more nutrition than the crop's, saturation 1.2, always edible, as golden carrots and apples are.
+     * Common rarity, so the name is plain white.
+     */
     private static DeferredItem<Item> golden(String name, int nutrition) {
-        return R.items().registerItem(name, Item::new, properties -> properties.rarity(Rarity.RARE)
+        return R.items().registerItem(name, Item::new, properties -> properties
                 .food(new FoodProperties.Builder().nutrition(nutrition + 2).saturationModifier(1.2F).alwaysEdible().build()));
     }
 }

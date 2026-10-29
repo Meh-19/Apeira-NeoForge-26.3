@@ -1,7 +1,6 @@
 package com.apeira.main.client.npc;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.npc.NpcEntity;
@@ -12,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.contextualbar.ContextualBar;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Question marks on the locator bar for the NPCs within {@link #RANGE} blocks that the player has not talked to yet
- * ({@code apeira:met_npcs}, {@link MainNpcs#MET_NPCS}), so they can find Jeckyl, Jacko and the conductors. Each is Ren's
+ * (by type, {@code apeira:met_npc_types}, {@link MainNpcs#MET_NPCS}, so they stay met through realm resets), so they can find Jeckyl, Jacko and the conductors. Each is Ren's
  * {@code textures/gui/npc/quest_marker.png} placed as vanilla's locator bar places a waypoint's dot: within 60 degrees
  * either side of the view, across the bar's 173 pixels. While a mark shows, the locator bar's background is drawn too, as
  * vanilla draws it whenever it has a waypoint. Hidden NPCs get no mark. A GUI layer above the contextual info bar.
@@ -45,12 +45,12 @@ public final class NpcQuestMarkers {
                 || minecraft.player.isSpectator()) {
             return;
         }
-        List<UUID> met = minecraft.player.getData(MainNpcs.MET_NPCS);
+        List<Identifier> met = minecraft.player.getData(MainNpcs.MET_NPCS);
         float partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);
         Vec3 eye = camera.getEyePosition(partialTick);
         float yaw = camera.getViewYRot(partialTick);
         List<NpcEntity> npcs = minecraft.level.getEntitiesOfClass(NpcEntity.class, camera.getBoundingBox().inflate(RANGE),
-                npc -> npc.isShown() && !met.contains(npc.getUUID()) && npc.position().distanceToSqr(eye) <= RANGE * RANGE);
+                npc -> npc.isShown() && !met.contains(BuiltInRegistries.ENTITY_TYPE.getKey(npc.getType())) && npc.position().distanceToSqr(eye) <= RANGE * RANGE);
         if (npcs.isEmpty()) {
             return;
         }

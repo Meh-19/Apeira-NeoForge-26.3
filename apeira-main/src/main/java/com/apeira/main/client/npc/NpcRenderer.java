@@ -62,9 +62,10 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  *
  * <p>The head bone (named as the head locator) turns to the nearest player within {@link #LOOK_RANGE} blocks, on top of
  * the animation, up to {@link #MAX_LOOK_YAW} degrees sideways and {@link #MAX_LOOK_PITCH} up or down, and back to the
- * animation's pose when nobody is near; both ways it eases over about {@link #LOOK_EASE_MS} ms. Jeckyl's and Jacko's
- * head bones carry Blockbench's half-turn ({@code [-180, y, 180]}), which turns their yaw the other way, so their
- * renderers pass {@code headYawSign} -1.
+ * animation's pose when nobody is near; both ways it eases over about {@link #LOOK_EASE_MS} ms. Pitch goes on the bone's
+ * x rotation negated, and yaw on its y rotation negated ({@code headYawSign} -1) for the conductors and as is (+1) for
+ * Jeckyl's and Jacko's head bones, which carry Blockbench's half-turn ({@code [-180, y, 180]}); seen in game, the first
+ * signs had every head turning away from the player.
  *
  * <p>An NPC with a night texture (Jacko's {@code jacko_night}) wears it from 7 PM to 5 AM ({@link #isNight}).
  */
@@ -176,12 +177,12 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
      * {@link #CHAT_LOCATOR} (the bubble) or over the head locator (the ruby).
      */
     public NpcRenderer(EntityRendererProvider.Context context, Identifier model, Identifier texture, String headLocator, Marker marker) {
-        this(context, model, texture, null, headLocator, marker, 1.0F);
+        this(context, model, texture, null, headLocator, marker, -1.0F);
     }
 
     /**
-     * As above, with a night texture ({@code null} for none) and the sign of the head bone's yaw (-1 for a head bone
-     * with Blockbench's half-turn).
+     * As above, with a night texture ({@code null} for none) and the sign of the head bone's yaw (+1 for a head bone
+     * with Blockbench's half-turn, -1 otherwise).
      */
     public NpcRenderer(EntityRendererProvider.Context context, Identifier model, Identifier texture, @Nullable Identifier nightTexture,
             String headLocator, Marker marker, float headYawSign) {
@@ -270,13 +271,13 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
         track.lookMillis = now;
     }
 
-    /** Turns the head bone by the eased look, on top of the animation (GeckoLib's own head turn: pitch on x, yaw on y). */
+    /** Turns the head bone by the eased look, on top of the animation: pitch on x (negated), yaw on y by {@code headYawSign}. */
     @Override
     public void adjustModelBonesForRender(RenderPassInfo<EntityRenderState> renderPassInfo, BoneSnapshots snapshots) {
         super.adjustModelBonesForRender(renderPassInfo, snapshots);
         EntityRenderState state = renderPassInfo.renderState();
         float yaw = state.getOrDefaultGeckolibData(LOOK_YAW, 0.0F) * Mth.DEG_TO_RAD * headYawSign;
-        float pitch = state.getOrDefaultGeckolibData(LOOK_PITCH, 0.0F) * Mth.DEG_TO_RAD;
+        float pitch = -state.getOrDefaultGeckolibData(LOOK_PITCH, 0.0F) * Mth.DEG_TO_RAD;
         if (yaw != 0.0F || pitch != 0.0F) {
             snapshots.ifPresent(headLocator, bone -> {
                 bone.setRotX(bone.getRotX() + pitch);
