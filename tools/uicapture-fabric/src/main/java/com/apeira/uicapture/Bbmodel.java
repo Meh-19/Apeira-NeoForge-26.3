@@ -1,10 +1,12 @@
 package com.apeira.uicapture;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -13,43 +15,64 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
- * Converts the exported geometry (GeckoLib's, which is Bedrock's geometry format) into a Blockbench project
- * ({@code .bbmodel}, GeckoLib's Animated Model format, {@code animated_entity_model}, which needs Blockbench's GeckoLib
- * plugin, so it exports GeckoLib files rather than Bedrock entity files) with the atlas
- * embedded as its texture (and its file's absolute and relative path), so the model opens textured. Bones become groups,
- * cubes elements (box UV cubes keep their box UV, per-face cubes their face rectangles), locators locators; Blockbench's
- * own coordinates are Java's, so the Bedrock export's mirrored x and negated rotations are undone. The recorded
- * animation is not copied: import {@code <name>.animation.json} into the project.
+ * Converts the exported geometry (GeckoLib's, which is Bedrock's geometry format) into a Blockbench 5.2 project
+ * ({@code .bbmodel}, project format {@value #FORMAT_VERSION}, GeckoLib's Animated Model format
+ * {@code animated_entity_model}, which needs the GeckoLib plugin, 4.2.5, so it exports GeckoLib files rather than Bedrock
+ * entity files) with the atlas embedded as its texture (and its file's absolute and relative path), so the model opens
+ * textured. Bones become groups, cubes elements (box UV cubes keep their box UV, per-face cubes their face rectangles),
+ * locators locators; Blockbench's own coordinates are Java's, so the Bedrock export's mirrored x and negated rotations
+ * are undone. As Blockbench 5 saves them, groups are listed once in {@code groups} and the outliner holds only their
+ * uuids and children.
+ *
+ * <p>The exported clips are embedded as the project's animations, each bone's animator keyed by its group's uuid, so they
+ * play on the right bones without importing anything. Blockbench keeps keyframes in its own axes: a position's x and a
+ * rotation's x and y are the animation file's negated (the GeckoLib export negates them back), scales as they are.
  */
 final class Bbmodel {
     private static final String[] FACES = {"north", "east", "south", "west", "up", "down"};
+    /** The project format Blockbench 5.x writes. */
+    static final String FORMAT_VERSION = "5.0";
+    /** The GeckoLib plugin's model format. */
+    static final String MODEL_FORMAT = "animated_entity_model";
 
     private Bbmodel() {
     }
 
-    static JsonObject of(JsonObject geo, String name, Path texture, int textureWidth, int textureHeight) throws IOException {
+    /** The project, with {@code animationFiles} (GeckoLib animation files over this geometry) as its animations. */
+    static JsonObject of(JsonObject geo, String name, Path texture, int textureWidth, int textureHeight, List<JsonObject> animationFiles)
+            throws IOException {
         JsonObject geometry = geo.getAsJsonArray("minecraft:geometry").get(0).getAsJsonObject();
         JsonArray elements = new JsonArray();
+        JsonArray groupList = new JsonArray();
         JsonArray outliner = new JsonArray();
-        Map<String, JsonObject> groups = new HashMap<>();
+        // Each bone's outliner node (uuid and children) and group uuid, by name.
+        Map<String, JsonObject> nodes = new HashMap<>();
+        Map<String, String> uuids = new HashMap<>();
         for (JsonElement b : geometry.getAsJsonArray("bones")) {
             JsonObject bone = b.getAsJsonObject();
+            String uuid = UUID.randomUUID().toString();
             JsonObject group = new JsonObject();
             group.addProperty("name", bone.get("name").getAsString());
-            group.add("origin", mirrored(bone.getAsJsonArray("pivot")));
-            if (bone.has("rotation")) {
-                group.add("rotation", rotation(bone.getAsJsonArray("rotation")));
-            }
-            group.addProperty("color", 0);
-            group.addProperty("uuid", UUID.randomUUID().toString());
+            group.addProperty("uuid", uuid);
             group.addProperty("export", true);
-            group.addProperty("mirror_uv", false);
-            group.addProperty("isOpen", false);
             group.addProperty("locked", false);
+            group.addProperty("scope", 0);
             group.addProperty("visibility", true);
+            group.add("origin", mirrored(bone.getAsJsonArray("pivot")));
+            group.add("rotation", bone.has("rotation") ? rotation(bone.getAsJsonArray("rotation")) : ArmorStandExporter.array(0, 0, 0));
+            group.addProperty("color", 0);
+            group.add("children", new JsonArray());
+            group.addProperty("reset", false);
+            group.addProperty("shade", true);
+            group.addProperty("mirror_uv", false);
             group.addProperty("autouv", 0);
+            group.addProperty("isOpen", false);
+            groupList.add(group);
+            JsonObject node = new JsonObject();
+            node.addProperty("uuid", uuid);
+            node.addProperty("isOpen", false);
             JsonArray children = new JsonArray();
-            group.add("children", children);
+            node.add("children", children);
             if (bone.has("cubes")) {
                 for (JsonElement c : bone.getAsJsonArray("cubes")) {
                     JsonObject element = element(c.getAsJsonObject(), bone.get("name").getAsString(), group.getAsJsonArray("origin"));
@@ -63,15 +86,20 @@ final class Bbmodel {
                     element.addProperty("name", locator.getKey());
                     element.add("position", mirrored(locator.getValue().getAsJsonArray()));
                     element.add("rotation", ArmorStandExporter.array(0, 0, 0));
+                    element.addProperty("ignore_inherited_scale", false);
+                    element.addProperty("visibility", true);
+                    element.addProperty("locked", false);
+                    element.addProperty("scope", 0);
                     element.addProperty("type", "locator");
                     element.addProperty("uuid", UUID.randomUUID().toString());
                     elements.add(element);
                     children.add(element.get("uuid"));
                 }
             }
-            groups.put(group.get("name").getAsString(), group);
-            JsonObject parent = bone.has("parent") ? groups.get(bone.get("parent").getAsString()) : null;
-            (parent != null ? parent.getAsJsonArray("children") : outliner).add(group);
+            nodes.put(bone.get("name").getAsString(), node);
+            uuids.put(bone.get("name").getAsString(), uuid);
+            JsonObject parent = bone.has("parent") ? nodes.get(bone.get("parent").getAsString()) : null;
+            (parent != null ? parent.getAsJsonArray("children") : outliner).add(node);
         }
 
         JsonObject image = new JsonObject();
@@ -84,9 +112,21 @@ final class Bbmodel {
         image.addProperty("height", textureHeight);
         image.addProperty("uv_width", textureWidth);
         image.addProperty("uv_height", textureHeight);
+        image.addProperty("group", "");
+        image.addProperty("scope", 0);
         image.addProperty("particle", false);
+        image.addProperty("use_as_default", false);
+        image.addProperty("layers_enabled", false);
+        image.addProperty("sync_to_project", "");
+        image.addProperty("file_format", "png");
         image.addProperty("render_mode", "default");
         image.addProperty("render_sides", "auto");
+        image.addProperty("wrap_mode", "limited");
+        image.addProperty("pbr_channel", "color");
+        image.addProperty("frame_time", 1);
+        image.addProperty("frame_order_type", "loop");
+        image.addProperty("frame_order", "");
+        image.addProperty("frame_interpolate", false);
         image.addProperty("visible", true);
         image.addProperty("internal", true);
         image.addProperty("saved", true);
@@ -97,8 +137,8 @@ final class Bbmodel {
         textures.add(image);
 
         JsonObject meta = new JsonObject();
-        meta.addProperty("format_version", "4.10");
-        meta.addProperty("model_format", "animated_entity_model");
+        meta.addProperty("format_version", FORMAT_VERSION);
+        meta.addProperty("model_format", MODEL_FORMAT);
         meta.addProperty("box_uv", false);
         JsonObject resolution = new JsonObject();
         resolution.addProperty("width", textureWidth);
@@ -110,19 +150,121 @@ final class Bbmodel {
         JsonObject description = geometry.getAsJsonObject("description");
         root.add("visible_box", ArmorStandExporter.array(description.get("visible_bounds_width").getAsDouble(),
                 description.get("visible_bounds_height").getAsDouble(), description.getAsJsonArray("visible_bounds_offset").get(1).getAsDouble()));
+        root.addProperty("variable_placeholders", "");
+        root.addProperty("multi_file_ruleset", "");
+        root.add("variable_placeholder_buttons", new JsonArray());
+        root.add("timeline_setups", new JsonArray());
+        root.add("unhandled_root_fields", new JsonObject());
         root.add("resolution", resolution);
         root.add("elements", elements);
+        root.add("groups", groupList);
         root.add("outliner", outliner);
         root.add("textures", textures);
+        JsonArray animations = new JsonArray();
+        for (JsonObject file : animationFiles) {
+            for (Map.Entry<String, JsonElement> clip : file.getAsJsonObject("animations").entrySet()) {
+                animations.add(animation(clip.getKey(), clip.getValue().getAsJsonObject(), uuids));
+            }
+        }
+        root.add("animations", animations);
         return root;
+    }
+
+    /** A GeckoLib clip as a Blockbench animation, its bones bound to their groups by uuid. */
+    private static JsonObject animation(String name, JsonObject clip, Map<String, String> uuids) {
+        JsonObject animators = new JsonObject();
+        JsonObject bones = clip.has("bones") ? clip.getAsJsonObject("bones") : new JsonObject();
+        for (Map.Entry<String, JsonElement> bone : bones.entrySet()) {
+            String uuid = uuids.get(bone.getKey());
+            if (uuid == null) {
+                continue;
+            }
+            JsonArray keyframes = new JsonArray();
+            for (Map.Entry<String, JsonElement> channel : bone.getValue().getAsJsonObject().entrySet()) {
+                if (channel.getValue().isJsonObject()) {
+                    for (Map.Entry<String, JsonElement> frame : channel.getValue().getAsJsonObject().entrySet()) {
+                        keyframes.add(keyframe(channel.getKey(), Double.parseDouble(frame.getKey()), frame.getValue()));
+                    }
+                } else {
+                    keyframes.add(keyframe(channel.getKey(), 0, channel.getValue()));
+                }
+            }
+            JsonObject animator = new JsonObject();
+            animator.addProperty("name", bone.getKey());
+            animator.addProperty("type", "bone");
+            animator.addProperty("rotation_global", false);
+            animator.addProperty("quaternion_interpolation", false);
+            animator.add("keyframes", keyframes);
+            animators.add(uuid, animator);
+        }
+        JsonObject animation = new JsonObject();
+        animation.addProperty("uuid", UUID.randomUUID().toString());
+        animation.addProperty("name", name);
+        animation.addProperty("loop", clip.has("loop") && clip.get("loop").getAsBoolean() ? "loop" : "once");
+        animation.addProperty("override", false);
+        animation.addProperty("length", clip.has("animation_length") ? clip.get("animation_length").getAsDouble() : 0);
+        animation.addProperty("snapping", 20);
+        animation.addProperty("selected", false);
+        animation.addProperty("group_name", "");
+        animation.addProperty("scope", 0);
+        animation.addProperty("anim_time_update", "");
+        animation.addProperty("blend_weight", "");
+        animation.addProperty("start_delay", "");
+        animation.addProperty("loop_delay", "");
+        animation.add("animators", animators);
+        return animation;
+    }
+
+    /** One keyframe in Blockbench's axes: positions' x and rotations' x and y negated, scales as they are. */
+    private static JsonObject keyframe(String channel, double time, JsonElement value) {
+        double[] v;
+        if (value.isJsonArray()) {
+            v = values(value.getAsJsonArray());
+        } else {
+            double d = value.getAsDouble();
+            v = new double[] {d, d, d};
+        }
+        if (channel.equals("position")) {
+            v[0] = -v[0];
+        } else if (channel.equals("rotation")) {
+            v[0] = -v[0];
+            v[1] = -v[1];
+        }
+        JsonObject point = new JsonObject();
+        point.addProperty("x", number(v[0]));
+        point.addProperty("y", number(v[1]));
+        point.addProperty("z", number(v[2]));
+        JsonArray points = new JsonArray();
+        points.add(point);
+        JsonObject keyframe = new JsonObject();
+        keyframe.addProperty("channel", channel);
+        keyframe.add("data_points", points);
+        keyframe.addProperty("uuid", UUID.randomUUID().toString());
+        keyframe.addProperty("time", time);
+        keyframe.addProperty("color", -1);
+        keyframe.addProperty("interpolation", "linear");
+        return keyframe;
+    }
+
+    /** A keyframe value as Blockbench saves it: a string, whole numbers without ".0", others to 4 places. */
+    private static String number(double value) {
+        double rounded = Math.round(value * 10000) / 10000.0;
+        if (rounded == 0) {
+            return "0";
+        }
+        return BigDecimal.valueOf(rounded).stripTrailingZeros().toPlainString();
     }
 
     private static JsonObject element(JsonObject cube, String bone, JsonArray groupOrigin) {
         double[] o = values(cube.getAsJsonArray("origin")), s = values(cube.getAsJsonArray("size"));
         JsonObject element = new JsonObject();
         element.addProperty("name", bone);
+        element.addProperty("render_order", "default");
         element.addProperty("rescale", false);
         element.addProperty("locked", false);
+        element.addProperty("export", true);
+        element.addProperty("scope", 0);
+        element.addProperty("allow_mirror_modeling", true);
         element.add("from", ArmorStandExporter.array(-o[0] - s[0], o[1], o[2]));
         element.add("to", ArmorStandExporter.array(-o[0], o[1] + s[1], o[2] + s[2]));
         element.addProperty("autouv", 0);

@@ -107,11 +107,11 @@ public final class ApeiraClient {
         for (var conductor : List.of(MainNpcs.CONDUCTOR_CARLO, MainNpcs.CONDUCTOR_MARCO, MainNpcs.CONDUCTOR_GINO, MainNpcs.CONDUCTOR_ANTONIO)) {
             NpcRenderer.register(event, conductor.get(), Apeira.REGISTRAR.id("balloon_conductor"), Apeira.REGISTRAR.id(conductor.getId().getPath()));
         }
-        // Jeckyl and Jacko wear a floating ruby over their heads instead of the speech bubble.
+        // Jeckyl and Jacko wear a static ruby icon over their heads instead of the speech bubble.
         event.registerEntityRenderer(MainNpcs.JECKYL.get(), context -> new NpcRenderer(context, Apeira.REGISTRAR.id("jeckyl"),
-                Apeira.REGISTRAR.id("jeckyl"), "jeckle_head", "text_display_0", NpcRenderer.Marker.RUBY));
+                Apeira.REGISTRAR.id("jeckyl"), "jeckle_head", NpcRenderer.Marker.RUBY));
         event.registerEntityRenderer(MainNpcs.JACKO.get(), context -> new NpcRenderer(context, Apeira.REGISTRAR.id("jacko"),
-                Apeira.REGISTRAR.id("jacko"), "farmer_head", "text_display_0", NpcRenderer.Marker.RUBY));
+                Apeira.REGISTRAR.id("jacko"), "farmer_head", NpcRenderer.Marker.RUBY));
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
