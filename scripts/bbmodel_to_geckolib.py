@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exports a GeckoLib or Bedrock-format Blockbench project (``.bbmodel``) as GeckoLib geometry (``.geo.json``).
+"""Exports a Blockbench 5.x project (``.bbmodel``) as GeckoLib geometry (``.geo.json``) and animations.
 
 GeckoLib reads ``assets/<namespace>/geckolib/models/<path>.geo.json``, Bedrock's geometry format; this writes the same
 file Blockbench's GeckoLib "Export Geo Model" would, so a model can be updated from its project without opening
@@ -8,8 +8,14 @@ Blockbench. Outliner groups become bones (pivot and rotation with Bedrock's mirr
 Locators go into their group's bone (``locators``: name to position, mirrored x, or ``offset`` and ``rotation`` when
 turned), which GeckoLib turns into ``GeoLocator``s. Meshes and groups or cubes set not to export are skipped.
 
+Projects are Blockbench 5.x files (``meta.format_version`` 5.0: groups in ``groups``, the outliner holding their uuids)
+or older ones (groups inline in the outliner), in the GeckoLib plugin's (4.2.5) ``animated_entity_model`` format, a
+Bedrock format or a free model, whose groups and cubes are written the same way.
+
 ``--texture`` also writes the project's first embedded texture as a PNG, and ``--animations`` writes its embedded
-animations as a GeckoLib ``.animation.json`` (keyframes as plain values, linear).
+animations as a GeckoLib ``.animation.json`` (keyframes as plain values, linear; a Molang value stays a string),
+converted from Blockbench's axes as the GeckoLib export does: a position's x and a rotation's x and y negated, scales
+as they are, always three values. ``--clip`` renames a single animation (``animation.<name>.idle``).
 
 Example::
 
@@ -31,8 +37,10 @@ from asset_common import ScriptError, read_json, relative, run, write_json
 FACES = ("north", "east", "south", "west", "up", "down")
 
 
-# Blockbench's GeckoLib ("animated_entity_model") and Bedrock project formats, whose geometry is the same.
-FORMATS = ("animated_entity_model", "bedrock", "bedrock_old")
+# Blockbench's GeckoLib ("animated_entity_model"), Bedrock and free project formats, whose groups and cubes are the same.
+FORMATS = ("animated_entity_model", "bedrock", "bedrock_old", "free")
+# Blockbench keeps keyframes in its own axes; the GeckoLib (Bedrock) export negates these components.
+NEGATED = {"position": (True, False, False), "rotation": (True, True, False)}
 
 
 def parse_args(argv: list[str] | None) -> argparse.Namespace:
@@ -42,6 +50,7 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--identifier", help="geometry identifier (default: geometry.<output name>)")
     parser.add_argument("--texture", type=Path, help="also write the first embedded texture to this PNG")
     parser.add_argument("--animations", type=Path, help="also write the embedded animations to this .animation.json")
+    parser.add_argument("--clip", help="name for the animation when the project has one (e.g. animation.jeckyl.idle)")
     parser.add_argument("--force", action="store_true", help="replace files that exist")
     parser.add_argument("--dry-run", action="store_true", help="only print what would be written")
     return parser.parse_args(argv)
@@ -100,7 +109,7 @@ def convert_cube(cube: dict[str, Any], box_uv: bool) -> dict[str, Any] | None:
 
 def convert(project: dict[str, Any], identifier: str) -> dict[str, Any]:
     if project.get("meta", {}).get("model_format") not in FORMATS:
-        raise ScriptError("not a GeckoLib or Bedrock-format project (File > Convert Project to GeckoLib Animated Model first)")
+        raise ScriptError("not a GeckoLib, Bedrock or free project (File > Convert Project to GeckoLib Animated Model first)")
     box_uv = bool(project.get("meta", {}).get("box_uv"))
     groups = {group["uuid"]: group for group in project.get("groups", [])}
     elements = {element["uuid"]: element for element in project.get("elements", [])}
@@ -158,16 +167,35 @@ def convert(project: dict[str, Any], identifier: str) -> dict[str, Any]:
     return {"format_version": "1.12.0", "minecraft:geometry": [{"description": description, "bones": bones}]}
 
 
-def animations(project: dict[str, Any]) -> dict[str, Any]:
+def keyframe_value(channel: str, point: dict[str, Any]) -> list[Any]:
+    """A data point in GeckoLib's axes; a component that is Molang, not a number, stays a string (and is not negated)."""
+    negated = NEGATED.get(channel, (False, False, False))
+    values: list[Any] = []
+    for axis, negate in zip(("x", "y", "z"), negated):
+        raw = point.get(axis, 0)
+        try:
+            number = float(raw if raw != "" else 0)
+        except (TypeError, ValueError):
+            values.append(f"-({raw})" if negate else raw)
+            continue
+        values.append(rounded(-number if negate else number))
+    return values
+
+
+def animations(project: dict[str, Any], clip: str | None = None) -> dict[str, Any]:
     result: dict[str, Any] = {}
-    for animation in project.get("animations", []):
+    sources = project.get("animations", [])
+    for animation in sources:
         bones: dict[str, Any] = {}
         for animator in (animation.get("animators") or {}).values():
+            if animator.get("type", "bone") != "bone":
+                continue
             channels: dict[str, Any] = {}
             for keyframe in animator.get("keyframes", []):
+                if keyframe["channel"] not in ("position", "rotation", "scale"):
+                    continue
                 point = keyframe["data_points"][0]
-                values = [float(point.get(axis, 0)) for axis in ("x", "y", "z")]
-                channels.setdefault(keyframe["channel"], {})[str(rounded(keyframe["time"]))] = vec(values)
+                channels.setdefault(keyframe["channel"], {})[str(rounded(keyframe["time"]))] = keyframe_value(keyframe["channel"], point)
             if channels and animator.get("name"):
                 bones[animator["name"]] = {channel: dict(sorted(frames.items(), key=lambda item: float(item[0])))
                                            for channel, frames in channels.items()}
@@ -176,7 +204,7 @@ def animations(project: dict[str, Any]) -> dict[str, Any]:
             entry["loop"] = True
         entry["animation_length"] = animation.get("length", 0)
         entry["bones"] = bones
-        result[animation["name"]] = entry
+        result[clip if clip and len(sources) == 1 else animation["name"]] = entry
     return {"format_version": "1.8.0", "animations": result}
 
 
@@ -204,7 +232,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{'Would write' if args.dry_run else 'Wrote'} {relative(args.texture)}", file=sys.stderr)
     if args.animations:
         check_target(args.animations, args)
-        write_json(args.animations, animations(project), dry_run=args.dry_run)
+        write_json(args.animations, animations(project, args.clip), dry_run=args.dry_run)
         print(f"{'Would write' if args.dry_run else 'Wrote'} {relative(args.animations)}", file=sys.stderr)
     return 0
 

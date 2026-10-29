@@ -292,7 +292,9 @@ class BbmodelToGeckolibTest(unittest.TestCase):
         "animations": [{"name": "animation.test.idle", "loop": "loop", "length": 2,
                         "animators": {"g1": {"name": "body", "keyframes": [
                             {"channel": "rotation", "time": 1, "data_points": [{"x": "5", "y": 0, "z": 0}]},
-                            {"channel": "rotation", "time": 0, "data_points": [{"x": 0, "y": 0, "z": 0}]}]}}}],
+                            {"channel": "rotation", "time": 0, "data_points": [{"x": 0, "y": 0, "z": 0}]},
+                            {"channel": "position", "time": 0, "data_points": [{"x": "2", "y": "3", "z": "4"}]},
+                            {"channel": "rotation", "time": 2, "data_points": [{"x": "1", "y": "q.anim_time", "z": "6"}]}]}}}],
     }
 
     def test_converts_bones_cubes_and_faces(self) -> None:
@@ -313,8 +315,18 @@ class BbmodelToGeckolibTest(unittest.TestCase):
     def test_animations_sorted_and_looping(self) -> None:
         animation = bbmodel_to_geckolib.animations(self.PROJECT)["animations"]["animation.test.idle"]
         self.assertTrue(animation["loop"])
-        self.assertEqual(list(animation["bones"]["body"]["rotation"]), ["0", "1"])
-        self.assertEqual(animation["bones"]["body"]["rotation"]["1"], [5, 0, 0])
+        self.assertEqual(list(animation["bones"]["body"]["rotation"]), ["0", "1", "2"])
+        self.assertEqual(animation["bones"]["body"]["rotation"]["1"], [-5, 0, 0])
+
+    def test_animations_in_geckolib_axes(self) -> None:
+        bones = bbmodel_to_geckolib.animations(self.PROJECT)["animations"]["animation.test.idle"]["bones"]["body"]
+        self.assertEqual(bones["position"]["0"], [-2, 3, 4])
+        self.assertEqual(bones["rotation"]["2"], [-1, "-(q.anim_time)", 6])
+
+    def test_renames_single_clip_and_reads_free_projects(self) -> None:
+        self.assertIn("animation.x.idle", bbmodel_to_geckolib.animations(self.PROJECT, "animation.x.idle")["animations"])
+        free = dict(self.PROJECT, meta={"format_version": "5.0", "model_format": "free", "box_uv": False})
+        self.assertEqual(bbmodel_to_geckolib.convert(free, "geometry.test")["minecraft:geometry"][0]["bones"][0]["name"], "body")
 
     def test_rejects_java_projects(self) -> None:
         with self.assertRaises(bbmodel_to_geckolib.ScriptError):

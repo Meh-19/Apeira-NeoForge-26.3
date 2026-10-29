@@ -53,9 +53,10 @@ import com.apeira.uicapture.ArmorStandRecorder.Track;
  * {@code _feet_item}, {@code _mainhand_item}, {@code _offhand_item}) where an item model can be attached.</li>
  * <li>{@code <name>.animation.json}: the GeckoLib animation {@code animation.<name>.recorded}. The stand bone's position
  * (relative to the area's bottom centre) and yaw, each part's pose, scale 0 for a stand outside the area (0.5 for small
- * stands), for the cubes of an invisible stand (and armless or plateless ones) and for empty slots; and in
- * {@code timeline} one instruction per event (see {@link #instruction}), which GeckoLib passes to a custom instruction
- * keyframe handler.</li>
+ * stands), for the cubes of an invisible stand (and armless or plateless ones) and for empty slots. Every scale is a
+ * three-value array and the clip carries no {@code timeline}, so GeckoLib plays it as it is.</li>
+ * <li>{@code <name>.timeline.json}: one instruction per event (see {@link #instruction}) by time, the {@code timeline}
+ * block to paste into a clip for a GeckoLib custom instruction keyframe handler.</li>
  * </ul>
  * Each recorded {@code minecraft:interaction} entity is an {@code interaction_<n>} bone with a locator of the same name at
  * its position (the bottom centre of its hitbox) and an {@code interaction_<n>_hitbox} child holding a cube of its first
@@ -84,8 +85,8 @@ import com.apeira.uicapture.ArmorStandRecorder.Track;
  * to 0 while the display shows another item or none, so item, custom model data and visibility swaps are keyframes. The
  * textures (and the model and item definition files read) are copied to {@code assets/<namespace>/...}, packed into
  * {@code <name>.png}, the geometry's one texture (with the armor stand's texture at its top left corner for the stands'
- * box UV), and {@code <name>.bbmodel} is the same geometry as a Blockbench project with that texture embedded
- * ({@link Bbmodel}). {@code item_models.json} lists every resolved item: definition, models with their parent chains and
+ * box UV), and {@code <name>.bbmodel} is the same geometry as a Blockbench 5.2 / GeckoLib plugin 4.2.5 project with that
+ * texture and every exported clip embedded ({@link Bbmodel}). {@code item_models.json} lists every resolved item: definition, models with their parent chains and
  * textures, notes on what could not be drawn, each texture's place in the atlas, and the files copied with their pack.
  * Discrete changes are two keyframes {@value #STEP} seconds apart, so they are instant in any Bedrock-format reader.
  * Values are Bedrock's: x is mirrored (GeckoLib negates it), rotations are in degrees as GeckoLib reads them, so an
@@ -129,13 +130,19 @@ public final class ArmorStandExporter {
             Map<String, Rest> rest = rest(recording, origin, items);
             JsonObject geometry = geometry(recording, name, items, atlas, rest);
             Files.writeString(folder.resolve(name + ".geo.json"), GSON.toJson(geometry), StandardCharsets.UTF_8);
-            Files.writeString(folder.resolve(name + ".animation.json"), GSON.toJson(animation(recording, name, origin, items, rest)), StandardCharsets.UTF_8);
+            List<JsonObject> clips = new ArrayList<>();
+            JsonObject full = animation(recording, name, origin, items, rest);
+            clips.add(full);
+            Files.writeString(folder.resolve(name + ".animation.json"), GSON.toJson(full), StandardCharsets.UTF_8);
+            Files.writeString(folder.resolve(name + ".timeline.json"), GSON.toJson(timeline(recording, name)), StandardCharsets.UTF_8);
             // The loop and the clips around it, each a file of its own over the same bones.
             AnimationSegments.Result segments = AnimationSegments.find(recording);
             for (AnimationSegments.Segment segment : segments.segments()) {
                 Recording slice = AnimationSegments.slice(recording, segment.from(), segment.ticks());
-                Files.writeString(folder.resolve(AnimationSegments.file(name, segment)), GSON.toJson(animation(slice,
-                        "animation." + name + "." + segment.name(), origin, items, rest, segment.loop(), AnimationSegments.length(segment))), StandardCharsets.UTF_8);
+                JsonObject clip = animation(slice, "animation." + name + "." + segment.name(), origin, items, rest, segment.loop(),
+                        AnimationSegments.length(segment));
+                clips.add(clip);
+                Files.writeString(folder.resolve(AnimationSegments.file(name, segment)), GSON.toJson(clip), StandardCharsets.UTF_8);
             }
             Files.writeString(folder.resolve("segments.json"), GSON.toJson(AnimationSegments.json(segments, name)), StandardCharsets.UTF_8);
             log.accept(segments.segments().isEmpty() ? "Not split: " + segments.note()
@@ -147,7 +154,7 @@ public final class ArmorStandExporter {
             diagnostics.forEach(log);
             if (!atlas.isEmpty()) {
                 Files.writeString(folder.resolve(name + ".bbmodel"),
-                        GSON.toJson(Bbmodel.of(geometry, name, folder.resolve(name + ".png"), atlas.width(), atlas.height())), StandardCharsets.UTF_8);
+                        GSON.toJson(Bbmodel.of(geometry, name, folder.resolve(name + ".png"), atlas.width(), atlas.height(), clips)), StandardCharsets.UTF_8);
             }
         } finally {
             atlas.close();
@@ -840,25 +847,38 @@ public final class ArmorStandExporter {
             }
             bones.add(track.bone, root);
         }
-        JsonObject timeline = new JsonObject();
-        Map<Integer, JsonArray> byTick = new TreeMap<>();
-        for (Event event : recording.events()) {
-            byTick.computeIfAbsent(event.tick(), t -> new JsonArray()).add(instruction(event));
-        }
-        byTick.forEach((tick, list) -> timeline.add(time(tick), list));
 
+        // No timeline here: GeckoLib reads one as instruction keyframes, and clips with the events in them did not play
+        // (the conductors stood still), so the events go to <name>.timeline.json instead.
         JsonObject clip = new JsonObject();
         if (loop) {
             clip.addProperty("loop", true);
         }
         clip.addProperty("animation_length", length / 20.0);
         clip.add("bones", bones);
-        clip.add("timeline", timeline);
         JsonObject animations = new JsonObject();
         animations.add(clipName, clip);
         JsonObject root = new JsonObject();
         root.addProperty("format_version", "1.8.0");
         root.add("animations", animations);
+        return root;
+    }
+
+    /**
+     * The recording's events as timeline instructions by time ({@code <name>.timeline.json}: {@code {"animation":
+     * "animation.<name>.recorded", "timeline": {"<seconds>": ["v.event = '...';", ...]}}}), the {@code timeline} block an
+     * animation file would carry, to paste into one for a custom instruction handler.
+     */
+    private static JsonObject timeline(Recording recording, String name) {
+        JsonObject timeline = new JsonObject();
+        Map<Integer, JsonArray> byTick = new TreeMap<>();
+        for (Event event : recording.events()) {
+            byTick.computeIfAbsent(event.tick(), t -> new JsonArray()).add(instruction(event));
+        }
+        byTick.forEach((tick, list) -> timeline.add(time(tick), list));
+        JsonObject root = new JsonObject();
+        root.addProperty("animation", "animation." + name + ".recorded");
+        root.add("timeline", timeline);
         return root;
     }
 
