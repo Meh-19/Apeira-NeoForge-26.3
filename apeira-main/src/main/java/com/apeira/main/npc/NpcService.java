@@ -18,6 +18,8 @@ import com.apeira.main.registry.MainSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -94,12 +96,16 @@ public final class NpcService {
         meet(player, npc);
     }
 
-    /** Records that {@code player} has talked to {@code npc}, which takes its question mark off their locator bar. */
+    /**
+     * Records that {@code player} has talked to {@code npc}'s type, which takes the question marks of every NPC of that
+     * type off their locator bar, through realm resets too.
+     */
     private static void meet(ServerPlayer player, NpcEntity npc) {
-        List<UUID> met = player.getData(MainNpcs.MET_NPCS);
-        if (!met.contains(npc.getUUID())) {
-            List<UUID> updated = new ArrayList<>(met);
-            updated.add(npc.getUUID());
+        List<Identifier> met = player.getData(MainNpcs.MET_NPCS);
+        Identifier type = BuiltInRegistries.ENTITY_TYPE.getKey(npc.getType());
+        if (!met.contains(type)) {
+            List<Identifier> updated = new ArrayList<>(met);
+            updated.add(type);
             player.setData(MainNpcs.MET_NPCS, List.copyOf(updated));
         }
     }

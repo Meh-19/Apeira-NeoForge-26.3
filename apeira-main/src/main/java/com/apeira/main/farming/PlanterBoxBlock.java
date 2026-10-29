@@ -47,8 +47,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * one long bed. The crop is drawn above it by {@code client/farming/PlanterBoxRenderer}.
  *
  * <p>Right-click with: a water bucket or a watering can to water it for the day (the bucket fill sound); a seed to plant
- * it, soil or a fertilizer to give it to the growing crop, and the rest of the held stack into the stock, where the next
- * crops take theirs from ({@link #feedback}: planting, or composter sounds and particles). Anything else, or an empty hand, harvests a ripe crop (a hoe for a better
+ * it, soil or a fertilizer to give it to the growing crop, one item a click, else into the stock, where the next
+ * crops take theirs from (whole stacks go into the stock through the menu) ({@link #feedback}: planting, or composter sounds and particles). Anything else, or an empty hand, harvests a ripe crop (a hoe for a better
  * rating, {@link CropQuality}) or opens the box's menu. Breaking the box harvests a ripe crop with the breaking tool.
  */
 public class PlanterBoxBlock extends BaseEntityBlock {
@@ -164,12 +164,10 @@ public class PlanterBoxBlock extends BaseEntityBlock {
                     case PlanterBoxBlockEntity.SOIL -> box.applySoil();
                     default -> box.applyFertilizer(Fertilizer.of(stack));
                 };
-                if (applied) {
+                // One item a click: used on the crop, else put in the stock. Whole stacks go in through the menu.
+                boolean stocked = !applied && box.addToStock(stack.copyWithCount(1)) > 0;
+                if (applied || stocked) {
                     stack.consume(1, player);
-                }
-                // The rest of the stack goes into the box's stock, so one click puts the whole stack in.
-                int stocked = box.addToStock(player.hasInfiniteMaterials() ? stack.copy() : stack);
-                if (applied || stocked > 0) {
                     feedback((ServerLevel) level, pos, slot);
                 }
             }

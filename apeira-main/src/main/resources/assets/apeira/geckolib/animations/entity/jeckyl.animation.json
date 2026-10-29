@@ -300,6 +300,34 @@
           }
         }
       }
+    },
+    "animation.jeckyl.stand": {
+      "loop": true,
+      "animation_length": 1.0,
+      "bones": {
+        "jeckle_leg": {
+          "rotation": {
+            "0.0": {
+              "vector": [
+                0,
+                0,
+                0
+              ]
+            }
+          }
+        },
+        "jeckle_leg_2": {
+          "rotation": {
+            "0.0": {
+              "vector": [
+                0,
+                0,
+                0
+              ]
+            }
+          }
+        }
+      }
     }
   }
 }

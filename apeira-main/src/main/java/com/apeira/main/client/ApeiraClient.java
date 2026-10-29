@@ -110,9 +110,9 @@ public final class ApeiraClient {
         }
         // Jeckyl and Jacko wear a static ruby icon over their heads instead of the speech bubble.
         event.registerEntityRenderer(MainNpcs.JECKYL.get(), context -> new NpcRenderer(context, Apeira.REGISTRAR.id("jeckyl"),
-                Apeira.REGISTRAR.id("jeckyl"), null, "jeckle_head", NpcRenderer.Marker.RUBY, -1.0F));
+                Apeira.REGISTRAR.id("jeckyl"), null, "jeckle_head", NpcRenderer.Marker.RUBY, 1.0F));
         event.registerEntityRenderer(MainNpcs.JACKO.get(), context -> new NpcRenderer(context, Apeira.REGISTRAR.id("jacko"),
-                Apeira.REGISTRAR.id("jacko"), Apeira.REGISTRAR.id("jacko_night"), "farmer_head", NpcRenderer.Marker.RUBY, -1.0F));
+                Apeira.REGISTRAR.id("jacko"), Apeira.REGISTRAR.id("jacko_night"), "farmer_head", NpcRenderer.Marker.RUBY, 1.0F));
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {

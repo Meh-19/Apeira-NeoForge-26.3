@@ -10,11 +10,10 @@ import com.apeira.main.realm.RealmPreset;
 import com.geckolib.animation.RawAnimation;
 
 import java.util.List;
-import java.util.UUID;
 
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -62,14 +61,16 @@ public final class MainNpcs {
             .register("npc_shop", () -> new MenuType<NpcShopMenu>(NpcShopMenu::new, FeatureFlags.VANILLA_SET));
 
     /**
-     * {@code apeira:met_npcs}: the NPCs (entity UUIDs) a player has talked to, which the locator bar's question marks
-     * leave out ({@code client/npc/NpcQuestMarkers}). Saved, kept on death and synced only to its own player.
+     * {@code apeira:met_npc_types}: the NPC types (entity type ids) a player has talked to, which the locator bar's
+     * question marks leave out ({@code client/npc/NpcQuestMarkers}). Kept by type, not by entity, so a realm reset's new
+     * Jeckyl or conductor stays met. Saved, kept on death and synced only to its own player. It replaces
+     * {@code apeira:met_npcs}, which kept entity UUIDs.
      */
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<List<UUID>>> MET_NPCS = R.forRegistry(NeoForgeRegistries.Keys.ATTACHMENT_TYPES)
-            .register("met_npcs", () -> AttachmentType.<List<UUID>>builder(() -> List.of())
-                    .serialize(UUIDUtil.CODEC.listOf().fieldOf("met_npcs"), met -> !met.isEmpty())
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<List<Identifier>>> MET_NPCS = R.forRegistry(NeoForgeRegistries.Keys.ATTACHMENT_TYPES)
+            .register("met_npc_types", () -> AttachmentType.<List<Identifier>>builder(() -> List.of())
+                    .serialize(Identifier.CODEC.listOf().fieldOf("met_npc_types"), met -> !met.isEmpty())
                     .copyOnDeath()
-                    .sync((holder, to) -> holder == to, UUIDUtil.STREAM_CODEC.apply(ByteBufCodecs.list()))
+                    .sync((holder, to) -> holder == to, Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()))
                     .build());
 
     private static DeferredHolder<EntityType<?>, EntityType<NpcEntity>> conductor(String name) {

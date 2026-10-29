@@ -11,7 +11,10 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * An NPC's shop ({@link NpcShopMenu}), drawn as Origin Realms' market menu from Ren's capture of Jeckyl's market
@@ -75,6 +78,13 @@ public class NpcShopScreen extends AbstractContainerScreen<NpcShopMenu> {
 
     private void sheet(GuiGraphicsExtractor graphics, Identifier texture) {
         graphics.blit(RenderPipelines.GUI_TEXTURED, texture, leftPos, topPos + SHEET_Y, 0.0F, 0.0F, 256, 256, 256, 256);
+    }
+
+    /** A price over 64 is one ruby with the price written as its count: up to 9999 in full, then in thousands ("25k"). */
+    @Override
+    protected void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack itemStack, Slot slot, @Nullable String itemCount) {
+        long price = NpcShopMenu.shownCount(itemStack);
+        super.renderSlotContents(graphics, itemStack, slot, price > 0 ? (price < 10000 ? Long.toString(price) : price / 1000 + "k") : itemCount);
     }
 
     /** The server's title is only its menu glyphs, and its inventory label a space. */

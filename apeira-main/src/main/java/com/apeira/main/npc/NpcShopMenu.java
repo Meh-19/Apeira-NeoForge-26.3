@@ -2,18 +2,17 @@ package com.apeira.main.npc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.realm.RealmService;
-import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainNpcs;
 import com.apeira.main.ruby.Rubies;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
@@ -31,6 +30,7 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 
 /**
@@ -150,7 +150,7 @@ public class NpcShopMenu extends AbstractContainerMenu {
     /** The item traded in row {@code row} (the one bought, or the one sold), for the arrow cell's tooltip. */
     public ItemStack tradeItem(int row) {
         ItemStack price = display.getItem(row * COLUMNS + PRICE_COLUMN);
-        boolean sell = !price.isEmpty() && !price.is(MainItems.RUBY.get()) && !price.is(MainBlocks.RUBY_BLOCK.get().asItem());
+        boolean sell = !price.isEmpty() && !price.is(MainItems.RUBY.get());
         return sell ? price : display.getItem(row * COLUMNS + ITEM_COLUMN);
     }
 
@@ -183,24 +183,28 @@ public class NpcShopMenu extends AbstractContainerMenu {
         }
     }
 
-    /** The prices that have their own ruby icon, Ren's {@code textures/item/ruby_price/<price>.png} (a ruby with the amount). */
-    private static final Set<Long> PRICE_ICONS = Set.of(80L, 128L, 165L, 210L, 255L, 600L, 750L, 1000L, 2000L, 3000L, 4000L, 5000L, 7000L,
-            8000L, 10000L, 15000L, 20000L, 25000L, 50000L);
+    /** The custom data key that carries a price over 64 on its single ruby, for the screen to write as the count. */
+    private static final String PRICE_KEY = "apeira_price";
 
     /**
-     * What stands for a price: as many rubies as it is up to 64; above that a ruby drawn with Ren's icon for that amount
-     * ({@code apeira:ruby_price/<price>} as its item model), or a ruby block for an amount without one.
+     * What stands for a price: as many rubies as it is up to 64; above that one ruby carrying the price
+     * ({@link #shownCount}), which the screen writes as the stack's count text, as a stack can't hold more than 64.
      */
     static ItemStack priceIcon(long price) {
         if (price <= 64) {
             return new ItemStack(MainItems.RUBY.get(), (int) Math.max(1, price));
         }
-        if (!PRICE_ICONS.contains(price)) {
-            return new ItemStack(MainBlocks.RUBY_BLOCK.get());
-        }
         ItemStack icon = new ItemStack(MainItems.RUBY.get());
-        icon.set(DataComponents.ITEM_MODEL, ApeiraIds.id("ruby_price/" + price));
+        CompoundTag tag = new CompoundTag();
+        tag.putLong(PRICE_KEY, price);
+        icon.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         return icon;
+    }
+
+    /** The count a price ruby stands for (its price over 64), or 0 for any other stack. */
+    public static long shownCount(ItemStack stack) {
+        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+        return data == null || !stack.is(MainItems.RUBY.get()) ? 0L : data.copyTag().getLongOr(PRICE_KEY, 0L);
     }
 
     /** Origin Realms' trade lore. */
