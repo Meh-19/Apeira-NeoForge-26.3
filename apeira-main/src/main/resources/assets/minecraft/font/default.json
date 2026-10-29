@@ -4,7 +4,18 @@
       "type": "bitmap",
       "file": "apeira:custom_ui/speech.png",
       "ascent": 7,
-      "chars": ["ꢔ"]
+      "chars": [
+        "ꢔ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:custom_ui/ruby_icon.png",
+      "ascent": 8,
+      "height": 9,
+      "chars": [
+        "ꢦ"
+      ]
     }
   ]
 }
