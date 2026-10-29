@@ -26,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
  * balloon ({@link NpcService#spawnJeckyl}) and wanders round that spot ({@link #home}, within {@link #WANDER_RADIUS}
  * blocks) until someone first talks to him: that first talk gives his introduction line and anchors him for good
  * ({@link #isAnchored}), so he stands still from then on and only then can be moved with the anchor tool. Later talks
- * give one of his two idle lines. Right-clicking him again while his dialogue is open opens his shop ({@link NpcShop#JECKYL}).
+ * give one of his two idle lines. Left-clicking him while his dialogue is open opens his shop ({@link NpcShop#JECKYL}).
  *
  * <p>The wander is his own, as he is a plain entity and not a mob: a walk at {@link #SPEED} blocks a tick to a random
  * spot near home that he can stand on, along the ground (one block up or down a step), then a pause, then another. Clients

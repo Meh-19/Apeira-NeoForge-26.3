@@ -22,9 +22,11 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
- * The planter box's screen, drawn as Origin Realms': vanilla's 5-row chest (its top and the player inventory part of
- * {@code generic_54}), then {@code menu_container.png} (256x256) 6 pixels above the frame, with the three stock slots,
- * the planter and the soil, water and fertilizer icons, each lit by its overlay ({@code menu_soiled}, {@code menu_watered},
+ * The planter box's screen: Origin Realms' {@code menu_container.png} panel (256x256, its top border 18 pixels down the
+ * sheet, so the sheet is drawn 18 above the frame) with no chest rows under it, and the player inventory grid of
+ * vanilla's {@code generic_54} (from its slot cells down) right where the panel opens, so the three stock slots line up
+ * with the inventory's columns. The panel's slot holes get vanilla's slot cell behind them. The panel has the three
+ * stock slots, the planter and the soil, water and fertilizer icons, each lit by its overlay ({@code menu_soiled}, {@code menu_watered},
  * {@code menu_fert_<type>}) while the crop has it. The crop's picture of its stage stands in the planter. Hovering the
  * picture, an icon or the question mark explains it.
  */
@@ -34,26 +36,27 @@ public class PlanterBoxScreen extends AbstractContainerScreen<PlanterBoxMenu> {
     private static final Identifier SOILED = ApeiraIds.id("textures/gui/farming/menu_soiled.png");
     private static final Identifier WATERED = ApeiraIds.id("textures/gui/farming/menu_watered.png");
     private static final int WIDTH = 176;
-    private static final int HEIGHT = 204;
-    private static final int CHEST_TOP = 17 + 5 * 18;
-    private static final int INVENTORY_V = 126;
-    private static final int INVENTORY_HEIGHT = 96;
-    private static final int MENU_Y = -6;
+    /** Where {@code generic_54}'s inventory slot cells start, and how much of the sheet is left from there. */
+    private static final int INVENTORY_V = 139;
+    private static final int INVENTORY_HEIGHT = 222 - INVENTORY_V;
+    private static final int HEIGHT = PlanterBoxMenu.PANEL_HEIGHT + INVENTORY_HEIGHT;
+    /** Where the 256x256 layers go, from {@code topPos}: the panel's top border is 18 rows down the sheet. */
+    private static final int MENU_Y = -18;
     /** The 64x64 crop picture, its trunk's foot on the planter's soil. */
     private static final int PICTURE_X = 56;
-    private static final int PICTURE_Y = 9;
+    private static final int PICTURE_Y = -3;
     private static final int PICTURE_SIZE = 64;
-    // Icon boxes in the frame (texture position less the 6-pixel lift).
+    // Icon boxes in the frame (texture position less the 18-pixel lift).
     private static final int ICON_X = 115;
     private static final int ICON_W = 17;
-    private static final int SOIL_Y = 37;
-    private static final int WATER_Y = 52;
-    private static final int FERTILIZER_Y = 71;
+    private static final int SOIL_Y = 25;
+    private static final int WATER_Y = 40;
+    private static final int FERTILIZER_Y = 59;
     private static final int ICON_H = 15;
     private static final int PLANTER_X = 70;
-    private static final int PLANTER_Y = 68;
+    private static final int PLANTER_Y = 56;
     private static final int INFO_X = 152;
-    private static final int INFO_Y = 18;
+    private static final int INFO_Y = 6;
     private static final int INFO_SIZE = 16;
     private static final List<Component> INFO = List.of(
             Component.translatable("container.apeira.planter_box.info"),
@@ -69,8 +72,13 @@ public class PlanterBoxScreen extends AbstractContainerScreen<PlanterBoxMenu> {
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos, topPos, 0.0F, 0.0F, WIDTH, CHEST_TOP, 256, 256);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos, topPos + CHEST_TOP, 0.0F, INVENTORY_V, WIDTH, INVENTORY_HEIGHT, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos, topPos + PlanterBoxMenu.PANEL_HEIGHT, 0.0F, INVENTORY_V, WIDTH,
+                INVENTORY_HEIGHT, 256, 256);
+        for (int i = 0; i < PlanterBoxBlockEntity.SLOTS; i++) {
+            // The inside of vanilla's slot cell, behind the panel's 16x16 hole.
+            graphics.blit(RenderPipelines.GUI_TEXTURED, CHEST, leftPos + PlanterBoxMenu.SLOT_X, topPos + PlanterBoxMenu.SLOT_Y + i * 18,
+                    8.0F, 18.0F, 16, 16, 256, 256);
+        }
         layer(graphics, MENU);
         FarmCrop crop = menu.crop();
         boolean soiled = menu.has(PlanterBoxBlockEntity.FLAG_SOILED);

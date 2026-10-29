@@ -33,7 +33,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  * The server side of realm NPCs: Shift-right-clicking an {@link NpcEntity} opens its settings in the navigator
  * ({@link NavigatorService#openNpc}, the {@code EDIT_NPC} popup) for whoever may edit it; the popup's buttons toggle its
  * visibility ({@link #toggleShown}) and start the anchor placement cursor ({@link #startAnchor}), whose left-click moves
- * it ({@link #anchor}). A plain right-click talks to it ({@link #talk}), and right-clicking again in the dialogue opens its
+ * it ({@link #anchor}). A plain right-click talks to it ({@link #talk}), and left-clicking it in the dialogue opens its
  * shop, if it has one ({@link #openShop}). {@link #spawnConductor} places a region's balloon conductor by a
  * Lush realm's new starter balloon.
  */
@@ -86,7 +86,7 @@ public final class NpcService {
     }
 
     /**
-     * Opens the shop of the NPC with entity id {@code id} for {@code player}, who right-clicked it again in its dialogue:
+     * Opens the shop of the NPC with entity id {@code id} for {@code player}, who left-clicked it in its dialogue:
      * only an NPC with a shop, alive, within {@link NpcShopMenu#REACH} blocks and visible to the player.
      */
     public static void openShop(ServerPlayer player, int id) {

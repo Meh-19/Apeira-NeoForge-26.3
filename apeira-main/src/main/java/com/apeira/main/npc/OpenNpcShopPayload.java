@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
- * Client to server: the player right-clicked the NPC with entity id {@code npc} again while its dialogue was open, which
+ * Client to server: the player left-clicked the NPC with entity id {@code npc} while its dialogue was open, which
  * opens its shop ({@link NpcService#openShop}, checked there).
  */
 public record OpenNpcShopPayload(int npc) implements ApeiraPayload<OpenNpcShopPayload> {
