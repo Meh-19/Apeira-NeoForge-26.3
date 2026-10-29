@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import com.apeira.core.network.client.ApeiraClientNetwork;
 import com.apeira.main.Apeira;
 import com.apeira.main.npc.NpcDialoguePayload;
 import com.apeira.main.npc.NpcEntity;
+import com.apeira.main.npc.OpenNpcShopPayload;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.ChatFormatting;
@@ -29,8 +31,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * ({@code textures/gui/dialogue/portrait/<npc>.png}, 42x42) on its left inside the framed border
  * ({@code textures/gui/dialogue/border.png}, 50x50 drawn 1:1, its {@link #EDGE}-pixel band round the portrait), and
  * beside it the NPC's name in bold white after the speech glyph ꢔ (U+A894, added to {@code minecraft:default}), over its line,
- * typed out {@link #MILLIS_PER_CHAR} a character. A click, Space, Enter or F shows the whole line at once, then closes; Escape
- * closes. The game keeps running behind it, and {@link NpcDialogueCamera} keeps the view on the NPC while it is open.
+ * typed out {@link #MILLIS_PER_CHAR} a character. A left click, Space, Enter or F shows the whole line at once, then
+ * closes; Escape or the sneak key closes it at any time. For an NPC with a shop, a right click (clicking the NPC again)
+ * asks the server to open the shop ({@link OpenNpcShopPayload}), and a grey hint over the box's right end says so. The game keeps
+ * running behind it, and {@link NpcDialogueCamera} keeps the view on the NPC while it is open.
  */
 public class NpcDialogueScreen extends Screen {
     private static final Identifier BORDER = Apeira.REGISTRAR.id("textures/gui/dialogue/border.png");
@@ -46,18 +50,21 @@ public class NpcDialogueScreen extends Screen {
     private static final long MILLIS_PER_CHAR = 12;
     private static final int FILL = 0xF0000000;
     private static final int WHITE = 0xFFFFFFFF;
+    private static final int HINT = 0xFFAAAAAA;
 
     private final int npc;
     private final Component name;
     /** The NPC's portrait, or null when it has none yet (the border's opening is left dark). */
     private final @Nullable Identifier portrait;
     private final Component line;
+    /** Whether right-clicking opens the NPC's shop. */
+    private final boolean shop;
     private List<String> rows = List.of();
     private int length;
     private final long opened = Util.getMillis();
     private boolean skipped;
 
-    public NpcDialogueScreen(NpcEntity npc, Component line) {
+    public NpcDialogueScreen(NpcEntity npc, Component line, boolean shop) {
         super(npc.getDisplayName());
         this.npc = npc.getId();
         this.name = npc.getType().getDescription();
@@ -65,12 +72,13 @@ public class NpcDialogueScreen extends Screen {
         Identifier portrait = Identifier.fromNamespaceAndPath(type.getNamespace(), "textures/gui/dialogue/portrait/" + type.getPath() + ".png");
         this.portrait = Minecraft.getInstance().getResourceManager().getResource(portrait).isPresent() ? portrait : null;
         this.line = line;
+        this.shop = shop;
     }
 
     public static void onOpen(NpcDialoguePayload payload, IPayloadContext context) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level != null && minecraft.level.getEntity(payload.npc()) instanceof NpcEntity entity) {
-            minecraft.gui.setScreen(new NpcDialogueScreen(entity, Component.translatable(payload.line())));
+            minecraft.gui.setScreen(new NpcDialogueScreen(entity, Component.translatable(payload.line()), payload.shop()));
             NpcDialogueCamera.focus(payload.npc());
         }
     }
@@ -135,6 +143,10 @@ public class NpcDialogueScreen extends Screen {
             left -= row.length();
             rowY += LINE_HEIGHT;
         }
+        if (shop) {
+            Component hint = Component.translatable("dialogue.apeira.hint.shop");
+            graphics.text(font, hint, x + w - font.width(hint), y - LINE_HEIGHT, HINT, true);
+        }
         if (shown() >= length && (Util.getMillis() / 400) % 2 == 0) {
             // A small blinking arrow: the line is done, press on.
             int ax = x + w - PADDING - 5;
@@ -157,12 +169,23 @@ public class NpcDialogueScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT) {
+            if (shop) {
+                // The server opens the shop's menu, which takes this screen's place.
+                ApeiraClientNetwork.sendToServer(new OpenNpcShopPayload(npc));
+            }
+            return true;
+        }
         advance();
         return true;
     }
 
     @Override
     public boolean keyPressed(KeyEvent event) {
+        if (minecraft.options.keyShift.matches(event)) {
+            onClose();
+            return true;
+        }
         int key = event.key();
         if (key == InputConstants.KEY_SPACE || key == InputConstants.KEY_RETURN || key == InputConstants.KEY_F) {
             advance();

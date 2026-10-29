@@ -7,6 +7,7 @@ import com.apeira.main.navigator.OpenProfilePayload;
 import com.apeira.main.npc.ConfirmNpcAnchorPayload;
 import com.apeira.main.npc.NpcAnchorPayload;
 import com.apeira.main.npc.NpcDialoguePayload;
+import com.apeira.main.npc.OpenNpcShopPayload;
 import com.apeira.main.realm.ConfirmSpawnPayload;
 import com.apeira.main.realm.OpenOnboardingPayload;
 import com.apeira.main.realm.RealmCreatedPayload;
@@ -26,6 +27,7 @@ public final class MainPayloads {
         network.toServer(OpenProfilePayload.TYPE, OpenProfilePayload::handle);
         network.toServer(ConfirmSpawnPayload.TYPE, ConfirmSpawnPayload::handle);
         network.toServer(ConfirmNpcAnchorPayload.TYPE, ConfirmNpcAnchorPayload::handle);
+        network.toServer(OpenNpcShopPayload.TYPE, OpenNpcShopPayload::handle);
         // Handled in client/ApeiraClient.
         network.toClient(OpenNavigatorPayload.TYPE);
         network.toClient(OpenOnboardingPayload.TYPE);

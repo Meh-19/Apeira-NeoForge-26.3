@@ -10,17 +10,21 @@ import org.jspecify.annotations.Nullable;
 import com.apeira.decor.client.EmissiveRenderTypes;
 import com.apeira.main.Apeira;
 import com.apeira.main.npc.NpcEntity;
+import com.apeira.main.registry.MainItems;
 import com.geckolib.constant.dataticket.DataTicket;
 import com.geckolib.model.DefaultedEntityGeoModel;
 import com.geckolib.renderer.GeoEntityRenderer;
 import com.geckolib.renderer.base.RenderPassInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -30,6 +34,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -50,6 +56,10 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  * billboard always facing the camera, centred across with its bottom edge on the locator. It is full bright: its texels
  * are alpha 254 (emissive, section 5) and its vertices carry full-bright light, so it stays pure white in the dark. Both
  * are where the model was drawn last frame, as GeckoLib draws after the entities are submitted.
+ *
+ * <p>Each NPC's renderer names its own two locators and its {@link Marker}: the conductors use {@link #HEAD_LOCATOR} and
+ * {@link #CHAT_LOCATOR} with the bubble; Jeckyl and Jacko wear {@link Marker#RUBY} instead, the ruby item
+ * ({@code apeira:ruby}) floating over the locator, turning and bobbing, drawn at full brightness in its ground display.
  */
 public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState> {
     /** The ghost's alpha, for a hidden NPC seen up close. */
@@ -72,6 +82,22 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
 
     private static final DataTicket<Track> TRACK = DataTicket.create("apeira_npc_track", Track.class);
     private static final DataTicket<Integer> COLOR = DataTicket.create("apeira_npc_color", Integer.class);
+    /** The ruby marker's size (its ground display is a quarter block), lift over the locator, bob and turn speed. */
+    private static final float RUBY_SCALE = 1.6F;
+    private static final float RUBY_LIFT = 0.25F;
+    private static final float RUBY_BOB = 0.05F;
+    private static final float RUBY_DEGREES_PER_TICK = 3.0F;
+
+    /** What floats over the NPC's head: Origin Realms' speech bubble, or the ruby of the NPCs who sell for rubies. */
+    public enum Marker {
+        BUBBLE,
+        RUBY
+    }
+
+    private final String headLocator;
+    private final String markerLocator;
+    private final Marker marker;
+    private final ItemModelResolver itemModelResolver;
 
     private static final class Track {
         /** The ghost's fade, 0 (gone) to 1 (at {@link #GHOST_ALPHA}), and when it was last moved. */
@@ -83,11 +109,26 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
         /** The locators' last drawn positions, in blocks from the entity's position; null until first drawn. */
         @Nullable Vec3 head;
         @Nullable Vec3 chat;
+        /** The ruby marker, resolved each frame for {@link Marker#RUBY}. */
+        final ItemStackRenderState ruby = new ItemStackRenderState();
     }
 
     public NpcRenderer(EntityRendererProvider.Context context, Identifier model, Identifier texture) {
+        this(context, model, texture, HEAD_LOCATOR, CHAT_LOCATOR, Marker.BUBBLE);
+    }
+
+    /**
+     * A renderer whose camera follows {@code headLocator} and whose {@code marker} floats at {@code markerLocator}, both
+     * locators of the model.
+     */
+    public NpcRenderer(EntityRendererProvider.Context context, Identifier model, Identifier texture, String headLocator, String markerLocator,
+            Marker marker) {
         super(context, new DefaultedEntityGeoModel<NpcEntity>(model).withAltTexture(texture));
         this.shadowRadius = 0.5F;
+        this.headLocator = headLocator;
+        this.markerLocator = markerLocator;
+        this.marker = marker;
+        this.itemModelResolver = context.getItemModelResolver();
     }
 
     /**
@@ -132,6 +173,10 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
         Track track = track(npc);
         renderState.addGeckolibData(TRACK, track);
         renderState.addGeckolibData(COLOR, color(npc, track));
+        if (marker == Marker.RUBY) {
+            itemModelResolver.updateForTopItem(track.ruby, new ItemStack(MainItems.RUBY.get()), ItemDisplayContext.GROUND, npc.level(), null,
+                    npc.getId());
+        }
     }
 
     @Override
@@ -150,8 +195,8 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
         super.preRenderPass(renderPassInfo, collector);
         Track track = renderPassInfo.getGeckolibData(TRACK);
         if (track != null) {
-            renderPassInfo.addLocatorPositionListener(HEAD_LOCATOR, (world, model, local) -> track.head = local);
-            renderPassInfo.addLocatorPositionListener(CHAT_LOCATOR, (world, model, local) -> track.chat = local);
+            renderPassInfo.addLocatorPositionListener(headLocator, (world, model, local) -> track.head = local);
+            renderPassInfo.addLocatorPositionListener(markerLocator, (world, model, local) -> track.chat = local);
         }
     }
 
@@ -165,9 +210,21 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
         if (track != null && track.chat != null) {
             poseStack.pushPose();
             poseStack.translate(track.chat.x, track.chat.y, track.chat.z);
-            bubble(poseStack, collector, camera.orientation, state.getOrDefaultGeckolibData(COLOR, 0xFFFFFFFF));
+            if (marker == Marker.BUBBLE) {
+                bubble(poseStack, collector, camera.orientation, state.getOrDefaultGeckolibData(COLOR, 0xFFFFFFFF));
+            } else if (!track.ghostMode && !track.ruby.isEmpty()) {
+                ruby(poseStack, collector, track.ruby, state.ageInTicks);
+            }
             poseStack.popPose();
         }
+    }
+
+    /** The ruby marker over the pose's origin: lifted, bobbing and turning, at full brightness. */
+    private static void ruby(PoseStack poseStack, SubmitNodeCollector collector, ItemStackRenderState ruby, float ticks) {
+        poseStack.translate(0.0F, RUBY_LIFT + Mth.sin(ticks * 0.1F) * RUBY_BOB, 0.0F);
+        poseStack.rotateDegrees(Axis.YP, ticks * RUBY_DEGREES_PER_TICK);
+        poseStack.scale(RUBY_SCALE, RUBY_SCALE, RUBY_SCALE);
+        ruby.submit(poseStack, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
     }
 
     /**

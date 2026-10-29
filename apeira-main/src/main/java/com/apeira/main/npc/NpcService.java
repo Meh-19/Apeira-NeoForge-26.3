@@ -15,11 +15,11 @@ import com.apeira.main.registry.MainSounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -33,7 +33,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  * The server side of realm NPCs: Shift-right-clicking an {@link NpcEntity} opens its settings in the navigator
  * ({@link NavigatorService#openNpc}, the {@code EDIT_NPC} popup) for whoever may edit it; the popup's buttons toggle its
  * visibility ({@link #toggleShown}) and start the anchor placement cursor ({@link #startAnchor}), whose left-click moves
- * it ({@link #anchor}). A plain right-click talks to it ({@link #talk}). {@link #spawnConductor} places a region's balloon conductor by a
+ * it ({@link #anchor}). A plain right-click talks to it ({@link #talk}), and right-clicking again in the dialogue opens its
+ * shop, if it has one ({@link #openShop}). {@link #spawnConductor} places a region's balloon conductor by a
  * Lush realm's new starter balloon.
  */
 public final class NpcService {
@@ -45,6 +46,11 @@ public final class NpcService {
     static final int CONDUCTOR_LEFT = 2;
     /** He faces the balloon turned this far clockwise, seen from above (yaw grows clockwise): -90, a quarter turn counter-clockwise. */
     static final float CONDUCTOR_TURN = -90.0F;
+    /** Jeckyl is placed this near the starter balloon, in blocks on the larger axis ... */
+    static final int JECKYL_MIN = 4;
+    static final int JECKYL_MAX = 10;
+    /** ... after at most this many random tries. */
+    private static final int JECKYL_TRIES = 48;
 
     private NpcService() {}
 
@@ -76,8 +82,21 @@ public final class NpcService {
             return;
         }
         npc.level().playSound(null, npc.getX(), npc.getEyeY(), npc.getZ(), MainSounds.NPC_VOICE_MALE1.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-        Identifier type = BuiltInRegistries.ENTITY_TYPE.getKey(npc.getType());
-        ApeiraPackets.sendToPlayer(player, new NpcDialoguePayload(npc.getId(), "dialogue." + type.getNamespace() + "." + type.getPath() + ".greeting"));
+        ApeiraPackets.sendToPlayer(player, new NpcDialoguePayload(npc.getId(), npc.lineFor(player), npc.shop() != null));
+    }
+
+    /**
+     * Opens the shop of the NPC with entity id {@code id} for {@code player}, who right-clicked it again in its dialogue:
+     * only an NPC with a shop, alive, within {@link NpcShopMenu#REACH} blocks and visible to the player.
+     */
+    public static void openShop(ServerPlayer player, int id) {
+        if (!(player.level().getEntity(id) instanceof NpcEntity npc) || !npc.isAlive() || npc.shop() == null
+                || npc.distanceToSqr(player) > NpcShopMenu.REACH * NpcShopMenu.REACH || (!npc.isShown() && !npc.canEdit(player))) {
+            return;
+        }
+        NpcShop shop = npc.shop();
+        player.openMenu(new SimpleMenuProvider((containerId, inventory, opener) -> new NpcShopMenu(containerId, inventory, shop, npc),
+                npc.getDisplayName()));
     }
 
     /** The NPC with {@code id} in {@code player}'s level, if {@code player} may edit it. */
@@ -106,6 +125,10 @@ public final class NpcService {
         if (npc == null) {
             return false;
         }
+        if (!npc.canAnchor()) {
+            RealmService.fail(player, "npc.anchor_locked", npc.getDisplayName());
+            return false;
+        }
         ApeiraPackets.sendToPlayer(player, new NpcAnchorPayload(npc.getId()));
         return true;
     }
@@ -116,7 +139,7 @@ public final class NpcService {
      */
     public static boolean anchor(ServerPlayer player, int id, BlockPos anchor) {
         ServerLevel level = player.level();
-        if (!(level.getEntity(id) instanceof NpcEntity npc) || !npc.isAlive() || !npc.canEdit(player)) {
+        if (!(level.getEntity(id) instanceof NpcEntity npc) || !npc.isAlive() || !npc.canEdit(player) || !npc.canAnchor()) {
             RealmService.fail(player, "npc.not_owner");
             return false;
         }
@@ -153,5 +176,47 @@ public final class NpcService {
         conductor.face(Vec3.atBottomCenterOf(balloon));
         conductor.turn(CONDUCTOR_TURN);
         level.addFreshEntity(conductor);
+    }
+
+    /**
+     * Places Jeckyl on the ground at a random spot near a realm's new starter balloon (floor centre {@code balloon}):
+     * {@link #JECKYL_MIN} to {@link #JECKYL_MAX} blocks away on each axis' larger offset, so off the 5x5 platform, where he
+     * fits ({@link NpcEntity#canStandAt}); that spot is the home he wanders round. Nothing is placed when
+     * {@link #JECKYL_TRIES} tries find no room.
+     */
+    public static void spawnJeckyl(ServerLevel level, BlockPos balloon) {
+        EntityType<JeckylEntity> type = MainNpcs.JECKYL.get();
+        BlockPos spot = surfaceNear(level, type, balloon);
+        if (spot == null) {
+            Apeira.LOGGER.warn("No room for Jeckyl near {} in {}", balloon, level.dimension().identifier());
+            return;
+        }
+        JeckylEntity jeckyl = type.create(level, EntitySpawnReason.EVENT);
+        if (jeckyl == null) {
+            return;
+        }
+        jeckyl.snapTo(Vec3.atBottomCenterOf(spot));
+        jeckyl.face(Vec3.atBottomCenterOf(balloon));
+        jeckyl.setHome(spot);
+        level.addFreshEntity(jeckyl);
+    }
+
+    /** A random spot on the ground {@link #JECKYL_MIN} to {@link #JECKYL_MAX} blocks from {@code center} where {@code type} fits. */
+    static @Nullable BlockPos surfaceNear(ServerLevel level, EntityType<?> type, BlockPos center) {
+        RandomSource random = level.getRandom();
+        for (int i = 0; i < JECKYL_TRIES; i++) {
+            int dx = random.nextIntBetweenInclusive(-JECKYL_MAX, JECKYL_MAX);
+            int dz = random.nextIntBetweenInclusive(-JECKYL_MAX, JECKYL_MAX);
+            if (Math.max(Math.abs(dx), Math.abs(dz)) < JECKYL_MIN) {
+                continue;
+            }
+            int x = center.getX() + dx;
+            int z = center.getZ() + dz;
+            BlockPos pos = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
+            if (level.isLoaded(pos) && NpcEntity.canStandAt(level, type, pos)) {
+                return pos;
+            }
+        }
+        return null;
     }
 }
