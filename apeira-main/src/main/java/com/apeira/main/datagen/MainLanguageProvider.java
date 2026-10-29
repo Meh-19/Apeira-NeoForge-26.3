@@ -188,14 +188,14 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
 
     /** Origin Realms' farming: its items and blocks, the planter box menu, crops, fertilizers and tooltips. */
     private void farming() {
-        item(MainFarming.APPLE_SEEDS, "Apple Seed");
-        item(MainFarming.BANANA_SEEDS, "Banana Seed");
+        item(MainFarming.APPLE_SEEDS, "Apple Seeds");
+        item(MainFarming.BANANA_SEEDS, "Banana Seeds");
         item(MainFarming.MANGO_PIT, "Mango Pit");
-        item(MainFarming.CORN_SEEDS, "Corn Seed");
-        item(MainFarming.PINEAPPLE_SEEDS, "Pineapple Seed");
-        item(MainFarming.EGG_PLANT_SEEDS, "Eggplant Seed");
-        item(MainFarming.LETTUCE_SEEDS, "Lettuce Seed");
-        item(MainFarming.CHILLI_SEEDS, "Chilli Seed");
+        item(MainFarming.CORN_SEEDS, "Corn Seeds");
+        item(MainFarming.PINEAPPLE_SEEDS, "Pineapple Seeds");
+        item(MainFarming.EGG_PLANT_SEEDS, "Eggplant Seeds");
+        item(MainFarming.LETTUCE_SEEDS, "Lettuce Seeds");
+        item(MainFarming.CHILLI_SEEDS, "Chilli Seeds");
         item(MainFarming.BANANA, "Banana");
         item(MainFarming.MANGO, "Mango");
         item(MainFarming.CORN, "Corn");
@@ -241,8 +241,6 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("fertilizer.apeira.golden_goods.description.1", "Guarantees golden crops");
         add("fertilizer.apeira.golden_goods.description.2", "upon harvest");
 
-        add("tooltip.apeira.farming.plant_in_planter", "Plant in a planter box");
-        add("tooltip.apeira.farming.seed", "to grow in %s days");
         add("tooltip.apeira.farming.soil.1", "Increases quality of crops");
         add("tooltip.apeira.farming.soil.2", "grown in planter boxes");
         add("tooltip.apeira.farming.planter_box", "Grows crops traded by Jacko");
@@ -251,22 +249,42 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("message.apeira.farming.sprinkler_full", "The sprinkler is full");
 
         add("container.apeira.planter_box", "Planter Box");
-        add("container.apeira.planter_box.info", "Planter Box");
-        add("container.apeira.planter_box.info1", "Seeds, soil and fertilizer go in the slots;");
-        add("container.apeira.planter_box.info2", "the next crop is planted from them.");
-        add("container.apeira.planter_box.info3", "Water the box every day: crops grow");
-        add("container.apeira.planter_box.info4", "one stage each morning at 7:00 AM.");
+        add("container.apeira.planter_box.info", "Learn more about Farming");
+        add("container.apeira.planter_box.crop", "%s Crop");
+        add("container.apeira.planter_box.growth", "Growth: ");
+        add("container.apeira.planter_box.crop.1", "Crops grow each day at 7 am");
+        add("container.apeira.planter_box.crop.2", "in-game time as long as your");
+        add("container.apeira.planter_box.crop.3", "planter box is watered.");
         add("container.apeira.planter_box.soiled", "Soiled");
-        add("container.apeira.planter_box.not_soiled", "Not soiled");
-        add("container.apeira.planter_box.watered", "Watered today");
-        add("container.apeira.planter_box.not_watered", "Not watered today");
-        add("container.apeira.planter_box.no_fertilizer", "No fertilizer");
+        add("container.apeira.planter_box.soiled.1", "Using soil will allow your");
+        add("container.apeira.planter_box.soiled.2", "planter box to grow higher");
+        add("container.apeira.planter_box.soiled.3", "star quality crops.");
+        add("container.apeira.planter_box.soiled.4", " ");
+        add("container.apeira.planter_box.soiled.5", "Soil is consumed when the");
+        add("container.apeira.planter_box.soiled.6", "crop begins to grow, and is");
+        add("container.apeira.planter_box.soiled.7", "only required once per harvest.");
+        add("container.apeira.planter_box.watered", "Watered");
+        add("container.apeira.planter_box.watered.1", "Your planter box must be");
+        add("container.apeira.planter_box.watered.2", "watered in order for your crop");
+        add("container.apeira.planter_box.watered.3", "to grow each day at 7 am. ");
+        add("container.apeira.planter_box.watered.4", " ");
+        add("container.apeira.planter_box.watered.5", "Watering can be done with");
+        add("container.apeira.planter_box.watered.6", "buckets, watering cans and");
+        add("container.apeira.planter_box.watered.7", "even sprinklers.");
+        add("container.apeira.planter_box.fertilized", "Fertilized");
+        add("container.apeira.planter_box.fertilized.1", "Fertilizers are used to apply");
+        add("container.apeira.planter_box.fertilized.2", "extra bonuses to your crops.");
+        add("container.apeira.planter_box.slot.seeds", "Seeds");
+        add("container.apeira.planter_box.slot.seeds.1", "Purchased from Jacko's market");
+        add("container.apeira.planter_box.slot.seeds.2", "or looted through the world.");
+        add("container.apeira.planter_box.slot.soil", "Soil");
+        add("container.apeira.planter_box.slot.soil.1", "Purchased from Jeckyl's");
+        add("container.apeira.planter_box.slot.soil.2", "market stall at Origin Isles.");
+        add("container.apeira.planter_box.slot.fertilizer", "Fertilizer");
+        add("container.apeira.planter_box.slot.fertilizer.1", "Purchased from Jeckyl's");
+        add("container.apeira.planter_box.slot.fertilizer.2", "market stall at Origin Isles.");
         add("container.apeira.planter_box.empty", "Nothing planted");
         add("container.apeira.planter_box.empty1", "Put seeds in to plant them");
-        add("container.apeira.planter_box.growing", "Day %s of %s");
-        add("container.apeira.planter_box.needs_water", "Needs water to grow");
-        add("container.apeira.planter_box.ripe", "Ripe: right-click the box to harvest");
-        add("container.apeira.planter_box.ripe_golden", "Golden! Right-click the box to harvest");
     }
 
     /** The ruby deposit, its menu and sounds, the ruby commands' messages and the profile's ruby line. */
@@ -414,6 +432,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("npc.anchor_blocked", "The NPC doesn't fit there");
         message("npc.anchor_locked", "Talk to %s first: he wanders until you meet him");
         message("npc.shop.too_poor", "You need %s rubies for that");
+        message("npc.shop.nothing_to_sell", "You have none of that to sell");
         message("npc.jacko_arrived", "Jacko the farmer has arrived!");
         add("dialogue.apeira.jeckyl.intro", "Wow! You don't look familiar, how long have you been here?");
         add("dialogue.apeira.jeckyl.idle.1",
@@ -427,6 +446,10 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("container.apeira.npc_shop.price", "Buy Price: ");
         add("container.apeira.npc_shop.buy", "Left-click to buy");
         add("container.apeira.npc_shop.buy_stack", "Shift-click to buy stack");
+        add("container.apeira.npc_shop.sell_price", "Sell Price: ");
+        add("container.apeira.npc_shop.sell", "Left-click to sell");
+        add("container.apeira.npc_shop.sell_all", "Shift-click to sell all");
+        add("container.apeira.npc_shop.cannot_afford", " ✕ Cannot afford trade");
         add("container.apeira.npc_shop.previous_page", "Previous page");
         add("container.apeira.npc_shop.next_page", "Next page");
         add("hud.apeira.npc_anchor.aim", "Look at where the NPC should stand");

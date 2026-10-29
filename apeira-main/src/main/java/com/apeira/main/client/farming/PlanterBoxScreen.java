@@ -28,7 +28,8 @@ import net.minecraft.world.entity.player.Inventory;
  * with the inventory's columns. The panel's slot holes get vanilla's slot cell behind them. The panel has the three
  * stock slots, the planter and the soil, water and fertilizer icons, each lit by its overlay ({@code menu_soiled}, {@code menu_watered},
  * {@code menu_fert_<type>}) while the crop has it. The crop's picture of its stage stands in the planter. Hovering the
- * picture, an icon or the question mark explains it.
+ * picture, an icon, an empty stock slot or the question mark shows Origin Realms' captured tooltip for it: an orange
+ * ({@link #TITLE}) title over grey-blue ({@link #LORE}) lines, and for the crop its "Growth: grown/days".
  */
 public class PlanterBoxScreen extends AbstractContainerScreen<PlanterBoxMenu> {
     private static final Identifier CHEST = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
@@ -58,12 +59,16 @@ public class PlanterBoxScreen extends AbstractContainerScreen<PlanterBoxMenu> {
     private static final int INFO_X = 152;
     private static final int INFO_Y = 6;
     private static final int INFO_SIZE = 16;
-    private static final List<Component> INFO = List.of(
-            Component.translatable("container.apeira.planter_box.info"),
-            FarmingLore.line("container.apeira.planter_box.info1"),
-            FarmingLore.line("container.apeira.planter_box.info2"),
-            FarmingLore.line("container.apeira.planter_box.info3"),
-            FarmingLore.line("container.apeira.planter_box.info4"));
+    /** Origin Realms' menu titles (orange) and their lore (grey-blue), from Ren's captures of the planter box menu. */
+    private static final int TITLE = 0xF49E0B;
+    private static final int LORE = 0xA7AEBA;
+    private static final List<Component> INFO = List.of(Component.translatable("container.apeira.planter_box.info"));
+    private static final List<Component> SOILED_TIP = described("soiled", 7);
+    private static final List<Component> WATERED_TIP = described("watered", 7);
+    private static final List<Component> FERTILIZED_TIP = described("fertilized", 2);
+    /** The empty stock slots' tooltips, by slot. */
+    private static final List<List<Component>> EMPTY_SLOTS = List.of(described("slot.seeds", 2), described("slot.soil", 2),
+            described("slot.fertilizer", 2));
 
     public PlanterBoxScreen(PlanterBoxMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, WIDTH, HEIGHT);
@@ -103,41 +108,49 @@ public class PlanterBoxScreen extends AbstractContainerScreen<PlanterBoxMenu> {
         if (isHovering(INFO_X, INFO_Y, INFO_SIZE, INFO_SIZE, mouseX, mouseY)) {
             tooltip = INFO;
         } else if (isHovering(ICON_X, SOIL_Y, ICON_W, ICON_H, mouseX, mouseY)) {
-            tooltip = List.of(Component.translatable(soiled ? "container.apeira.planter_box.soiled" : "container.apeira.planter_box.not_soiled")
-                    .withStyle(soiled ? ChatFormatting.GOLD : ChatFormatting.GRAY));
+            tooltip = SOILED_TIP;
         } else if (isHovering(ICON_X, WATER_Y, ICON_W, ICON_H + 4, mouseX, mouseY)) {
-            tooltip = List.of(Component.translatable(wet ? "container.apeira.planter_box.watered" : "container.apeira.planter_box.not_watered")
-                    .withStyle(wet ? ChatFormatting.AQUA : ChatFormatting.GRAY));
+            tooltip = WATERED_TIP;
         } else if (isHovering(ICON_X, FERTILIZER_Y, ICON_W, ICON_H + 1, mouseX, mouseY)) {
-            tooltip = List.of(fertilizer == null
-                    ? Component.translatable("container.apeira.planter_box.no_fertilizer").withStyle(ChatFormatting.GRAY)
-                    : Component.translatable(fertilizer.translationKey()).withStyle(ChatFormatting.GREEN));
+            tooltip = FERTILIZED_TIP;
+        } else if (hoveredSlot != null && hoveredSlot.index < PlanterBoxBlockEntity.SLOTS && !hoveredSlot.hasItem()
+                && menu.getCarried().isEmpty()) {
+            tooltip = EMPTY_SLOTS.get(hoveredSlot.index);
         } else if (isHovering(PICTURE_X + 14, PICTURE_Y + 10, PICTURE_SIZE - 28, PLANTER_Y + 22 - PICTURE_Y - 10, mouseX, mouseY)) {
-            tooltip = cropTooltip(crop, golden);
+            tooltip = cropTooltip(crop);
         }
         if (tooltip != null) {
             graphics.setTooltipForNextFrame(font, tooltip, Optional.empty(), mouseX, mouseY);
         }
     }
 
-    private List<Component> cropTooltip(@Nullable FarmCrop crop, boolean golden) {
+    private List<Component> cropTooltip(@Nullable FarmCrop crop) {
         List<Component> lines = new ArrayList<>();
         if (crop == null) {
             lines.add(Component.translatable("container.apeira.planter_box.empty"));
             lines.add(FarmingLore.line("container.apeira.planter_box.empty1"));
             return lines;
         }
-        lines.add(Component.translatable(crop.translationKey()).withStyle(golden ? ChatFormatting.GOLD : ChatFormatting.WHITE));
-        if (menu.has(PlanterBoxBlockEntity.FLAG_RIPE)) {
-            lines.add(Component.translatable(golden ? "container.apeira.planter_box.ripe_golden" : "container.apeira.planter_box.ripe")
-                    .withStyle(ChatFormatting.GREEN));
-        } else {
-            lines.add(FarmingLore.line("container.apeira.planter_box.growing", menu.stage() - 1, crop.days()));
-            if (!menu.has(PlanterBoxBlockEntity.FLAG_WET)) {
-                lines.add(Component.translatable("container.apeira.planter_box.needs_water").withStyle(ChatFormatting.AQUA));
-            }
+        // Origin Realms' crop button: "Mango Crop", "Growth: 0/5" (days grown of days to ripen), then how crops grow.
+        lines.add(Component.translatable("container.apeira.planter_box.crop", Component.translatable(crop.translationKey())).withColor(TITLE));
+        int grown = Math.clamp(menu.stage() - 1, 0, crop.days());
+        lines.add(Component.translatable("container.apeira.planter_box.growth").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(grown + "/" + crop.days()).withStyle(ChatFormatting.WHITE)));
+        lines.add(Component.literal(" "));
+        for (int i = 1; i <= 3; i++) {
+            lines.add(Component.translatable("container.apeira.planter_box.crop." + i).withColor(LORE));
         }
         return lines;
+    }
+
+    /** A captured button's tooltip: {@code container.apeira.planter_box.<key>} in orange over its {@code lines} lore lines. */
+    private static List<Component> described(String key, int lines) {
+        List<Component> tooltip = new ArrayList<>();
+        tooltip.add(Component.translatable("container.apeira.planter_box." + key).withColor(TITLE));
+        for (int i = 1; i <= lines; i++) {
+            tooltip.add(Component.translatable("container.apeira.planter_box." + key + "." + i).withColor(LORE));
+        }
+        return List.copyOf(tooltip);
     }
 
     private void layer(GuiGraphicsExtractor graphics, Identifier texture) {

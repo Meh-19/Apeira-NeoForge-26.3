@@ -29,7 +29,7 @@ public class FarmSeedItem extends Item {
     @SuppressWarnings("deprecation")
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder,
             TooltipFlag flag) {
-        builder.accept(FarmingLore.line("tooltip.apeira.farming.plant_in_planter"));
-        builder.accept(FarmingLore.line("tooltip.apeira.farming.seed", crop.days()));
+        // Origin Realms' seeds carry only the crop badge, as their crops do.
+        builder.accept(FarmingLore.glyphs(FarmingLore.BADGE));
     }
 }
