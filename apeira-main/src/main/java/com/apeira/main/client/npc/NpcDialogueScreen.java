@@ -31,9 +31,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * ({@code textures/gui/dialogue/portrait/<npc>.png}, 42x42) on its left inside the framed border
  * ({@code textures/gui/dialogue/border.png}, 50x50 drawn 1:1, its {@link #EDGE}-pixel band round the portrait), and
  * beside it the NPC's name in bold white after the speech glyph ꢔ (U+A894, added to {@code minecraft:default}), over its line,
- * typed out {@link #MILLIS_PER_CHAR} a character. A left click, Space, Enter or F shows the whole line at once, then
- * closes; Escape or the sneak key closes it at any time. For an NPC with a shop, a right click (clicking the NPC again)
- * asks the server to open the shop ({@link OpenNpcShopPayload}), and a grey hint over the box's right end says so. The game keeps
+ * typed out {@link #MILLIS_PER_CHAR} a character. A click, Space, Enter or F shows the whole line at once, then
+ * closes; Escape or the sneak key closes it at any time. For an NPC with a shop, a left click once the line is shown
+ * (clicking the NPC) asks the server to open the shop ({@link OpenNpcShopPayload}) instead of closing, and a grey hint
+ * over the box's right end says so. The game keeps
  * running behind it, and {@link NpcDialogueCamera} keeps the view on the NPC while it is open.
  */
 public class NpcDialogueScreen extends Screen {
@@ -57,7 +58,7 @@ public class NpcDialogueScreen extends Screen {
     /** The NPC's portrait, or null when it has none yet (the border's opening is left dark). */
     private final @Nullable Identifier portrait;
     private final Component line;
-    /** Whether right-clicking opens the NPC's shop. */
+    /** Whether left-clicking, once the line is shown, opens the NPC's shop. */
     private final boolean shop;
     private List<String> rows = List.of();
     private int length;
@@ -169,11 +170,9 @@ public class NpcDialogueScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT) {
-            if (shop) {
-                // The server opens the shop's menu, which takes this screen's place.
-                ApeiraClientNetwork.sendToServer(new OpenNpcShopPayload(npc));
-            }
+        if (shop && event.button() == InputConstants.MOUSE_BUTTON_LEFT && shown() >= length) {
+            // The server opens the shop's menu, which takes this screen's place.
+            ApeiraClientNetwork.sendToServer(new OpenNpcShopPayload(npc));
             return true;
         }
         advance();

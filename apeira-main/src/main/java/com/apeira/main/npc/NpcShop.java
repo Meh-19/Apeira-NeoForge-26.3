@@ -25,6 +25,20 @@ public record NpcShop(String portrait, List<Offer> offers) {
             new Offer(255, () -> new ItemStack(MainFarming.WOODEN_SPRINKLER.get())),
             new Offer(1000, () -> new ItemStack(MainFarming.IRON_SPRINKLER.get()))));
 
+    /**
+     * Jacko's seeds, on the same market menu with his portrait (Origin Realms' {@code jacko_portrait.png}). No capture
+     * of his market was taken, so the offers and prices are Apeira's: the quicker a crop, the cheaper its seeds.
+     */
+    public static final NpcShop JACKO = new NpcShop("jacko", List.of(
+            new Offer(4, () -> new ItemStack(MainFarming.LETTUCE_SEEDS.get(), 4)),
+            new Offer(4, () -> new ItemStack(MainFarming.CHILLI_SEEDS.get(), 4)),
+            new Offer(6, () -> new ItemStack(MainFarming.EGG_PLANT_SEEDS.get(), 4)),
+            new Offer(8, () -> new ItemStack(MainFarming.CORN_SEEDS.get(), 4)),
+            new Offer(8, () -> new ItemStack(MainFarming.PINEAPPLE_SEEDS.get(), 4)),
+            new Offer(12, () -> new ItemStack(MainFarming.APPLE_SEEDS.get(), 4)),
+            new Offer(12, () -> new ItemStack(MainFarming.BANANA_SEEDS.get(), 4)),
+            new Offer(12, () -> new ItemStack(MainFarming.MANGO_PIT.get(), 4))));
+
     /** Every shop, by the index the menu syncs to the client. */
-    public static final List<NpcShop> ALL = List.of(JECKYL);
+    public static final List<NpcShop> ALL = List.of(JECKYL, JACKO);
 }

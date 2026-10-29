@@ -16,14 +16,19 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * A planter box's menu, laid out as Origin Realms' (a 5-row chest with {@code menu_container.png} over it): the seed,
- * soil and fertilizer slots down the third column, then the player's inventory. The crop, its stage and what it has
+ * A planter box's menu: Origin Realms' {@code menu_container.png} panel ({@link #PANEL_HEIGHT} pixels, no chest rows
+ * under it) with the seed, soil and fertilizer slots down its third column, and the standard player inventory grid
+ * straight under it ({@link #INVENTORY_Y}). The crop, its stage and what it has
  * (soil, water, fertilizer) come through {@link PlanterBoxBlockEntity#data}, which the screen draws as the crop's
  * picture and the lit icons.
  */
 public class PlanterBoxMenu extends AbstractContainerMenu {
     public static final int SLOT_X = 44;
-    public static final int SLOT_Y = 36;
+    public static final int SLOT_Y = 24;
+    /** The panel's height: {@code menu_container.png}'s rows from its top border down to where it opens. */
+    public static final int PANEL_HEIGHT = 90;
+    /** The inventory's first row, one pixel inside its slot cells, which start where the panel ends. */
+    public static final int INVENTORY_Y = PANEL_HEIGHT + 1;
     private static final int INVENTORY_START = PlanterBoxBlockEntity.SLOTS;
     private static final int INVENTORY_END = INVENTORY_START + 36;
     private static final String[] OUTLINES = {"farming/seeds_outline", "farming/soil_outline", "farming/fertiliser_outline"};
@@ -58,7 +63,7 @@ public class PlanterBoxMenu extends AbstractContainerMenu {
                 }
             }).setBackground(ApeiraIds.id(OUTLINES[i]));
         }
-        addStandardInventorySlots(inventory, 8, 18 + 5 * 18 + 13);
+        addStandardInventorySlots(inventory, 8, INVENTORY_Y);
         addDataSlots(data);
     }
 

@@ -423,7 +423,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("dialogue.apeira.jacko.welcome",
                 "Welcome to Jacko's Farm! It's a great day for farming, isn't it? Do you see anything that you like?");
         add("dialogue.apeira.jacko.crops", "Have you been taking good care of your crops? Remember, the higher the rating, the higher the value!");
-        add("dialogue.apeira.hint.shop", "Right-click to trade · Sneak to leave");
+        add("dialogue.apeira.hint.shop", "Left-click to trade · Sneak to leave");
         add("container.apeira.npc_shop.price", "Buy Price: ");
         add("container.apeira.npc_shop.buy", "Left-click to buy");
         add("container.apeira.npc_shop.buy_stack", "Shift-click to buy stack");

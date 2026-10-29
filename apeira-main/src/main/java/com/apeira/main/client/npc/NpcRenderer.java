@@ -56,7 +56,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  * ({@code textures/custom/ui/ruby_marker.png}, the ruby item's texture with its opaque texels at alpha 254) drawn
  * exactly as the bubble is, a flat full-bright billboard always facing the camera, anchored to the head locator
  * {@link #RUBY_LIFT} block up (where the text display stood over the head), so it follows the head's animation. It does
- * not turn or bob.
+ * not turn or bob, and is {@link #RUBY_SIZE} across, 1.5 times smaller than the bubble.
  */
 public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState> {
     /** The ghost's alpha, for a hidden NPC seen up close. */
@@ -82,23 +82,28 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
     private static final Identifier RUBY_TEXTURE = Apeira.REGISTRAR.id("textures/custom/ui/ruby_marker.png");
     /** How far over the head locator the ruby stands, in blocks: the models' text display, 16 pixels over the head. */
     private static final float RUBY_LIFT = 1.0F;
+    /** The ruby's width and height, in blocks: the bubble's over 1.5. */
+    private static final float RUBY_SIZE = BUBBLE_SIZE / 1.5F;
 
     /**
-     * What floats over the NPC's head, a billboard of {@link #BUBBLE_SIZE}: Origin Realms' speech bubble (the first of
+     * What floats over the NPC's head, a square billboard: Origin Realms' speech bubble (the first of
      * {@code frames} frames of its texture), or the ruby of the NPCs who sell for rubies.
      */
     public enum Marker {
-        BUBBLE(BUBBLE_TEXTURE, BUBBLE_FRAMES, 0.0F),
-        RUBY(RUBY_TEXTURE, 1, RUBY_LIFT);
+        BUBBLE(BUBBLE_TEXTURE, BUBBLE_FRAMES, BUBBLE_SIZE, 0.0F),
+        RUBY(RUBY_TEXTURE, 1, RUBY_SIZE, RUBY_LIFT);
 
         final Identifier texture;
         final int frames;
+        /** Its width and height, in blocks. */
+        final float size;
         /** How far over its locator it stands, in blocks. */
         final float lift;
 
-        Marker(Identifier texture, int frames, float lift) {
+        Marker(Identifier texture, int frames, float size, float lift) {
             this.texture = texture;
             this.frames = frames;
+            this.size = size;
             this.lift = lift;
         }
     }
@@ -227,13 +232,14 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
         poseStack.pushPose();
         poseStack.last().pose().translation(anchor).rotate(facing);
         poseStack.last().normal().rotation(facing);
-        float half = BUBBLE_SIZE / 2.0F;
+        float size = marker.size;
+        float half = size / 2.0F;
         float v = 1.0F / marker.frames;
         collector.submitCustomGeometry(poseStack, EmissiveRenderTypes.entityTranslucent(marker.texture), (pose, buffer) -> {
             bubbleVertex(buffer, pose, -half, 0.0F, 0.0F, v, color);
             bubbleVertex(buffer, pose, half, 0.0F, 1.0F, v, color);
-            bubbleVertex(buffer, pose, half, BUBBLE_SIZE, 1.0F, 0.0F, color);
-            bubbleVertex(buffer, pose, -half, BUBBLE_SIZE, 0.0F, 0.0F, color);
+            bubbleVertex(buffer, pose, half, size, 1.0F, 0.0F, color);
+            bubbleVertex(buffer, pose, -half, size, 0.0F, 0.0F, color);
         });
         poseStack.popPose();
     }

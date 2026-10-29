@@ -109,7 +109,7 @@ public class NpcEntity extends Entity implements GeoEntity {
         return "dialogue." + type.getNamespace() + "." + type.getPath() + ".greeting";
     }
 
-    /** The NPC's shop, opened by right-clicking it again while its dialogue is open; null when it has none. */
+    /** The NPC's shop, opened by left-clicking it while its dialogue is open; null when it has none. */
     public @Nullable NpcShop shop() {
         return null;
     }

@@ -13,6 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import bbmodel_to_geckolib  # noqa: E402
+import fix_geo_cubes  # noqa: E402
 import flatten_textures  # noqa: E402
 import make_placeholder_textures as placeholders  # noqa: E402
 import parse_blockbench_hitboxes as hitboxes  # noqa: E402
@@ -331,6 +332,39 @@ class BbmodelToGeckolibTest(unittest.TestCase):
     def test_rejects_java_projects(self) -> None:
         with self.assertRaises(bbmodel_to_geckolib.ScriptError):
             bbmodel_to_geckolib.convert({"meta": {"model_format": "java_block"}}, "geometry.test")
+
+
+class FixGeoCubesTest(unittest.TestCase):
+    @staticmethod
+    def geometry(*cubes):
+        return {"minecraft:geometry": [{"bones": [{"name": "bone", "cubes": list(cubes)}]}]}
+
+    def test_inverted_cube_gets_positive_size_and_moved_faces(self):
+        geometry = self.geometry({"origin": [4, 10, 2], "size": [-4, -10, -2], "uv": {
+            "north": {"uv": [0, 0], "uv_size": [4, 10]},
+            "east": {"uv": [4, 0], "uv_size": [2, 10]},
+            "down": {"uv": [6, 0], "uv_size": [4, 2]}}})
+        self.assertEqual(len(fix_geo_cubes.fix(geometry)), 1)
+        cube = geometry["minecraft:geometry"][0]["bones"][0]["cubes"][0]
+        self.assertEqual(cube["origin"], [0, 0, 0])
+        self.assertEqual(cube["size"], [4, 10, 2])
+        # Drawn on the far side, each face keeps its texels where they were: v flips on the sides, u on the bottom.
+        self.assertEqual(cube["uv"]["south"], {"uv": [0, 10], "uv_size": [4, -10]})
+        self.assertEqual(cube["uv"]["west"], {"uv": [4, 10], "uv_size": [2, -10]})
+        self.assertEqual(cube["uv"]["up"], {"uv": [10, 0], "uv_size": [-4, 2]})
+
+    def test_flat_cube_drops_coplanar_back_face_only_when_it_shows_the_same_texture(self):
+        same = {"origin": [0, 0, 0], "size": [3, 4, 0], "uv": {
+            "north": {"uv": [2, 18], "uv_size": [3, 4]}, "south": {"uv": [5, 18], "uv_size": [-3, 4]}}}
+        other = {"origin": [0, 0, 0], "size": [3, 4, 0.001], "uv": {
+            "north": {"uv": [0, 0], "uv_size": [3, 4]}, "south": {"uv": [8, 0], "uv_size": [3, 4]}}}
+        geometry = self.geometry(same, other)
+        warnings = []
+        fix_geo_cubes.fix(geometry, warnings)
+        cubes = geometry["minecraft:geometry"][0]["bones"][0]["cubes"]
+        self.assertEqual(sorted(cubes[0]["uv"]), ["north"])
+        self.assertEqual(sorted(cubes[1]["uv"]), ["north", "south"])
+        self.assertEqual(len(warnings), 1)
 
 
 if __name__ == "__main__":
