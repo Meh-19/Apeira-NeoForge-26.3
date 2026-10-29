@@ -149,7 +149,7 @@ public class NpcShopMenu extends AbstractContainerMenu {
     /** The item traded in row {@code row} (the one bought, or the one sold), for the arrow cell's tooltip. */
     public ItemStack tradeItem(int row) {
         ItemStack price = display.getItem(row * COLUMNS + PRICE_COLUMN);
-        boolean sell = !price.isEmpty() && !price.is(MainItems.RUBY.get()) && !price.is(MainBlocks.RUBY_BLOCK.get());
+        boolean sell = !price.isEmpty() && !price.is(MainItems.RUBY.get()) && !price.is(MainBlocks.RUBY_BLOCK.get().asItem());
         return sell ? price : display.getItem(row * COLUMNS + ITEM_COLUMN);
     }
 
