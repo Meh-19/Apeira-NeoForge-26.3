@@ -13,6 +13,7 @@ import com.apeira.main.client.farming.PlanterBoxRenderer;
 import com.apeira.main.client.farming.PlanterBoxScreen;
 import com.apeira.main.client.navigator.ApeiraNavigatorScreen;
 import com.apeira.main.client.npc.NpcRenderer;
+import com.apeira.main.client.npc.NpcQuestMarkers;
 import com.apeira.main.client.npc.NpcAnchorPlacement;
 import com.apeira.main.client.npc.NpcClient;
 import com.apeira.main.client.npc.NpcDialogueCamera;
@@ -109,9 +110,9 @@ public final class ApeiraClient {
         }
         // Jeckyl and Jacko wear a static ruby icon over their heads instead of the speech bubble.
         event.registerEntityRenderer(MainNpcs.JECKYL.get(), context -> new NpcRenderer(context, Apeira.REGISTRAR.id("jeckyl"),
-                Apeira.REGISTRAR.id("jeckyl"), "jeckle_head", NpcRenderer.Marker.RUBY));
+                Apeira.REGISTRAR.id("jeckyl"), null, "jeckle_head", NpcRenderer.Marker.RUBY, -1.0F));
         event.registerEntityRenderer(MainNpcs.JACKO.get(), context -> new NpcRenderer(context, Apeira.REGISTRAR.id("jacko"),
-                Apeira.REGISTRAR.id("jacko"), "farmer_head", NpcRenderer.Marker.RUBY));
+                Apeira.REGISTRAR.id("jacko"), Apeira.REGISTRAR.id("jacko_night"), "farmer_head", NpcRenderer.Marker.RUBY, -1.0F));
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
@@ -124,6 +125,7 @@ public final class ApeiraClient {
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.FOOD_LEVEL, Apeira.REGISTRAR.id("rubies"), RubyHud::render);
         event.registerAbove(VanillaGuiLayers.BOSS_OVERLAY, Apeira.REGISTRAR.id("realm_top_bar"), RealmTopBar::render);
+        event.registerAbove(VanillaGuiLayers.CONTEXTUAL_INFO_BAR, Apeira.REGISTRAR.id("npc_quest_markers"), NpcQuestMarkers::render);
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, Apeira.REGISTRAR.id("spawn_placement"), SpawnPlacement.CURSOR::renderHud);
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, Apeira.REGISTRAR.id("npc_anchor_placement"), NpcAnchorPlacement.CURSOR::renderHud);
     }

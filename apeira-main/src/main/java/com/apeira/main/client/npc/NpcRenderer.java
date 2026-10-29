@@ -13,6 +13,8 @@ import com.apeira.main.npc.NpcEntity;
 import com.geckolib.constant.dataticket.DataTicket;
 import com.geckolib.model.DefaultedEntityGeoModel;
 import com.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.renderer.base.BoneSnapshots;
+import com.geckolib.renderer.base.GeoRenderState;
 import com.geckolib.renderer.base.RenderPassInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -57,6 +59,14 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  * exactly as the bubble is, a flat full-bright billboard always facing the camera, anchored to the head locator
  * {@link #RUBY_LIFT} block up (where the text display stood over the head), so it follows the head's animation. It does
  * not turn or bob, and is {@link #RUBY_SIZE} across, 1.5 times smaller than the bubble.
+ *
+ * <p>The head bone (named as the head locator) turns to the nearest player within {@link #LOOK_RANGE} blocks, on top of
+ * the animation, up to {@link #MAX_LOOK_YAW} degrees sideways and {@link #MAX_LOOK_PITCH} up or down, and back to the
+ * animation's pose when nobody is near; both ways it eases over about {@link #LOOK_EASE_MS} ms. Jeckyl's and Jacko's
+ * head bones carry Blockbench's half-turn ({@code [-180, y, 180]}), which turns their yaw the other way, so their
+ * renderers pass {@code headYawSign} -1.
+ *
+ * <p>An NPC with a night texture (Jacko's {@code jacko_night}) wears it from 7 PM to 5 AM ({@link #isNight}).
  */
 public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState> {
     /** The ghost's alpha, for a hidden NPC seen up close. */
@@ -84,6 +94,18 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
     private static final float RUBY_LIFT = 1.0F;
     /** The ruby's width and height, in blocks: the bubble's over 1.5. */
     private static final float RUBY_SIZE = BUBBLE_SIZE / 1.5F;
+    private static final DataTicket<Float> LOOK_YAW = DataTicket.create("apeira_npc_look_yaw", Float.class);
+    private static final DataTicket<Float> LOOK_PITCH = DataTicket.create("apeira_npc_look_pitch", Float.class);
+    private static final DataTicket<Boolean> NIGHT = DataTicket.create("apeira_npc_night", Boolean.class);
+    /** How near, in blocks, a player must be for the head to turn to them. */
+    private static final double LOOK_RANGE = 8.0;
+    private static final float MAX_LOOK_YAW = 70.0F;
+    private static final float MAX_LOOK_PITCH = 35.0F;
+    /** The head's turn closes {@code 1 - e^(-dt / LOOK_EASE_MS)} of the gap each frame. */
+    private static final float LOOK_EASE_MS = 150.0F;
+    /** Night, for night textures: day time 13000 (7 PM) to 23000 (5 AM). */
+    private static final long NIGHT_START = 13000L;
+    private static final long NIGHT_END = 23000L;
 
     /**
      * What floats over the NPC's head, a square billboard: Origin Realms' speech bubble (the first of
@@ -111,6 +133,7 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
     private final String headLocator;
     private final String markerLocator;
     private final Marker marker;
+    private final float headYawSign;
 
     private static final class Track {
         /** The ghost's fade, 0 (gone) to 1 (at {@link #GHOST_ALPHA}), and when it was last moved. */
@@ -122,6 +145,26 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
         /** The locators' last drawn positions, in blocks from the entity's position; null until first drawn. */
         @Nullable Vec3 head;
         @Nullable Vec3 chat;
+        /** The head's turn on top of the animation, in degrees, and when it was last moved. */
+        float lookYaw;
+        float lookPitch;
+        long lookMillis = Util.getMillis();
+    }
+
+    /** The model, with the night texture swapped in at night. */
+    private static final class NpcModel extends DefaultedEntityGeoModel<NpcEntity> {
+        private final @Nullable Identifier night;
+
+        NpcModel(Identifier model, Identifier texture, @Nullable Identifier night) {
+            super(model);
+            withAltTexture(texture);
+            this.night = night == null ? null : buildFormattedTexturePath(night);
+        }
+
+        @Override
+        public Identifier getTextureResource(GeoRenderState renderState) {
+            return night != null && renderState.getOrDefaultGeckolibData(NIGHT, false) ? night : super.getTextureResource(renderState);
+        }
     }
 
     public NpcRenderer(EntityRendererProvider.Context context, Identifier model, Identifier texture) {
@@ -133,11 +176,21 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
      * {@link #CHAT_LOCATOR} (the bubble) or over the head locator (the ruby).
      */
     public NpcRenderer(EntityRendererProvider.Context context, Identifier model, Identifier texture, String headLocator, Marker marker) {
-        super(context, new DefaultedEntityGeoModel<NpcEntity>(model).withAltTexture(texture));
+        this(context, model, texture, null, headLocator, marker, 1.0F);
+    }
+
+    /**
+     * As above, with a night texture ({@code null} for none) and the sign of the head bone's yaw (-1 for a head bone
+     * with Blockbench's half-turn).
+     */
+    public NpcRenderer(EntityRendererProvider.Context context, Identifier model, Identifier texture, @Nullable Identifier nightTexture,
+            String headLocator, Marker marker, float headYawSign) {
+        super(context, new NpcModel(model, texture, nightTexture));
         this.shadowRadius = 0.5F;
         this.headLocator = headLocator;
         this.markerLocator = marker == Marker.BUBBLE ? CHAT_LOCATOR : headLocator;
         this.marker = marker;
+        this.headYawSign = headYawSign;
     }
 
     /**
@@ -182,6 +235,54 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
         Track track = track(npc);
         renderState.addGeckolibData(TRACK, track);
         renderState.addGeckolibData(COLOR, color(npc, track));
+        look(npc, track, partialTick);
+        renderState.addGeckolibData(LOOK_YAW, track.lookYaw);
+        renderState.addGeckolibData(LOOK_PITCH, track.lookPitch);
+        renderState.addGeckolibData(NIGHT, isNight(npc));
+    }
+
+    /** Whether it is night where the NPC is, by the overworld clock that realms share. */
+    private static boolean isNight(NpcEntity npc) {
+        long time = Math.floorMod(npc.level().getOverworldClockTime(), 24000L);
+        return time >= NIGHT_START && time < NIGHT_END;
+    }
+
+    /**
+     * Eases the head's turn towards the nearest visible player within {@link #LOOK_RANGE} blocks (relative to the NPC's
+     * facing, clamped), or back to 0 when there is none.
+     */
+    private static void look(NpcEntity npc, Track track, float partialTick) {
+        Vec3 head = head(npc, partialTick);
+        Player target = npc.level().getNearestPlayer(head.x, head.y, head.z, LOOK_RANGE, player -> !player.isSpectator());
+        float yaw = 0.0F;
+        float pitch = 0.0F;
+        if (target != null) {
+            Vec3 to = target.getEyePosition(partialTick).subtract(head);
+            double flat = Math.sqrt(to.x * to.x + to.z * to.z);
+            float bearing = (float) (Mth.atan2(-to.x, to.z) * Mth.RAD_TO_DEG);
+            yaw = Mth.clamp(Mth.degreesDifference(npc.getYRot(), bearing), -MAX_LOOK_YAW, MAX_LOOK_YAW);
+            pitch = Mth.clamp((float) (-Mth.atan2(to.y, flat) * Mth.RAD_TO_DEG), -MAX_LOOK_PITCH, MAX_LOOK_PITCH);
+        }
+        long now = Util.getMillis();
+        float step = 1.0F - (float) Math.exp(-(now - track.lookMillis) / LOOK_EASE_MS);
+        track.lookYaw += (yaw - track.lookYaw) * step;
+        track.lookPitch += (pitch - track.lookPitch) * step;
+        track.lookMillis = now;
+    }
+
+    /** Turns the head bone by the eased look, on top of the animation (GeckoLib's own head turn: pitch on x, yaw on y). */
+    @Override
+    public void adjustModelBonesForRender(RenderPassInfo<EntityRenderState> renderPassInfo, BoneSnapshots snapshots) {
+        super.adjustModelBonesForRender(renderPassInfo, snapshots);
+        EntityRenderState state = renderPassInfo.renderState();
+        float yaw = state.getOrDefaultGeckolibData(LOOK_YAW, 0.0F) * Mth.DEG_TO_RAD * headYawSign;
+        float pitch = state.getOrDefaultGeckolibData(LOOK_PITCH, 0.0F) * Mth.DEG_TO_RAD;
+        if (yaw != 0.0F || pitch != 0.0F) {
+            snapshots.ifPresent(headLocator, bone -> {
+                bone.setRotX(bone.getRotX() + pitch);
+                bone.setRotY(bone.getRotY() + yaw);
+            });
+        }
     }
 
     @Override
