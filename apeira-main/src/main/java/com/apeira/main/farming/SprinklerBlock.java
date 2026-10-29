@@ -103,14 +103,14 @@ public class SprinklerBlock extends BaseEntityBlock {
             if (bucket) {
                 FarmingService.setSprinklerWater(serverLevel, pos, CAPACITY, radius);
                 player.setItemInHand(hand, BucketItem.getEmptySuccessItem(stack, player));
-                level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             } else {
                 FarmClock clock = FarmClock.get(serverLevel.getServer());
                 FarmClock.Sprinkler current = clock.sprinkler(serverLevel.dimension(), pos);
                 int left = current == null ? 0 : current.waterLeft(clock.day());
                 int poured = WateringCanItem.use(stack, CAPACITY - left);
                 FarmingService.setSprinklerWater(serverLevel, pos, left + poured, radius);
-                level.playSound(null, pos, SoundEvents.BOAT_PADDLE_WATER, SoundSource.BLOCKS, 1.0F, 1.2F);
+                level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
         }
         return InteractionResult.SUCCESS;

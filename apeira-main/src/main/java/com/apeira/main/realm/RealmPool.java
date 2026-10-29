@@ -218,7 +218,7 @@ public final class RealmPool {
      * becomes the spawn unless the owner had already set one; the balloon faces {@code facing}, the arriving player's
      * way, which becomes the realm's spawn facing, and is painted its region's colour unless the owner picked one
      * ({@link BalloonColors#forPreset}). Its region's balloon conductor stands beside it ({@link NpcService#spawnConductor}), and Jeckyl
-     * wanders nearby ({@link NpcService#spawnJeckyl}).
+     * is placed somewhere in the realm, or close by once he has been found there ({@link NpcService#spawnJeckyl}).
      */
     static BlockPos spawnOf(ServerLevel level, RealmData.Realm realm, RealmAccess access, Direction facing) {
         if (!access.starterBuilt) {
@@ -227,7 +227,7 @@ public final class RealmPool {
             BlockPos balloon = StarterBalloon.build(level, realm.preset(), access.spawnFacing);
             access.balloon = Optional.of(balloon);
             NpcService.spawnConductor(level, balloon, access.spawnFacing, realm.preset());
-            NpcService.spawnJeckyl(level, balloon);
+            NpcService.spawnJeckyl(level, balloon, access.jeckylFound);
             if (access.spawn.isEmpty()) {
                 access.spawn = Optional.of(balloon.above());
             }

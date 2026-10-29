@@ -2,7 +2,11 @@ package com.apeira.main.npc;
 
 import org.jspecify.annotations.Nullable;
 
+import com.apeira.main.realm.RealmService;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.object.PlayState;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -34,6 +38,11 @@ import net.minecraft.world.phys.Vec3;
  */
 public class JeckylEntity extends NpcEntity {
     private static final EntityDataAccessor<Boolean> DATA_ANCHORED = SynchedEntityData.defineId(JeckylEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_WALKING = SynchedEntityData.defineId(JeckylEntity.class, EntityDataSerializers.BOOLEAN);
+    /** His legs' walk cycle ({@code animation.jeckyl.walk}), played over the idle while he walks. */
+    private static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.jeckyl.walk");
+    /** Ticks the legs take to blend into and out of the walk cycle. */
+    private static final int WALK_BLEND_TICKS = 5;
     static final int WANDER_RADIUS = 8;
     private static final double SPEED = 0.06;
     private static final int MIN_PAUSE = 60;
@@ -58,6 +67,7 @@ public class JeckylEntity extends NpcEntity {
     protected void defineSynchedData(SynchedEntityData.Builder entityData) {
         super.defineSynchedData(entityData);
         entityData.define(DATA_ANCHORED, false);
+        entityData.define(DATA_WALKING, false);
     }
 
     @Override
@@ -79,6 +89,17 @@ public class JeckylEntity extends NpcEntity {
         return entityData.get(DATA_ANCHORED);
     }
 
+    /** Marks him found, as after his first talk: he stands still and gives his idle lines (a reset realm's Jeckyl). */
+    public void markFound() {
+        entityData.set(DATA_ANCHORED, true);
+        target = null;
+    }
+
+    /** Whether he is walking (synced), which plays his legs' walk cycle. */
+    public boolean isWalking() {
+        return entityData.get(DATA_WALKING);
+    }
+
     /** The spot he wanders round until anchored. */
     public void setHome(BlockPos home) {
         this.home = home.immutable();
@@ -98,8 +119,10 @@ public class JeckylEntity extends NpcEntity {
     @Override
     public String lineFor(ServerPlayer player) {
         if (!isAnchored()) {
-            entityData.set(DATA_ANCHORED, true);
-            target = null;
+            markFound();
+            if (level() instanceof ServerLevel level) {
+                RealmService.markJeckylFound(level);
+            }
             return INTRO;
         }
         return IDLE[getRandom().nextInt(IDLE.length)];
@@ -108,9 +131,26 @@ public class JeckylEntity extends NpcEntity {
     @Override
     public void tick() {
         super.tick();
-        if (level() instanceof ServerLevel level && !isAnchored()) {
-            wander(level);
+        if (level() instanceof ServerLevel level) {
+            if (!isAnchored()) {
+                wander(level);
+            }
+            boolean walking = !isAnchored() && target != null;
+            if (walking != isWalking()) {
+                entityData.set(DATA_WALKING, walking);
+            }
         }
+    }
+
+    /**
+     * The idle, and a second controller for his legs: the walk cycle while {@link #isWalking}, blended in and out over
+     * {@link #WALK_BLEND_TICKS} ticks as a mob's limb swing eases, and nothing (the idle's still legs) otherwise.
+     */
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        super.registerControllers(controllers);
+        controllers.add(new AnimationController<NpcEntity>("legs", WALK_BLEND_TICKS,
+                test -> test.animatable() instanceof JeckylEntity jeckyl && jeckyl.isWalking() ? test.setAndContinue(WALK) : PlayState.STOP));
     }
 
     private void wander(ServerLevel level) {

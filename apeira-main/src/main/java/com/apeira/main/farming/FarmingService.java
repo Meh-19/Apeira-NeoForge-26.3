@@ -3,6 +3,7 @@ package com.apeira.main.farming;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +34,13 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * sprinkler that has just loaded is queued for the next tick, as the chunk is still loading when they register.
  *
  * <p>Sprinkler waves: a sprinkler that starts watering (filled while dry, or each morning it has water) does not wet its
- * whole square at once. Its {@link Wave} spreads one ring a {@link #RING_TICKS} ticks, as farmland hydrates, the boxes at
- * Chebyshev distance 1 first, then 2, then 3, each with a splash; a box shows wet ({@link #sprinklerReaches}) once its
- * ring is reached. Waves are only the look: growth reads {@link FarmClock#sprinklerWaters}, so a box's crop grows the
- * same whether the wave reached it before a restart or not, and waves are not saved.
+ * whole square at once, nor ring by ring. Its {@link Wave} wets its boxes at random, as farmland hydrates on random
+ * ticks: each tick every box in its square that is still dry has a {@link #WET_CHANCE} chance to turn wet (a quiet
+ * splash of particles, no sound), so a 5x5 or 7x7 field darkens box by box in no order, about
+ * {@code 1 / WET_CHANCE} ticks a box on average; whatever is still dry after {@link #WAVE_TICKS} turns wet then. A box
+ * shows wet ({@link #sprinklerReaches}) once its wave has wetted it. Waves are only the look: growth reads
+ * {@link FarmClock#sprinklerWaters}, so a box's crop grows the same whether the wave reached it before a restart or not,
+ * and waves are not saved. A sprinkler at work is silent; only filling one by hand plays a sound.
  *
  * <p>Rain ({@link #rain}): every {@link #RAIN_PLANTER_TICKS} ticks, each loaded planter box that rain falls on
  * ({@link Level#isRainingAt} the block above it: open sky, a raining biome) is watered for the day, as a can would; every
@@ -48,8 +52,10 @@ public final class FarmingService {
     private static final Set<PlanterBoxBlockEntity> PENDING = Collections.newSetFromMap(new WeakHashMap<>());
     private static final List<SprinklerRefresh> PENDING_SPRINKLERS = new ArrayList<>();
 
-    /** Ticks between a sprinkler wave's rings. */
-    private static final int RING_TICKS = 10;
+    /** Each tick, the chance that a box a wave has not wetted yet turns wet. */
+    private static final float WET_CHANCE = 1.0F / 30.0F;
+    /** Ticks after which a wave wets whatever it has left. */
+    private static final int WAVE_TICKS = 160;
     /** Ticks between rain waterings of planter boxes. */
     private static final int RAIN_PLANTER_TICKS = 100;
     /** Ticks between rain refills of sprinklers, and the chance of a day's water at each. */
@@ -59,11 +65,11 @@ public final class FarmingService {
 
     private record SprinklerRefresh(ResourceKey<Level> dimension, BlockPos pos) {}
 
-    /** A sprinkler's spreading water: the rings reached so far, of {@code radius}, since {@code startTick}. */
+    /** A sprinkler's spreading water: the boxes of its square, of {@code radius}, wetted since {@code startTick}. */
     private static final class Wave {
         final int radius;
         final int startTick;
-        int ring;
+        final Set<BlockPos> wet = new HashSet<>();
 
         Wave(int radius, int startTick) {
             this.radius = radius;
@@ -130,12 +136,12 @@ public final class FarmingService {
         rain(server, clock);
     }
 
-    /** Starts a sprinkler's wave from its first ring; the boxes it reaches show dry until their ring comes. */
+    /** Starts a sprinkler's wave; the boxes it covers show dry until it wets each of them. */
     static void startWave(ServerLevel level, BlockPos pos, int radius) {
         WAVES.put(new SprinklerRefresh(level.dimension(), pos.immutable()), new Wave(radius, level.getServer().getTickCount()));
     }
 
-    /** Moves each wave on to the ring it has reached by now, wetting and splashing that ring's boxes. */
+    /** Gives each dry box of each wave its random chance to turn wet, and ends the waves that have wetted everything. */
     private static void spreadWaves(MinecraftServer server) {
         int now = server.getTickCount();
         Iterator<Map.Entry<SprinklerRefresh, Wave>> waves = WAVES.entrySet().iterator();
@@ -148,35 +154,33 @@ public final class FarmingService {
                 waves.remove();
                 continue;
             }
-            int target = Math.min(wave.radius, (now - wave.startTick) / RING_TICKS + 1);
-            while (wave.ring < target) {
-                wave.ring++;
-                wetRing(level, center, wave.ring);
+            boolean last = now - wave.startTick >= WAVE_TICKS;
+            boolean dryLeft = false;
+            int r = wave.radius;
+            for (BlockPos pos : BlockPos.betweenClosed(center.offset(-r, -1, -r), center.offset(r, 1, r))) {
+                if (wave.wet.contains(pos) || !level.isLoaded(pos) || !(level.getBlockEntity(pos) instanceof PlanterBoxBlockEntity planter)) {
+                    continue;
+                }
+                if (last || level.getRandom().nextFloat() < WET_CHANCE) {
+                    wave.wet.add(pos.immutable());
+                    planter.refreshState();
+                    level.sendParticles(ParticleTypes.SPLASH, pos.getX() + 0.5, pos.getY() + 1.05, pos.getZ() + 0.5, 6, 0.3, 0.0, 0.3, 0.0);
+                } else {
+                    dryLeft = true;
+                }
             }
-            if (wave.ring >= wave.radius) {
+            if (!dryLeft) {
                 waves.remove();
             }
         }
     }
 
-    /** Refreshes the loaded boxes at Chebyshev distance {@code ring} from a sprinkler, one block up or down too. */
-    private static void wetRing(ServerLevel level, BlockPos center, int ring) {
-        for (BlockPos pos : BlockPos.betweenClosed(center.offset(-ring, -1, -ring), center.offset(ring, 1, ring))) {
-            if (Math.max(Math.abs(pos.getX() - center.getX()), Math.abs(pos.getZ() - center.getZ())) == ring && level.isLoaded(pos)
-                    && level.getBlockEntity(pos) instanceof PlanterBoxBlockEntity planter) {
-                planter.refreshState();
-                level.sendParticles(ParticleTypes.SPLASH, pos.getX() + 0.5, pos.getY() + 1.05, pos.getZ() + 0.5, 6, 0.3, 0.0, 0.3, 0.0);
-            }
-        }
-    }
-
-    /** Whether a watering sprinkler covers {@code pos} on {@code day} and its wave, if one is spreading, has reached it. */
+    /** Whether a watering sprinkler covers {@code pos} on {@code day} and its wave, if one is spreading, has wetted it. */
     static boolean sprinklerReaches(ServerLevel level, BlockPos pos, long day) {
         for (FarmClock.Sprinkler sprinkler : FarmClock.get(level.getServer()).sprinklers(level.dimension())) {
             if (sprinkler.waters(day) && sprinkler.covers(pos)) {
                 Wave wave = WAVES.get(new SprinklerRefresh(level.dimension(), sprinkler.pos()));
-                int ring = Math.max(Math.abs(pos.getX() - sprinkler.pos().getX()), Math.abs(pos.getZ() - sprinkler.pos().getZ()));
-                if (wave == null || ring <= wave.ring) {
+                if (wave == null || wave.wet.contains(pos)) {
                     return true;
                 }
             }

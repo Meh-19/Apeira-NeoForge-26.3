@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -140,7 +141,7 @@ public class PlanterBoxBlock extends BaseEntityBlock {
             if (!level.isClientSide()) {
                 box.water();
                 player.setItemInHand(hand, BucketItem.getEmptySuccessItem(stack, player));
-                level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
             return InteractionResult.SUCCESS;
         }
@@ -151,7 +152,7 @@ public class PlanterBoxBlock extends BaseEntityBlock {
             if (!level.isClientSide()) {
                 WateringCanItem.use(stack, 1);
                 box.water();
-                level.playSound(null, pos, SoundEvents.BOAT_PADDLE_WATER, SoundSource.BLOCKS, 1.0F, 1.2F);
+                level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
             return InteractionResult.SUCCESS;
         }
@@ -165,14 +166,30 @@ public class PlanterBoxBlock extends BaseEntityBlock {
                 };
                 if (applied) {
                     stack.consume(1, player);
-                    level.playSound(null, pos, SoundEvents.CROP_PLANTED, SoundSource.BLOCKS, 1.0F, 1.0F);
-                } else {
-                    box.addToStock(stack);
+                }
+                // The rest of the stack goes into the box's stock, so one click puts the whole stack in.
+                int stocked = box.addToStock(player.hasInfiniteMaterials() ? stack.copy() : stack);
+                if (applied || stocked > 0) {
+                    feedback((ServerLevel) level, pos, slot);
                 }
             }
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.TRY_WITH_EMPTY_HAND;
+    }
+
+    /**
+     * The sound of an item going into the box: seeds are planted; soil and fertilizer fill it as a composter does, with
+     * its particles over the soil.
+     */
+    static void feedback(ServerLevel level, BlockPos pos, int slot) {
+        if (slot == PlanterBoxBlockEntity.SEEDS) {
+            level.playSound(null, pos, SoundEvents.CROP_PLANTED, SoundSource.BLOCKS, 1.0F, 1.0F);
+            return;
+        }
+        level.playSound(null, pos, slot == PlanterBoxBlockEntity.SOIL ? SoundEvents.COMPOSTER_FILL_SUCCESS : SoundEvents.COMPOSTER_READY,
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.sendParticles(ParticleTypes.COMPOSTER, pos.getX() + 0.5, pos.getY() + 0.95, pos.getZ() + 0.5, 10, 0.3, 0.05, 0.3, 0.02);
     }
 
     @Override
