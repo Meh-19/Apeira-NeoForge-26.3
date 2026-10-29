@@ -222,7 +222,7 @@ public class NpcRenderer extends GeoEntityRenderer<NpcEntity, EntityRenderState>
     /** The ruby marker over the pose's origin: lifted, bobbing and turning, at full brightness. */
     private static void ruby(PoseStack poseStack, SubmitNodeCollector collector, ItemStackRenderState ruby, float ticks) {
         poseStack.translate(0.0F, RUBY_LIFT + Mth.sin(ticks * 0.1F) * RUBY_BOB, 0.0F);
-        poseStack.mulPose(Axis.YP.rotationDegrees(ticks * RUBY_DEGREES_PER_TICK));
+        poseStack.rotateDegrees(Axis.YP, ticks * RUBY_DEGREES_PER_TICK);
         poseStack.scale(RUBY_SCALE, RUBY_SCALE, RUBY_SCALE);
         ruby.submit(poseStack, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
     }
