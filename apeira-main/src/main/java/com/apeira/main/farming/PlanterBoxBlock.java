@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -45,9 +46,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * box joins another planter box ({@link #NORTH}, {@link #EAST}, {@link #SOUTH}, {@link #WEST}), so a row of boxes is
  * one long bed. The crop is drawn above it by {@code client/farming/PlanterBoxRenderer}.
  *
- * <p>Right-click with: a water bucket or a watering can to water it for the day; a seed to plant it (or, with a crop
- * growing, to stock it for the next); soil or a fertilizer to give it to the growing crop (or, when there is none or
- * the crop already has one, to stock it). Anything else, or an empty hand, harvests a ripe crop (a hoe for a better
+ * <p>Right-click with: a water bucket or a watering can to water it for the day (the bucket fill sound); a seed to plant
+ * it, soil or a fertilizer to give it to the growing crop, and the rest of the held stack into the stock, where the next
+ * crops take theirs from ({@link #feedback}: planting, or composter sounds and particles). Anything else, or an empty hand, harvests a ripe crop (a hoe for a better
  * rating, {@link CropQuality}) or opens the box's menu. Breaking the box harvests a ripe crop with the breaking tool.
  */
 public class PlanterBoxBlock extends BaseEntityBlock {
@@ -140,7 +141,7 @@ public class PlanterBoxBlock extends BaseEntityBlock {
             if (!level.isClientSide()) {
                 box.water();
                 player.setItemInHand(hand, BucketItem.getEmptySuccessItem(stack, player));
-                level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
             return InteractionResult.SUCCESS;
         }
@@ -151,7 +152,7 @@ public class PlanterBoxBlock extends BaseEntityBlock {
             if (!level.isClientSide()) {
                 WateringCanItem.use(stack, 1);
                 box.water();
-                level.playSound(null, pos, SoundEvents.BOAT_PADDLE_WATER, SoundSource.BLOCKS, 1.0F, 1.2F);
+                level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
             return InteractionResult.SUCCESS;
         }
@@ -165,14 +166,30 @@ public class PlanterBoxBlock extends BaseEntityBlock {
                 };
                 if (applied) {
                     stack.consume(1, player);
-                    level.playSound(null, pos, SoundEvents.CROP_PLANTED, SoundSource.BLOCKS, 1.0F, 1.0F);
-                } else {
-                    box.addToStock(stack);
+                }
+                // The rest of the stack goes into the box's stock, so one click puts the whole stack in.
+                int stocked = box.addToStock(player.hasInfiniteMaterials() ? stack.copy() : stack);
+                if (applied || stocked > 0) {
+                    feedback((ServerLevel) level, pos, slot);
                 }
             }
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.TRY_WITH_EMPTY_HAND;
+    }
+
+    /**
+     * The sound of an item going into the box: seeds are planted; soil and fertilizer fill it as a composter does, with
+     * its particles over the soil.
+     */
+    static void feedback(ServerLevel level, BlockPos pos, int slot) {
+        if (slot == PlanterBoxBlockEntity.SEEDS) {
+            level.playSound(null, pos, SoundEvents.CROP_PLANTED, SoundSource.BLOCKS, 1.0F, 1.0F);
+            return;
+        }
+        level.playSound(null, pos, slot == PlanterBoxBlockEntity.SOIL ? SoundEvents.COMPOSTER_FILL_SUCCESS : SoundEvents.COMPOSTER_READY,
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.sendParticles(ParticleTypes.COMPOSTER, pos.getX() + 0.5, pos.getY() + 0.95, pos.getZ() + 0.5, 10, 0.3, 0.05, 0.3, 0.02);
     }
 
     @Override

@@ -31,7 +31,8 @@ public final class RealmAccess {
             BlockPos.CODEC.optionalFieldOf("balloon").forGetter(access -> access.balloon),
             Codec.INT.optionalFieldOf("balloon_paint").forGetter(access -> access.balloonPaint),
             Codec.BOOL.optionalFieldOf("starter_built", false).forGetter(access -> access.starterBuilt),
-            Direction.CODEC.optionalFieldOf("spawn_facing", Direction.NORTH).forGetter(access -> access.spawnFacing)).apply(instance, RealmAccess::new));
+            Direction.CODEC.optionalFieldOf("spawn_facing", Direction.NORTH).forGetter(access -> access.spawnFacing),
+            Codec.BOOL.optionalFieldOf("jeckyl_found", false).forGetter(access -> access.jeckylFound)).apply(instance, RealmAccess::new));
 
     final Map<UUID, Member> members = new HashMap<>();
     final Map<UUID, Long> banned = new HashMap<>();
@@ -52,14 +53,16 @@ public final class RealmAccess {
      * owner looked when setting a spawn without it.
      */
     Direction spawnFacing;
+    /** Whether Jeckyl has been found (talked to) in this realm; kept through resets, so he is then placed close by. */
+    boolean jeckylFound;
 
     RealmAccess(long created) {
-        this(Map.of(), Map.of(), Map.of(), VisitingRule.EVERYONE, false, false, Optional.empty(), created, Optional.empty(), Optional.empty(), false, Direction.NORTH);
+        this(Map.of(), Map.of(), Map.of(), VisitingRule.EVERYONE, false, false, Optional.empty(), created, Optional.empty(), Optional.empty(), false, Direction.NORTH, false);
     }
 
     private RealmAccess(Map<UUID, Member> members, Map<UUID, Long> banned, Map<UUID, Long> invites, VisitingRule visitingRule,
             boolean privateChat, boolean alwaysAccessible, Optional<BlockPos> spawn, long created, Optional<BlockPos> balloon,
-            Optional<Integer> balloonPaint, boolean starterBuilt, Direction spawnFacing) {
+            Optional<Integer> balloonPaint, boolean starterBuilt, Direction spawnFacing, boolean jeckylFound) {
         this.members.putAll(members);
         this.banned.putAll(banned);
         this.invites.putAll(invites);
@@ -72,6 +75,7 @@ public final class RealmAccess {
         this.balloonPaint = balloonPaint;
         this.starterBuilt = starterBuilt;
         this.spawnFacing = spawnFacing.getAxis().isHorizontal() ? spawnFacing : Direction.NORTH;
+        this.jeckylFound = jeckylFound;
     }
 
     /** {@code player}'s role here, given the realm's {@code owner}. Banned players are visitors (and cannot enter). */

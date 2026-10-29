@@ -23,7 +23,7 @@ import net.minecraft.world.item.ItemStack;
  * glyphs' ascents -4 to -94; {@code page_up} and {@code page_down} (the same sheets as {@code menu_base}) light the page
  * buttons while there is a page that way. No title or inventory label is drawn, as the server's title is only those
  * glyphs. Hovering a trade's arrow shows its item's tooltip, and the page buttons say "Previous page" or "Next page",
- * dark grey when there is none.
+ * in the captured {@link #PAGE_AVAILABLE} grey-blue, or dark grey when there is none.
  */
 public class NpcShopScreen extends AbstractContainerScreen<NpcShopMenu> {
     private static final Identifier CHEST = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
@@ -42,6 +42,8 @@ public class NpcShopScreen extends AbstractContainerScreen<NpcShopMenu> {
     private static final int TRADE_Y = 17;
     private static final int TRADE_WIDTH = 64;
     private static final int TRADE_HEIGHT = 18;
+    /** The captured page buttons' name colour while there is a page that way (dark grey otherwise). */
+    private static final int PAGE_AVAILABLE = 0xA7AEBA;
 
     public NpcShopScreen(NpcShopMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, WIDTH, CHEST_TOP + INVENTORY_HEIGHT);
@@ -95,8 +97,8 @@ public class NpcShopScreen extends AbstractContainerScreen<NpcShopMenu> {
         } else if (column == NpcShopMenu.PAGE_COLUMN) {
             boolean up = row < NpcShopMenu.ROWS / 2;
             boolean available = up ? menu.page() > 0 : menu.page() < menu.pages() - 1;
-            Component name = Component.translatable(up ? "container.apeira.npc_shop.previous_page" : "container.apeira.npc_shop.next_page")
-                    .withStyle(available ? ChatFormatting.WHITE : ChatFormatting.DARK_GRAY);
+            Component name = Component.translatable(up ? "container.apeira.npc_shop.previous_page" : "container.apeira.npc_shop.next_page");
+            name = available ? name.copy().withColor(PAGE_AVAILABLE) : name.copy().withStyle(ChatFormatting.DARK_GRAY);
             graphics.setTooltipForNextFrame(font, name, mouseX, mouseY);
         }
     }

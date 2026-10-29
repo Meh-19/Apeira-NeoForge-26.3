@@ -43,6 +43,18 @@ public final class RealmService {
         return data(level.getServer()).ownerOf(level.dimension().identifier());
     }
 
+    /** Records that Jeckyl was found in the realm {@code level} is, so a reset places him close by. */
+    public static void markJeckylFound(ServerLevel level) {
+        ownerOf(level).ifPresent(owner -> {
+            RealmData data = data(level.getServer());
+            RealmAccess access = data.access(owner);
+            if (!access.jeckylFound) {
+                access.jeckylFound = true;
+                data.setDirty();
+            }
+        });
+    }
+
     /** {@code player}'s role in {@code level}, or empty when the level is not a realm (no realm rules apply). */
     public static Optional<RealmRole> roleIn(ServerPlayer player, ServerLevel level) {
         return ownerOf(level).map(owner -> data(level.getServer()).access(owner).roleOf(owner, player.getUUID()));

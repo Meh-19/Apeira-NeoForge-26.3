@@ -15,9 +15,11 @@ import com.apeira.main.registry.MainSounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.InteractionHand;
@@ -51,6 +53,10 @@ public final class NpcService {
     static final int JECKYL_MAX = 10;
     /** ... after at most this many random tries. */
     private static final int JECKYL_TRIES = 48;
+    /** Until he has been found in a realm, Jeckyl is placed anywhere within this many blocks of its starting position ... */
+    static final int JECKYL_SEARCH_RADIUS = 200;
+    /** ... after at most this many random tries, then close by. */
+    private static final int JECKYL_SEARCH_TRIES = 32;
 
     private NpcService() {}
 
@@ -179,14 +185,19 @@ public final class NpcService {
     }
 
     /**
-     * Places Jeckyl on the ground at a random spot near a realm's new starter balloon (floor centre {@code balloon}):
-     * {@link #JECKYL_MIN} to {@link #JECKYL_MAX} blocks away on each axis' larger offset, so off the 5x5 platform, where he
-     * fits ({@link NpcEntity#canStandAt}); that spot is the home he wanders round. Nothing is placed when
-     * {@link #JECKYL_TRIES} tries find no room.
+     * Places Jeckyl by a realm's new starter balloon (floor centre {@code balloon}). Until he has been {@code found} in
+     * that realm, he goes to a random spot on the ground anywhere within {@link #JECKYL_SEARCH_RADIUS} blocks of it and
+     * inside the world border ({@link #surfaceFar}), to be searched for; once found (a reset realm), he is placed close
+     * by, {@link #JECKYL_MIN} to {@link #JECKYL_MAX} blocks away on each axis' larger offset as Jacko is, already found
+     * and standing still. Either spot is the home he wanders round, and a far spot that cannot be found falls back on a
+     * close one. Nothing is placed when {@link #JECKYL_TRIES} tries find no room.
      */
-    public static void spawnJeckyl(ServerLevel level, BlockPos balloon) {
+    public static void spawnJeckyl(ServerLevel level, BlockPos balloon, boolean found) {
         EntityType<JeckylEntity> type = MainNpcs.JECKYL.get();
-        BlockPos spot = surfaceNear(level, type, balloon);
+        BlockPos spot = found ? null : surfaceFar(level, type, balloon);
+        if (spot == null) {
+            spot = surfaceNear(level, type, balloon);
+        }
         if (spot == null) {
             Apeira.LOGGER.warn("No room for Jeckyl near {} in {}", balloon, level.dimension().identifier());
             return;
@@ -198,7 +209,34 @@ public final class NpcService {
         jeckyl.snapTo(Vec3.atBottomCenterOf(spot));
         jeckyl.face(Vec3.atBottomCenterOf(balloon));
         jeckyl.setHome(spot);
+        if (found) {
+            jeckyl.markFound();
+        }
         level.addFreshEntity(jeckyl);
+    }
+
+    /**
+     * A random spot on the ground within {@link #JECKYL_SEARCH_RADIUS} blocks of {@code center}, inside the world border,
+     * where {@code type} fits; its chunk is loaded (generated, if it was not) to look. Null after
+     * {@link #JECKYL_SEARCH_TRIES} tries.
+     */
+    static @Nullable BlockPos surfaceFar(ServerLevel level, EntityType<?> type, BlockPos center) {
+        RandomSource random = level.getRandom();
+        for (int i = 0; i < JECKYL_SEARCH_TRIES; i++) {
+            double distance = JECKYL_SEARCH_RADIUS * Math.sqrt(random.nextDouble());
+            double angle = random.nextDouble() * Math.PI * 2.0;
+            int x = center.getX() + Mth.floor(Math.cos(angle) * distance);
+            int z = center.getZ() + Mth.floor(Math.sin(angle) * distance);
+            if (!level.getWorldBorder().isWithinBounds(x + 0.5, z + 0.5, -2.0)) {
+                continue;
+            }
+            level.getChunk(SectionPos.blockToSectionCoord(x), SectionPos.blockToSectionCoord(z));
+            BlockPos pos = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
+            if (NpcEntity.canStandAt(level, type, pos)) {
+                return pos;
+            }
+        }
+        return null;
     }
 
     /** A random spot on the ground {@link #JECKYL_MIN} to {@link #JECKYL_MAX} blocks from {@code center} where {@code type} fits. */
