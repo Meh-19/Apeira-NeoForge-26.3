@@ -30,7 +30,6 @@ import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -86,16 +85,11 @@ public final class ApeiraDecorClient {
     }
 
     /**
-     * Multiblock parts make no hit or break particles of their own: their model has no texture of the piece, and
-     * breaking a part breaks the controller, which makes the piece's particles.
+     * Multiblock parts make no break particles of their own: breaking a part breaks the controller, which makes the
+     * piece's particles.
      */
     private static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerBlock(new IClientBlockExtensions() {
-            @Override
-            public boolean addHitEffects(BlockState state, Level level, HitResult target, ParticleEngine manager) {
-                return true;
-            }
-
             @Override
             public boolean addDestroyEffects(BlockState state, Level level, BlockPos pos, ParticleEngine manager) {
                 return true;

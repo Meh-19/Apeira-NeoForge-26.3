@@ -30,8 +30,7 @@ public final class DecorBlocks {
      */
     public static final DeferredBlock<MultiblockPartBlock> MULTIBLOCK_PART = R.blocks().registerBlock("multiblock_part",
             MultiblockPartBlock::new, () -> BlockBehaviour.Properties.of().strength(0.5F).noOcclusion().noLootTable().dynamicShape()
-                    .pushReaction(PushReaction.IMMOVEABLE).isSuffocating((state, level, pos) -> false)
-                    .isViewBlocking((state, level, pos) -> false).isRedstoneConductor((state, level, pos) -> false));
+                    .pushReaction(PushReaction.IMMOVEABLE));
 
     private DecorBlocks() {}
 
