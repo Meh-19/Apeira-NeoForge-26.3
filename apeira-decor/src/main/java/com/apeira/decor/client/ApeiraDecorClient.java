@@ -14,23 +14,30 @@ import com.apeira.decor.network.OpenWardrobePayload;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.apeira.decor.paint.Paint;
 import com.apeira.decor.registry.DecorBlockEntities;
+import com.apeira.decor.registry.DecorBlocks;
 import com.apeira.decor.registry.DecorEntities;
 import com.apeira.decor.registry.DecorMenus;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.entity.ClientMannequin;
+import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
@@ -57,6 +64,7 @@ public final class ApeiraDecorClient {
         modEventBus.addListener(FinishRenderTypes::registerPipelines);
         modEventBus.addListener(EmissiveRenderTypes::registerPipelines);
         modEventBus.addListener(ApeiraDecorClient::registerPictureInPictureRenderers);
+        modEventBus.addListener(ApeiraDecorClient::registerClientExtensions);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addPaintTooltip);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::openWardrobe);
         NeoForge.EVENT_BUS.addListener(CrateCamera::onClientTick);
@@ -74,6 +82,19 @@ public final class ApeiraDecorClient {
         event.registerEntityRenderer(DecorEntities.SEAT.get(), NoopRenderer::new);
         event.registerBlockEntityRenderer(DecorBlockEntities.CRATE.get(), CrateRenderer::new);
         event.registerBlockEntityRenderer(DecorBlockEntities.FURNITURE.get(), FurnitureRenderer::new);
+    }
+
+    /**
+     * Multiblock parts make no break particles of their own: breaking a part breaks the controller, which makes the
+     * piece's particles.
+     */
+    private static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+        event.registerBlock(new IClientBlockExtensions() {
+            @Override
+            public boolean addDestroyEffects(BlockState state, Level level, BlockPos pos, ParticleEngine manager) {
+                return true;
+            }
+        }, DecorBlocks.MULTIBLOCK_PART.get());
     }
 
     /** Worn cosmetics, on players and mannequins of both skin models. */
