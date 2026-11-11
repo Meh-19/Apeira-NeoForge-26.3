@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.AABB;
 
 /**
  * Draws an animated artifact's GeckoLib model ({@link ArtifactGeoModel}) as Argon's {@code TintableGeoFurnitureRenderer}
@@ -45,6 +46,12 @@ public class AnimatedArtifactRenderer extends GeoBlockRenderer<AnimatedArtifactB
     public void adjustRenderPose(RenderPassInfo<BlockEntityRenderState> renderPassInfo) {
         int rotation = renderPassInfo.getOrDefaultGeckolibData(ROTATION, 0);
         renderPassInfo.poseStack().rotateDegrees(Axis.YP, rotation * -45.0F);
+    }
+
+    /** Culled by the box around the whole piece, as {@link ArtifactRenderer} is. */
+    @Override
+    public AABB getRenderBoundingBox(AnimatedArtifactBlockEntity artifact) {
+        return ArtifactRenderer.renderBounds(artifact);
     }
 
     @Override

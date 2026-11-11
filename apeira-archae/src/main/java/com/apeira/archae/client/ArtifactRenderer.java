@@ -22,7 +22,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -98,6 +100,22 @@ public final class ArtifactRenderer implements BlockEntityRenderer<ArtifactBlock
     @Override
     public boolean shouldRenderOffScreen() {
         return true;
+    }
+
+    /** Culled by the box around the whole piece, not its own block, so it stays drawn while any of it is on screen. */
+    @Override
+    public AABB getRenderBoundingBox(ArtifactBlockEntity blockEntity) {
+        return renderBounds(blockEntity);
+    }
+
+    /** The box around the artifact's footprint at its turn, with a block to spare for the parts of the model it clips. */
+    static AABB renderBounds(BlockEntity blockEntity) {
+        BlockState state = blockEntity.getBlockState();
+        AABB block = new AABB(blockEntity.getBlockPos());
+        if (!(state.getBlock() instanceof ArtifactBlock artifact)) {
+            return block.inflate(1.0);
+        }
+        return artifact.footprint(state).bounds(artifact.turn(state)).move(blockEntity.getBlockPos()).inflate(1.0);
     }
 
     public static final class State extends BlockEntityRenderState {

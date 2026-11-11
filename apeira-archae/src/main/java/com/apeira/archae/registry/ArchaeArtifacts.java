@@ -927,9 +927,13 @@ public final class ArchaeArtifacts {
     private static <B extends ArtifactBlock> DeferredBlock<B> register(String name, Supplier<BlockBehaviour.Properties> properties,
             @Nullable DeferredItem<FragmentItem> fragment, int cost, Function<BlockBehaviour.Properties, ? extends B> factory) {
         ApeiraRegistrar r = ApeiraArchae.REGISTRAR;
-        // A piece covering more than its own block can't be pushed by pistons, which would leave its parts behind.
-        Supplier<BlockBehaviour.Properties> withParts = ArtifactFootprints.of(name).single() ? properties
-                : () -> properties.get().pushReaction(PushReaction.IMMOVEABLE);
+        // Shapes are cut from the footprint when a turn is first asked for, not for every state when blocks load. A piece
+        // covering more than its own block can't be pushed by pistons, which would leave its parts behind.
+        boolean single = ArtifactFootprints.of(name).single();
+        Supplier<BlockBehaviour.Properties> withParts = () -> {
+            BlockBehaviour.Properties p = properties.get().dynamicShape();
+            return single ? p : p.pushReaction(PushReaction.IMMOVEABLE);
+        };
         DeferredBlock<B> block = r.blocks().registerBlock(name, factory, withParts);
         DeferredItem<ArtifactBlockItem> item = r.items().registerItem(name, p -> new ArtifactBlockItem(block.get(), p),
                 Item.Properties::useBlockDescriptionPrefix);

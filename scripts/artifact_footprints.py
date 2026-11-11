@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
-"""Measures apeira-archae's artifacts as they are drawn and writes their multiblock footprints as a Java table.
+"""Measures apeira-archae's artifacts as they are drawn and writes their hitboxes, cut from the models' cubes.
 
 Every artifact is drawn by ``ArtifactRenderer`` (its item model in the ``fixed`` display context, at half size, laid
-into the block by its display mode) or, for the animated ones, by ``AnimatedArtifactRenderer`` (the GeckoLib model at
-full size). This script repeats those transforms on each model's cubes, so the boxes it writes are where the
-artifact's cubes really are, in pixels relative to the artifact's own block (0-16 is that block), at rotation 0 (or,
-for a wall piece, facing south). apeira-decor's ``Footprint`` turns them for the other rotations and cuts them into
-the blocks the artifact covers.
+into the block by its display mode and turned by its rotation) or, for the animated ones, by
+``AnimatedArtifactRenderer`` (the GeckoLib model at full size). This script repeats those transforms on each model's
+cubes at rotation 0 and at rotation 1 (45 degrees), cuts the turned cubes into whole pixels (a pixel is in when its
+centre is inside a cube; cubes thinner than a pixel, such as rugs, banners and flags, are thickened to a pixel) and
+meshes the pixels into boxes, trying every axis order of the greedy meshing and keeping the fewest. So a hitbox is
+only where the model has a cube: no air between a tree's branches, and no box around a turned box at the diagonals.
+The other rotations are quarter turns of these two, which apeira-decor's ``Footprint`` makes exactly; wall pieces only
+face the four sides, so they keep only their straight boxes.
 
-The boxes are clipped where a piece meets what holds it up: floor pieces stop at the floor (y 0), pieces hung under a
-block (ceiling variants, chandeliers) at the ceiling (y 16) and wall pieces at the wall. Boxes thinner than a pixel
-(rugs, banners, flags) are thickened to one pixel so they can be aimed at. Each piece's boxes are simplified as
-``parse_blockbench_hitboxes.py`` does; a piece left with more than ``--max-boxes`` boxes falls back to 4-pixel cells.
+Pixels are cut where a piece meets what holds it up: floor pieces at the floor (y 0), pieces hung under a block
+(ceiling variants, chandeliers) at the ceiling (y 16) and wall pieces at the wall, and past a multiblock part's
+reach from the controller.
 
-The table (``ArtifactFootprints.java``) was generated once and may be edited by hand from then on, like
-apeira-decor's ``FurnitureCatalogue``; run this again with ``--force`` only to start over. ``--report`` prints each
-piece's size in blocks.
+The table (``apeira-archae/src/main/resources/apeira_archae/artifact_footprints.txt``, read by
+``ArtifactFootprints``) is generated; run this again after changing an artifact's model. ``--report`` prints each
+piece's size in blocks and box counts.
 
 Example::
 
@@ -30,13 +32,16 @@ import re
 from pathlib import Path
 
 from asset_common import REPO_ROOT, ScriptError, read_json, run
-from parse_blockbench_hitboxes import Box, corners, java_rotation, rotate, simplify
+from parse_blockbench_hitboxes import Box, java_rotation, rotate
 
 ARCHAE = REPO_ROOT / "apeira-archae" / "src" / "main"
 ARTIFACTS = ARCHAE / "java" / "com" / "apeira" / "archae" / "registry" / "ArchaeArtifacts.java"
 MODELS = ARCHAE / "resources" / "assets" / "apeira" / "models" / "block" / "archaeology"
 GEO_MODELS = ARCHAE / "resources" / "assets" / "apeira" / "geckolib" / "models" / "archaeology"
-OUTPUT = ARCHAE / "java" / "com" / "apeira" / "archae" / "registry" / "ArtifactFootprints.java"
+THIN = 1.02
+REACH = 4
+HEIGHT = 6
+OUTPUT = ARCHAE / "resources" / "apeira_archae" / "artifact_footprints.txt"
 
 FORM_MODES = {
     "FURNITURE": "TOP_FACE", "DECORATION": "FLOOR", "FULL_DECORATION": "FLOOR", "FLOOR": "FLOOR",
@@ -111,18 +116,41 @@ def artifacts() -> list[dict]:
     return pieces
 
 
-def renderer(mode: str, facing: bool):
-    """``ArtifactRenderer``'s transform at rotation 0 (a wall piece facing south), then its half scale."""
+def renderer(mode: str, facing: bool, turn_: int):
+    """``ArtifactRenderer``'s (or ``AnimatedArtifactRenderer``'s) transform at ``turn_`` 45 degree steps, in blocks.
+
+    ``turn_`` is the block's ``ROTATION``; for a wall piece it is its facing's ``toYRot() / 45`` (south is 0).
+    """
+    if mode == "GECKOLIB":
+        # GeoBlockRenderer stands the model on the block's bottom centre and Bedrock geometry is x mirrored.
+        return chain(translate(0.5, 0, 0.5), turn("y", -45 * turn_), scale(-1 / 16, 1 / 16, 1 / 16))
     if mode == "TOP_FACE":
-        steps = [translate(0.5, 0.999, 0.5), turn("x", 180), turn("x", 90), turn("z", 180)]
+        steps = [translate(0.5, 0.999, 0.5), turn("x", 180), turn("x", 90), turn("z", 180), turn("z", -45 * turn_)]
     elif mode in ("FLOOR", "BLOCK_UP"):
-        steps = [translate(0.5, 0.0 if mode == "FLOOR" else 1.0, 0.5), turn("x", 90), turn("z", 180)]
+        steps = [translate(0.5, 0.0 if mode == "FLOOR" else 1.0, 0.5), turn("x", 90), turn("z", 180),
+                 turn("z", 45 * turn_)]
     else:
-        steps = [translate(0.5, 0.5, 0.5)] + ([translate(0, 0, 0.45)] if facing else [])
+        steps = [translate(0.5, 0.5, 0.5)] + ([turn("y", -45 * turn_), translate(0, 0, 0.45)] if facing else [])
     return chain(*steps, scale(0.5, 0.5, 0.5))
 
 
-def item_boxes(piece: dict) -> list[Box]:
+def model_cubes(piece: dict) -> tuple[list, list]:
+    """The model's cubes as (corner, three edges) in the model's own units, and the matrix into the renderer's frame."""
+    cubes = []
+    if piece["mode"] == "GECKOLIB":
+        geo = read_json(GEO_MODELS / f"{piece['name']}.geo.json")["minecraft:geometry"][0]
+        for bone in geo.get("bones", []):
+            for cube in bone.get("cubes", []):
+                o, size = cube["origin"], cube["size"]
+                start = [o[i] + min(size[i], 0) for i in range(3)]
+                end = [o[i] + max(size[i], 0) for i in range(3)]
+                if "rotation" in cube:
+                    pivot, angles = cube.get("pivot", [0, 0, 0]), cube["rotation"]
+                    point = lambda p, pivot=pivot, angles=angles: rotate(p, pivot, angles)
+                else:
+                    point = lambda p: tuple(p)
+                cubes.append(oriented(start, end, point))
+        return cubes, translate(0, 0, 0)
     model = read_json(MODELS / f"{piece['name']}.json")
     fixed = model.get("display", {}).get("fixed", {})
     t = fixed.get("translation", [0, 0, 0])
@@ -130,115 +158,161 @@ def item_boxes(piece: dict) -> list[Box]:
     s = fixed.get("scale", [1, 1, 1])
     # Vanilla's ItemTransform: translation, then rotation X, Y, Z, then scale, about the model's centre.
     item = chain(translate(*(v / 16 for v in t)), turn("x", r[0]), turn("y", r[1]), turn("z", r[2]), scale(*s),
-                 translate(-0.5, -0.5, -0.5))
-    matrix = mul(renderer(piece["mode"], piece["facing"]), item)
-    boxes = []
+                 translate(-0.5, -0.5, -0.5), scale(1 / 16, 1 / 16, 1 / 16))
     for element in model.get("elements", []):
         origin, angles = java_rotation(element.get("rotation"))
-        points = corners(element["from"], element["to"])
         if any(abs(a) > 1e-6 for a in angles):
-            points = [rotate(p, origin, angles) for p in points]
-        boxes.append(Box.around(tuple(v * 16 for v in apply(matrix, tuple(c / 16 for c in p))) for p in points))
-    return boxes
-
-
-def geo_boxes(piece: dict) -> list[Box]:
-    """A GeckoLib model at full size on the block's bottom centre, x mirrored as GeckoLib draws Bedrock geometry."""
-    geo = read_json(GEO_MODELS / f"{piece['name']}.geo.json")["minecraft:geometry"][0]
-    boxes = []
-    for bone in geo.get("bones", []):
-        for cube in bone.get("cubes", []):
-            o, size = cube["origin"], cube["size"]
-            start = [o[i] + min(size[i], 0) for i in range(3)]
-            end = [o[i] + max(size[i], 0) for i in range(3)]
-            points = corners(start, end)
-            if "rotation" in cube:
-                points = [rotate(p, cube.get("pivot", [0, 0, 0]), cube["rotation"]) for p in points]
-            boxes.append(Box.around((8 - x, y, 8 + z) for x, y, z in points))
-    return boxes
-
-
-def clip(box: Box, held: str) -> Box | None:
-    lo = [box.x1, box.y1, box.z1]
-    hi = [box.x2, box.y2, box.z2]
-    if held == "floor":
-        lo[1] = max(lo[1], 0.0)
-    elif held == "ceiling":
-        hi[1] = min(hi[1], 16.0)
-    elif held == "wall":
-        hi[2] = min(hi[2], 16.0)
-    if any(h <= l for l, h in zip(lo, hi)):
-        return None
-    for axis in range(3):
-        if hi[axis] - lo[axis] < 1.0:
-            middle = (lo[axis] + hi[axis]) / 2
-            lo[axis], hi[axis] = middle - 0.5, middle + 0.5
-    # Thickening must not push a box through what holds it up.
-    for axis, limit, low in ((1, 0.0, True), (1, 16.0, False), (2, 16.0, False)):
-        if (held, axis) not in (("floor", 1), ("ceiling", 1), ("wall", 2)) or (held == "floor") != low:
-            continue
-        shift = limit - lo[axis] if low else limit - hi[axis]
-        if (low and shift > 0) or (not low and shift < 0):
-            lo[axis] += shift
-            hi[axis] += shift
-    # Rounded outwards to quarter pixels.
-    return Box(*(math.floor(round(v * 4, 3)) / 4 for v in lo), *(math.ceil(round(v * 4, 3)) / 4 for v in hi))
-
-
-def cells(boxes: list[Box], size: float = 4.0) -> list[Box]:
-    """The 4-pixel cells the boxes reach into, merged into rows."""
-    filled = set()
-    for b in boxes:
-        for x in range(math.floor(b.x1 / size), math.ceil(b.x2 / size)):
-            for y in range(math.floor(b.y1 / size), math.ceil(b.y2 / size)):
-                for z in range(math.floor(b.z1 / size), math.ceil(b.z2 / size)):
-                    filled.add((x, y, z))
-    # Greedy meshing: runs along x, then runs of equal runs along z, then along y.
-    runs = {}
-    for y, z, x in sorted((y, z, x) for x, y, z in filled):
-        key = (y, z)
-        if key in runs and runs[key][-1][1] == x:
-            runs[key][-1][1] = x + 1
+            point = lambda p, origin=origin, angles=angles: rotate(p, origin, angles)
         else:
-            runs.setdefault(key, []).append([x, x + 1])
-    slabs = {}
-    for (y, z), spans in sorted(runs.items()):
-        for x1, x2 in spans:
-            key = (y, x1, x2)
-            if key in slabs and slabs[key][-1][1] == z:
-                slabs[key][-1][1] = z + 1
-            else:
-                slabs.setdefault(key, []).append([z, z + 1])
-    blocks_ = {}
-    for (y, x1, x2), spans in sorted(slabs.items()):
-        for z1, z2 in spans:
-            key = (x1, x2, z1, z2)
-            if key in blocks_ and blocks_[key][-1][1] == y:
-                blocks_[key][-1][1] = y + 1
-            else:
-                blocks_.setdefault(key, []).append([y, y + 1])
-    return [Box(x1 * size, y1 * size, z1 * size, x2 * size, y2 * size, z2 * size)
-            for (x1, x2, z1, z2), spans in blocks_.items() for y1, y2 in spans]
+            point = lambda p: tuple(p)
+        cubes.append(oriented(element["from"], element["to"], point))
+    return cubes, item
 
 
-def footprint(piece: dict, max_boxes: int) -> list[Box]:
-    raw = geo_boxes(piece) if piece["mode"] == "GECKOLIB" else item_boxes(piece)
-    held = "floor" if piece["mode"] == "GECKOLIB" else piece["held"]
-    boxes = [b for b in (clip(b, held) for b in raw) if b is not None]
-    if not boxes:
-        return [Box(0, 0, 0, 16, 16, 16)]
-    if len(boxes) <= 4 * max_boxes:
-        boxes = simplify(boxes, 0.0)[0]
-    if len(boxes) > max_boxes:
-        bounds = boxes[0]
-        for b in boxes[1:]:
-            bounds = bounds.union(b)
-        # The cells, cut back to the piece's own bounds (a rug stays a pixel thick).
-        boxes = [Box(max(c.x1, bounds.x1), max(c.y1, bounds.y1), max(c.z1, bounds.z1),
-                     min(c.x2, bounds.x2), min(c.y2, bounds.y2), min(c.z2, bounds.z2)) for c in cells(boxes)]
-        if len(boxes) > 4 * max_boxes:
-            boxes = [bounds]
+def oriented(start, end, point) -> tuple:
+    """A cube from ``start`` to ``end`` placed by ``point``, as its first corner and its three edge vectors."""
+    corner = point(start)
+    edges = []
+    for axis in range(3):
+        unit = list(start)
+        unit[axis] += 1.0
+        direction = [a - b for a, b in zip(point(unit), corner)]
+        edges.append((direction, end[axis] - start[axis]))
+    return corner, edges
+
+
+def world_cube(cube, matrix):
+    """A cube in world pixels (relative to the block's corner) through ``matrix``: its centre and edge vectors.
+
+    Edges thinner than ``THIN`` pixels (flat planes, rugs, banners) are thickened to ``THIN`` so they can be hit."""
+    corner, edges = cube
+    origin = apply(matrix, corner)
+    vectors = []
+    for direction, length in edges:
+        tip = apply(matrix, tuple(c + d for c, d in zip(corner, direction)))
+        unit = [16 * (a - b) for a, b in zip(tip, origin)]
+        vectors.append((unit, length))
+    centre = [16 * o for o in origin]
+    out = []
+    for unit, length in vectors:
+        for i in range(3):
+            centre[i] += unit[i] * length / 2
+        norm = math.sqrt(sum(u * u for u in unit))
+        span = abs(length) * norm
+        if span < THIN:
+            out.append([u / norm * THIN for u in unit] if norm > 1e-9 else None)
+        else:
+            out.append([u * length for u in unit])
+    if any(v is None for v in out):
+        return None
+    return centre, out
+
+
+def invert(m):
+    """The inverse of a 3x3 matrix, or ``None`` when it is singular."""
+    a, b, c = m[0]
+    d, e, f = m[1]
+    g, h, i = m[2]
+    det = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g)
+    if abs(det) < 1e-12:
+        return None
+    return [[(e * i - f * h) / det, (c * h - b * i) / det, (b * f - c * e) / det],
+            [(f * g - d * i) / det, (a * i - c * g) / det, (c * d - a * f) / det],
+            [(d * h - e * g) / det, (b * g - a * h) / det, (a * e - b * d) / det]]
+
+
+def voxelize(cubes, filled: set) -> None:
+    """Adds the pixels whose centres lie in each cube (centre, edges) to ``filled``, a row along x at a time."""
+    for centre, edges in cubes:
+        # Columns of the edge matrix; its inverse takes a point to the cube's local coordinates, each -0.5 to 0.5.
+        inverse = invert([[edges[j][i] for j in range(3)] for i in range(3)])
+        if inverse is None:
+            continue
+        tolerance = [0.5 + 0.01 / math.sqrt(sum(v * v for v in edge)) for edge in edges]
+        reach = [sum(abs(edge[i]) for edge in edges) / 2 for i in range(3)]
+        lo = [math.floor(centre[i] - reach[i]) for i in range(3)]
+        hi = [math.ceil(centre[i] + reach[i]) for i in range(3)]
+        for y in range(lo[1], hi[1]):
+            for z in range(lo[2], hi[2]):
+                dy, dz = y + 0.5 - centre[1], z + 0.5 - centre[2]
+                start, end = -math.inf, math.inf
+                for row, limit in zip(inverse, tolerance):
+                    # local = row . (x + 0.5 - cx, dy, dz) = slope * x + offset, held within -limit..limit.
+                    slope = row[0]
+                    offset = row[0] * (0.5 - centre[0]) + row[1] * dy + row[2] * dz
+                    if abs(slope) < 1e-12:
+                        if abs(offset) > limit:
+                            start, end = 1, 0
+                            break
+                        continue
+                    a, b = (-limit - offset) / slope, (limit - offset) / slope
+                    start, end = max(start, min(a, b)), min(end, max(a, b))
+                for x in range(math.ceil(start - 1e-9), math.floor(end + 1e-9) + 1):
+                    filled.add((x, y, z))
+
+
+def kept(voxel, held: str) -> bool:
+    """Whether a pixel stays: not through what holds the piece up, and within a part's reach of the controller."""
+    x, y, z = voxel
+    if held == "floor" and y < 0 or held == "ceiling" and y >= 16 or held == "wall" and z >= 16:
+        return False
+    return (-16 * REACH <= x < 16 * (REACH + 1) and -16 * HEIGHT <= y < 16 * (HEIGHT + 1)
+            and -16 * REACH <= z < 16 * (REACH + 1))
+
+
+def greedy(filled: set, order: tuple[int, int, int]) -> list[Box]:
+    """Greedy meshing of pixels: runs along ``order[0]``, rows of equal runs along ``order[1]``, then ``order[2]``."""
+    a, b, c = order
+    remaining = set(filled)
+    boxes = []
+    for voxel in sorted(filled, key=lambda v: (v[c], v[b], v[a])):
+        if voxel not in remaining:
+            continue
+        lo = list(voxel)
+        size = [1, 1, 1]
+
+        # Grow along a.
+        while True:
+            nxt = list(lo)
+            nxt[a] += size[a]
+            if tuple(nxt) in remaining:
+                size[a] += 1
+            else:
+                break
+        # Grow along b while the whole run is free.
+        def free(axis):
+            ranges = [range(lo[i], lo[i] + size[i]) for i in range(3)]
+            ranges[axis] = [lo[axis] + size[axis]]
+            return all((x, y, z) in remaining for x in ranges[0] for y in ranges[1] for z in ranges[2])
+        while free(b):
+            size[b] += 1
+        while free(c):
+            size[c] += 1
+        for x in range(lo[0], lo[0] + size[0]):
+            for y in range(lo[1], lo[1] + size[1]):
+                for z in range(lo[2], lo[2] + size[2]):
+                    remaining.discard((x, y, z))
+        boxes.append(Box(lo[0], lo[1], lo[2], lo[0] + size[0], lo[1] + size[1], lo[2] + size[2]))
     return boxes
+
+
+ORDERS = ((0, 2, 1), (2, 0, 1), (0, 1, 2), (1, 0, 2), (1, 2, 0), (2, 1, 0))
+
+
+def footprint(piece: dict, turn_: int) -> list[Box] | None:
+    """The piece's boxes, in whole pixels relative to its block, as it is drawn at ``turn_``: its model's cubes cut
+    into pixels and meshed into as few boxes as the greedy meshing finds."""
+    cubes, item = model_cubes(piece)
+    mode = piece["mode"]
+    matrix = mul(renderer(mode, piece["facing"], turn_), item)
+    held = "floor" if mode == "GECKOLIB" else piece["held"]
+    world = [w for w in (world_cube(cube, matrix) for cube in cubes) if w is not None]
+    filled = set()
+    voxelize(world, filled)
+    filled = {v for v in filled if kept(v, held)}
+    if not filled:
+        return [Box(0, 0, 0, 16, 16, 16)]
+    return min((greedy(filled, order) for order in ORDERS), key=len)
 
 
 def blocks(boxes: list[Box]) -> tuple[int, int, int]:
@@ -247,77 +321,45 @@ def blocks(boxes: list[Box]) -> tuple[int, int, int]:
     return tuple(math.ceil(hi[a] / 16 - 1e-6) - math.floor(lo[a] / 16 + 1e-6) for a in range(3))
 
 
-def number(value: float) -> str:
-    return str(int(value)) if value == int(value) else f"{value:g}"
-
-
-def java(pieces: list[tuple[dict, list[Box]]]) -> str:
-    lines = []
-    for piece, boxes in pieces:
-        text = ", ".join(" ".join(number(v) for v in (b.x1, b.y1, b.z1, b.x2, b.y2, b.z2)) for b in boxes)
-        lines.append(f'        put("{piece["name"]}", "{text}");')
-    body = "\n".join(lines)
-    return f'''package com.apeira.archae.registry;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import com.apeira.decor.multiblock.Footprint;
-
-/**
- * Where each artifact's cubes are as it is drawn, for apeira-decor's multiblock {{@link Footprint}}: boxes in pixels
- * relative to the artifact's own block (0-16 is that block, so a box may reach into the blocks around it), at rotation
- * 0, or for a wall piece facing south. Floor pieces stop at the floor, hanging pieces at the ceiling and wall pieces at
- * the wall; flat parts are a pixel thick.
- *
- * <p>Generated once from the artifacts' models by {{@code scripts/artifact_footprints.py}}, which repeats the
- * renderers' transforms; edited by hand from now on. Each line is a list of {{@code x1 y1 z1 x2 y2 z2}} boxes.
- */
-public final class ArtifactFootprints {{
-    private static final Map<String, Footprint> BY_NAME = new HashMap<>();
-
-    static {{
-{body}
-    }}
-
-    private ArtifactFootprints() {{}}
-
-    /** The footprint of the artifact {{@code name}}, or a single full block for one not in the table. */
-    public static Footprint of(String name) {{
-        return BY_NAME.getOrDefault(name, Footprint.BLOCK);
-    }}
-
-    private static void put(String name, String boxes) {{
-        BY_NAME.put(name, Footprint.parse(boxes));
-    }}
-}}
-'''
+def table(pieces: list[tuple[dict, list[Box] | None, list[Box] | None]]) -> str:
+    def text(boxes):
+        return ",".join(" ".join(str(int(v)) for v in (b.x1, b.y1, b.z1, b.x2, b.y2, b.z2)) for b in boxes or [])
+    lines = [
+        "# Artifact hitboxes, written by scripts/artifact_footprints.py from the artifacts' models; do not edit by hand.",
+        "# name|straight|diagonal: x1 y1 z1 x2 y2 z2 pixel boxes relative to the artifact's block, at rotation 0 (a",
+        "# wall piece facing south) and at rotation 1; the other rotations are these turned by quarter turns. An empty",
+        "# diagonal list turns the straight one.",
+    ]
+    lines += [f"{piece['name']}|{text(straight)}|{text(diagonal)}" for piece, straight, diagonal in pieces]
+    return "\n".join(lines) + "\n"
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("-o", "--output", type=Path, default=OUTPUT, help="the Java table to write")
-    parser.add_argument("--max-boxes", type=int, default=12, help="boxes a piece may keep before 4-pixel cells")
-    parser.add_argument("--report", action="store_true", help="print each piece's size in blocks")
-    parser.add_argument("--force", action="store_true", help="replace an existing table")
+    parser.add_argument("-o", "--output", type=Path, default=OUTPUT, help="the table to write")
+    parser.add_argument("--report", action="store_true", help="print each piece's size in blocks and box counts")
     parser.add_argument("--dry-run", action="store_true", help="only print what would be written")
     return parser.parse_args(argv)
 
 
 def main(argv=None) -> int:
     args = parse_args(argv)
-    pieces = [(piece, footprint(piece, args.max_boxes)) for piece in artifacts()]
+    pieces = []
+    for piece in artifacts():
+        straight = footprint(piece, 0)
+        # Wall pieces only face the four sides; those are quarter turns of their straight boxes.
+        diagonal = None if piece["mode"] == "WALL" else footprint(piece, 1)
+        pieces.append((piece, straight, diagonal))
     if args.report:
-        for piece, boxes in pieces:
-            x, y, z = blocks(boxes)
-            print(f"{piece['name']:40} {piece['mode']:9} {piece['held']:8} {x}x{y}x{z} {len(boxes)} boxes")
-    multi = sum(1 for _, boxes in pieces if blocks(boxes) != (1, 1, 1))
+        for piece, straight, diagonal in pieces:
+            x, y, z = blocks(straight) if straight else (1, 1, 1)
+            print(f"{piece['name']:40} {piece['mode']:9} {piece['held']:8} {x}x{y}x{z} "
+                  f"{len(straight or [])}/{len(diagonal or [])} boxes")
+    multi = sum(1 for _, straight, _ in pieces if straight and blocks(straight) != (1, 1, 1))
     print(f"{len(pieces)} artifacts, {multi} of them more than one block")
-    if args.output.exists() and not args.force:
-        print(f"{args.output} exists; use --force to replace it")
-        return 0
     if not args.dry_run:
-        args.output.write_text(java(pieces), encoding="utf-8", newline="\n")
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(table(pieces), encoding="utf-8", newline="\n")
         print(f"wrote {args.output}")
     return 0
 
