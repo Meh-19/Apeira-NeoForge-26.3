@@ -40,6 +40,7 @@ import com.apeira.core.registry.ApeiraRegistrar;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -926,7 +927,10 @@ public final class ArchaeArtifacts {
     private static <B extends ArtifactBlock> DeferredBlock<B> register(String name, Supplier<BlockBehaviour.Properties> properties,
             @Nullable DeferredItem<FragmentItem> fragment, int cost, Function<BlockBehaviour.Properties, ? extends B> factory) {
         ApeiraRegistrar r = ApeiraArchae.REGISTRAR;
-        DeferredBlock<B> block = r.blocks().registerBlock(name, factory, properties);
+        // A piece covering more than its own block can't be pushed by pistons, which would leave its parts behind.
+        Supplier<BlockBehaviour.Properties> withParts = ArtifactFootprints.of(name).single() ? properties
+                : () -> properties.get().pushReaction(PushReaction.IMMOVEABLE);
+        DeferredBlock<B> block = r.blocks().registerBlock(name, factory, withParts);
         DeferredItem<ArtifactBlockItem> item = r.items().registerItem(name, p -> new ArtifactBlockItem(block.get(), p),
                 Item.Properties::useBlockDescriptionPrefix);
         ALL.add(new Artifact(block, item, fragment, cost));

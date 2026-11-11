@@ -27,6 +27,9 @@ public final class DecorBlockStateProvider extends ApeiraBlockStateProvider {
 
         // Front, side, top and bottom textures, turned to face the player like a furnace.
         horizontalBlock(DecorBlocks.PAINTING_TABLE.get());
+
+        // Parts render nothing; the hand-made model only gives a particle texture.
+        existingModelBlock(DecorBlocks.MULTIBLOCK_PART.get());
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.apeira.decor.item;
 
+import com.apeira.decor.multiblock.Multiblock;
 import com.apeira.decor.paint.Paint;
 import com.apeira.decor.paint.PaintBlockEntity;
 import com.apeira.decor.paint.PaintableBlock;
@@ -36,6 +37,11 @@ public class PaintbrushItem extends Item {
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
+        // A part of a multiblock piece paints the piece, whose controller keeps the paint.
+        Multiblock.Piece piece = Multiblock.pieceAt(level, pos);
+        if (piece != null) {
+            pos = piece.pos();
+        }
         Player player = context.getPlayer();
         if (!(level.getBlockState(pos).getBlock() instanceof PaintableBlock paintable) || !paintable.takesPaint()
                 || !(level.getBlockEntity(pos) instanceof PaintBlockEntity block)) {

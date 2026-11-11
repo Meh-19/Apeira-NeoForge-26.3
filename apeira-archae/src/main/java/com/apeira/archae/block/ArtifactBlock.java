@@ -5,13 +5,21 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.archae.registry.ArchaeBlockEntities;
+import com.apeira.archae.registry.ArtifactFootprints;
 import com.apeira.decor.block.ApeiraFurnitureBlock;
+import com.apeira.decor.multiblock.Footprint;
+import com.apeira.decor.multiblock.Multiblock;
+import com.apeira.decor.multiblock.MultiblockController;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,13 +39,20 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  *
  * <p>An artifact may hand its placement to a wall or ceiling variant, a separate block placed when the player clicks
  * the side or the bottom of a block, and a variant drops its base artifact rather than itself.
+ *
+ * <p>An artifact is the controller of an apeira-decor multiblock piece: its {@link Footprint} (from
+ * {@link ArtifactFootprints}, where its model's cubes are as it is drawn) may cover the blocks around it, which then
+ * hold {@code apeira:multiblock_part} blocks with the artifact's shape in them. It is placed only where all of them
+ * are free, and breaking any part breaks the artifact. The footprint turns with the artifact: by its
+ * {@link #ROTATION} in 45 degree steps, or for one drawn on a wall by its {@code facing}.
  */
-public class ArtifactBlock extends ApeiraFurnitureBlock {
+public class ArtifactBlock extends ApeiraFurnitureBlock implements MultiblockController {
     private final boolean paintable;
     private final Form form;
     private final @Nullable Supplier<? extends Block> wall;
     private final @Nullable Supplier<? extends Block> ceiling;
     private final @Nullable Supplier<? extends Block> drop;
+    private @Nullable Footprint footprint;
 
     /**
      * @param paintable whether the paintbrush and painting table paint it
@@ -91,15 +106,53 @@ public class ArtifactBlock extends ApeiraFurnitureBlock {
         return new ArtifactBlockEntity(ArchaeBlockEntities.ARTIFACT_DISPLAY.get(), pos, state);
     }
 
-    /** Argon's outlines are not turned with the artifact. */
+    /** The artifact's footprint, looked up by its id the first time it is needed. */
+    @Override
+    public Footprint footprint(BlockState state) {
+        Footprint known = footprint;
+        if (known == null) {
+            known = ArtifactFootprints.of(BuiltInRegistries.BLOCK.getKey(this).getPath());
+            footprint = known;
+        }
+        return known;
+    }
+
+    /** By {@link #ROTATION}, or for an artifact drawn on a wall by its facing (south is turn 0, as the table has it). */
+    @Override
+    public int turn(BlockState state) {
+        if (displayMode(state) == DisplayMode.WALL) {
+            return state.getOptionalValue(HorizontalDirectionalBlock.FACING).map(facing -> Math.round(facing.toYRot() / 45.0F)).orElse(0);
+        }
+        return state.getValue(ROTATION);
+    }
+
+    @Override
+    public boolean partsCollide(BlockState state) {
+        return hasCollision;
+    }
+
+    /** The artifact's shape in its own block: the part of its footprint there. */
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return form.shape();
+        return controllerShape(state);
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        Multiblock.placeParts(level, pos, state, oldState);
+    }
+
+    /** The artifact's parts go with it, however it is removed. */
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        Multiblock.removeParts(level, pos, state);
     }
 
     /**
-     * An artifact's display mode and outline, one per kind of Argon furniture block. Tall artifacts have outlines
-     * reaching into the blocks above, as Argon's did.
+     * An artifact's display mode and Argon's outline, one per kind of Argon furniture block. The outline is no longer
+     * the artifact's shape (its footprint is), only the north shape {@link ApeiraFurnitureBlock} is built with.
      */
     public record Form(DisplayMode mode, VoxelShape shape) {
         /** Argon's furniture, wall-and-floor and floor-and-ceiling blocks. */

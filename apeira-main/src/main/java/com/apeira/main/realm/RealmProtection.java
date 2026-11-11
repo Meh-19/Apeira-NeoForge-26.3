@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.apeira.decor.block.ApeiraFurnitureBlock;
+import com.apeira.decor.multiblock.Multiblock;
 import com.apeira.decor.crate.CrateBlock;
 import com.apeira.main.navigator.OpenProfilePayload;
 import com.apeira.main.npc.NpcEntity;
@@ -59,8 +60,16 @@ public final class RealmProtection {
         return RealmService.roleIn(serverPlayer, serverPlayer.level());
     }
 
-    /** Containers and furniture need the Trusted role to open or break. */
+    /**
+     * Containers and furniture need the Trusted role to open or break. A block of a multiblock piece is guarded as its
+     * controller, the piece itself, is.
+     */
     private static boolean isGuarded(Level level, BlockPos pos, BlockState state) {
+        Multiblock.Piece piece = Multiblock.pieceAt(level, pos);
+        if (piece != null) {
+            pos = piece.pos();
+            state = piece.state();
+        }
         return state.getBlock() instanceof ApeiraFurnitureBlock || level.getBlockEntity(pos) instanceof Container;
     }
 
