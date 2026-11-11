@@ -233,6 +233,11 @@ public final class ArmorStandRecorder {
     private ArmorStandRecorder() {
     }
 
+    /** The recording area's lowest and highest corners, or null while a corner is not set; {@link DatapackExporter} saves it as a structure. */
+    static BlockPos @Nullable [] area() {
+        return pos1 == null || pos2 == null ? null : new BlockPos[] {BlockPos.min(pos1, pos2), BlockPos.max(pos1, pos2)};
+    }
+
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(ClientCommandManager.literal("apeiradev")
                 .then(ClientCommandManager.literal("area")
