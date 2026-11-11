@@ -39,6 +39,7 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
+import net.neoforged.neoforge.client.event.RegisterDebugRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
@@ -65,6 +66,7 @@ public final class ApeiraDecorClient {
         modEventBus.addListener(EmissiveRenderTypes::registerPipelines);
         modEventBus.addListener(ApeiraDecorClient::registerPictureInPictureRenderers);
         modEventBus.addListener(ApeiraDecorClient::registerClientExtensions);
+        modEventBus.addListener(ApeiraDecorClient::registerDebugRenderers);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addPaintTooltip);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::openWardrobe);
         NeoForge.EVENT_BUS.addListener(CrateCamera::onClientTick);
@@ -75,6 +77,11 @@ public final class ApeiraDecorClient {
                 .handle(CrateOpenPayload.TYPE, CrateCamera::onOpen)
                 .handle(CrateUnlockPayload.TYPE, CrateCamera::onUnlock)
                 .register(modEventBus);
+    }
+
+    /** The whole multiblock piece's outline when any of its blocks is looked at. */
+    private static void registerDebugRenderers(RegisterDebugRenderersEvent event) {
+        event.register(new MultiblockOutline());
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

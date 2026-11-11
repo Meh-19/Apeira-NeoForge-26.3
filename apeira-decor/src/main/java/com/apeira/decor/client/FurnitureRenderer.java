@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -93,6 +94,23 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
     @Override
     public boolean shouldRenderOffScreen() {
         return true;
+    }
+
+    /**
+     * Culled by a box the model fits in rather than its own block, so a large piece stays drawn while any of it is on
+     * screen: a block to spare round the block, and for large pieces as many blocks as their scale makes them.
+     */
+    @Override
+    public AABB getRenderBoundingBox(FurnitureBlockEntity blockEntity) {
+        AABB block = new AABB(blockEntity.getBlockPos());
+        if (!(blockEntity.getBlockState().getBlock() instanceof FurnitureBlock furniture)) {
+            return block.inflate(1.0);
+        }
+        Furniture.Large large = furniture.furniture().large();
+        FurnitureTuning tuning = FurnitureTunings.get(furniture);
+        float scale = tuning != null ? tuning.scale() : large != null ? large.scale() : 1.0F;
+        double reach = Math.max(1.0, 1.5 * scale);
+        return block.inflate(reach, 0.0, reach).expandTowards(0.0, 2.0 * reach, 0.0).expandTowards(0.0, -1.0, 0.0);
     }
 
     public static final class State extends BlockEntityRenderState {
