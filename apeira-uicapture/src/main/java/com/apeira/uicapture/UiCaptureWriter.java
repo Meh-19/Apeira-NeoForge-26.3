@@ -59,6 +59,7 @@ final class UiCaptureWriter {
     static final String LATEST = "logs/apeira_ui_capture.json";
     static final String FOLDER = "logs/apeira_ui_capture";
     static final String INSPECT = "logs/apeira_ui_inspect.json";
+    static final String HUD = "logs/apeira_hud_capture.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static final DateTimeFormatter STAMP = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
     private static final int MAX_DEPTH = 12;
@@ -72,12 +73,12 @@ final class UiCaptureWriter {
      * Writes the capture of {@code screen} (null for the HUD), with a deep inspection at {@code mouse} when it is not
      * null, and returns the file written.
      */
-    static Path write(Minecraft minecraft, @Nullable Screen screen, UiCapture.Frame frame, @Nullable Mouse mouse) throws IOException {
+    static Path write(Minecraft minecraft, @Nullable Screen screen, UiCapture.Frame frame, @Nullable Mouse mouse, @Nullable JsonObject hud) throws IOException {
         Path game = FMLPaths.GAMEDIR.get();
         Path folder = game.resolve(FOLDER);
         ResourceManager resources = minecraft.getResourceManager();
         CapturedAssets assets = new CapturedAssets(resources, folder);
-        DynamicOps<JsonElement> ops = minecraft.level != null ? minecraft.level.registryAccess().createSerializationContext(JsonOps.INSTANCE) : JsonOps.INSTANCE;
+        DynamicOps<JsonElement> ops = ops(minecraft);
 
         JsonObject root = new JsonObject();
         root.addProperty("captured_at", LocalDateTime.now().toString());
@@ -108,6 +109,9 @@ final class UiCaptureWriter {
             root.add("widgets", widgets);
         } else {
             root.addProperty("screen", "hud");
+            if (hud != null) {
+                root.add("hud", hud);
+            }
         }
 
         for (JsonElement element : frame.drawn()) {
@@ -159,7 +163,17 @@ final class UiCaptureWriter {
             Files.writeString(inspected, GSON.toJson(inspect), StandardCharsets.UTF_8);
             return inspected;
         }
+        if (hud != null) {
+            Path hudFile = game.resolve(HUD);
+            Files.writeString(hudFile, json, StandardCharsets.UTF_8);
+            return hudFile;
+        }
         return latest;
+    }
+
+    /** Ops that encode components and items with the level's registries, when there is a level. */
+    static DynamicOps<JsonElement> ops(Minecraft minecraft) {
+        return minecraft.level != null ? minecraft.level.registryAccess().createSerializationContext(JsonOps.INSTANCE) : JsonOps.INSTANCE;
     }
 
     private static JsonObject screen(Screen screen, DynamicOps<JsonElement> ops) {
@@ -377,7 +391,7 @@ final class UiCaptureWriter {
     }
 
     /** A component as its plain text, its full JSON (fonts, colours, click events) and its runs of one font and style. */
-    private static JsonObject component(Component component, DynamicOps<JsonElement> ops) {
+    static JsonObject component(Component component, DynamicOps<JsonElement> ops) {
         JsonObject json = new JsonObject();
         json.addProperty("text", component.getString());
         json.add("json", ComponentSerialization.CODEC.encodeStart(ops, component).result().orElse(JsonNull.INSTANCE));

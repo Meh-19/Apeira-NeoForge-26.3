@@ -22,10 +22,11 @@ import net.minecraft.server.packs.resources.ResourceManager;
  */
 final class CapturedAssets {
     private final ResourceManager resources;
-    private final Path root;
+    private final @Nullable Path root;
     private final JsonObject index = new JsonObject();
 
-    CapturedAssets(ResourceManager resources, Path root) {
+    /** {@code root} null copies nothing (for lookups that only read the packs). */
+    CapturedAssets(ResourceManager resources, @Nullable Path root) {
         this.resources = resources;
         this.root = root;
     }
@@ -57,6 +58,9 @@ final class CapturedAssets {
 
     private String write(Identifier id, Resource resource) {
         String relative = "assets/" + id.getNamespace() + "/" + id.getPath();
+        if (root == null) {
+            return relative;
+        }
         Path file = root.resolve(relative).normalize();
         if (!file.startsWith(root)) {
             return "(not copied: path leaves the capture folder)";
