@@ -47,16 +47,46 @@ public final class Footprint {
 
     private final List<AABB> straight;
     private final @Nullable List<AABB> diagonal;
+    private final @Nullable List<double[]> edges;
     private final Turn[] turns = new Turn[TURNS];
 
-    private Footprint(List<AABB> straight, @Nullable List<AABB> diagonal) {
+    private Footprint(List<AABB> straight, @Nullable List<AABB> diagonal, @Nullable List<double[]> edges) {
         this.straight = List.copyOf(straight);
         this.diagonal = diagonal == null || diagonal.isEmpty() ? null : List.copyOf(diagonal);
+        this.edges = edges == null || edges.isEmpty() ? null : List.copyOf(edges);
     }
 
     /** A footprint of {@code boxes}, in blocks relative to the controller's block, at turn 0. */
     public static Footprint of(List<AABB> boxes) {
-        return new Footprint(boxes, null);
+        return new Footprint(boxes, null, null);
+    }
+
+    /**
+     * A footprint as {@link #of(List, List)}, outlined by {@code edges} (lines of six numbers in blocks, at turn 0,
+     * turned with the piece) instead of by its boxes: the model's own edges, so the outline matches what is drawn.
+     */
+    public static Footprint of(List<AABB> straight, @Nullable List<AABB> diagonal, @Nullable List<double[]> edges) {
+        return new Footprint(straight, diagonal, edges);
+    }
+
+    /** Reads lines in pixels, each {@code x1 y1 z1 x2 y2 z2}, separated by commas, as blocks. */
+    public static List<double[]> parseLines(String pixels) {
+        List<double[]> lines = new ArrayList<>();
+        for (String line : pixels.split(",")) {
+            if (line.isBlank()) {
+                continue;
+            }
+            String[] values = line.trim().split("\\s+");
+            if (values.length != 6) {
+                throw new IllegalArgumentException("An outline line needs six numbers: " + line);
+            }
+            double[] v = new double[6];
+            for (int i = 0; i < 6; i++) {
+                v[i] = Double.parseDouble(values[i]) / 16.0;
+            }
+            lines.add(v);
+        }
+        return lines;
     }
 
     /**
@@ -64,7 +94,7 @@ public final class Footprint {
      * controller's block; with no diagonal boxes, the straight ones are turned.
      */
     public static Footprint of(List<AABB> straight, @Nullable List<AABB> diagonal) {
-        return new Footprint(straight, diagonal);
+        return new Footprint(straight, diagonal, null);
     }
 
     /**
@@ -114,15 +144,16 @@ public final class Footprint {
     }
 
     /**
-     * The outline of the whole piece at {@code turn}: the edges of its boxes' outside, as lines of six numbers
-     * ({@code x1 y1 z1 x2 y2 z2}, in blocks relative to the controller's block), without the seams between boxes or
-     * between the blocks it covers. Worked out on the pixel grid when first asked for.
+     * The outline of the whole piece at {@code turn}, as lines of six numbers ({@code x1 y1 z1 x2 y2 z2}, in blocks
+     * relative to the controller's block): the model's own edges when the footprint has them (turned exactly, so the
+     * outline matches the model at every turn), else the edges of its boxes' outside, worked out on the pixel grid,
+     * without the seams between boxes or between the blocks it covers.
      */
     public List<double[]> outline(int turn) {
         Turn known = turn(turn);
         List<double[]> lines = known.outline;
         if (lines == null) {
-            lines = outline(known.boxes);
+            lines = edges != null ? turnedLines(edges, Math.floorMod(turn, TURNS)) : outline(known.boxes);
             known.outline = lines;
         }
         return lines;
@@ -327,6 +358,25 @@ public final class Footprint {
 
     private static int unpack(long key, int axis) {
         return (int) ((key >> (40 - 20 * axis)) & ((1 << 20) - 1)) - (1 << 19);
+    }
+
+    /** {@code lines} turned about the controller's centre column by {@code turn} 45 degree steps. */
+    private static List<double[]> turnedLines(List<double[]> lines, int turn) {
+        double angle = Math.toRadians(turn * 45.0);
+        double cos = round(Math.cos(angle));
+        double sin = round(Math.sin(angle));
+        List<double[]> turned = new ArrayList<>(lines.size());
+        for (double[] line : lines) {
+            double[] out = line.clone();
+            for (int end = 0; end < 6; end += 3) {
+                double dx = line[end] - 0.5;
+                double dz = line[end + 2] - 0.5;
+                out[end] = 0.5 + dx * cos - dz * sin;
+                out[end + 2] = 0.5 + dx * sin + dz * cos;
+            }
+            turned.add(out);
+        }
+        return List.copyOf(turned);
     }
 
     /** The box around {@code box} turned about the controller's centre column. */
