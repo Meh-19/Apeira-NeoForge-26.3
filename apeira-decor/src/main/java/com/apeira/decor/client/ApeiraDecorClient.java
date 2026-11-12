@@ -82,6 +82,7 @@ public final class ApeiraDecorClient {
     /** The whole multiblock piece's outline when any of its blocks is looked at. */
     private static void registerDebugRenderers(RegisterDebugRenderersEvent event) {
         event.register(new MultiblockOutline());
+        MultiblockOutline.hideVanillaOutline();
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

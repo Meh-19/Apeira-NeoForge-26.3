@@ -32,13 +32,18 @@ import re
 from pathlib import Path
 
 from asset_common import REPO_ROOT, ScriptError, read_json, run
-from parse_blockbench_hitboxes import Box, java_rotation, rotate
+from parse_blockbench_hitboxes import Box, java_rotation, rotate, simplify
 
 ARCHAE = REPO_ROOT / "apeira-archae" / "src" / "main"
 ARTIFACTS = ARCHAE / "java" / "com" / "apeira" / "archae" / "registry" / "ArchaeArtifacts.java"
 MODELS = ARCHAE / "resources" / "assets" / "apeira" / "models" / "block" / "archaeology"
 GEO_MODELS = ARCHAE / "resources" / "assets" / "apeira" / "geckolib" / "models" / "archaeology"
 THIN = 1.02
+# Turned cubes are cut into cells this many pixels wide.
+STEP = 2.0
+# Outline edges are tested every SAMPLE pixels, EPS pixels to each side.
+SAMPLE = 0.5
+EPS = 0.05
 REACH = 4
 HEIGHT = 6
 OUTPUT = ARCHAE / "resources" / "apeira_archae" / "artifact_footprints.txt"
@@ -251,15 +256,6 @@ def voxelize(cubes, filled: set) -> None:
                     filled.add((x, y, z))
 
 
-def kept(voxel, held: str) -> bool:
-    """Whether a pixel stays: not through what holds the piece up, and within a part's reach of the controller."""
-    x, y, z = voxel
-    if held == "floor" and y < 0 or held == "ceiling" and y >= 16 or held == "wall" and z >= 16:
-        return False
-    return (-16 * REACH <= x < 16 * (REACH + 1) and -16 * HEIGHT <= y < 16 * (HEIGHT + 1)
-            and -16 * REACH <= z < 16 * (REACH + 1))
-
-
 def greedy(filled: set, order: tuple[int, int, int]) -> list[Box]:
     """Greedy meshing of pixels: runs along ``order[0]``, rows of equal runs along ``order[1]``, then ``order[2]``."""
     a, b, c = order
@@ -299,20 +295,146 @@ def greedy(filled: set, order: tuple[int, int, int]) -> list[Box]:
 ORDERS = ((0, 2, 1), (2, 0, 1), (0, 1, 2), (1, 0, 2), (1, 2, 0), (2, 1, 0))
 
 
-def footprint(piece: dict, turn_: int) -> list[Box] | None:
-    """The piece's boxes, in whole pixels relative to its block, as it is drawn at ``turn_``: its model's cubes cut
-    into pixels and meshed into as few boxes as the greedy meshing finds."""
+def aligned(edges) -> bool:
+    """Whether a cube's edges all lie along the axes, so the cube is exactly one box."""
+    return all(sum(1 for v in edge if abs(v) > 1e-6) == 1 for edge in edges)
+
+
+def clip(box: Box, held: str) -> Box | None:
+    """A box cut at what holds the piece up and at a part's reach, rounded outwards to quarter pixels."""
+    lo = [box.x1, box.y1, box.z1]
+    hi = [box.x2, box.y2, box.z2]
+    if held == "floor":
+        lo[1] = max(lo[1], 0.0)
+    elif held == "ceiling":
+        hi[1] = min(hi[1], 16.0)
+    elif held == "wall":
+        hi[2] = min(hi[2], 16.0)
+    for axis, reach in ((0, REACH), (1, HEIGHT), (2, REACH)):
+        lo[axis] = max(lo[axis], -16.0 * reach)
+        hi[axis] = min(hi[axis], 16.0 * (reach + 1))
+    lo = [math.floor(round(v * 4, 3)) / 4 for v in lo]
+    hi = [math.ceil(round(v * 4, 3)) / 4 for v in hi]
+    if any(h <= l for l, h in zip(lo, hi)):
+        return None
+    return Box(*lo, *hi)
+
+
+def scaled(cube, step: float):
+    """A cube (centre, edges) in units of ``step`` pixels, edges thinner than ``THIN`` units thickened."""
+    centre, edges = cube
+    out = []
+    for edge in edges:
+        edge = [v / step for v in edge]
+        norm = math.sqrt(sum(v * v for v in edge))
+        out.append([v / norm * THIN for v in edge] if norm < THIN else edge)
+    return [v / step for v in centre], out
+
+
+def footprint(piece: dict, turn_: int, step: float = STEP) -> list[Box]:
+    """The piece's boxes, in pixels relative to its block, as it is drawn at ``turn_``.
+
+    A cube that lies along the axes is its own box, exactly; a turned cube is cut into ``step``-pixel cells (a cell is
+    in when its centre is inside the cube) and the cells are meshed into boxes. Boxes inside others are dropped and
+    boxes that line up are merged."""
     cubes, item = model_cubes(piece)
     mode = piece["mode"]
     matrix = mul(renderer(mode, piece["facing"], turn_), item)
     held = "floor" if mode == "GECKOLIB" else piece["held"]
     world = [w for w in (world_cube(cube, matrix) for cube in cubes) if w is not None]
+    boxes = []
+    turned = []
+    for centre, edges in world:
+        if aligned(edges):
+            half = [sum(abs(edge[i]) for edge in edges) / 2 for i in range(3)]
+            boxes.append(Box(*(centre[i] - half[i] for i in range(3)), *(centre[i] + half[i] for i in range(3))))
+        else:
+            turned.append(scaled((centre, edges), step))
     filled = set()
-    voxelize(world, filled)
-    filled = {v for v in filled if kept(v, held)}
-    if not filled:
+    voxelize(turned, filled)
+    if filled:
+        cells = min((greedy(filled, order) for order in ORDERS), key=len)
+        boxes += [Box(b.x1 * step, b.y1 * step, b.z1 * step, b.x2 * step, b.y2 * step, b.z2 * step) for b in cells]
+    boxes = [c for c in (clip(b, held) for b in boxes) if c is not None]
+    if not boxes:
         return [Box(0, 0, 0, 16, 16, 16)]
-    return min((greedy(filled, order) for order in ORDERS), key=len)
+    if len(boxes) <= 400:
+        boxes = simplify(boxes, 0.0)[0]
+    return boxes
+
+
+def outline(piece: dict) -> list[tuple]:
+    """The model's outline at rotation 0 (a wall piece facing south): the edges of its cubes, turned as drawn, where
+    they are a crease of the model's outside. Along each edge, the four quarters around it are tested (the cube's
+    own, the two beside it across each face, and the one across both): the edge shows where one or three of them are
+    inside a cube, or the cube's own and the one across both. So edges inside the model, and seams between cubes that
+    meet flush, are left out; an edge partly hidden keeps its visible runs."""
+    cubes, item = model_cubes(piece)
+    matrix = mul(renderer(piece["mode"], piece["facing"], 0), item)
+    return creases([w for w in (world_cube(cube, matrix) for cube in cubes) if w is not None])
+
+
+def creases(world: list) -> list[tuple]:
+    """The crease edges of cubes given as (centre, edges) in pixels, as ``outline`` describes."""
+    solids = []
+    for centre, edges in world:
+        inverse = invert([[edges[j][i] for j in range(3)] for i in range(3)])
+        if inverse is None:
+            continue
+        reach = [sum(abs(edge[i]) for edge in edges) / 2 for i in range(3)]
+        solids.append((centre, edges, inverse, reach))
+    # A grid of 8 pixel cells, holding the cubes whose box reaches into each, so a point is only tested against those.
+    grid = {}
+    for index, (centre, _, _, reach) in enumerate(solids):
+        lo = [math.floor((centre[i] - reach[i]) / 8) for i in range(3)]
+        hi = [math.floor((centre[i] + reach[i]) / 8) for i in range(3)]
+        for x in range(lo[0], hi[0] + 1):
+            for y in range(lo[1], hi[1] + 1):
+                for z in range(lo[2], hi[2] + 1):
+                    grid.setdefault((x, y, z), []).append(index)
+
+    def inside(point, skip):
+        for index in grid.get(tuple(math.floor(v / 8) for v in point), ()):
+            if index == skip:
+                continue
+            centre, _, inverse, _ = solids[index]
+            d = [point[i] - centre[i] for i in range(3)]
+            if all(abs(sum(row[i] * d[i] for i in range(3))) <= 0.5 for row in inverse):
+                return True
+        return False
+
+    lines = []
+    for index, (centre, edges, _, _) in enumerate(solids):
+        lengths = [math.sqrt(sum(v * v for v in edge)) for edge in edges]
+        units = [[v / length for v in edge] for edge, length in zip(edges, lengths)]
+        for axis in range(3):
+            j, k = (axis + 1) % 3, (axis + 2) % 3
+            for sj in (-1, 1):
+                for sk in (-1, 1):
+                    middle = [centre[i] + sj * edges[j][i] / 2 + sk * edges[k][i] / 2 for i in range(3)]
+                    nj = [sj * v * EPS for v in units[j]]
+                    nk = [sk * v * EPS for v in units[k]]
+                    samples = max(2, math.ceil(lengths[axis] / SAMPLE))
+                    run = None
+                    for n in range(samples + 1):
+                        t = n / samples - 0.5
+                        p = [middle[i] + t * edges[axis][i] for i in range(3)]
+                        # Ends are tested a hair inside the edge, where the neighbouring faces don't count.
+                        q = [p[i] - (t * 2) * EPS * units[axis][i] for i in range(3)]
+                        a = inside([q[i] + nj[i] - nk[i] for i in range(3)], index)
+                        b = inside([q[i] - nj[i] + nk[i] for i in range(3)], index)
+                        c = inside([q[i] + nj[i] + nk[i] for i in range(3)], index)
+                        own = True
+                        count = own + a + b + c
+                        shown = count in (1, 3) or (count == 2 and c)
+                        if shown and run is None:
+                            run = p
+                        if (not shown or n == samples) and run is not None:
+                            end = p if shown else [middle[i] + (t - 1 / samples / 2) * edges[axis][i] for i in range(3)]
+                            if math.dist(run, end) > 0.05:
+                                lines.append((*run, *end))
+                            run = None
+    return lines
 
 
 def blocks(boxes: list[Box]) -> tuple[int, int, int]:
@@ -321,17 +443,26 @@ def blocks(boxes: list[Box]) -> tuple[int, int, int]:
     return tuple(math.ceil(hi[a] / 16 - 1e-6) - math.floor(lo[a] / 16 + 1e-6) for a in range(3))
 
 
-def table(pieces: list[tuple[dict, list[Box] | None, list[Box] | None]]) -> str:
+def table(pieces: list[tuple[dict, list[Box], list[Box] | None, list[tuple]]]) -> str:
+    def number(v):
+        text = f"{v:.2f}".rstrip("0").rstrip(".")
+        return "0" if text in ("-0", "") else text
+
     def text(boxes):
-        return ",".join(" ".join(str(int(v)) for v in (b.x1, b.y1, b.z1, b.x2, b.y2, b.z2)) for b in boxes or [])
-    lines = [
-        "# Artifact hitboxes, written by scripts/artifact_footprints.py from the artifacts' models; do not edit by hand.",
-        "# name|straight|diagonal: x1 y1 z1 x2 y2 z2 pixel boxes relative to the artifact's block, at rotation 0 (a",
-        "# wall piece facing south) and at rotation 1; the other rotations are these turned by quarter turns. An empty",
-        "# diagonal list turns the straight one.",
+        return ",".join(" ".join(number(v) for v in (b.x1, b.y1, b.z1, b.x2, b.y2, b.z2)) for b in boxes or [])
+
+    def lines(edges):
+        return ",".join(" ".join(number(v) for v in edge) for edge in edges)
+    header = [
+        "# Artifact hitboxes and outlines, written by scripts/artifact_footprints.py from the artifacts' models; do not",
+        "# edit by hand. name|straight|diagonal|outline: x1 y1 z1 x2 y2 z2 pixel boxes relative to the artifact's block",
+        "# at rotation 0 (a wall piece facing south) and at rotation 1, the other rotations being these turned by quarter",
+        "# turns (an empty diagonal list turns the straight one), then the outline's lines (x1 y1 z1 x2 y2 z2, pixels) at",
+        "# rotation 0, turned for each rotation.",
     ]
-    lines += [f"{piece['name']}|{text(straight)}|{text(diagonal)}" for piece, straight, diagonal in pieces]
-    return "\n".join(lines) + "\n"
+    body = [f"{piece['name']}|{text(straight)}|{text(diagonal)}|{lines(edges)}"
+            for piece, straight, diagonal, edges in pieces]
+    return "\n".join(header + body) + "\n"
 
 
 def parse_args(argv=None):
@@ -349,13 +480,13 @@ def main(argv=None) -> int:
         straight = footprint(piece, 0)
         # Wall pieces only face the four sides; those are quarter turns of their straight boxes.
         diagonal = None if piece["mode"] == "WALL" else footprint(piece, 1)
-        pieces.append((piece, straight, diagonal))
+        pieces.append((piece, straight, diagonal, outline(piece)))
     if args.report:
-        for piece, straight, diagonal in pieces:
+        for piece, straight, diagonal, edges in pieces:
             x, y, z = blocks(straight) if straight else (1, 1, 1)
             print(f"{piece['name']:40} {piece['mode']:9} {piece['held']:8} {x}x{y}x{z} "
-                  f"{len(straight or [])}/{len(diagonal or [])} boxes")
-    multi = sum(1 for _, straight, _ in pieces if straight and blocks(straight) != (1, 1, 1))
+                  f"{len(straight or [])}/{len(diagonal or [])} boxes, {len(edges)} lines")
+    multi = sum(1 for _, straight, _, _ in pieces if straight and blocks(straight) != (1, 1, 1))
     print(f"{len(pieces)} artifacts, {multi} of them more than one block")
     if not args.dry_run:
         args.output.parent.mkdir(parents=True, exist_ok=True)
