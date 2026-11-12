@@ -5,9 +5,21 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "AbstractContainerScreenAccessor",
+    "BlockDisplayAccessor",
+    "BossHealthOverlayAccessor",
+    "ChatComponentAccessor",
+    "ChatComponentMixin",
+    "ClientPacketListenerMixin",
+    "ClientSuggestionProviderMixin",
+    "DisplayAccessor",
+    "HudAccessor",
     "GuiGraphicsExtractorMixin",
     "GuiRenderStateMixin",
-    "GuiTextRenderStateAccessor"
+    "GuiTextRenderStateAccessor",
+    "InteractionAccessor",
+    "ItemDisplayAccessor",
+    "PlayerTabOverlayAccessor",
+    "TextDisplayAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
