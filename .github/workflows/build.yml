@@ -31,3 +31,29 @@ jobs:
         run: |
           git add --intent-to-add apeira-main/src/generated apeira-decor/src/generated apeira-archae/src/generated
           git diff --exit-code -- apeira-main/src/generated apeira-decor/src/generated apeira-archae/src/generated
+
+  uicapture-fabric-26-3:
+    # The standalone Fabric 26.3 build of the UI capture tool (tools/uicapture-fabric-26.3), with its own wrapper.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build the Fabric 26.3 UI capture jar
+        working-directory: tools/uicapture-fabric-26.3
+        run: ./gradlew build
+
+      - name: Upload the jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: apeira_uicapture-fabric-26.3
+          path: tools/uicapture-fabric-26.3/build/libs/*.jar

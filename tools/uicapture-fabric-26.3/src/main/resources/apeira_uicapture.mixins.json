@@ -1,0 +1,28 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.apeira.uicapture.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "AbstractContainerScreenAccessor",
+    "BlockDisplayAccessor",
+    "BossHealthOverlayAccessor",
+    "ChatComponentAccessor",
+    "ChatComponentMixin",
+    "ClientSuggestionProviderMixin",
+    "DisplayAccessor",
+    "GuiGraphicsExtractorMixin",
+    "GuiRenderStateMixin",
+    "GuiTextRenderStateAccessor",
+    "HudAccessor",
+    "HudMixin",
+    "InteractionAccessor",
+    "ItemDisplayAccessor",
+    "PlayerTabOverlayAccessor",
+    "ScreenAccessor",
+    "TextDisplayAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

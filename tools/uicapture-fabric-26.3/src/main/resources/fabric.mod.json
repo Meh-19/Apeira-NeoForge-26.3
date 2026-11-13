@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "apeira_uicapture",
+  "version": "${version}",
+  "name": "Apeira UI Capture",
+  "description": "Client-only dev tool: F8 dumps the open screen's (or the HUD's) layout, textures, sprites, glyphs, items and widgets to logs/apeira_ui_capture.json; F9 deep-inspects, F10 logs the HUD, F7 logs chat; /apeirasound, /apeiracommands and /apeiradev area|record.",
+  "authors": ["Ren"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.apeira.uicapture.UiCaptureClient"]
+  },
+  "mixins": [
+    {
+      "config": "apeira_uicapture.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "fabric-api": "*",
+    "minecraft": "~26.3",
+    "java": ">=25"
+  }
+}
