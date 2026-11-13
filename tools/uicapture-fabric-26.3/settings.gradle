@@ -1,0 +1,14 @@
+// Standalone Fabric 26.3 build of the UI capture tool, kept out of Apeira's NeoForge build and with its own Gradle
+// wrapper (Loom 1.19 needs a newer Gradle than the root project's). Build from this folder: ./gradlew build
+pluginManagement {
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'apeira-uicapture-fabric-26.3'
