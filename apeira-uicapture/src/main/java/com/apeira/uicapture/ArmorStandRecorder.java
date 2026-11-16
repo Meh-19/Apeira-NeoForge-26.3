@@ -42,6 +42,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Interaction;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
@@ -83,7 +84,7 @@ public final class ArmorStandRecorder {
     /** One stand's state in one tick. Item entries are the slot's item as JSON, or {@code null} when it is empty. */
     record Snapshot(Vec3 pos, float yaw, boolean invisible, boolean small, boolean marker, boolean showArms, boolean basePlate,
                     Rotations head, Rotations body, Rotations leftArm, Rotations rightArm, Rotations leftLeg, Rotations rightLeg,
-                    @Nullable JsonObject[] items) {
+                    @Nullable JsonObject[] items, boolean player) {
     }
 
     /** A stand seen during the recording: its bone name, the tick it was first seen and a snapshot per tick it was in the area. */
@@ -450,7 +451,11 @@ public final class ArmorStandRecorder {
     private static void record(ClientLevel level, Session session) {
         int tick = session.tick;
         Set<UUID> now = new HashSet<>();
-        for (ArmorStand stand : level.getEntitiesOfClass(ArmorStand.class, session.box, e -> session.box.contains(e.position()))) {
+        Player self = Minecraft.getInstance().player;
+        // Armor stands, and other players (in a replay the recorded player too; the camera is the local player), drawn by the
+        // stand rig so what they wear is recorded with them.
+        for (LivingEntity stand : level.getEntitiesOfClass(LivingEntity.class, session.box,
+                e -> (e instanceof ArmorStand || e instanceof Player && e != self) && session.box.contains(e.position()))) {
             UUID uuid = stand.getUUID();
             now.add(uuid);
             Snapshot snapshot = snapshot(stand);
@@ -461,8 +466,10 @@ public final class ArmorStandRecorder {
                 for (JsonObject item : snapshot.items()) {
                     model = model != null || item == null ? model : modelName(session, item, "head");
                 }
-                track = new Track(uuid, session.name(model == null ? "stand_" + session.tracks.size() : model + "_stand"), stand.getId(),
-                        custom == null ? null : custom.getString(), tick);
+                String bone = stand instanceof Player player ? "player_" + boneName(player.getGameProfile().name())
+                        : model == null ? "stand_" + session.tracks.size() : model + "_stand";
+                track = new Track(uuid, session.name(bone), stand.getId(),
+                        custom == null ? stand instanceof Player player ? player.getGameProfile().name() : null : custom.getString(), tick);
                 session.tracks.put(uuid, track);
             }
             Snapshot last = track.frames.get(tick - 1);
@@ -664,14 +671,22 @@ public final class ArmorStandRecorder {
         return array;
     }
 
-    private static Snapshot snapshot(ArmorStand stand) {
+    private static final Rotations STRAIGHT = new Rotations(0, 0, 0);
+
+    /** An armor stand's state, or a player's as a stand: body yaw, the head turned by its pitch and its yaw off the body, the other parts straight. */
+    private static Snapshot snapshot(LivingEntity entity) {
         JsonObject[] items = new JsonObject[SLOTS.length];
         for (int i = 0; i < SLOTS.length; i++) {
-            items[i] = item(stand.getItemBySlot(SLOTS[i]));
+            items[i] = item(entity.getItemBySlot(SLOTS[i]));
         }
-        return new Snapshot(stand.position(), stand.getYRot(), stand.isInvisible(), stand.isSmall(), stand.isMarker(), stand.showArms(),
-                stand.showBasePlate(), stand.getHeadPose(), stand.getBodyPose(), stand.getLeftArmPose(), stand.getRightArmPose(),
-                stand.getLeftLegPose(), stand.getRightLegPose(), items);
+        if (entity instanceof ArmorStand stand) {
+            return new Snapshot(stand.position(), stand.getYRot(), stand.isInvisible(), stand.isSmall(), stand.isMarker(), stand.showArms(),
+                    stand.showBasePlate(), stand.getHeadPose(), stand.getBodyPose(), stand.getLeftArmPose(), stand.getRightArmPose(),
+                    stand.getLeftLegPose(), stand.getRightLegPose(), items, false);
+        }
+        Rotations head = new Rotations(entity.getXRot(), net.minecraft.util.Mth.wrapDegrees(entity.getYHeadRot() - entity.yBodyRot), 0);
+        return new Snapshot(entity.position(), entity.yBodyRot, entity.isInvisible(), entity.isBaby(), false, true, false,
+                head, STRAIGHT, STRAIGHT, STRAIGHT, STRAIGHT, STRAIGHT, items, true);
     }
 
     /** The parts of an item that pick its model: id, item model, custom model data and dye colour. */

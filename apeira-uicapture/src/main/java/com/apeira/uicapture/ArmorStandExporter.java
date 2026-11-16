@@ -49,11 +49,14 @@ import com.apeira.uicapture.ArmorStandRecorder.Track;
  * <li>{@code <name>.geo.json}: a GeckoLib / Blockbench (Bedrock) model with one armor stand per recorded stand,
  * {@code stand_<n>} with the vanilla armor stand's parts ({@code _head}, {@code _body}, {@code _left_arm},
  * {@code _right_arm}, {@code _left_leg}, {@code _right_leg}, {@code _base_plate}), their cubes in {@code <part>_model}
- * bones, and an empty bone per equipment slot ({@code stand_<n>_head_item}, {@code _chest_item}, {@code _legs_item},
- * {@code _feet_item}, {@code _mainhand_item}, {@code _offhand_item}) where an item model can be attached.</li>
+ * bones, and a bone per equipment slot ({@code stand_<n>_head_item}, {@code _chest_item}, {@code _legs_item},
+ * {@code _feet_item}, {@code _mainhand_item}, {@code _offhand_item}). The head and hand slots hold a bone per item the slot
+ * held during the recording, with that item's models in it, placed as vanilla draws a head item and held items (armour is
+ * not drawn). Players in the area are tracks too, with only their worn and held items drawn.</li>
  * <li>{@code <name>.animation.json}: the GeckoLib animation {@code animation.<name>.recorded}. The stand bone's position
  * (relative to the area's bottom centre) and yaw, each part's pose, scale 0 for a stand outside the area (0.5 for small
- * stands), for the cubes of an invisible stand (and armless or plateless ones) and for empty slots. Every scale is a
+ * stands), for the cubes of an invisible stand (and armless or plateless ones) and for empty slots; each worn item's bone
+ * is scaled 0 while its slot holds another item. Every scale is a
  * three-value array and the clip carries no {@code timeline}, so GeckoLib plays it as it is.</li>
  * <li>{@code <name>.timeline.json}: one instruction per event (see {@link #instruction}) by time, the {@code timeline}
  * block to paste into a clip for a GeckoLib custom instruction keyframe handler.</li>
@@ -103,6 +106,15 @@ public final class ArmorStandExporter {
     static final String ROOT = "root_rig";
     private static final String[] PARTS = {"head", "body", "left_arm", "right_arm", "left_leg", "right_leg"};
     private static final String[] SLOT_NAMES = {"head", "chest", "legs", "feet", "mainhand", "offhand"};
+    private static final int HEAD = 0;
+    private static final int MAINHAND = 4;
+    private static final int OFFHAND = 5;
+    /** The slots whose items are drawn: the head item and the held items (armour is not drawn yet). */
+    private static final int[] WORN_SLOTS = {HEAD, MAINHAND, OFFHAND};
+    /** The display context vanilla draws each slot's item in (null for armour). */
+    private static final String[] WORN_CONTEXTS = {"head", null, null, null, "thirdperson_righthand", "thirdperson_lefthand"};
+    /** The head item's scale ({@code CustomHeadLayer}). */
+    private static final double HEAD_ITEM_SCALE = 0.625;
 
     private ArmorStandExporter() {
     }
@@ -204,21 +216,74 @@ public final class ArmorStandExporter {
                 if (key == null || variants.stream().anyMatch(v -> v.key().equals(key))) {
                     continue;
                 }
-                JsonObject item = frame.state().getAsJsonObject("item");
-                String context = frame.state().get("item_display").getAsString();
-                ItemModels.Resolved resolved = models.resolve(item, context);
-                resolved.models().forEach(model -> ItemGeometry.collect(model, atlas));
-                java.util.Set<String> modelsTaken = new java.util.HashSet<>();
-                List<String> modelNames = resolved.models().stream()
-                        .map(m -> unique(modelsTaken, ArmorStandRecorder.boneName(m.id().getPath().replaceAll(".*/", "")))).toList();
-                variants.add(new ItemVariant(variants.size(), key, item, context, resolved,
-                        unique(names, ArmorStandRecorder.boneName(ArmorStandRecorder.itemName(item))), modelNames));
+                variants.add(variant(variants.size(), key, frame.state().getAsJsonObject("item"),
+                        frame.state().get("item_display").getAsString(), names, models, atlas));
             }
             if (!variants.isEmpty()) {
                 items.put(track.bone, variants);
             }
         }
+        // What stands and players wear on the head and hold in the hands, under their slot's item bone.
+        for (Track track : recording.tracks()) {
+            for (int slot : WORN_SLOTS) {
+                List<ItemVariant> variants = new ArrayList<>();
+                java.util.Set<String> names = new java.util.HashSet<>();
+                for (Snapshot frame : track.frames.values()) {
+                    String key = wornKey(frame, slot);
+                    if (key == null || variants.stream().anyMatch(v -> v.key().equals(key))) {
+                        continue;
+                    }
+                    variants.add(variant(variants.size(), key, frame.items()[slot], WORN_CONTEXTS[slot], names, models, atlas));
+                }
+                if (!variants.isEmpty()) {
+                    items.put(track.bone + "_" + SLOT_NAMES[slot] + "_item", variants);
+                }
+            }
+        }
         return items;
+    }
+
+    /** One item resolved in a display context, its textures added to the atlas. */
+    private static ItemVariant variant(int index, String key, JsonObject item, String context, java.util.Set<String> names,
+            ItemModels models, TextureAtlas atlas) {
+        ItemModels.Resolved resolved = models.resolve(item, context);
+        resolved.models().forEach(model -> ItemGeometry.collect(model, atlas));
+        java.util.Set<String> modelsTaken = new java.util.HashSet<>();
+        List<String> modelNames = resolved.models().stream()
+                .map(m -> unique(modelsTaken, ArmorStandRecorder.boneName(m.id().getPath().replaceAll(".*/", "")))).toList();
+        return new ItemVariant(index, key, item, context, resolved,
+                unique(names, ArmorStandRecorder.boneName(ArmorStandRecorder.itemName(item))), modelNames);
+    }
+
+    /** What picks a worn slot's look: its item and display context, or null while the slot is empty. */
+    private static @Nullable String wornKey(Snapshot frame, int slot) {
+        JsonObject item = frame.items()[slot];
+        return item == null ? null : COMPACT.toJson(item) + " " + WORN_CONTEXTS[slot];
+    }
+
+    /**
+     * The rest pose of a worn item's model bone, relative to its slot's item bone (whose pivot is where vanilla puts the item):
+     * the head item ({@code CustomHeadLayer}: up 4 pixels from the head's pivot, scaled 0.625, which the variant bone keys,
+     * with no turn in the entity's frame) or a held item ({@code ItemInHandLayer}: from the arm's pivot, turned by
+     * x -90 and y 180 and moved (±1, 2, -10) pixels, in the model frame, whose x and y the entity frame flips), then the
+     * model's {@code display.<context>} (mirrored for the left hand, as vanilla does).
+     */
+    private static Rest wornRest(ItemModels.Model model, int slot) {
+        double[][] raw = ItemGeometry.rawDisplay(model, WORN_CONTEXTS[slot]);
+        double[] t = raw[0].clone(), r = raw[1].clone();
+        boolean left = slot == OFFHAND;
+        if (left) {
+            t[0] = -t[0];
+            r[1] = -r[1];
+            r[2] = -r[2];
+        }
+        Quaternionf display = new Quaternionf().rotationXYZ((float) Math.toRadians(r[0]), (float) Math.toRadians(r[1]), (float) Math.toRadians(r[2]));
+        if (slot == HEAD) {
+            return new Rest(new double[] {-t[0], t[1], t[2]}, euler(display));
+        }
+        Quaternionf hand = new Quaternionf().rotationZ((float) Math.PI).rotateX((float) (-Math.PI / 2)).rotateY((float) Math.PI);
+        Vector3f offset = hand.transform(new Vector3f((float) (left ? t[0] - 1 : t[0] + 1), (float) (t[1] + 2), (float) (t[2] - 10)));
+        return new Rest(new double[] {-offset.x(), offset.y(), offset.z()}, euler(hand.mul(display, new Quaternionf())));
     }
 
     /** {@link DisplayDiagnostics} for every item display's first recorded frame. */
@@ -292,7 +357,7 @@ public final class ArmorStandExporter {
             textures.add(id.toString(), entry);
         });
         JsonObject root = new JsonObject();
-        root.addProperty("conventions", "Each item display's distinct items, as the client resolves them from the loaded resource packs. "
+        root.addProperty("conventions", "Each item display's and each stand's or player's head and hand items, as the client resolves them from the loaded resource packs. "
                 + "The models' cubes are in the bone of the same name; textures lists each texture's place in the atlas (x, y, width, "
                 + "height; its first animation frame); assets lists the files copied into this folder and the pack each came from.");
         root.add("items", list);
@@ -324,6 +389,9 @@ public final class ArmorStandExporter {
                 stand.addProperty("custom_name", track.name);
             }
             stand.addProperty("first_tick", track.firstTick);
+            if (isPlayer(track)) {
+                stand.addProperty("player", true);
+            }
             JsonArray frames = new JsonArray();
             track.frames.forEach((tick, s) -> {
                 JsonObject frame = new JsonObject();
@@ -461,9 +529,11 @@ public final class ArmorStandExporter {
         bones.add(bone(ROOT, null, 0, 0, 0));
         for (Track track : recording.tracks()) {
             String b = track.bone;
+            // A player's head turns about the neck, a block and a half up; a stand's a pixel lower.
+            double neck = isPlayer(track) ? 24 : 23;
             bones.add(bone(b, ROOT, 0, 0, 0));
-            bones.add(bone(b + "_head", b, 0, 23, 0));
-            bones.add(bone(b + "_head_model", b + "_head", 0, 23, 0, cube(-1, 23, -1, 2, 7, 2, 0, 0, false)));
+            bones.add(bone(b + "_head", b, 0, neck, 0));
+            bones.add(bone(b + "_head_model", b + "_head", 0, neck, 0, cube(-1, 23, -1, 2, 7, 2, 0, 0, false)));
             bones.add(bone(b + "_body", b, 0, 24, 0));
             bones.add(bone(b + "_body_model", b + "_body", 0, 24, 0,
                     cube(-6, 21, -1.5, 12, 3, 3, 0, 26, false), cube(-3, 14, -1, 2, 7, 2, 16, 0, false),
@@ -478,12 +548,17 @@ public final class ArmorStandExporter {
             bones.add(bone(b + "_left_leg_model", b + "_left_leg", 1.9, 12, 0, cube(0.9, 1, -1, 2, 11, 2, 40, 16, true)));
             bones.add(bone(b + "_base_plate", b, 0, 0, 0, cube(-6, 0, -6, 12, 1, 12, 0, 32, false)));
             // Where the vanilla renderer draws each slot's item: the head item on the head, held items in the hands.
-            bones.add(bone(b + "_head_item", b + "_head", 0, 23, 0));
+            bones.add(bone(b + "_head_item", b + "_head", 0, neck + 4, 0));
             bones.add(bone(b + "_chest_item", b + "_body", 0, 24, 0));
             bones.add(bone(b + "_legs_item", b, 0, 12, 0));
             bones.add(bone(b + "_feet_item", b, 0, 1, 0));
-            bones.add(bone(b + "_mainhand_item", b + "_right_arm", -6, 13, 0));
-            bones.add(bone(b + "_offhand_item", b + "_left_arm", 6, 13, 0));
+            bones.add(bone(b + "_mainhand_item", b + "_right_arm", -5, 22, 0));
+            bones.add(bone(b + "_offhand_item", b + "_left_arm", 5, 22, 0));
+            for (int slot : WORN_SLOTS) {
+                String slotBone = b + "_" + SLOT_NAMES[slot] + "_item";
+                double[] pivot = slot == HEAD ? new double[] {0, neck + 4, 0} : new double[] {slot == MAINHAND ? -5 : 5, 22, 0};
+                itemBones(bones, slotBone, slotBone, pivot, items.getOrDefault(slotBone, List.of()), atlas);
+            }
         }
         for (HitboxTrack track : recording.hitboxes()) {
             if (track.frames.isEmpty()) {
@@ -510,18 +585,7 @@ public final class ArmorStandExporter {
             if (track.frames.values().iterator().next().transform() != null) {
                 bones.add(bone(track.bone + "_transform", track.bone, 0, 0, 0));
                 bones.add(bone(track.bone + "_transform_right", track.bone + "_transform", 0, 0, 0));
-                for (ItemVariant variant : items.getOrDefault(track.bone, List.of())) {
-                    bones.add(bone(variant.bone(track.bone), track.bone + "_transform_right", 0, 0, 0));
-                    List<ItemModels.Model> models = variant.resolved().models();
-                    for (int m = 0; m < models.size(); m++) {
-                        JsonObject modelBone = bone(variant.model(track.bone, m), variant.bone(track.bone), 0, 0, 0);
-                        JsonArray cubes = ItemGeometry.cubes(models.get(m), atlas);
-                        if (!cubes.isEmpty()) {
-                            modelBone.add("cubes", cubes);
-                        }
-                        bones.add(modelBone);
-                    }
-                }
+                itemBones(bones, track.bone, track.bone + "_transform_right", new double[3], items.getOrDefault(track.bone, List.of()), atlas);
             }
         }
         bake(bones, rest);
@@ -542,6 +606,34 @@ public final class ArmorStandExporter {
         root.addProperty("format_version", "1.12.0");
         root.add("minecraft:geometry", list);
         return root;
+    }
+
+    /** Each variant's bone (named after {@code parent}) under {@code host}, and a bone per model holding its cubes, all pivoting at {@code pivot}. */
+    private static void itemBones(JsonArray bones, String parent, String host, double[] pivot, List<ItemVariant> variants, TextureAtlas atlas) {
+        for (ItemVariant variant : variants) {
+            bones.add(bone(variant.bone(parent), host, pivot[0], pivot[1], pivot[2]));
+            List<ItemModels.Model> models = variant.resolved().models();
+            for (int m = 0; m < models.size(); m++) {
+                JsonObject modelBone = bone(variant.model(parent, m), variant.bone(parent), pivot[0], pivot[1], pivot[2]);
+                JsonArray cubes = ItemGeometry.cubes(models.get(m), atlas);
+                for (JsonElement cube : cubes) {
+                    JsonObject c = cube.getAsJsonObject();
+                    c.add("origin", shifted(c.getAsJsonArray("origin"), pivot));
+                    if (c.has("pivot")) {
+                        c.add("pivot", shifted(c.getAsJsonArray("pivot"), pivot));
+                    }
+                }
+                if (!cubes.isEmpty()) {
+                    modelBone.add("cubes", cubes);
+                }
+                bones.add(modelBone);
+            }
+        }
+    }
+
+    /** Whether a track is a player rather than an armor stand. */
+    private static boolean isPlayer(Track track) {
+        return !track.frames.isEmpty() && track.frames.values().iterator().next().player();
     }
 
     // Rest poses
@@ -565,6 +657,15 @@ public final class ArmorStandExporter {
             Rotations[] poses = poses(first);
             for (int i = 0; i < PARTS.length; i++) {
                 rest.put(track.bone + "_" + PARTS[i], new Rest(new double[3], new double[] {poses[i].x(), poses[i].y(), poses[i].z()}));
+            }
+            for (int slot : WORN_SLOTS) {
+                String slotBone = track.bone + "_" + SLOT_NAMES[slot] + "_item";
+                for (ItemVariant variant : items.getOrDefault(slotBone, List.of())) {
+                    List<ItemModels.Model> models = variant.resolved().models();
+                    for (int m = 0; m < models.size(); m++) {
+                        rest.put(variant.model(slotBone, m), wornRest(models.get(m), slot));
+                    }
+                }
             }
         }
         for (HitboxTrack track : recording.hitboxes()) {
@@ -745,17 +846,35 @@ public final class ArmorStandExporter {
                 bones.add(b + "_" + PARTS[i], bone);
                 boolean arm = PARTS[i].endsWith("_arm");
                 JsonObject model = new JsonObject();
-                model.add("scale", discrete(ticks, t -> states[t].invisible() || arm && !states[t].showArms() ? 0.0 : 1.0));
+                // Players have no body here (an armor stand's would be wrong), only what they wear and hold.
+                model.add("scale", discrete(ticks, t -> states[t].player() || states[t].invisible() || arm && !states[t].showArms() ? 0.0 : 1.0));
                 bones.add(b + "_" + PARTS[i] + "_model", model);
             }
             JsonObject plate = new JsonObject();
-            plate.add("scale", discrete(ticks, t -> states[t].invisible() || !states[t].basePlate() ? 0.0 : 1.0));
+            plate.add("scale", discrete(ticks, t -> states[t].player() || states[t].invisible() || !states[t].basePlate() ? 0.0 : 1.0));
             bones.add(b + "_base_plate", plate);
             for (int i = 0; i < SLOT_NAMES.length; i++) {
                 int slot = i;
                 JsonObject item = new JsonObject();
                 item.add("scale", discrete(ticks, t -> states[t].items()[slot] == null ? 0.0 : 1.0));
                 bones.add(b + "_" + SLOT_NAMES[i] + "_item", item);
+            }
+            for (int slot : WORN_SLOTS) {
+                String slotBone = b + "_" + SLOT_NAMES[slot] + "_item";
+                double shown = slot == HEAD ? HEAD_ITEM_SCALE : 1.0;
+                for (ItemVariant variant : items.getOrDefault(slotBone, List.of())) {
+                    // Scale 0 while the slot holds another item or none.
+                    JsonObject item = new JsonObject();
+                    item.add("scale", discrete(ticks, t -> variant.key().equals(wornKey(states[t], slot)) ? shown : 0.0));
+                    bones.add(variant.bone(slotBone), item);
+                    List<ItemModels.Model> models = variant.resolved().models();
+                    for (int m = 0; m < models.size(); m++) {
+                        double[] scale = ItemGeometry.rawDisplay(models.get(m), variant.context())[2];
+                        JsonObject model = new JsonObject();
+                        model.add("scale", continuous(ticks, t -> scale.clone(), false));
+                        bones.add(variant.model(slotBone, m), model);
+                    }
+                }
             }
         }
         for (HitboxTrack track : recording.hitboxes()) {
