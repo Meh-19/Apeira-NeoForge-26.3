@@ -47,7 +47,7 @@ public final class UiCaptureClient implements ClientModInitializer {
     public static final KeyMapping LOG_CHAT = new KeyMapping("key.apeira.log_chat", InputConstants.KEY_F7, KeyMapping.Category.MISC);
     public static final KeyMapping RECORD_POS1 = new KeyMapping("key.apeira.record_pos1", InputConstants.KEY_LBRACKET, KeyMapping.Category.MISC);
     public static final KeyMapping RECORD_POS2 = new KeyMapping("key.apeira.record_pos2", InputConstants.KEY_RBRACKET, KeyMapping.Category.MISC);
-    public static final KeyMapping RECORD_TOGGLE = new KeyMapping("key.apeira.record_toggle", InputConstants.KEY_BACKSLASH, KeyMapping.Category.MISC);
+    public static final KeyMapping RECORD_TOGGLE = new KeyMapping("key.apeira.record_toggle", InputConstants.KEY_F6, KeyMapping.Category.MISC);
 
     /** What the next frame should capture: a screen, a screen with a deep inspection, the HUD, the HUD with its text log, or nothing. */
     private enum Pending { NONE, SCREEN, INSPECT, HUD, HUD_LOG }
@@ -141,6 +141,11 @@ public final class UiCaptureClient implements ClientModInitializer {
         while (LOG_CHAT.consumeClick()) {
             ChatCapture.toggle(minecraft);
         }
+        recordingKeys(minecraft);
+    }
+
+    /** The armor stand recorder's keys, read every tick and every HUD frame, since a paused replay (Replay Mod) stops the ticks. */
+    private static void recordingKeys(Minecraft minecraft) {
         while (RECORD_POS1.consumeClick()) {
             ArmorStandRecorder.cornerKey(minecraft, 1);
         }
@@ -154,6 +159,7 @@ public final class UiCaptureClient implements ClientModInitializer {
 
     /** The start of a HUD frame ({@code mixin/HudMixin}). */
     public static void beginHud() {
+        recordingKeys(Minecraft.getInstance());
         if (pending == Pending.HUD || pending == Pending.HUD_LOG) {
             UiCapture.begin();
         }
