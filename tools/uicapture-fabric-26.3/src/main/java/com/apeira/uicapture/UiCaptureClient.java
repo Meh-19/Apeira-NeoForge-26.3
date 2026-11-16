@@ -45,6 +45,9 @@ public final class UiCaptureClient implements ClientModInitializer {
     public static final KeyMapping INSPECT = new KeyMapping("key.apeira.inspect_ui", InputConstants.KEY_F9, KeyMapping.Category.MISC);
     public static final KeyMapping LOG_HUD = new KeyMapping("key.apeira.log_hud", InputConstants.KEY_F10, KeyMapping.Category.MISC);
     public static final KeyMapping LOG_CHAT = new KeyMapping("key.apeira.log_chat", InputConstants.KEY_F7, KeyMapping.Category.MISC);
+    public static final KeyMapping RECORD_POS1 = new KeyMapping("key.apeira.record_pos1", InputConstants.KEY_LBRACKET, KeyMapping.Category.MISC);
+    public static final KeyMapping RECORD_POS2 = new KeyMapping("key.apeira.record_pos2", InputConstants.KEY_RBRACKET, KeyMapping.Category.MISC);
+    public static final KeyMapping RECORD_TOGGLE = new KeyMapping("key.apeira.record_toggle", InputConstants.KEY_BACKSLASH, KeyMapping.Category.MISC);
 
     /** What the next frame should capture: a screen, a screen with a deep inspection, the HUD, the HUD with its text log, or nothing. */
     private enum Pending { NONE, SCREEN, INSPECT, HUD, HUD_LOG }
@@ -57,6 +60,9 @@ public final class UiCaptureClient implements ClientModInitializer {
         KeyMappingHelper.registerKeyMapping(INSPECT);
         KeyMappingHelper.registerKeyMapping(LOG_HUD);
         KeyMappingHelper.registerKeyMapping(LOG_CHAT);
+        KeyMappingHelper.registerKeyMapping(RECORD_POS1);
+        KeyMappingHelper.registerKeyMapping(RECORD_POS2);
+        KeyMappingHelper.registerKeyMapping(RECORD_TOGGLE);
         ClientTickEvents.END_CLIENT_TICK.register(UiCaptureClient::onClientTick);
         // Commands going to the server; client commands are not included.
         ClientSendMessageEvents.COMMAND.register(CommandLogger::ran);
@@ -134,6 +140,15 @@ public final class UiCaptureClient implements ClientModInitializer {
         }
         while (LOG_CHAT.consumeClick()) {
             ChatCapture.toggle(minecraft);
+        }
+        while (RECORD_POS1.consumeClick()) {
+            ArmorStandRecorder.cornerKey(minecraft, 1);
+        }
+        while (RECORD_POS2.consumeClick()) {
+            ArmorStandRecorder.cornerKey(minecraft, 2);
+        }
+        while (RECORD_TOGGLE.consumeClick()) {
+            ArmorStandRecorder.toggleKey(minecraft);
         }
     }
 
