@@ -273,6 +273,29 @@ public final class ArmorStandRecorder {
     }
 
     private static int setCorner(CommandContext<FabricClientCommandSource> context, int corner, BlockPos pos) {
+        return setCorner(corner, pos);
+    }
+
+    /** The "Set Recording Corner" keys: the block the player (or Replay Mod's free camera) is in, with no command to type. */
+    public static void cornerKey(Minecraft minecraft, int corner) {
+        if (minecraft.player != null && minecraft.level != null) {
+            setCorner(corner, minecraft.player.blockPosition());
+        }
+    }
+
+    /** The "Start/Stop Recording" key: starts a recording named {@code armor_stands} (exports are kept apart by time), or stops and exports the running one. */
+    public static void toggleKey(Minecraft minecraft) {
+        if (minecraft.player == null || minecraft.level == null) {
+            return;
+        }
+        if (session == null) {
+            start("armor_stands");
+        } else {
+            stop();
+        }
+    }
+
+    private static int setCorner(int corner, BlockPos pos) {
         if (session != null) {
             Feedback.error(Component.translatable("message.apeira.armor_stands.busy"));
             return 0;
@@ -283,10 +306,14 @@ public final class ArmorStandRecorder {
             pos2 = pos;
         }
         Feedback.ok(Component.translatable("message.apeira.armor_stands.corner", corner, pos.toShortString()));
-        return info(context);
+        return info();
     }
 
     private static int info(CommandContext<FabricClientCommandSource> context) {
+        return info();
+    }
+
+    private static int info() {
         if (pos1 == null || pos2 == null) {
             Feedback.ok(Component.translatable("message.apeira.armor_stands.no_area",
                     pos1 == null ? "-" : pos1.toShortString(), pos2 == null ? "-" : pos2.toShortString()));
@@ -333,6 +360,10 @@ public final class ArmorStandRecorder {
     }
 
     private static int start(CommandContext<FabricClientCommandSource> context, String name) {
+        return start(name);
+    }
+
+    private static int start(String name) {
         if (session != null) {
             Feedback.error(Component.translatable("message.apeira.armor_stands.busy"));
             return 0;
@@ -348,6 +379,10 @@ public final class ArmorStandRecorder {
     }
 
     private static int stop(CommandContext<FabricClientCommandSource> context) {
+        return stop();
+    }
+
+    private static int stop() {
         Session done = session;
         if (done == null) {
             Feedback.error(Component.translatable("message.apeira.armor_stands.not_recording"));
