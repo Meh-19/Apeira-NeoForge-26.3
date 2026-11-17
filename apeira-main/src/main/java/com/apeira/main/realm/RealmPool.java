@@ -19,6 +19,7 @@ import com.apeira.main.npc.NpcService;
 import com.apeira.main.realm.balloon.BalloonColors;
 import com.apeira.main.realm.balloon.StarterBalloon;
 import com.apeira.main.realm.balloon.StarterBalloonBlock;
+import com.apeira.main.registry.MainGameRules;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -103,9 +104,10 @@ public final class RealmPool {
         quiet = 0;
     }
 
-    /** Players without a realm are shown the onboarding screen when they join. */
+    /** Players without a realm are shown the onboarding screen when they join, unless the world has realm presets off. */
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && RealmData.get(player.level().getServer()).realmOf(player.getUUID()).isEmpty()) {
+        if (event.getEntity() instanceof ServerPlayer player && MainGameRules.realmPresets(player.level().getServer())
+                && RealmData.get(player.level().getServer()).realmOf(player.getUUID()).isEmpty()) {
             ApeiraPackets.sendToPlayer(player, new OpenOnboardingPayload());
         }
     }
@@ -118,7 +120,9 @@ public final class RealmPool {
         }
         // Nothing new starts while anybody is travelling to or settling into a realm: no new pool dimension, at most
         // one a tick, and no new batch, one realm at a time (a batch already loading finishes on the workers).
-        boolean calm = TRAVELLERS.isEmpty() && quiet == 0;
+        // A world with realm presets off (MainGameRules#REALM_PRESETS) makes and generates no pool realms; the queue
+        // waits, so turning the rule on later fills the pool.
+        boolean calm = TRAVELLERS.isEmpty() && quiet == 0 && MainGameRules.realmPresets(server);
         RealmPreset refill = calm ? REFILLS.poll() : null;
         if (refill != null) {
             fill(server, refill);
@@ -154,10 +158,13 @@ public final class RealmPool {
     /**
      * Gives {@code player} a realm of {@code preset}: a ready pool realm if there is one, otherwise a new one that
      * generates as they arrive. A player who already has a realm is only sent home. Either way they travel there after
-     * the onboarding screen's cards.
+     * the onboarding screen's cards. In a world with realm presets off nobody without a realm gets one.
      */
     public static void claim(ServerPlayer player, RealmPreset preset) {
         MinecraftServer server = player.level().getServer();
+        if (!MainGameRules.realmPresets(server) && RealmData.get(server).realmOf(player.getUUID()).isEmpty()) {
+            return;
+        }
         if (RealmData.get(server).realmOf(player.getUUID()).isEmpty()) {
             RealmData.Realm realm = take(server, player.getUUID(), preset);
             Apeira.LOGGER.info("{} claimed realm {} ({})", player.getName().getString(), realm.dimension(), preset.getSerializedName());

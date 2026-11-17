@@ -23,6 +23,7 @@
   ],
   "client": [
     "client.ClientPacketListenerMixin",
+    "client.CreateWorldTabMixin",
     "client.LevelLoadingScreenMixin",
     "client.ShadowPlayerRenderMixin",
     "client.ShadowVignetteMixin"
