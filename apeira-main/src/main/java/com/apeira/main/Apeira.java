@@ -43,6 +43,7 @@ import com.apeira.main.registry.MainEffects;
 import com.apeira.main.registry.MainEntities;
 import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainFeatures;
+import com.apeira.main.registry.MainGameRules;
 import com.apeira.main.registry.MainGear;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainLanterns;
@@ -83,7 +84,7 @@ public final class Apeira {
                 MainRocks::init, MainDyedBlocks::init, MainCrystals::init, MainBuildingBlocks::init, MainPlants::init,
                 MainSpecialBlocks::init, MainMaterials::init, MainRubies::init, MainBlockEntities::init, MainDataComponents::init, MainEffects::init,
                 MainGear::init, MainSounds::init, MainFeatures::init, MainEntities::init, MainNpcs::init, MainCosmetics::init, MainCrates::init,
-                MainRealmBlocks::init, MainFarming::init, MainCreativeTabs::init);
+                MainRealmBlocks::init, MainFarming::init, MainGameRules::init, MainCreativeTabs::init);
         NETWORK.register(modEventBus, MainPayloads::init);
         // Data holder classes (models, recipes, ...) are passed here as they are added.
         DATA.register(modEventBus, MainData::init);

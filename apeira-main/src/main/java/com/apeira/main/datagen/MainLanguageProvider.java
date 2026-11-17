@@ -405,6 +405,10 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         message("realm.home", "Welcome home!");
         message("realm.exists", "You already have a Realm");
         message("realm.none", "You don't have a Realm yet. Use /realm create to make one");
+        message("realm.presets_off", "Realms are off in this world. Turn them on with /gamerule apeira:realm_presets true");
+        add("gamerule.apeira.realm_presets", "Realm Presets");
+        add("gamerule.apeira.realm_presets.description",
+                "Shows the realm region picker to players without a realm and pre-generates realms. Turn off for superflat, debug or test worlds.");
     }
 
     /** The NPC settings popup, its messages, the anchor placement cursor, voices and dialogue. */

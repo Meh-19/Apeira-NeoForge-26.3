@@ -8,6 +8,7 @@ import com.apeira.core.network.ApeiraPackets;
 import com.apeira.main.navigator.NavigatorPage;
 import com.apeira.main.navigator.NavigatorService;
 import com.apeira.main.realm.balloon.BalloonColors;
+import com.apeira.main.registry.MainGameRules;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -35,6 +36,10 @@ public final class RealmCommand {
                     ServerPlayer player = context.getSource().getPlayerOrException();
                     if (RealmData.get(player.level().getServer()).realmOf(player.getUUID()).isPresent()) {
                         NavigatorService.open(player, NavigatorPage.REALM_SETTINGS);
+                        return 0;
+                    }
+                    if (!MainGameRules.realmPresets(player.level().getServer())) {
+                        RealmService.fail(player, "realm.presets_off");
                         return 0;
                     }
                     ApeiraPackets.sendToPlayer(player, new OpenOnboardingPayload());
