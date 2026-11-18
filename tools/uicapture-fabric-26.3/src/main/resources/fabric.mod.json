@@ -3,7 +3,7 @@
   "id": "apeira_uicapture",
   "version": "${version}",
   "name": "Apeira UI Capture",
-  "description": "Client-only dev tool: F8 dumps the open screen's (or the HUD's) layout, textures, sprites, glyphs, items and widgets to logs/apeira_ui_capture.json; F9 deep-inspects, F10 logs the HUD, F7 logs chat; /apeirasound, /apeiracommands and /apeiradev area|record.",
+  "description": "Client-only dev tool: F8 dumps the open screen's (or the HUD's) layout, textures, sprites, glyphs, items and widgets to logs/apeira_ui_capture.json; F9 deep-inspects, F10 logs the HUD, F7 logs chat; /apeirasound, /apeiracommands and /apeiradev area|record ([ and ] set the area corners at the camera, F6 starts/stops a recording).",
   "authors": ["Ren"],
   "license": "MIT",
   "environment": "client",

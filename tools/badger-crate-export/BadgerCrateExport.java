@@ -36,6 +36,7 @@ import com.google.gson.JsonParser;
  * <li>placeholder geometry is dropped: armor stand bodies ({@code *_model}, {@code *_base_plate}), the server's empty
  * paper buttons ({@code *empty_button}) and the recorded rewards under {@code item_1}-{@code item_3} (their bones stay as
  * anchors for the rolled items);</li>
+ * <li>scale keys of 0 are written as 0.001, as GeckoLib draws bones scaled to exactly 0 wrongly;</li>
  * <li>each reward's VFX ({@code item_<n>_glow}, {@code _pulse}, {@code _trail}, {@code _spark}) gets its own atlas
  * regions, listed in {@code badger_crate/fx_layout.json}, which the client repaints with the rolled tier's textures.</li>
  * </ul>
@@ -51,6 +52,8 @@ public final class BadgerCrateExport {
     private static final Pattern ITEM_GROUP = Pattern.compile("item_[123]");
     private static final String CAMERA_GROUP = "player";
     private static final double EYE_HEIGHT = 1.62;
+    /** What a scale key of 0 is written as. */
+    private static final double HIDDEN_SCALE = 0.001;
 
     private final JsonObject project;
     private final Map<String, JsonObject> groups = new HashMap<>();
@@ -396,6 +399,10 @@ public final class BadgerCrateExport {
             String raw = point.has(axes[i]) ? point.get(axes[i]).getAsString() : "0";
             try {
                 double number = raw.isEmpty() ? 0 : Double.parseDouble(raw);
+                if (channel.equals("scale") && number == 0) {
+                    // GeckoLib glitches on a bone scaled to exactly 0 (its normals break), so hidden bones are scaled to 0.001.
+                    number = HIDDEN_SCALE;
+                }
                 values.add(round(negate[i] ? -number : number));
             } catch (NumberFormatException molang) {
                 values.add(negate[i] ? "-(" + raw + ")" : raw);
