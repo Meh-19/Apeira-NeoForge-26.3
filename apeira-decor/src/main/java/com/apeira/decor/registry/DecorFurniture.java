@@ -36,8 +36,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
  * <p>The pieces are the Badger Crate's, the Origin Realms server pack's {@code models/custom/furniture/badger/} models
  * (names from Ren's uicapture of the {@code /catalog} "Reward Furniture" pages). Its {@code fixed} display picks the
  * mode: rotation x 90 is drawn on the top face ({@link Form#FURNITURE}), -90 on the floor ({@link Form#FLOOR}), as
- * Argon's models are. A piece takes paint when its model has tint index 1 faces (all but the wooden cart; the
- * windmill's GeckoLib model has no {@code _tintable} bones yet, so it does not).
+ * Argon's models are. A piece takes paint when its model has tint index 1 faces (all but the wooden cart); the
+ * windmill's GeckoLib model paints its {@code _tintable} bones (sails and tail fin).
  */
 public final class DecorFurniture {
     private static final ApeiraRegistrar R = ApeiraDecor.REGISTRAR;
@@ -59,7 +59,7 @@ public final class DecorFurniture {
             p -> new FurnitureBlock(p, true, Form.FURNITURE));
     /** Animated: Ren's GeckoLib model, {@code geckolib/models/furniture/wooden_windmill.geo.json}, its sails turning. */
     public static final DeferredBlock<AnimatedFurnitureBlock> WOODEN_WINDMILL = piece("wooden_windmill", "badger_crate",
-            p -> new AnimatedFurnitureBlock(p, "furniture", false, "wooden_windmill", null));
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "wooden_windmill", null));
 
     private DecorFurniture() {}
 
