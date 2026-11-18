@@ -106,6 +106,14 @@ public final class FinishRenderTypes {
         event.registerOitPipelineSet(OIT_PIPELINES);
     }
 
+    /**
+     * The translucent finish render type for any texture, such as a GeckoLib model's: the item pipelines use the entity
+     * vertex format, so painted animated furniture draws its finishes with them.
+     */
+    public static RenderType translucent(Identifier texture) {
+        return TRANSLUCENT.apply(texture);
+    }
+
     /** Whether the stack is painted with a finish, so its look changes every frame. */
     public static boolean hasFinish(ItemStack stack) {
         Integer paint = Paint.get(stack);

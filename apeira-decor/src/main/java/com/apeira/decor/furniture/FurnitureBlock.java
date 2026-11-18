@@ -56,6 +56,7 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
     private float renderOffsetX;
     private float renderOffsetY;
     private float renderOffsetZ;
+    private float modelYaw;
 
     /**
      * @param paintable whether the paintbrush and painting table paint it
@@ -99,6 +100,21 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
         renderOffsetY = y / 16.0F;
         renderOffsetZ = z / 16.0F;
         return (T) this;
+    }
+
+    /**
+     * Turns the drawn model by {@code degrees} about the block's centre column, for a model authored facing the other
+     * way from the rest (as Ren's windmill is). Returns this block.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends FurnitureBlock> T modelYaw(float degrees) {
+        modelYaw = degrees;
+        return (T) this;
+    }
+
+    /** How far the drawn model is turned about the block's centre column, in degrees. */
+    public float modelYaw() {
+        return modelYaw;
     }
 
     /** How far the renderer moves the model, in blocks: x, y, z. */

@@ -78,6 +78,7 @@ FACING_CLASSES = {"FacingFurnitureBlock", "CeilingFurnitureBlock", "WaterloggedF
 DECLARATION = re.compile(r'DeferredBlock<\w+> \w+ = (?:artifact|variant|piece)\("(\w+)",(.*?)p -> new (\w+)\(p, (?:"\w+", )?'
                          r'(?:true|false)(?:, (Form\.\w+|DisplayMode\.\w+|\d+|"\w*"))?([^;]*);', re.S)
 OFFSET = re.compile(r'renderOffset\(([-\d.]+)F?, ([-\d.]+)F?, ([-\d.]+)F?\)')
+YAW = re.compile(r'modelYaw\(([-\d.]+)F?\)')
 
 
 # Matrices --------------------------------------------------------------------------------------------------------
@@ -139,7 +140,9 @@ def artifacts(module: dict) -> list[dict]:
             held = "floor"
         found = OFFSET.search(after)
         offset = tuple(float(v) / 16 for v in found.groups()) if found else (0.0, 0.0, 0.0)
-        pieces.append({"name": name, "mode": mode, "facing": facing, "held": held, "offset": offset, "module": module})
+        yawed = YAW.search(after)
+        pieces.append({"name": name, "mode": mode, "facing": facing, "held": held, "offset": offset,
+                       "yaw": float(yawed.group(1)) if yawed else 0.0, "module": module})
     if not pieces:
         raise ScriptError(f"{module['source']}: no furniture found")
     return pieces
@@ -166,10 +169,13 @@ def renderer(mode: str, facing: bool, turn_: int):
 def placed(piece: dict, turn_: int, item):
     """The model's matrix into the block as ``FurnitureRenderer`` draws it: moved by the piece's ``renderOffset`` (in
     blocks, before its turn; not for GeckoLib pieces, whose renderer doesn't move them), laid in and turned."""
-    matrix = mul(renderer(piece["mode"], piece["facing"], turn_), item)
     if piece["mode"] == "GECKOLIB":
-        return matrix
-    return mul(translate(*piece["offset"]), matrix)
+        # AnimatedFurnitureRenderer adds the piece's modelYaw to its turn.
+        return mul(chain(translate(0.5, 0, 0.5), turn("y", -45 * turn_ + piece["yaw"]), scale(-1 / 16, 1 / 16, 1 / 16)), item)
+    matrix = mul(renderer(piece["mode"], piece["facing"], turn_), item)
+    # FurnitureRenderer moves the model by renderOffset, then turns it by modelYaw about the block's centre column.
+    yaw = chain(translate(0.5, 0, 0.5), turn("y", piece["yaw"]), translate(-0.5, 0, -0.5))
+    return mul(translate(*piece["offset"]), mul(yaw, matrix))
 
 
 def model_cubes(piece: dict) -> tuple[list, list]:
