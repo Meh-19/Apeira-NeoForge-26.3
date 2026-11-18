@@ -4,14 +4,16 @@ import com.apeira.decor.paint.PaintBlockEntity;
 import com.apeira.decor.registry.DecorBlockEntities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-/**
- * The block entity of every {@link FurnitureBlock}, which {@code FurnitureRenderer} draws, as CosmoLib's furniture
- * block entities were. It keeps the piece's paint like any {@link PaintBlockEntity}.
- */
+/** A furniture piece's paint, drawn by {@code FurnitureRenderer} ({@link DecorBlockEntities#FURNITURE}). */
 public class FurnitureBlockEntity extends PaintBlockEntity {
     public FurnitureBlockEntity(BlockPos pos, BlockState state) {
-        super(DecorBlockEntities.FURNITURE.get(), pos, state);
+        this(DecorBlockEntities.FURNITURE.get(), pos, state);
+    }
+
+    protected FurnitureBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 }

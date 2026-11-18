@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.apeira.decor.furniture.Furniture;
 import com.apeira.decor.furniture.FurnitureBlock;
 import com.apeira.decor.furniture.FurniturePlacement;
 import com.apeira.decor.furniture.FurnitureTuning;
+import com.apeira.decor.furniture.SeatFurnitureBlock;
 import com.apeira.dev.ApeiraDev;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,8 +28,9 @@ import net.neoforged.fml.loading.FMLPaths;
 
 /**
  * Writes a piece's tuning to {@code logs/apeira_furniture_export.json} in the game directory ({@code run/} in dev),
- * keyed by block id so the file collects every exported piece, and prints the Java to the log: the shape as
- * {@code Block.box} calls and the piece's {@code FurnitureCatalogue} line, ready to paste.
+ * keyed by block id so the file collects every exported piece, and prints to the log the shape as {@code Block.box}
+ * calls and the piece's footprint table line ({@code name|straight||}, pixel boxes at turn 0), ready to paste into its
+ * module's footprint table; the model's scale, offset and turn go into its item model's display.
  */
 public final class FurnitureExporter {
     public static final String FILE = "logs/apeira_furniture_export.json";
@@ -43,13 +44,13 @@ public final class FurnitureExporter {
         JsonObject all = read(file);
         String id = BuiltInRegistries.BLOCK.getKey(block).toString();
         String shape = shapeJava(tuning);
-        String catalogue = catalogueJava(block.furniture(), tuning);
-        all.add(id, entry(block.furniture(), tuning, shape, catalogue));
+        String footprint = footprintLine(BuiltInRegistries.BLOCK.getKey(block).getPath(), tuning);
+        all.add(id, entry(block, tuning, shape, footprint));
         Files.createDirectories(file.getParent());
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             GSON.toJson(all, writer);
         }
-        ApeiraDev.LOGGER.info("Furniture export of {} (also in {}):\n{}\n{}", id, file, shape, catalogue);
+        ApeiraDev.LOGGER.info("Furniture export of {} (also in {}):\n{}\n{}", id, file, shape, footprint);
         return file;
     }
 
@@ -65,7 +66,7 @@ public final class FurnitureExporter {
         }
     }
 
-    private static JsonObject entry(Furniture furniture, FurnitureTuning tuning, String shape, String catalogue) {
+    private static JsonObject entry(FurnitureBlock block, FurnitureTuning tuning, String shape, String footprint) {
         JsonObject entry = new JsonObject();
         JsonArray boxes = new JsonArray();
         for (FurnitureTuning.Box box : tuning.boxes()) {
@@ -82,23 +83,22 @@ public final class FurnitureExporter {
         offset.add(tuning.offsetY());
         offset.add(tuning.offsetZ());
         entry.add("offset", offset);
-        entry.addProperty("model_bottom", modelBottom(furniture));
         entry.addProperty("rotation", tuning.rotation());
         JsonArray placements = new JsonArray();
         FurniturePlacement.of(tuning.placements()).forEach(placement -> placements.add(placement.name()));
         entry.add("placements", placements);
-        if (furniture.seat()) {
+        if (block instanceof SeatFurnitureBlock) {
             entry.addProperty("seat_height", tuning.seatHeight());
         }
         JsonObject java = new JsonObject();
         java.addProperty("shape", shape);
-        java.addProperty("catalogue", catalogue);
+        java.addProperty("footprint", footprint);
         entry.add("java", java);
         entry.addProperty("exported_at", Instant.now().toString());
         return entry;
     }
 
-    /** The shape facing north, as {@code Block.box} calls in pixels. */
+    /** The shape at turn 0, as {@code Block.box} calls in pixels. */
     static String shapeJava(FurnitureTuning tuning) {
         if (tuning.boxes().isEmpty()) {
             return "Shapes.empty()";
@@ -110,50 +110,10 @@ public final class FurnitureExporter {
         return boxes.size() == 1 ? boxes.getFirst() : "Shapes.or(\n        " + String.join(",\n        ", boxes) + ")";
     }
 
-    /** The piece's {@code FurnitureCatalogue} line, with what the catalogue cannot hold yet as a comment. */
-    static String catalogueJava(Furniture furniture, FurnitureTuning tuning) {
-        StringBuilder java = new StringBuilder("all.add(piece(\"").append(furniture.name()).append("\", ")
-                .append(furniture.crate() == null ? "null" : "\"" + furniture.crate() + "\"").append(")");
-        if (furniture.paintable()) {
-            java.append(".paintable()");
-        }
-        if (furniture.defaultPaint() != null) {
-            java.append(".defaultPaint(0x").append(String.format("%06X", furniture.defaultPaint())).append(")");
-        }
-        if (!furniture.collision()) {
-            java.append(".noCollision()");
-        }
-        if (furniture.seat()) {
-            java.append(".seat(").append(TuningParameter.number(tuning.seatHeight())).append(")");
-        }
-        if (furniture.large() != null || tuning.scale() != 1.0F || tuning.offsetY() != 0.0F) {
-            java.append(".large(").append(TuningParameter.number(tuning.scale())).append(", ").append(TuningParameter.number(modelBottom(furniture)))
-                    .append(", ").append(TuningParameter.number(tuning.offsetY())).append(")");
-        }
-        java.append(".shape(");
-        java.append(tuning.boxes().stream().map(box -> "\n        " + numbers(box)).collect(Collectors.joining(",")));
-        java.append("));");
-        List<String> extra = new ArrayList<>();
-        if (tuning.offsetX() != 0.0F || tuning.offsetZ() != 0.0F) {
-            extra.add("offset x " + TuningParameter.number(tuning.offsetX()) + ", z " + TuningParameter.number(tuning.offsetZ()));
-        }
-        if (tuning.rotation() != 0) {
-            extra.add("rotation +" + tuning.rotation() * 45 + " degrees");
-        }
-        if (tuning.placements() != FurniturePlacement.ANY_FACE) {
-            extra.add("placements " + FurniturePlacement.of(tuning.placements()));
-        }
-        if (furniture.large() == null && (tuning.scale() != 1.0F || tuning.offsetY() != 0.0F)) {
-            extra.add("a block-model piece drawn with .large(...) needs its _placed model");
-        }
-        if (!extra.isEmpty()) {
-            java.append("\n// Not in the catalogue yet: ").append(String.join("; ", extra));
-        }
-        return java.toString();
-    }
-
-    private static float modelBottom(Furniture furniture) {
-        return furniture.large() != null ? furniture.large().modelBottom() : 0.0F;
+    /** The piece's footprint table line: its boxes at turn 0, the diagonal and outline left for the generator. */
+    static String footprintLine(String name, FurnitureTuning tuning) {
+        String boxes = tuning.boxes().stream().map(box -> numbers(box).replace(", ", " ")).collect(Collectors.joining(","));
+        return name + "|" + boxes + "||";
     }
 
     private static String numbers(FurnitureTuning.Box box) {

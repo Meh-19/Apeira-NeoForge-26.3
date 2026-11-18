@@ -1,6 +1,7 @@
 package com.apeira.decor.datagen;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -32,14 +33,11 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
         block(DecorBlocks.PAINTING_TABLE, "Painting Table");
         item(DecorItems.PAINTBRUSH, "Paintbrush");
 
-        Set<String> crates = new LinkedHashSet<>();
-        for (DeferredBlock<FurnitureBlock> furniture : DecorFurniture.all()) {
+        for (DeferredBlock<? extends FurnitureBlock> furniture : DecorFurniture.all()) {
             String name = furniture.getId().getPath();
             block(furniture, NAMES.getOrDefault(name, title(name)));
-            if (furniture.get().furniture().crate() != null) {
-                crates.add(furniture.get().furniture().crate());
-            }
         }
+        Set<String> crates = new LinkedHashSet<>(List.of("badger_crate"));
         // The same lines as the cosmetics' (the main module's language file), for the crates furniture comes from.
         for (String crate : crates) {
             tooltip("exclusive." + crate, title(crate) + " Exclusive");

@@ -10,6 +10,7 @@ import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.decor.furniture.FurnitureBlock;
+import com.apeira.decor.furniture.SeatFurnitureBlock;
 import com.apeira.decor.furniture.FurniturePlacement;
 import com.apeira.decor.furniture.FurnitureTuning;
 import com.apeira.decor.furniture.FurnitureTuning.Box;
@@ -79,7 +80,7 @@ public final class FurnitureEditorScreen extends Screen {
         field(left + 150, y, "Offset Y", tuning.offsetY(), (t, v) -> t.withOffset(t.offsetX(), v.floatValue(), t.offsetZ()));
         y += ROW;
         field(left, y, "Offset Z", tuning.offsetZ(), (t, v) -> t.withOffset(t.offsetX(), t.offsetY(), v.floatValue()));
-        if (block instanceof FurnitureBlock.Seat) {
+        if (block instanceof SeatFurnitureBlock) {
             field(left + 150, y, "Seat height", Math.max(0.0, tuning.seatHeight()), (t, v) -> t.withSeatHeight(v));
         }
         y += ROW + 4;

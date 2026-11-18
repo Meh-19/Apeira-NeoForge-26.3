@@ -2,12 +2,11 @@ package com.apeira.decor.client;
 
 import org.jspecify.annotations.Nullable;
 
-import com.apeira.decor.block.ApeiraFurnitureBlock;
-import com.apeira.decor.furniture.Furniture;
 import com.apeira.decor.furniture.FurnitureBlock;
-import com.apeira.decor.furniture.FurnitureBlockEntity;
 import com.apeira.decor.furniture.FurnitureTuning;
 import com.apeira.decor.furniture.FurnitureTunings;
+import com.apeira.decor.furniture.FurnitureBlockEntity;
+import com.apeira.decor.furniture.DisplayMode;
 import com.apeira.decor.paint.Paint;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -21,20 +20,24 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Draws a placed furniture piece, as CosmoLib's {@code FurnitureBlockEntityRenderer} did: the piece's item, painted like
- * the block, in the {@code none} display context, turned by the block's {@link ApeiraFurnitureBlock#ROTATION}. The
- * item definition shows the block model there, or for a large piece, one that reaches further than a block model may,
- * its {@code models/item/furniture/<name>_placed.json}, scaled and lifted as {@link Furniture.Large} says. Paint and
- * finishes show through the item's {@code apeira:paint} tint, as on any other item. A {@linkplain FurnitureTunings tuned}
- * piece is drawn at its tuning's scale and offset instead.
+ * Draws a furniture piece as Argon's {@code ArtifactDisplayBlockEntityRenderer} did: the block's item, painted with the
+ * block's paint, in the {@code fixed} display context at half size, laid into the block as its {@link DisplayMode}
+ * says. Argon's models are Origin Realms item-frame models, which is why they are drawn lying down and turned about the
+ * model's Z axis. Finishes show through apeira-decor's item rendering.
  */
 public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlockEntity, FurnitureRenderer.State> {
+    private static final float SCALE = 0.5F;
+
     private final ItemModelResolver itemModelResolver;
 
     public FurnitureRenderer(BlockEntityRendererProvider.Context context) {
@@ -50,74 +53,89 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
     public void extractRenderState(FurnitureBlockEntity blockEntity, State state, float partialTicks, Vec3 cameraPosition,
             ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
-        if (!(blockEntity.getBlockState().getBlock() instanceof FurnitureBlock block)) {
-            state.item.clear();
-            return;
-        }
-        Furniture.Large large = block.furniture().large();
-        state.large = large != null ? large : Furniture.Large.BLOCK_MODEL;
-        FurnitureTuning tuning = FurnitureTunings.get(block);
-        if (tuning != null) {
-            state.large = new Furniture.Large(tuning.scale(), state.large.modelBottom(), tuning.offsetY());
-        }
-        state.offsetX = tuning != null ? tuning.offsetX() : 0.0F;
-        state.offsetZ = tuning != null ? tuning.offsetZ() : 0.0F;
-        state.yaw = ApeiraFurnitureBlock.yaw(blockEntity.getBlockState());
-        ItemStack stack = new ItemStack(blockEntity.getBlockState().getBlock());
+        BlockState block = blockEntity.getBlockState();
+        state.mode = block.getBlock() instanceof FurnitureBlock artifact ? artifact.displayMode(block) : DisplayMode.TOP_FACE;
+        state.rotation = block.getValueOrElse(FurnitureBlock.ROTATION, 0);
+        // A piece being tuned with apeira-dev's wand is drawn as its tuning says: moved, scaled and turned further.
+        FurnitureTuning tuning = FurnitureTunings.enabled() ? FurnitureTunings.get(block.getBlock()) : null;
+        state.scale = tuning != null ? tuning.scale() : 1.0F;
+        state.offsetX = tuning != null ? tuning.offsetX() / 16.0F : 0.0F;
+        state.offsetY = tuning != null ? tuning.offsetY() / 16.0F : 0.0F;
+        state.offsetZ = tuning != null ? tuning.offsetZ() / 16.0F : 0.0F;
+        state.rotation += tuning != null ? tuning.rotation() : 0;
+        state.facing = block.getOptionalValue(HorizontalDirectionalBlock.FACING).orElse(null);
+        ItemStack stack = new ItemStack(block.getBlock());
         if (blockEntity.paint() != null) {
             Paint.set(stack, blockEntity.paint());
         }
-        itemModelResolver.updateForTopItem(state.item, stack, ItemDisplayContext.NONE, blockEntity.getLevel(), null,
+        itemModelResolver.updateForTopItem(state.item, stack, ItemDisplayContext.FIXED, blockEntity.getLevel(), null,
                 (int) blockEntity.getBlockPos().asLong());
     }
 
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        Furniture.Large large = state.large;
         if (state.item.isEmpty()) {
             return;
         }
         poseStack.pushPose();
-        // A north-facing piece is turned by (yaw + 180) degrees clockwise, as its shape is.
-        poseStack.translate(0.5F, large.bottom() / 16.0F, 0.5F);
-        poseStack.rotateDegrees(Axis.YP, 180.0F - state.yaw);
-        // A tuning's sideways offset is in the north-facing model's frame, so it turns with the piece.
-        poseStack.translate(state.offsetX / 16.0F, 0.0F, state.offsetZ / 16.0F);
-        poseStack.scale(large.scale(), large.scale(), large.scale());
-        // Model space has the block's corner at the origin; items are drawn centred on it, so move back by half a block.
-        poseStack.translate(0.0F, 0.5F - large.modelBottom() / 16.0F, 0.0F);
+        poseStack.translate(state.offsetX, state.offsetY, state.offsetZ);
+        switch (state.mode) {
+            case WALL -> {
+                poseStack.translate(0.5F, 0.5F, 0.5F);
+                if (state.facing != null) {
+                    poseStack.rotateDegrees(Axis.YP, -state.facing.toYRot());
+                    poseStack.translate(0.0F, 0.0F, 0.45F);
+                }
+            }
+            case FLOOR, BLOCK_UP -> {
+                poseStack.translate(0.5F, state.mode == DisplayMode.FLOOR ? 0.0F : 1.0F, 0.5F);
+                poseStack.rotateDegrees(Axis.XP, 90.0F);
+                poseStack.rotateDegrees(Axis.ZP, 180.0F);
+                poseStack.rotateDegrees(Axis.ZP, state.rotation * 45.0F);
+            }
+            case TOP_FACE -> {
+                poseStack.translate(0.5F, 0.999F, 0.5F);
+                poseStack.rotateDegrees(Axis.XP, 180.0F);
+                poseStack.rotateDegrees(Axis.XP, 90.0F);
+                poseStack.rotateDegrees(Axis.ZP, 180.0F);
+                poseStack.rotateDegrees(Axis.ZP, -state.rotation * 45.0F);
+            }
+        }
+        poseStack.scale(SCALE * state.scale, SCALE * state.scale, SCALE * state.scale);
         state.item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
     }
 
-    /** Large pieces reach outside their block, so pieces are kept while the block itself is off screen. */
+    /** Artifact models reach past their block, so they are kept while the block itself is off screen. */
     @Override
     public boolean shouldRenderOffScreen() {
         return true;
     }
 
-    /**
-     * Culled by a box the model fits in rather than its own block, so a large piece stays drawn while any of it is on
-     * screen: a block to spare round the block, and for large pieces as many blocks as their scale makes them.
-     */
+    /** Culled by the box around the whole piece, not its own block, so it stays drawn while any of it is on screen. */
     @Override
     public AABB getRenderBoundingBox(FurnitureBlockEntity blockEntity) {
+        return renderBounds(blockEntity);
+    }
+
+    /** The box around the piece's footprint at its turn, with a block to spare for the parts of the model it clips. */
+    static AABB renderBounds(BlockEntity blockEntity) {
+        BlockState state = blockEntity.getBlockState();
         AABB block = new AABB(blockEntity.getBlockPos());
-        if (!(blockEntity.getBlockState().getBlock() instanceof FurnitureBlock furniture)) {
+        if (!(state.getBlock() instanceof FurnitureBlock artifact)) {
             return block.inflate(1.0);
         }
-        Furniture.Large large = furniture.furniture().large();
-        FurnitureTuning tuning = FurnitureTunings.get(furniture);
-        float scale = tuning != null ? tuning.scale() : large != null ? large.scale() : 1.0F;
-        double reach = Math.max(1.0, 1.5 * scale);
-        return block.inflate(reach, 0.0, reach).expandTowards(0.0, 2.0 * reach, 0.0).expandTowards(0.0, -1.0, 0.0);
+        return artifact.footprint(state).bounds(artifact.turn(state)).move(blockEntity.getBlockPos()).inflate(1.0);
     }
 
     public static final class State extends BlockEntityRenderState {
         final ItemStackRenderState item = new ItemStackRenderState();
-        Furniture.Large large = Furniture.Large.BLOCK_MODEL;
-        float yaw;
+        DisplayMode mode = DisplayMode.TOP_FACE;
+        int rotation;
+        float scale = 1.0F;
         float offsetX;
+        float offsetY;
         float offsetZ;
+        @Nullable Direction facing;
     }
 }

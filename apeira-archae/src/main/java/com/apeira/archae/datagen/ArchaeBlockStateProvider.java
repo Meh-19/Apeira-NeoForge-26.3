@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.Block;
  * hand-made resources in {@code src/main/resources/assets/apeira/models/block/archaeology/}.
  *
  * <p>An artifact has one block state for all its rotations, since its block model only gives the breaking particles
- * ({@code ArtifactRenderer} draws the item). Its item shows the same model, with the paint on tint index 1 (Argon's).
+ * ({@code FurnitureRenderer} draws the item). Its item shows the same model, with the paint on tint index 1 (Argon's).
  */
 public final class ArchaeBlockStateProvider extends ApeiraBlockStateProvider {
     /** Argon's pyramid relic has no model of its own: its block model is particles only and its item shows another statue. */

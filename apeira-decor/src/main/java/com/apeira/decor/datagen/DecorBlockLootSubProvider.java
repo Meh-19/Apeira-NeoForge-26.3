@@ -26,8 +26,8 @@ public final class DecorBlockLootSubProvider extends ApeiraBlockLootProvider {
     @Override
     protected void generate() {
         dropSelf(DecorBlocks.PAINTING_TABLE.get());
-        for (DeferredBlock<FurnitureBlock> furniture : DecorFurniture.all()) {
-            if (furniture.get().furniture().paintable()) {
+        for (DeferredBlock<? extends FurnitureBlock> furniture : DecorFurniture.all()) {
+            if (furniture.get().takesPaint()) {
                 add(furniture.get(), this::dropSelfWithPaint);
             } else {
                 dropSelf(furniture.get());

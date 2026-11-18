@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.apeira.decor.block.ApeiraFurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlock;
+import com.apeira.decor.furniture.SeatFurnitureBlock;
 import com.apeira.decor.furniture.FurnitureTuning;
 
 import net.minecraft.client.renderer.culling.Frustum;
@@ -66,7 +67,7 @@ final class TuningVisualizer implements DebugRenderer.SimpleDebugRenderer {
         Gizmos.line(Vec3.atBottomCenterOf(pos).add(0.0, 0.05, 0.0), front, CYAN).setAlwaysOnTop();
         Gizmos.billboardText("front", front.add(0.0, 0.15, 0.0), TextGizmo.Style.forColorAndCentered(CYAN).withScale(0.4F)).setAlwaysOnTop();
 
-        if (block instanceof FurnitureBlock.Seat && tuning.seat()) {
+        if (block instanceof SeatFurnitureBlock && tuning.seat()) {
             Gizmos.point(Vec3.atBottomCenterOf(pos).add(0.0, tuning.seatHeight() / 16.0, 0.0), GREEN, 8.0F).setAlwaysOnTop();
         }
         Gizmos.billboardTextOverBlock(block.getName().getString(), pos, 0, WHITE, 0.5F);

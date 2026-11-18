@@ -1,4 +1,4 @@
-package com.apeira.archae.block;
+package com.apeira.decor.furniture;
 
 import java.util.function.Supplier;
 
@@ -21,20 +21,20 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Argon's {@code LostTreasureChestBlock} and {@code WhaleStatueBlock}: a waterloggable artifact with a second model for
- * under water. Placed in water, the dry artifact places its water variant instead, which drops the dry one.
+ * Argon's {@code LostTreasureChestBlock} and {@code WhaleStatueBlock}: a waterloggable piece with a second model for
+ * under water. Placed in water, the dry piece places its water variant instead, which drops the dry one.
  */
-public class WaterloggedArtifactBlock extends FacingArtifactBlock implements SimpleWaterloggedBlock {
+public class WaterloggedFurnitureBlock extends FacingFurnitureBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     private final DisplayMode mode;
     private final @Nullable Supplier<? extends Block> water;
 
     /**
-     * @param drop  the dry artifact, for the water variant; {@code null} for the dry artifact itself
-     * @param water the water variant, for the dry artifact; {@code null} for the water variant itself
+     * @param drop  the dry piece, for the water variant; {@code null} for the dry piece itself
+     * @param water the water variant, for the dry piece; {@code null} for the water variant itself
      */
-    public WaterloggedArtifactBlock(BlockBehaviour.Properties properties, boolean paintable, DisplayMode mode,
+    public WaterloggedFurnitureBlock(BlockBehaviour.Properties properties, boolean paintable, DisplayMode mode,
             @Nullable Supplier<? extends Block> drop, @Nullable Supplier<? extends Block> water) {
         super(properties, paintable, drop);
         this.mode = mode;

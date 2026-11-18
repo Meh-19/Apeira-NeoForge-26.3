@@ -1,19 +1,15 @@
 {
   "model": {
-    "type": "minecraft:select",
-    "cases": [
+    "type": "minecraft:model",
+    "model": "apeira:item/furniture/sash_banner",
+    "tints": [
       {
-        "model": {
-          "type": "minecraft:model",
-          "model": "apeira:item/furniture/sash_banner_placed"
-        },
-        "when": "none"
+        "type": "minecraft:constant",
+        "value": -1
+      },
+      {
+        "type": "apeira:paint"
       }
-    ],
-    "fallback": {
-      "type": "minecraft:model",
-      "model": "apeira:item/furniture/sash_banner"
-    },
-    "property": "minecraft:display_context"
+    ]
   }
 }

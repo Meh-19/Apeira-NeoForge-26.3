@@ -1,4 +1,4 @@
-package com.apeira.archae.block;
+package com.apeira.decor.furniture;
 
 import org.jspecify.annotations.Nullable;
 
@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
  * Argon's {@code CeilingOnlyFurnitureBlock}: a chandelier or hanging lantern, placed only under a block that can hold
  * it up.
  */
-public class CeilingArtifactBlock extends FacingArtifactBlock {
-    public CeilingArtifactBlock(BlockBehaviour.Properties properties, boolean paintable) {
+public class CeilingFurnitureBlock extends FacingFurnitureBlock {
+    public CeilingFurnitureBlock(BlockBehaviour.Properties properties, boolean paintable) {
         super(properties, paintable, null);
     }
 
