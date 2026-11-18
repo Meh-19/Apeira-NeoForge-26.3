@@ -3,6 +3,7 @@ package com.apeira.dev.client;
 import java.util.Locale;
 
 import com.apeira.decor.furniture.FurnitureBlock;
+import com.apeira.decor.furniture.SeatFurnitureBlock;
 import com.apeira.decor.furniture.FurnitureTuning;
 import com.apeira.decor.furniture.FurnitureTuning.Box;
 
@@ -38,7 +39,7 @@ public enum TuningParameter {
     }
 
     public boolean appliesTo(FurnitureBlock block) {
-        return this != SEAT_HEIGHT || block instanceof FurnitureBlock.Seat;
+        return this != SEAT_HEIGHT || block instanceof SeatFurnitureBlock;
     }
 
     /** The value as the HUD shows it, for the selected {@code box}. */

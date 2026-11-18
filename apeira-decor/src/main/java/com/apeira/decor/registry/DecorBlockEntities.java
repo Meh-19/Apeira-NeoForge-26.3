@@ -1,15 +1,17 @@
 package com.apeira.decor.registry;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.ApeiraDecor;
+import com.apeira.decor.furniture.AnimatedFurnitureBlock;
+import com.apeira.decor.furniture.AnimatedFurnitureBlockEntity;
+import com.apeira.decor.furniture.FurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlockEntity;
 import com.apeira.decor.paint.PaintBlockEntity;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -20,20 +22,34 @@ public final class DecorBlockEntities {
 
     /**
      * {@code apeira:paint}: the paint of a paintable block that has no block entity of its own. Add every such
-     * {@code PaintableBlock} here; there are none yet, since furniture and artifacts keep their paint in their own
-     * block entities.
+     * {@code PaintableBlock} here; there are none yet, since furniture keeps its paint in its own block entities.
      */
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PaintBlockEntity>> PAINT = R.blockEntityTypes().register(
             "paint", () -> new BlockEntityType<>(PaintBlockEntity::new, Set.of()));
 
-    /** {@code apeira:furniture}: every furniture piece, drawn by {@code FurnitureRenderer}, and its paint. */
+    /**
+     * Every furniture piece's paint, drawn by {@code FurnitureRenderer}: valid for every {@link FurnitureBlock} of any
+     * module but the animated ones, collected from the block registry, which is filled before block entity types are
+     * registered. Its id is {@code apeira:artifact_display}, archaeology's from before furniture became one system, so
+     * placed artifacts keep their paint.
+     */
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FurnitureBlockEntity>> FURNITURE = R.blockEntityTypes().register(
-            "furniture", () -> new BlockEntityType<>(FurnitureBlockEntity::new, blocks(DecorFurniture.all())));
+            "artifact_display", () -> new BlockEntityType<>(FurnitureBlockEntity::new, furniture(false)));
+
+    /** An animated piece's paint and GeckoLib animation ({@code apeira:generic_animated_furniture}, archaeology's id too). */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AnimatedFurnitureBlockEntity>> ANIMATED_FURNITURE = R.blockEntityTypes()
+            .register("generic_animated_furniture", () -> new BlockEntityType<>(AnimatedFurnitureBlockEntity::new, furniture(true)));
 
     private DecorBlockEntities() {}
 
-    private static Set<Block> blocks(List<? extends Supplier<? extends Block>> blocks) {
-        return blocks.stream().map(Supplier::get).collect(Collectors.toUnmodifiableSet());
+    private static Set<Block> furniture(boolean animated) {
+        Set<Block> blocks = new HashSet<>();
+        for (Block block : BuiltInRegistries.BLOCK) {
+            if (block instanceof FurnitureBlock && block instanceof AnimatedFurnitureBlock == animated) {
+                blocks.add(block);
+            }
+        }
+        return Set.copyOf(blocks);
     }
 
     public static void init(ApeiraRegistrar registrar) {}

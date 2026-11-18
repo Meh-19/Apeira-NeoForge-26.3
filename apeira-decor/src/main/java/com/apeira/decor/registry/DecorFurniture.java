@@ -2,17 +2,22 @@ package com.apeira.decor.registry;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.function.Function;
+
+import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.ApeiraDecor;
-import com.apeira.decor.furniture.Furniture;
+import com.apeira.decor.cosmetic.CosmeticItem;
 import com.apeira.decor.furniture.FurnitureBlock;
+import com.apeira.decor.furniture.FurnitureBlock.Form;
+import com.apeira.decor.furniture.FurnitureBlockItem;
+import com.apeira.decor.furniture.FurnitureFootprints;
+import com.apeira.decor.furniture.SeatFurnitureBlock;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -20,55 +25,59 @@ import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 /**
- * The furniture of {@link Furniture#all()}, each registered as a {@link FurnitureBlock} with a block item of the same
- * name. A piece exclusive to a crate names it in gold under the item's name ({@code tooltip.apeira.exclusive.<crate>}),
- * as the Crates mod did.
+ * Decor's furniture pieces, on the one furniture system ({@link FurnitureBlock}, the same as archaeology's artifacts):
+ * each a block with a {@link FurnitureBlockItem} of the same name, drawn from {@code models/item/furniture/<name>.json}
+ * by {@code FurnitureRenderer} as its {@link Form}'s display mode lays it in, with its footprint from
+ * {@code apeira_decor/furniture_footprints.txt}. A piece exclusive to a crate names it in gold under its name
+ * ({@code tooltip.apeira.exclusive.<crate>}).
+ *
+ * <p>The pieces are the Badger Crate's, the Origin Realms server pack's {@code models/custom/furniture/badger/} models
+ * (names from Ren's uicapture of the {@code /catalog} "Reward Furniture" pages). Its {@code fixed} display picks the
+ * mode: rotation x 90 is drawn on the top face ({@link Form#FURNITURE}), -90 on the floor ({@link Form#FLOOR}), as
+ * Argon's models are. None take paint until their placement is tuned.
  */
 public final class DecorFurniture {
     private static final ApeiraRegistrar R = ApeiraDecor.REGISTRAR;
-    /** The Crates mod's gold. */
-    private static final int EXCLUSIVE_COLOR = 0xFFAA00;
+    private static final List<DeferredBlock<? extends FurnitureBlock>> ALL = new ArrayList<>();
 
-    private static final List<DeferredBlock<FurnitureBlock>> ALL = register();
+    public static final DeferredBlock<SeatFurnitureBlock> OUTDOOR_ROCKING_CHAIR = piece("outdoor_rocking_chair", "badger_crate",
+            p -> new SeatFurnitureBlock(p, false, 8));
+    public static final DeferredBlock<FurnitureBlock> WEDGE_TENT = piece("wedge_tent", "badger_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> SASH_BANNER = piece("sash_banner", "badger_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> WOODEN_CART = piece("wooden_cart", "badger_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> STALL_CART = piece("stall_cart", "badger_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> WOODEN_WINDMILL = piece("wooden_windmill", "badger_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR));
 
     private DecorFurniture() {}
 
-    /** Every furniture block, in catalogue order. */
-    public static List<DeferredBlock<FurnitureBlock>> all() {
-        return ALL;
+    /** Every decor furniture block, in registration order. */
+    public static List<DeferredBlock<? extends FurnitureBlock>> all() {
+        return List.copyOf(ALL);
     }
 
-    /** The furniture blocks whose piece matches {@code filter}. */
-    public static List<DeferredBlock<FurnitureBlock>> matching(Predicate<Furniture> filter) {
-        return ALL.stream().filter(block -> filter.test(block.get().furniture())).toList();
-    }
-
-    private static List<DeferredBlock<FurnitureBlock>> register() {
-        List<DeferredBlock<FurnitureBlock>> blocks = new ArrayList<>();
-        for (Furniture furniture : Furniture.all()) {
-            DeferredBlock<FurnitureBlock> block = R.blocks().registerBlock(furniture.name(),
-                    properties -> FurnitureBlock.create(properties, furniture), properties -> properties(properties, furniture));
-            R.items().registerSimpleBlockItem(block, properties -> itemProperties(properties, furniture));
-            blocks.add(block);
-        }
-        return List.copyOf(blocks);
-    }
-
-    /** The Crates mod's furniture properties (breaks quickly with anything), with wood's sound. */
-    private static BlockBehaviour.Properties properties(BlockBehaviour.Properties properties, Furniture furniture) {
-        properties.mapColor(MapColor.WOOD).strength(1.0F).sound(SoundType.WOOD).noOcclusion();
-        return furniture.collision() ? properties : properties.noCollision();
-    }
-
-    private static Item.Properties itemProperties(Item.Properties properties, Furniture furniture) {
-        if (furniture.defaultPaint() != null) {
-            properties.component(DecorDataComponents.PAINT.get(), furniture.defaultPaint());
-        }
-        if (furniture.crate() != null) {
-            properties.component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("tooltip.apeira.exclusive." + furniture.crate())
-                    .withStyle(Style.EMPTY.withColor(EXCLUSIVE_COLOR).withItalic(false)))));
-        }
-        return properties;
+    /**
+     * Registers a piece and its item: wood, breaking quickly with anything (the Crates mod's furniture), with the
+     * crate's gold exclusive line when it has one.
+     */
+    private static <B extends FurnitureBlock> DeferredBlock<B> piece(String name, @Nullable String crate,
+            Function<BlockBehaviour.Properties, ? extends B> factory) {
+        DeferredBlock<B> block = R.blocks().registerBlock(name, factory, () -> FurnitureFootprints.properties(name,
+                BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(1.0F).sound(SoundType.WOOD).noOcclusion()));
+        R.items().registerItem(name, properties -> new FurnitureBlockItem(block.get(), properties), properties -> {
+            properties.useBlockDescriptionPrefix();
+            if (crate != null) {
+                properties.component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("tooltip.apeira.exclusive." + crate)
+                        .withStyle(Style.EMPTY.withColor(CosmeticItem.EXCLUSIVE_COLOR).withItalic(false)))));
+            }
+            return properties;
+        });
+        ALL.add(block);
+        return block;
     }
 
     public static void init(ApeiraRegistrar registrar) {}

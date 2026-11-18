@@ -1,6 +1,6 @@
 package com.apeira.archae.datagen;
 
-import com.apeira.archae.block.ArtifactBlock;
+import com.apeira.decor.furniture.FurnitureBlock;
 import com.apeira.archae.registry.ArchaeArtifacts;
 import com.apeira.archae.registry.ArchaeBlocks;
 import com.apeira.core.datagen.ApeiraBlockLootProvider;
@@ -28,7 +28,7 @@ public final class ArchaeBlockLootSubProvider extends ApeiraBlockLootProvider {
     protected void generate() {
         dropSelf(ArchaeBlocks.ASSEMBLY_TABLE.get());
         for (ArchaeArtifacts.Artifact artifact : ArchaeArtifacts.all()) {
-            ArtifactBlock block = artifact.block().get();
+            FurnitureBlock block = artifact.block().get();
             add(block, LootTable.lootTable().withPool(applyExplosionCondition(block.dropBlock(), LootPool.lootPool()
                     .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(block.dropBlock()).apply(CopyComponentsFunction

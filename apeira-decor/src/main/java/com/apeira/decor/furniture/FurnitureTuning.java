@@ -16,12 +16,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * A furniture piece's shape, drawing transform, placement and seat, as a dev tool edits them live
- * ({@link FurnitureTunings}). All lengths are in pixels and face north, as in {@link FurnitureCatalogue}.
+ * ({@link FurnitureTunings}). All lengths are in pixels, at turn 0, as footprints have them.
  *
  * @param boxes      the shape's boxes
- * @param scale      the scale {@code FurnitureRenderer} draws the model at ({@link Furniture.Large#scale()})
+ * @param scale      the scale {@code FurnitureRenderer} draws the model at (1 is the size it is drawn at untuned)
  * @param offsetX    how far the model is moved east, before it is turned with the piece
- * @param offsetY    how far the model's bottom is lifted ({@link Furniture.Large#bottom()})
+ * @param offsetY    how far the model's bottom is lifted (in pixels)
  * @param offsetZ    how far the model is moved south, before it is turned with the piece
  * @param rotation   the 45 degree steps added to the placing rotation, or the rotation itself with
  *                   {@link FurniturePlacement#DEFAULT}
@@ -50,14 +50,14 @@ public record FurnitureTuning(List<Box> boxes, float scale, float offsetX, float
         boxes = List.copyOf(boxes);
     }
 
-    /** The piece as the catalogue has it. */
-    public static FurnitureTuning of(Furniture furniture) {
+    /** The piece as it is: its footprint's boxes at turn 0, drawn at its own size, its seat height if it has a seat. */
+    public static FurnitureTuning of(FurnitureBlock block) {
         List<Box> boxes = new ArrayList<>();
-        for (AABB box : furniture.shape().toAabbs()) {
+        for (AABB box : block.footprint(block.defaultBlockState()).shape(0, net.minecraft.core.BlockPos.ZERO).toAabbs()) {
             boxes.add(Box.ofBlocks(box));
         }
-        Furniture.Large large = furniture.large() != null ? furniture.large() : Furniture.Large.BLOCK_MODEL;
-        return new FurnitureTuning(boxes, large.scale(), 0.0F, large.bottom(), 0.0F, 0, FurniturePlacement.ANY_FACE, furniture.seatHeight());
+        double seat = block instanceof SeatFurnitureBlock seatBlock ? seatBlock.seatHeight() * 16.0 : -1.0;
+        return new FurnitureTuning(boxes, 1.0F, 0.0F, 0.0F, 0.0F, 0, FurniturePlacement.ANY_FACE, seat);
     }
 
     /** This tuning with the values a client may send kept in range. */

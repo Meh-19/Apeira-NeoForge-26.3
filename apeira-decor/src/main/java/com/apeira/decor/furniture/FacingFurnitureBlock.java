@@ -1,4 +1,4 @@
-package com.apeira.archae.block;
+package com.apeira.decor.furniture;
 
 import java.util.function.Supplier;
 
@@ -16,18 +16,18 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 /**
- * Argon's {@code FurnitureDisplayBlock}: an artifact that also has a horizontal {@link #FACING}. Placed against the
- * side of a block it faces away from it; placed on the floor it faces the player and turns like any artifact.
+ * Argon's {@code FurnitureDisplayBlock}: a furniture piece that also has a horizontal {@link #FACING}. Placed against the
+ * side of a block it faces away from it; placed on the floor it faces the player and turns like any piece.
  *
  * <p>Its display mode follows its id, as Argon's did: a block named {@code *wall*} hangs on the wall it faces away
  * from, one named {@code *side*} lies on the floor, and any other is drawn under the top face. Most wall and ceiling
- * variants are facing artifacts.
+ * variants are facing furniture pieces.
  */
-public class FacingArtifactBlock extends ArtifactBlock {
+public class FacingFurnitureBlock extends FurnitureBlock {
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 
-    /** @param drop the artifact this variant drops, or {@code null} for itself */
-    public FacingArtifactBlock(BlockBehaviour.Properties properties, boolean paintable, @Nullable Supplier<? extends Block> drop) {
+    /** @param drop the piece this variant drops, or {@code null} for itself */
+    public FacingFurnitureBlock(BlockBehaviour.Properties properties, boolean paintable, @Nullable Supplier<? extends Block> drop) {
         super(properties, paintable, Form.FURNITURE, null, null, drop);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }

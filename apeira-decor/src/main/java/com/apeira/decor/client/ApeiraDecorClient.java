@@ -78,6 +78,7 @@ public final class ApeiraDecorClient {
         // Every entity type needs a renderer, even an invisible one: the game crashes rendering an entity without one.
         event.registerEntityRenderer(DecorEntities.SEAT.get(), NoopRenderer::new);
         event.registerBlockEntityRenderer(DecorBlockEntities.FURNITURE.get(), FurnitureRenderer::new);
+        event.registerBlockEntityRenderer(DecorBlockEntities.ANIMATED_FURNITURE.get(), AnimatedFurnitureRenderer::new);
     }
 
     /**

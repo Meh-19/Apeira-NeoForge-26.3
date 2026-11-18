@@ -1,6 +1,6 @@
 package com.apeira.archae.assembly;
 
-import com.apeira.archae.block.ArtifactBlock;
+import com.apeira.decor.furniture.FurnitureBlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-/** Argon's assembly table: opens the {@link AssemblyTableMenu}, which puts fragments together into {@link ArtifactBlock artifacts}. */
+/** Argon's assembly table: opens the {@link AssemblyTableMenu}, which puts fragments together into {@link FurnitureBlock artifacts}. */
 public class AssemblyTableBlock extends Block {
     private static final Component TITLE = Component.translatable("container.apeira.assembly_table");
 

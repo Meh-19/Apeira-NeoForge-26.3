@@ -1,8 +1,7 @@
-package com.apeira.archae.item;
+package com.apeira.decor.furniture;
 
 import java.util.function.Consumer;
 
-import com.apeira.archae.block.ArtifactBlock;
 import com.apeira.decor.cosmetic.CosmeticItem;
 import com.apeira.decor.multiblock.Multiblock;
 
@@ -12,16 +11,18 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * An artifact's item. Its tooltip shows the paintable badge for a paintable artifact and Argon's gold "Archeology
- * Exclusive" line. It places its artifact only where every block of the artifact's multiblock footprint is free.
+ * A furniture piece's item: placed only where every block of the piece's multiblock footprint is free, with the
+ * paintable badge in its tooltip when the piece takes paint. A crate or module "Exclusive" line is the item's
+ * {@code minecraft:lore}, set where it is registered.
  */
-public class ArtifactBlockItem extends BlockItem {
-    public ArtifactBlockItem(ArtifactBlock block, Item.Properties properties) {
+public class FurnitureBlockItem extends BlockItem {
+    public FurnitureBlockItem(Block block, Item.Properties properties) {
         super(block, properties);
     }
 
@@ -34,9 +35,8 @@ public class ArtifactBlockItem extends BlockItem {
     @SuppressWarnings("deprecation")
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder,
             TooltipFlag flag) {
-        if (getBlock() instanceof ArtifactBlock artifact && artifact.takesPaint()) {
+        if (getBlock() instanceof FurnitureBlock furniture && furniture.takesPaint()) {
             builder.accept(Component.literal(CosmeticItem.PAINTABLE_BADGE).withStyle(Style.EMPTY.withFont(CosmeticItem.FONT)));
         }
-        builder.accept(Component.translatable("tooltip.apeira.exclusive.archaeology").withStyle(Style.EMPTY.withColor(CosmeticItem.EXCLUSIVE_COLOR)));
     }
 }

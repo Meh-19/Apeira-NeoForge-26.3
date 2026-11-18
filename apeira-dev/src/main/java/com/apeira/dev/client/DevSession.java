@@ -90,7 +90,7 @@ public final class DevSession {
     /** {@code block}'s tuning, or the catalogue's values while it has none. */
     public static FurnitureTuning tuning(FurnitureBlock block) {
         FurnitureTuning tuning = FurnitureTunings.get(block);
-        return tuning != null ? tuning : FurnitureTuning.of(block.furniture());
+        return tuning != null ? tuning : FurnitureTuning.of(block);
     }
 
     /** Whether {@code block} has been changed from the catalogue. */
