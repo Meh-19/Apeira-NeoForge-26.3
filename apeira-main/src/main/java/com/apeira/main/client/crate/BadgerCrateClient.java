@@ -21,6 +21,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Input;
@@ -35,6 +36,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
@@ -47,6 +49,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public final class BadgerCrateClient {
     private static final Identifier LAYER = Apeira.REGISTRAR.id("badger_crate");
     private static final int FADE_TICKS = 10;
+    /** The field of view in the crate world, as on the server. */
+    private static final float FOV = 60.0F;
     private static final int READY_DELAY = 10;
     /** The vanilla cooldown overlay's white at half alpha. */
     private static final int HOLD_OVERLAY = 0x7FFFFFFF;
@@ -78,6 +82,7 @@ public final class BadgerCrateClient {
         gameBus.addListener(BadgerCrateClient::onClientTick);
         gameBus.addListener(BadgerCrateClient::onMovementInput);
         gameBus.addListener(BadgerCrateClient::onScroll);
+        gameBus.addListener(BadgerCrateClient::onComputeFov);
         gameBus.addListener(BadgerCrateClient::onInteraction);
         gameBus.addListener(BadgerCrateClient::onRenderLayer);
         gameBus.addListener(BadgerCrateClient::onScreenOpening);
@@ -214,7 +219,18 @@ public final class BadgerCrateClient {
             return;
         }
         selected = Math.floorMod(selected + (event.getScrollDeltaY() > 0 ? -1 : 1), 3);
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null) {
+            minecraft.player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 1.0F, 1.0F);
+        }
         ApeiraClientNetwork.sendToServer(new BadgerInputPayload(BadgerInputPayload.SELECT, selected));
+    }
+
+    /** A fixed 60 degree field of view while the camera follows the recording, whatever the player's setting. */
+    private static void onComputeFov(ViewportEvent.ComputeFov event) {
+        if (cameraLocked()) {
+            event.setFOV(FOV);
+        }
     }
 
     private static void onInteraction(InputEvent.InteractionKeyMappingTriggered event) {

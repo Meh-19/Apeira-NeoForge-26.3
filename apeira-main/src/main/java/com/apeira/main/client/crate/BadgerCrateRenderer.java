@@ -98,9 +98,14 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
         private static final String[] TEXT_BONES = {"item_1_text", "item_2_text", "item_3_text"};
         private static final float ITEM_SCALE = 1.5F;
         private static final float LABEL_SCALE = 0.025F;
-        /** How much bigger the outline copy is than the item, and how far behind it. */
-        private static final float OUTLINE_GROWTH = 1.12F;
-        private static final float OUTLINE_PUSH = 0.06F;
+        /** How thick the outline is and how far behind the item its copies sit, in blocks. */
+        private static final float OUTLINE_WIDTH = 0.03F;
+        private static final float OUTLINE_PUSH = 0.05F;
+        /** The eight directions on the screen the outline copies are moved in: a rim of even width all round. */
+        private static final float[][] OUTLINE_DIRECTIONS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1},
+                {0.7071F, 0.7071F}, {0.7071F, -0.7071F}, {-0.7071F, 0.7071F}, {-0.7071F, -0.7071F}};
+        /** How far above its anchor a reward's name is drawn, in blocks. */
+        private static final float NAME_RAISE = 0.3F;
         /** The recorded {@code selected_text} display's scale against the names'. */
         private static final float SELECTED_SCALE = LABEL_SCALE * 0.8F;
         /**
@@ -112,7 +117,7 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
                 {-0.2856F / 16.0F, -20.8F / 16.0F, 6.3921F / 16.0F},
                 {-2.6923F / 16.0F, -20.8F / 16.0F, 5.8062F / 16.0F},
                 {-4.6918F / 16.0F, -20.8F / 16.0F, 4.3512F / 16.0F}};
-        private static final int LABEL_BACKGROUND = 0x40000000;
+        private static final int LABEL_BACKGROUND = 0;
         private static final int[] TIER_COLOURS = {0xFFFFFFFF, 0xFF55AAFF, 0xFFBB66FF, 0xFFFFCC33};
 
         private static final DataTicket<List<ItemStackRenderState>> ITEMS = DataTicket.create("apeira_badger_items",
@@ -164,7 +169,7 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
                     renderPassInfo.model().getBone(ITEM_BONES[i]).ifPresent(bone -> consumer.accept(bone, (info, renderBone, tasks) -> {
                         PoseStack poseStack = info.poseStack();
                         if (slot == selected) {
-                            outline(poseStack, tasks, item, info.packedLight());
+                            outline(poseStack, tasks, item, info.packedLight(), info.cameraState().orientation);
                         }
                         poseStack.pushPose();
                         poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
@@ -181,20 +186,28 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
         }
 
         /**
-         * The white rim round the selected reward ({@link SelectionOutline}): the item again, {@link #OUTLINE_GROWTH}
-         * larger and pushed {@link #OUTLINE_PUSH} blocks away from the camera, so the real item covers all but its edge.
+         * The white line round the selected reward's silhouette ({@link SelectionOutline}): the item drawn in plain white
+         * eight times, each moved {@link #OUTLINE_WIDTH} blocks across the screen (along the camera's right and up) and
+         * {@link #OUTLINE_PUSH} blocks behind the item, so the item covers the copies but their even rim round its
+         * outer edge, as a flat outline of the item as seen. Copies are depth tested, so nothing in front of the item
+         * shows it.
          */
-        private static void outline(PoseStack poseStack, SubmitNodeCollector tasks, ItemStackRenderState item, int light) {
+        private static void outline(PoseStack poseStack, SubmitNodeCollector tasks, ItemStackRenderState item, int light,
+                org.joml.Quaternionfc camera) {
             Vector3f away = poseStack.last().pose().getTranslation(new Vector3f());
             if (away.lengthSquared() > 1.0E-6F) {
                 away.normalize(OUTLINE_PUSH);
             }
-            poseStack.pushPose();
-            poseStack.last().pose().translateLocal(away);
-            float scale = ITEM_SCALE * OUTLINE_GROWTH;
-            poseStack.scale(scale, scale, scale);
-            item.submit(poseStack, tasks, light, OverlayTexture.NO_OVERLAY, SelectionOutline.MARK);
-            poseStack.popPose();
+            Vector3f right = camera.transform(new Vector3f(1, 0, 0));
+            Vector3f up = camera.transform(new Vector3f(0, 1, 0));
+            for (float[] direction : OUTLINE_DIRECTIONS) {
+                Vector3f shift = new Vector3f(right).mul(direction[0] * OUTLINE_WIDTH).add(new Vector3f(up).mul(direction[1] * OUTLINE_WIDTH)).add(away);
+                poseStack.pushPose();
+                poseStack.last().pose().translateLocal(shift);
+                poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
+                item.submit(poseStack, tasks, light, OverlayTexture.NO_OVERLAY, SelectionOutline.MARK);
+                poseStack.popPose();
+            }
         }
 
         /**
@@ -211,8 +224,8 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
             }
             Vector3f position = pose.getTranslation(new Vector3f());
             poseStack.pushPose();
-            poseStack.last().pose().identity().translate(position).rotate(info.cameraState().orientation)
-                    .scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
+            poseStack.last().pose().identity().translate(position).translate(0.0F, NAME_RAISE, 0.0F)
+                    .rotate(info.cameraState().orientation).scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
             poseStack.last().normal().identity();
             text(poseStack, tasks, label.getVisualOrderText(), 0, info.packedLight());
             poseStack.popPose();
