@@ -33,6 +33,9 @@ import net.neoforged.neoforge.registries.DeferredBlock;
  * {@code apeira_decor/furniture_footprints.txt}. A piece exclusive to a crate names it in gold under its name
  * ({@code tooltip.apeira.exclusive.<crate>}).
  *
+ * <p>Default paints are the uicapture's firework colours: the rocking chair #A0643E, the wedge tent #93BA4F, the sash
+ * banner #FA9B5C (the stall cart and windmill are white, so none; the wooden cart is a paper item, so none).
+ *
  * <p>The pieces are the Badger Crate's, the Origin Realms server pack's {@code models/custom/furniture/badger/} models
  * (names from Ren's uicapture of the {@code /catalog} "Reward Furniture" pages). Its {@code fixed} display picks the
  * mode: rotation x 90 is drawn on the top face ({@link Form#FURNITURE}), -90 on the floor ({@link Form#FLOOR}), as
@@ -43,15 +46,15 @@ public final class DecorFurniture {
     private static final ApeiraRegistrar R = ApeiraDecor.REGISTRAR;
     private static final List<DeferredBlock<? extends FurnitureBlock>> ALL = new ArrayList<>();
 
-    public static final DeferredBlock<SeatFurnitureBlock> OUTDOOR_ROCKING_CHAIR = piece("outdoor_rocking_chair", "badger_crate",
+    public static final DeferredBlock<SeatFurnitureBlock> OUTDOOR_ROCKING_CHAIR = piece("outdoor_rocking_chair", "badger_crate", 0xA0643E,
             p -> new SeatFurnitureBlock(p, true, 8));
     /** Offsets are Ren's furniture wand exports. */
-    public static final DeferredBlock<FurnitureBlock> WEDGE_TENT = piece("wedge_tent", "badger_crate",
+    public static final DeferredBlock<FurnitureBlock> WEDGE_TENT = piece("wedge_tent", "badger_crate", 0x93BA4F,
             p -> new FurnitureBlock(p, true, Form.FURNITURE).renderOffset(0, 16, 0));
     /** On the floor, or against a wall as {@link #SASH_BANNER_WALL} (the pack's {@code sash_banner_wall} model). */
-    public static final DeferredBlock<FurnitureBlock> SASH_BANNER = piece("sash_banner", "badger_crate",
+    public static final DeferredBlock<FurnitureBlock> SASH_BANNER = piece("sash_banner", "badger_crate", 0xFA9B5C,
             p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.SASH_BANNER_WALL.get(), null, null).renderOffset(0, 32, 0));
-    public static final DeferredBlock<FacingFurnitureBlock> SASH_BANNER_WALL = piece("sash_banner_wall", "badger_crate",
+    public static final DeferredBlock<FacingFurnitureBlock> SASH_BANNER_WALL = piece("sash_banner_wall", "badger_crate", 0xFA9B5C,
             p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.SASH_BANNER.get()));
     public static final DeferredBlock<FurnitureBlock> WOODEN_CART = piece("wooden_cart", "badger_crate",
             p -> new FurnitureBlock(p, false, Form.FURNITURE));
@@ -74,10 +77,22 @@ public final class DecorFurniture {
      */
     private static <B extends FurnitureBlock> DeferredBlock<B> piece(String name, @Nullable String crate,
             Function<BlockBehaviour.Properties, ? extends B> factory) {
+        return piece(name, crate, null, factory);
+    }
+
+    /**
+     * As {@link #piece(String, String, Function)}, with {@code defaultPaint}, the colour its item starts in: for a
+     * piece from Ren's uicapture, the captured item's {@code minecraft:firework_explosion} colour (white is none).
+     */
+    private static <B extends FurnitureBlock> DeferredBlock<B> piece(String name, @Nullable String crate, @Nullable Integer defaultPaint,
+            Function<BlockBehaviour.Properties, ? extends B> factory) {
         DeferredBlock<B> block = R.blocks().registerBlock(name, factory, () -> FurnitureFootprints.properties(name,
                 BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(1.0F).sound(SoundType.WOOD).noOcclusion()));
         R.items().registerItem(name, properties -> new FurnitureBlockItem(block.get(), properties), properties -> {
             properties.useBlockDescriptionPrefix();
+            if (defaultPaint != null) {
+                properties.component(DecorDataComponents.PAINT.get(), defaultPaint);
+            }
             if (crate != null) {
                 properties.component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("tooltip.apeira.exclusive." + crate)
                         .withStyle(Style.EMPTY.withColor(CosmeticItem.EXCLUSIVE_COLOR).withItalic(false)))));
