@@ -22,6 +22,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -40,13 +41,17 @@ import net.neoforged.neoforge.event.level.LevelEvent;
  * openings never share blocks, entities or chunks. Each is made from the template (the overworld region and entity
  * files of Ren's {@code run/saves/New World (8)}, shipped in {@code apeira/badger_crate_template/}) copied into the
  * dimension's own folder, then loaded as a void world (flat, no layers, {@code the_void} biome) that only reads the
- * copied chunks. {@link #remove} unloads it and deletes its folder; leftovers from a crash are deleted on server start.
+ * copied chunks, with no weather and always at noon ({@link #holdNoon}). {@link #remove} unloads it and deletes its folder; leftovers from a crash are deleted on server start.
  *
  * <p>Levels are added and removed only between ticks ({@code ServerTickEvent.Post}), never while the server walks its
  * level map.
  */
 public final class BadgerInstances {
     private static final String SUFFIX = "_badgercrate";
+    private static final ResourceKey<DimensionType> DIMENSION_TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, ApeiraIds.id("badger_crate"));
+    private static final ResourceKey<WorldClock> CLOCK = ResourceKey.create(Registries.WORLD_CLOCK, ApeiraIds.id("badger_crate"));
+    /** Six hours past sunrise: noon. */
+    private static final long NOON = 6000L;
     private static final String TEMPLATE = "/apeira/badger_crate_template/";
     private static final List<String> REGION_FILES = List.of("r.-1.-1.mca", "r.-1.0.mca", "r.0.-1.mca", "r.0.0.mca");
     private static final List<String> ENTITY_FILES = List.of("r.0.-1.mca");
@@ -71,16 +76,33 @@ public final class BadgerInstances {
         copyTemplate(folder.resolve("region"), REGION_FILES);
         copyTemplate(folder.resolve("entities"), ENTITY_FILES);
 
-        Holder<DimensionType> type = server.registryAccess().lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD);
+        Holder<DimensionType> type = server.registryAccess().lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(DIMENSION_TYPE);
+        holdNoon(server);
         Holder<Biome> voidBiome = server.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.THE_VOID);
         FlatLevelGeneratorSettings flat = new FlatLevelGeneratorSettings(Optional.empty(), voidBiome, List.of());
         LevelStem stem = new LevelStem(type, new FlatLevelSource(flat), OptionalLong.of(0L));
         ServerLevel level = new ServerLevel(server, accessor.apeira$executor(), accessor.apeira$storageSource(),
                 new DerivedLevelData(server.getWorldData(), server.getWorldData().overworldData()), key, stem,
-                false, BiomeManager.obfuscateSeed(0L), List.of(), false);
+                false, BiomeManager.obfuscateSeed(0L), List.of(), false) {
+            /** No rain or thunder, whatever the overworld's weather. */
+            @Override
+            public boolean canHaveWeather() {
+                return false;
+            }
+        };
         accessor.apeira$levels().put(key, level);
         NeoForge.EVENT_BUS.post(new LevelEvent.Load(level));
         return level;
+    }
+
+    /**
+     * Instances use {@code apeira:badger_crate}, the overworld's dimension type with its own clock
+     * ({@code apeira:badger_crate}), which is kept paused at noon so it is always day.
+     */
+    private static void holdNoon(MinecraftServer server) {
+        Holder<WorldClock> clock = server.registryAccess().lookupOrThrow(Registries.WORLD_CLOCK).getOrThrow(CLOCK);
+        server.clockManager().setTotalTicks(clock, NOON);
+        server.clockManager().setPaused(clock, true);
     }
 
     /** Unloads the instance, if loaded, and deletes its folder. Players still in it must have been moved out first. */

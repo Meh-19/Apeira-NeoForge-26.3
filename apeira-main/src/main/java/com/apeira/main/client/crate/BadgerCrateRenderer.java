@@ -242,7 +242,7 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
         }
 
         private void text(PoseStack poseStack, SubmitNodeCollector tasks, FormattedCharSequence text, int y, int light) {
-            tasks.submitText(poseStack, -font.width(text) / 2.0F, y, text, false, Font.DisplayMode.NORMAL,
+            tasks.submitText(poseStack, -font.width(text) / 2.0F, y, text, true, Font.DisplayMode.NORMAL,
                     light, 0xFFFFFFFF, LABEL_BACKGROUND, 0);
         }
     }
