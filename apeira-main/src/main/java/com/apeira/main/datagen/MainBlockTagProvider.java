@@ -7,7 +7,6 @@ import com.apeira.core.datagen.ApeiraBlockTagsProvider;
 import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
-import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainLanterns;
@@ -27,8 +26,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 /**
- * Block tags for {@link MainBlocks}, {@link MainWoods}, {@link MainStones}, {@link MainLanterns}, Xenon's blocks and
- * {@link MainCrates}:
+ * Block tags for {@link MainBlocks}, {@link MainWoods}, {@link MainStones}, {@link MainLanterns} and Xenon's blocks:
  * which tool mines each block and the tool tier it needs to drop, and the wood tags of {@link MainBlockItemTags},
  * through which axes mine the woods (and hoes the leaves).
  */
@@ -48,8 +46,6 @@ public final class MainBlockTagProvider extends ApeiraBlockTagsProvider {
         blockItemTags(MainBlockItemTags::addTo);
         // Empty, as Xenon's was: shadow tools harvest everything.
         tag(MainTags.INCORRECT_FOR_SHADOW_TOOL);
-        // Crates are wooden: mined with an axe.
-        add(BlockTags.MINEABLE_WITH_AXE, MainCrates.all().toArray(DeferredBlock<?>[]::new));
         // The ruby deposit is mined like an enchanting table: any pickaxe.
         add(BlockTags.MINEABLE_WITH_PICKAXE, MainRubies.RUBY_DEPOSIT);
         // Farming: the planter box and wooden sprinkler with an axe, the iron sprinkler with a pickaxe.

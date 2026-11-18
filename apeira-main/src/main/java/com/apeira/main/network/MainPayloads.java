@@ -28,6 +28,7 @@ public final class MainPayloads {
         network.toServer(ConfirmSpawnPayload.TYPE, ConfirmSpawnPayload::handle);
         network.toServer(ConfirmNpcAnchorPayload.TYPE, ConfirmNpcAnchorPayload::handle);
         network.toServer(OpenNpcShopPayload.TYPE, OpenNpcShopPayload::handle);
+        network.toServer(BadgerInputPayload.TYPE, BadgerInputPayload::handle);
         // Handled in client/ApeiraClient.
         network.toClient(OpenNavigatorPayload.TYPE);
         network.toClient(OpenOnboardingPayload.TYPE);
@@ -37,5 +38,6 @@ public final class MainPayloads {
         network.toClient(NpcDialoguePayload.TYPE);
         network.toClient(RealmHudPayload.TYPE);
         network.toClient(RubyChangePayload.TYPE);
+        network.toClient(BadgerPhasePayload.TYPE);
     }
 }

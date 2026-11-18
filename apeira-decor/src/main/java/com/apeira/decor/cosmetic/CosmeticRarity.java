@@ -3,8 +3,8 @@ package com.apeira.decor.cosmetic;
 import java.util.Locale;
 
 /**
- * A cosmetic's rarity: the coloured name and the rarity badge in front of it. Crates roll rarities with the weights in
- * {@link com.apeira.decor.crate.CrateLoot}.
+ * A cosmetic's rarity: the coloured name and the rarity badge in front of it. The Badger Crate rolls rarities with the weights in
+ * {@code com.apeira.main.crate.BadgerLoot}.
  */
 public enum CosmeticRarity {
     COMMON('ꑲ', 0xAAAAAA),
