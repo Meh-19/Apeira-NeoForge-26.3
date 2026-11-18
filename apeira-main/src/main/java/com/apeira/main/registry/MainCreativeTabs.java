@@ -1,15 +1,13 @@
 package com.apeira.main.registry;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.apeira.core.registry.ApeiraRegistrar;
-import com.apeira.decor.ApeiraDecor;
-import com.apeira.decor.cosmetic.CosmeticItem;
-import com.apeira.decor.crate.CrateBlock;
 import com.apeira.main.Apeira;
+import com.apeira.decor.ApeiraDecor;
 
 import net.minecraft.core.Holder;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -19,22 +17,20 @@ public final class MainCreativeTabs {
     private static final ApeiraRegistrar R = Apeira.REGISTRAR;
 
     /**
-     * "Apeira Content": every block and item of the main module but the cosmetics and crates, in registration order
-     * (items, then mineral blocks, then woods), followed by the decor module's furniture.
+     * "Apeira Content": every block and item of the main module but the crates, in registration order (items, then
+     * mineral blocks, then woods), followed by the decor module's items.
      */
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CONTENT = R.creativeTab("content", tab -> tab
             .icon(MainItems.RUBY::toStack)
             .displayItems(Stream.concat(R.items().getEntries().stream(), ApeiraDecor.REGISTRAR.items().getEntries().stream())
-                    .filter(item -> !(item.get() instanceof CosmeticItem)
-                            && !(item.get() instanceof BlockItem block && block.getBlock() instanceof CrateBlock))
+                    .filter(item -> !item.getId().equals(MainBadgerCrate.BADGER_CRATE.getId()))
                     .toList()));
 
-    /** "Cosmetics": the crates, then the crate cosmetics, grouped by crate as in {@link MainCosmetics}. */
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> COSMETICS = R.creativeTab("cosmetics", tab -> tab
-            .icon(MainCosmetics.WESTERN_HAT::toStack)
+    /** "Crates": the Badger Crate. */
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CRATES = R.creativeTab("crates", tab -> tab
+            .icon(MainBadgerCrate.BADGER_CRATE::toStack)
             .withTabsBefore(CONTENT.getId())
-            .displayItems(Stream.<Holder<? extends ItemLike>>concat(MainCrates.all().stream(),
-                    MainCosmetics.all().stream().map(MainCosmetics.Cosmetic::item)).toList()));
+            .displayItems(List.<Holder<? extends ItemLike>>of(MainBadgerCrate.BADGER_CRATE)));
 
     private MainCreativeTabs() {}
 

@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import com.apeira.decor.block.ApeiraFurnitureBlock;
 import com.apeira.decor.multiblock.Multiblock;
-import com.apeira.decor.crate.CrateBlock;
 import com.apeira.main.navigator.OpenProfilePayload;
 import com.apeira.main.npc.NpcEntity;
 import com.apeira.main.realm.balloon.StarterBalloon;
@@ -73,10 +72,9 @@ public final class RealmProtection {
         return state.getBlock() instanceof ApeiraFurnitureBlock || level.getBlockEntity(pos) instanceof Container;
     }
 
-    /** Blocks Residents may not open: anything with an inventory or a menu, and crates. */
+    /** Blocks Residents may not open: anything with an inventory or a menu. */
     private static boolean isGuardedUse(Level level, BlockPos pos, BlockState state) {
-        return level.getBlockEntity(pos) instanceof Container || state.getMenuProvider(level, pos) != null
-                || state.getBlock() instanceof CrateBlock;
+        return level.getBlockEntity(pos) instanceof Container || state.getMenuProvider(level, pos) != null;
     }
 
     private static void deny(Player player, String key) {

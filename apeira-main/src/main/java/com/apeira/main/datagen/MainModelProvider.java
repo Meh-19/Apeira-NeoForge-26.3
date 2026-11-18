@@ -1,13 +1,11 @@
 package com.apeira.main.datagen;
 
 import com.apeira.core.datagen.ApeiraItemModelProvider;
-import com.apeira.decor.client.PaintTintSource;
-import com.apeira.decor.client.WornCosmetic;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.apeira.main.client.CapturedMobProperty;
-import com.apeira.main.registry.MainCosmetics;
+import com.apeira.main.registry.MainBadgerCrate;
 import com.apeira.main.registry.MainDataComponents;
 import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainGear;
@@ -28,7 +26,7 @@ import net.minecraft.world.item.Item;
 
 /**
  * Item models for {@link MainItems}, each a flat sprite from {@code item/<name>} (tools held like a sword, armour
- * showing its trims), and for the cosmetics.
+ * showing its trims).
  *
  * <p>Core's {@code ApeiraModelProvider} is the final vanilla model provider that runs every module's model providers,
  * so module item models extend {@link ApeiraItemModelProvider} instead.
@@ -38,6 +36,8 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
     protected void registerModels() {
         simpleItem(MainItems.PLATINUM);
         simpleItem(MainItems.RUBY);
+        // The Badger Crate's 3D model, the server pack's full crate (hand-made, models/item/badger_crate.json).
+        generators().itemModelOutput.accept(MainBadgerCrate.BADGER_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/badger_crate")));
         MainItems.tools().forEach(this::toolItem);
         trimmableArmor(MainItems.PLATINUM_HELMET, ItemModelGenerators.TRIM_PREFIX_HELMET);
         trimmableArmor(MainItems.PLATINUM_CHESTPLATE, ItemModelGenerators.TRIM_PREFIX_CHESTPLATE);
@@ -60,7 +60,6 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
         // Xenon's own model; the boots take no trims, as in Xenon.
         existingModel(MainGear.ROCKET_BOOTS);
 
-        MainCosmetics.all().forEach(this::cosmetic);
 
         farming();
     }
@@ -109,22 +108,5 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
 
     private SelectItemModel.SwitchCase<ResourceKey<EntityType<?>>> netCase(Identifier mob) {
         return ItemModelUtils.when(ResourceKey.create(Registries.ENTITY_TYPE, mob), ItemModelUtils.plainModel(modLoc("item/capture_net_mob/" + mob.getPath())));
-    }
-
-    /**
-     * A cosmetic shows its rarity token ({@code item/<rarity>_<slot>_token}, CosmoLib's, in apeira-decor's resources) everywhere (inventories, hands,
-     * item frames, the ground) except when worn, where the {@code apeira:worn_cosmetic} condition shows its 3-D model
-     * ({@code item/cosmetic/<name>}) instead. Tint index 1 of the model is the paint, as in CosmoLib; tint index 0 keeps its texture.
-     */
-    private void cosmetic(MainCosmetics.Cosmetic cosmetic) {
-        ItemModel.Unbaked token = ItemModelUtils.plainModel(modLoc("item/" + cosmetic.rarity().id() + "_"
-                + cosmetic.slot().getSerializedName() + "_token"));
-        if (!cosmetic.modelled()) {
-            generators().itemModelOutput.accept(cosmetic.item().get(), token);
-            return;
-        }
-        ItemModel.Unbaked worn = ItemModelUtils.tintedModel(modLoc("item/cosmetic/" + cosmetic.item().getId().getPath()),
-                ItemModelUtils.constantTint(-1), new PaintTintSource());
-        generators().itemModelOutput.accept(cosmetic.item().get(), ItemModelUtils.conditional(new WornCosmetic(), worn, token));
     }
 }

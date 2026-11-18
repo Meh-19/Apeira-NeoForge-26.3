@@ -18,7 +18,6 @@ import com.apeira.main.farming.PlanterBoxBlock;
 import com.apeira.main.farming.SprinklerBlock;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
-import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainFarming;
@@ -51,7 +50,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 /**
  * Block states and block models for {@link MainBlocks}, {@link MainWoods}, {@link MainStones}, {@link MainLanterns} and
- * {@link MainCrates}. Block items use their block's model, except buttons and fences, which use vanilla's inventory
+ * Xenon's blocks. Block items use their block's model, except buttons and fences, which use vanilla's inventory
  * models.
  *
  * <p>Textures are ORForged's or, for the blocks it had none for, the Origin Realms server pack's: {@code block/<name>},
@@ -107,13 +106,6 @@ public final class MainBlockStateProvider extends ApeiraBlockStateProvider {
         xenon();
         xenonPlants();
 
-        // Crates are drawn by their block entity, whatever their rotation; the hand-made block model only gives the
-        // breaking particles, and the item uses the crate's hand-made item model.
-        for (var crate : MainCrates.all()) {
-            Block block = crate.get();
-            existingModelBlock(block);
-            blockItemModel(block, modLoc("item/" + crate.getId().getPath()));
-        }
         // The ruby deposit is drawn by its block entity too; its item is the hand-made display model of its base.
         existingModelBlock(MainRubies.RUBY_DEPOSIT.get());
         blockItemModel(MainRubies.RUBY_DEPOSIT.get(), modLoc("item/ruby_deposit"));

@@ -15,7 +15,6 @@ import com.apeira.main.block.HangingVineBlock;
 import com.apeira.main.block.HangingVinePlantBlock;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
-import com.apeira.main.registry.MainCrates;
 import com.apeira.main.registry.MainCrystals;
 import com.apeira.main.registry.MainDyedBlocks;
 import com.apeira.main.registry.MainItems;
@@ -48,7 +47,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 /**
  * Loot tables for {@link MainBlocks}, {@link MainWoods}, {@link MainStones}, {@link MainLanterns}, Xenon's blocks
  * ({@link MainRocks}, {@link MainDyedBlocks}, {@link MainCrystals}, {@link MainBuildingBlocks}, {@link MainPlants},
- * {@link MainSpecialBlocks}) and {@link MainCrates}.
+ * {@link MainSpecialBlocks}).
  * Every Apeira block needs one, or data generation fails.
  */
 public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
@@ -120,7 +119,6 @@ public final class MainBlockLootSubProvider extends ApeiraBlockLootProvider {
         xenonPlants();
 
         // A closed crate drops itself; an open one cannot be broken.
-        MainCrates.all().forEach(crate -> dropSelf(crate.get()));
         dropSelf(MainRubies.RUBY_DEPOSIT.get());
         // Farming blocks drop themselves; a planter box's stock and crop drop from its block entity.
         dropSelf(MainFarming.PLANTER_BOX.get());

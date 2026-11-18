@@ -25,7 +25,7 @@ public final class DecorAttachments {
                     .build());
 
     /**
-     * {@code apeira:crate_luck}: a player's {@link com.apeira.decor.crate.CrateLuck crate luck}, 0 to 60. Saved (when
+     * {@code apeira:crate_luck}: a player's crate luck (the Badger Crate, {@code com.apeira.main.crate.BadgerLoot}), 0 to 60. Saved (when
      * not 0) and kept on death. Only the server reads it, so it is not synced.
      */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Float>> CRATE_LUCK = R.forRegistry(

@@ -7,7 +7,11 @@ import com.apeira.main.Apeira;
 import com.apeira.main.client.entity.CrocodileRenderer;
 import com.apeira.main.client.entity.GrizzlyBearRenderer;
 import com.apeira.main.client.entity.TurkeyRenderer;
+import com.apeira.main.client.crate.BadgerCrateClient;
+import com.apeira.main.client.crate.BadgerCrateRenderer;
 import com.apeira.main.client.entity.WraithRenderer;
+import com.apeira.main.network.BadgerPhasePayload;
+import com.apeira.main.registry.MainBadgerCrate;
 import com.apeira.main.client.farming.CropTooltip;
 import com.apeira.main.client.farming.PlanterBoxRenderer;
 import com.apeira.main.client.farming.PlanterBoxScreen;
@@ -83,6 +87,7 @@ public final class ApeiraClient {
         NeoForge.EVENT_BUS.addListener(RubyTickerAnimation::onLoggingOut);
         NeoForge.EVENT_BUS.addListener(RubyDepositScreen::hideHud);
         NeoForge.EVENT_BUS.addListener(CropTooltip::onTooltip);
+        BadgerCrateClient.register(modEventBus, NeoForge.EVENT_BUS);
         ApeiraClientNetwork.create()
                 .handle(OpenNavigatorPayload.TYPE, ApeiraNavigatorScreen::onOpen)
                 .handle(OpenOnboardingPayload.TYPE, OnboardingScreen::onOpen)
@@ -92,6 +97,7 @@ public final class ApeiraClient {
                 .handle(NpcDialoguePayload.TYPE, NpcDialogueScreen::onOpen)
                 .handle(RealmHudPayload.TYPE, RealmTopBar::onSync)
                 .handle(RubyChangePayload.TYPE, RubyTickerAnimation::onChange)
+                .handle(BadgerPhasePayload.TYPE, BadgerCrateClient::onPhase)
                 .register(modEventBus);
     }
 
@@ -104,6 +110,7 @@ public final class ApeiraClient {
         event.registerEntityRenderer(MainEntities.GRIZZLY_BEAR.get(), GrizzlyBearRenderer::new);
         event.registerEntityRenderer(MainEntities.CROCODILE.get(), CrocodileRenderer::new);
         event.registerEntityRenderer(MainEntities.WRAITH.get(), WraithRenderer::new);
+        event.registerEntityRenderer(MainBadgerCrate.SHOW.get(), BadgerCrateRenderer::new);
         // The balloon conductors share one GeckoLib model and animation, each with his own texture.
         for (var conductor : List.of(MainNpcs.CONDUCTOR_CARLO, MainNpcs.CONDUCTOR_MARCO, MainNpcs.CONDUCTOR_GINO, MainNpcs.CONDUCTOR_ANTONIO)) {
             NpcRenderer.register(event, conductor.get(), Apeira.REGISTRAR.id("balloon_conductor"), Apeira.REGISTRAR.id(conductor.getId().getPath()));

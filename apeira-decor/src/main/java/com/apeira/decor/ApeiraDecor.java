@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.core.network.ApeiraNetwork;
 import com.apeira.core.registry.ApeiraRegistrar;
-import com.apeira.decor.crate.CrateEvents;
 import com.apeira.decor.datagen.DecorData;
 import com.apeira.decor.network.DecorPayloads;
 import com.apeira.decor.registry.DecorAttachments;
@@ -21,14 +20,13 @@ import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.common.NeoForge;
 
 /** Entrypoint for the Apeira Decor module. */
 @Mod(ApeiraDecor.MOD_ID)
 public final class ApeiraDecor {
     public static final String MOD_ID = "apeira_decor";
     public static final Logger LOGGER = LogUtils.getLogger();
-    /** Owns the furniture, painting, cosmetic, crate and seat entries, in the shared {@code apeira} namespace. */
+    /** Owns the furniture, painting, cosmetic and seat entries, in the shared {@code apeira} namespace. */
     public static final ApeiraRegistrar REGISTRAR = ApeiraRegistrar.create();
     /** Generates the models, language, loot tables and tags for {@link #REGISTRAR}'s entries (the {@code decorData} run). */
     public static final ApeiraDataGenerators DATA = ApeiraDataGenerators.create(REGISTRAR);
@@ -40,7 +38,6 @@ public final class ApeiraDecor {
                 DecorBlockEntities::init, DecorEntities::init, DecorMenus::init, DecorAttachments::init);
         NETWORK.register(modEventBus, DecorPayloads::init);
         DATA.register(modEventBus, DecorData::init);
-        CrateEvents.register(NeoForge.EVENT_BUS);
         LOGGER.info("{} initialized", MOD_ID);
     }
 }
