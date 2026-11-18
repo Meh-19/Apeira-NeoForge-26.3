@@ -36,26 +36,27 @@ import net.neoforged.neoforge.registries.DeferredBlock;
  * <p>The pieces are the Badger Crate's, the Origin Realms server pack's {@code models/custom/furniture/badger/} models
  * (names from Ren's uicapture of the {@code /catalog} "Reward Furniture" pages). Its {@code fixed} display picks the
  * mode: rotation x 90 is drawn on the top face ({@link Form#FURNITURE}), -90 on the floor ({@link Form#FLOOR}), as
- * Argon's models are. None take paint until their placement is tuned.
+ * Argon's models are. A piece takes paint when its model has tint index 1 faces (all but the wooden cart; the
+ * windmill's GeckoLib model has no {@code _tintable} bones yet, so it does not).
  */
 public final class DecorFurniture {
     private static final ApeiraRegistrar R = ApeiraDecor.REGISTRAR;
     private static final List<DeferredBlock<? extends FurnitureBlock>> ALL = new ArrayList<>();
 
     public static final DeferredBlock<SeatFurnitureBlock> OUTDOOR_ROCKING_CHAIR = piece("outdoor_rocking_chair", "badger_crate",
-            p -> new SeatFurnitureBlock(p, false, 8));
+            p -> new SeatFurnitureBlock(p, true, 8));
     /** Offsets are Ren's furniture wand exports. */
     public static final DeferredBlock<FurnitureBlock> WEDGE_TENT = piece("wedge_tent", "badger_crate",
-            p -> new FurnitureBlock(p, false, Form.FURNITURE).renderOffset(0, 16, 0));
+            p -> new FurnitureBlock(p, true, Form.FURNITURE).renderOffset(0, 16, 0));
     /** On the floor, or against a wall as {@link #SASH_BANNER_WALL} (the pack's {@code sash_banner_wall} model). */
     public static final DeferredBlock<FurnitureBlock> SASH_BANNER = piece("sash_banner", "badger_crate",
-            p -> new FurnitureBlock(p, false, Form.FLOOR, () -> DecorFurniture.SASH_BANNER_WALL.get(), null, null).renderOffset(0, 32, 0));
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.SASH_BANNER_WALL.get(), null, null).renderOffset(0, 32, 0));
     public static final DeferredBlock<FacingFurnitureBlock> SASH_BANNER_WALL = piece("sash_banner_wall", "badger_crate",
-            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.SASH_BANNER.get()));
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.SASH_BANNER.get()));
     public static final DeferredBlock<FurnitureBlock> WOODEN_CART = piece("wooden_cart", "badger_crate",
             p -> new FurnitureBlock(p, false, Form.FURNITURE));
     public static final DeferredBlock<FurnitureBlock> STALL_CART = piece("stall_cart", "badger_crate",
-            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
     /** Animated: Ren's GeckoLib model, {@code geckolib/models/furniture/wooden_windmill.geo.json}, its sails turning. */
     public static final DeferredBlock<AnimatedFurnitureBlock> WOODEN_WINDMILL = piece("wooden_windmill", "badger_crate",
             p -> new AnimatedFurnitureBlock(p, "furniture", false, "wooden_windmill", null));

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Measures apeira-archae's artifacts as they are drawn and writes their hitboxes, cut from the models' cubes.
+"""Measures every furniture piece as it is drawn and writes its hitboxes, cut from the models' cubes.
+
+Every module with furniture is in ``MODULES``: apeira-archae's artifacts (``ArchaeArtifacts``, table
+``apeira_archae/artifact_footprints.txt``) and apeira-decor's furniture (``DecorFurniture``, table
+``apeira_decor/furniture_footprints.txt``), both read by decor's ``FurnitureFootprints``. A piece's ``renderOffset``
+moves its model as ``FurnitureRenderer`` does.
 
 Every artifact is drawn by ``ArtifactRenderer`` (its item model in the ``fixed`` display context, at half size, laid
 into the block by its display mode and turned by its rotation) or, for the animated ones, by
@@ -35,9 +40,24 @@ from asset_common import REPO_ROOT, ScriptError, read_json, run
 from parse_blockbench_hitboxes import Box, java_rotation, rotate, simplify
 
 ARCHAE = REPO_ROOT / "apeira-archae" / "src" / "main"
-ARTIFACTS = ARCHAE / "java" / "com" / "apeira" / "archae" / "registry" / "ArchaeArtifacts.java"
-MODELS = ARCHAE / "resources" / "assets" / "apeira" / "models" / "block" / "archaeology"
-GEO_MODELS = ARCHAE / "resources" / "assets" / "apeira" / "geckolib" / "models" / "archaeology"
+DECOR = REPO_ROOT / "apeira-decor" / "src" / "main"
+# Every module with furniture: where its pieces are declared, its models and GeckoLib models, and its table.
+MODULES = {
+    "archae": {
+        "source": ARCHAE / "java" / "com" / "apeira" / "archae" / "registry" / "ArchaeArtifacts.java",
+        "models": ARCHAE / "resources" / "assets" / "apeira" / "models" / "block" / "archaeology",
+        "geo": ARCHAE / "resources" / "assets" / "apeira" / "geckolib" / "models" / "archaeology",
+        "output": ARCHAE / "resources" / "apeira_archae" / "artifact_footprints.txt",
+        "title": "Artifact",
+    },
+    "decor": {
+        "source": DECOR / "java" / "com" / "apeira" / "decor" / "registry" / "DecorFurniture.java",
+        "models": DECOR / "resources" / "assets" / "apeira" / "models" / "item" / "furniture",
+        "geo": DECOR / "resources" / "assets" / "apeira" / "geckolib" / "models" / "furniture",
+        "output": DECOR / "resources" / "apeira_decor" / "furniture_footprints.txt",
+        "title": "Furniture",
+    },
+}
 THIN = 1.02
 # Turned cubes are cut into cells this many pixels wide.
 STEP = 2.0
@@ -46,16 +66,18 @@ SAMPLE = 0.5
 EPS = 0.05
 REACH = 4
 HEIGHT = 6
-OUTPUT = ARCHAE / "resources" / "apeira_archae" / "artifact_footprints.txt"
-
 FORM_MODES = {
     "FURNITURE": "TOP_FACE", "DECORATION": "FLOOR", "FULL_DECORATION": "FLOOR", "FLOOR": "FLOOR",
     "BLOCK_UP": "BLOCK_UP", "WALL_MOUNTED": "WALL", "TWO_TALL": "TOP_FACE", "THREE_TALL": "TOP_FACE",
     "FOUR_TALL": "TOP_FACE", "FOUR_TALL_FLOOR": "FLOOR", "FIVE_TALL": "TOP_FACE",
 }
-FACING_CLASSES = {"FacingArtifactBlock", "CeilingArtifactBlock", "WaterloggedArtifactBlock"}
-DECLARATION = re.compile(r'DeferredBlock<\w+> \w+ = (?:artifact|variant)\("(\w+)",.*?p -> new (\w+)\(p, (?:true|false)'
-                         r'(?:, (Form\.\w+|DisplayMode\.\w+|\d+|"\w*"))?', re.S)
+FACING_CLASSES = {"FacingFurnitureBlock", "CeilingFurnitureBlock", "WaterloggedFurnitureBlock"}
+# A piece: its name, its block class, the argument after its paintability (a Form, a DisplayMode, a seat height or an
+# animation name) and the rest of its declaration, which may hold a renderOffset(x, y, z) in pixels. An animated
+# piece's folder comes before its paintability.
+DECLARATION = re.compile(r'DeferredBlock<\w+> \w+ = (?:artifact|variant|piece)\("(\w+)",(.*?)p -> new (\w+)\(p, (?:"\w+", )?'
+                         r'(?:true|false)(?:, (Form\.\w+|DisplayMode\.\w+|\d+|"\w*"))?([^;]*);', re.S)
+OFFSET = re.compile(r'renderOffset\(([-\d.]+)F?, ([-\d.]+)F?, ([-\d.]+)F?\)')
 
 
 # Matrices --------------------------------------------------------------------------------------------------------
@@ -92,18 +114,18 @@ def apply(matrix, point):
 
 # Artifacts -------------------------------------------------------------------------------------------------------
 
-def artifacts() -> list[dict]:
-    """Every artifact's name, display mode and how it is held up, from ``ArchaeArtifacts``."""
+def artifacts(module: dict) -> list[dict]:
+    """Every piece's name, display mode, how it is held up and its render offset, from the module's declarations."""
     pieces = []
-    for name, cls, arg in DECLARATION.findall(ARTIFACTS.read_text(encoding="utf-8")):
+    for name, before, cls, arg, after in DECLARATION.findall(module["source"].read_text(encoding="utf-8")):
         facing = cls in FACING_CLASSES
-        if cls == "FacingArtifactBlock":
+        if cls == "FacingFurnitureBlock":
             mode = "WALL" if "wall" in name else "FLOOR" if "side" in name else "TOP_FACE"
-        elif cls == "CeilingArtifactBlock" or cls == "SeatArtifactBlock":
+        elif cls == "CeilingFurnitureBlock" or cls == "SeatFurnitureBlock":
             mode = "TOP_FACE"
-        elif cls == "WaterloggedArtifactBlock":
+        elif cls == "WaterloggedFurnitureBlock":
             mode = arg.split(".")[1]
-        elif cls == "AnimatedArtifactBlock":
+        elif cls == "AnimatedFurnitureBlock":
             mode = "GECKOLIB"
         else:
             mode = FORM_MODES[arg.split(".")[1]]
@@ -115,9 +137,11 @@ def artifacts() -> list[dict]:
             held = "none"
         else:
             held = "floor"
-        pieces.append({"name": name, "mode": mode, "facing": facing, "held": held})
+        found = OFFSET.search(after)
+        offset = tuple(float(v) / 16 for v in found.groups()) if found else (0.0, 0.0, 0.0)
+        pieces.append({"name": name, "mode": mode, "facing": facing, "held": held, "offset": offset, "module": module})
     if not pieces:
-        raise ScriptError(f"{ARTIFACTS}: no artifacts found")
+        raise ScriptError(f"{module['source']}: no furniture found")
     return pieces
 
 
@@ -139,11 +163,20 @@ def renderer(mode: str, facing: bool, turn_: int):
     return chain(*steps, scale(0.5, 0.5, 0.5))
 
 
+def placed(piece: dict, turn_: int, item):
+    """The model's matrix into the block as ``FurnitureRenderer`` draws it: moved by the piece's ``renderOffset`` (in
+    blocks, before its turn; not for GeckoLib pieces, whose renderer doesn't move them), laid in and turned."""
+    matrix = mul(renderer(piece["mode"], piece["facing"], turn_), item)
+    if piece["mode"] == "GECKOLIB":
+        return matrix
+    return mul(translate(*piece["offset"]), matrix)
+
+
 def model_cubes(piece: dict) -> tuple[list, list]:
     """The model's cubes as (corner, three edges) in the model's own units, and the matrix into the renderer's frame."""
     cubes = []
     if piece["mode"] == "GECKOLIB":
-        geo = read_json(GEO_MODELS / f"{piece['name']}.geo.json")["minecraft:geometry"][0]
+        geo = read_json(piece["module"]["geo"] / f"{piece['name']}.geo.json")["minecraft:geometry"][0]
         for bone in geo.get("bones", []):
             for cube in bone.get("cubes", []):
                 o, size = cube["origin"], cube["size"]
@@ -156,7 +189,7 @@ def model_cubes(piece: dict) -> tuple[list, list]:
                     point = lambda p: tuple(p)
                 cubes.append(oriented(start, end, point))
         return cubes, translate(0, 0, 0)
-    model = read_json(MODELS / f"{piece['name']}.json")
+    model = read_json(piece["module"]["models"] / f"{piece['name']}.json")
     fixed = model.get("display", {}).get("fixed", {})
     t = fixed.get("translation", [0, 0, 0])
     r = fixed.get("rotation", [0, 0, 0])
@@ -339,7 +372,7 @@ def footprint(piece: dict, turn_: int, step: float = STEP) -> list[Box]:
     boxes that line up are merged."""
     cubes, item = model_cubes(piece)
     mode = piece["mode"]
-    matrix = mul(renderer(mode, piece["facing"], turn_), item)
+    matrix = placed(piece, turn_, item)
     held = "floor" if mode == "GECKOLIB" else piece["held"]
     world = [w for w in (world_cube(cube, matrix) for cube in cubes) if w is not None]
     boxes = []
@@ -370,7 +403,7 @@ def outline(piece: dict) -> list[tuple]:
     inside a cube, or the cube's own and the one across both. So edges inside the model, and seams between cubes that
     meet flush, are left out; an edge partly hidden keeps its visible runs."""
     cubes, item = model_cubes(piece)
-    matrix = mul(renderer(piece["mode"], piece["facing"], 0), item)
+    matrix = placed(piece, 0, item)
     return creases([w for w in (world_cube(cube, matrix) for cube in cubes) if w is not None])
 
 
@@ -443,7 +476,7 @@ def blocks(boxes: list[Box]) -> tuple[int, int, int]:
     return tuple(math.ceil(hi[a] / 16 - 1e-6) - math.floor(lo[a] / 16 + 1e-6) for a in range(3))
 
 
-def table(pieces: list[tuple[dict, list[Box], list[Box] | None, list[tuple]]]) -> str:
+def table(pieces: list[tuple[dict, list[Box], list[Box] | None, list[tuple]]], module: dict) -> str:
     def number(v):
         text = f"{v:.2f}".rstrip("0").rstrip(".")
         return "0" if text in ("-0", "") else text
@@ -460,6 +493,9 @@ def table(pieces: list[tuple[dict, list[Box], list[Box] | None, list[tuple]]]) -
         "# turns (an empty diagonal list turns the straight one), then the outline's lines (x1 y1 z1 x2 y2 z2, pixels) at",
         "# rotation 0, turned for each rotation.",
     ]
+    if module["title"] != "Artifact":
+        header = [line.replace("Artifact hitboxes", "Furniture hitboxes").replace("artifacts' models", "furniture models")
+                  .replace("artifact's block", "piece's block") for line in header]
     body = [f"{piece['name']}|{text(straight)}|{text(diagonal)}|{lines(edges)}"
             for piece, straight, diagonal, edges in pieces]
     return "\n".join(header + body) + "\n"
@@ -467,7 +503,8 @@ def table(pieces: list[tuple[dict, list[Box], list[Box] | None, list[tuple]]]) -
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("-o", "--output", type=Path, default=OUTPUT, help="the table to write")
+    parser.add_argument("--module", choices=sorted(MODULES), action="append",
+                        help="only this module's furniture (repeatable; default: every module)")
     parser.add_argument("--report", action="store_true", help="print each piece's size in blocks and box counts")
     parser.add_argument("--dry-run", action="store_true", help="only print what would be written")
     return parser.parse_args(argv)
@@ -475,23 +512,26 @@ def parse_args(argv=None):
 
 def main(argv=None) -> int:
     args = parse_args(argv)
-    pieces = []
-    for piece in artifacts():
-        straight = footprint(piece, 0)
-        # Wall pieces only face the four sides; those are quarter turns of their straight boxes.
-        diagonal = None if piece["mode"] == "WALL" else footprint(piece, 1)
-        pieces.append((piece, straight, diagonal, outline(piece)))
-    if args.report:
-        for piece, straight, diagonal, edges in pieces:
-            x, y, z = blocks(straight) if straight else (1, 1, 1)
-            print(f"{piece['name']:40} {piece['mode']:9} {piece['held']:8} {x}x{y}x{z} "
-                  f"{len(straight or [])}/{len(diagonal or [])} boxes, {len(edges)} lines")
-    multi = sum(1 for _, straight, _, _ in pieces if straight and blocks(straight) != (1, 1, 1))
-    print(f"{len(pieces)} artifacts, {multi} of them more than one block")
-    if not args.dry_run:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(table(pieces), encoding="utf-8", newline="\n")
-        print(f"wrote {args.output}")
+    for key in args.module or sorted(MODULES):
+        module = MODULES[key]
+        pieces = []
+        for piece in artifacts(module):
+            straight = footprint(piece, 0)
+            # Wall pieces only face the four sides; those are quarter turns of their straight boxes.
+            diagonal = None if piece["mode"] == "WALL" else footprint(piece, 1)
+            pieces.append((piece, straight, diagonal, outline(piece)))
+        if args.report:
+            for piece, straight, diagonal, edges in pieces:
+                x, y, z = blocks(straight) if straight else (1, 1, 1)
+                print(f"{piece['name']:40} {piece['mode']:9} {piece['held']:8} {x}x{y}x{z} "
+                      f"{len(straight or [])}/{len(diagonal or [])} boxes, {len(edges)} lines")
+        multi = sum(1 for _, straight, _, _ in pieces if straight and blocks(straight) != (1, 1, 1))
+        print(f"{key}: {len(pieces)} pieces, {multi} of them more than one block")
+        if not args.dry_run:
+            output = module["output"]
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(table(pieces, module), encoding="utf-8", newline="\n")
+            print(f"wrote {output}")
     return 0
 
 
