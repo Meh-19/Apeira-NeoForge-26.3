@@ -53,6 +53,9 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
     private final @Nullable Supplier<? extends Block> ceiling;
     private final @Nullable Supplier<? extends Block> drop;
     private @Nullable Footprint footprint;
+    private float renderOffsetX;
+    private float renderOffsetY;
+    private float renderOffsetZ;
 
     /**
      * @param paintable whether the paintbrush and painting table paint it
@@ -84,6 +87,23 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
             return wall.get().getStateForPlacement(context);
         }
         return defaultBlockState().setValue(ROTATION, rotation(context));
+    }
+
+    /**
+     * Moves the drawn model by {@code x}, {@code y} and {@code z} pixels (world axes, before its turn), for a piece whose
+     * display model sits off its block, as apeira-dev's furniture wand exports it. Returns this block.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends FurnitureBlock> T renderOffset(float x, float y, float z) {
+        renderOffsetX = x / 16.0F;
+        renderOffsetY = y / 16.0F;
+        renderOffsetZ = z / 16.0F;
+        return (T) this;
+    }
+
+    /** How far the renderer moves the model, in blocks: x, y, z. */
+    public float[] renderOffset() {
+        return new float[] {renderOffsetX, renderOffsetY, renderOffsetZ};
     }
 
     /** How the renderer lays the model into the block, for a placed {@code state}. */

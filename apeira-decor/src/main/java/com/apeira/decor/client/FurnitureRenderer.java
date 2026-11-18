@@ -59,9 +59,11 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         // A piece being tuned with apeira-dev's wand is drawn as its tuning says: moved, scaled and turned further.
         FurnitureTuning tuning = FurnitureTunings.enabled() ? FurnitureTunings.get(block.getBlock()) : null;
         state.scale = tuning != null ? tuning.scale() : 1.0F;
-        state.offsetX = tuning != null ? tuning.offsetX() / 16.0F : 0.0F;
-        state.offsetY = tuning != null ? tuning.offsetY() / 16.0F : 0.0F;
-        state.offsetZ = tuning != null ? tuning.offsetZ() / 16.0F : 0.0F;
+        // The piece's own offset (FurnitureBlock#renderOffset), or while it is being tuned, the tuning's instead.
+        float[] offset = block.getBlock() instanceof FurnitureBlock furniture ? furniture.renderOffset() : new float[3];
+        state.offsetX = tuning != null ? tuning.offsetX() / 16.0F : offset[0];
+        state.offsetY = tuning != null ? tuning.offsetY() / 16.0F : offset[1];
+        state.offsetZ = tuning != null ? tuning.offsetZ() / 16.0F : offset[2];
         state.rotation += tuning != null ? tuning.rotation() : 0;
         state.facing = block.getOptionalValue(HorizontalDirectionalBlock.FACING).orElse(null);
         ItemStack stack = new ItemStack(block.getBlock());
