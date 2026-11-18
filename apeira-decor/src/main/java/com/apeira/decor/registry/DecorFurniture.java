@@ -9,6 +9,8 @@ import org.jspecify.annotations.Nullable;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.ApeiraDecor;
 import com.apeira.decor.cosmetic.CosmeticItem;
+import com.apeira.decor.furniture.AnimatedFurnitureBlock;
+import com.apeira.decor.furniture.FacingFurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlock.Form;
 import com.apeira.decor.furniture.FurnitureBlockItem;
@@ -42,16 +44,21 @@ public final class DecorFurniture {
 
     public static final DeferredBlock<SeatFurnitureBlock> OUTDOOR_ROCKING_CHAIR = piece("outdoor_rocking_chair", "badger_crate",
             p -> new SeatFurnitureBlock(p, false, 8));
+    /** Offsets are Ren's furniture wand exports. */
     public static final DeferredBlock<FurnitureBlock> WEDGE_TENT = piece("wedge_tent", "badger_crate",
-            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+            p -> new FurnitureBlock(p, false, Form.FURNITURE).renderOffset(0, 16, 0));
+    /** On the floor, or against a wall as {@link #SASH_BANNER_WALL} (the pack's {@code sash_banner_wall} model). */
     public static final DeferredBlock<FurnitureBlock> SASH_BANNER = piece("sash_banner", "badger_crate",
-            p -> new FurnitureBlock(p, false, Form.FLOOR));
+            p -> new FurnitureBlock(p, false, Form.FLOOR, () -> DecorFurniture.SASH_BANNER_WALL.get(), null, null).renderOffset(0, 32, 0));
+    public static final DeferredBlock<FacingFurnitureBlock> SASH_BANNER_WALL = piece("sash_banner_wall", "badger_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.SASH_BANNER.get()));
     public static final DeferredBlock<FurnitureBlock> WOODEN_CART = piece("wooden_cart", "badger_crate",
             p -> new FurnitureBlock(p, false, Form.FURNITURE));
     public static final DeferredBlock<FurnitureBlock> STALL_CART = piece("stall_cart", "badger_crate",
             p -> new FurnitureBlock(p, false, Form.FURNITURE));
-    public static final DeferredBlock<FurnitureBlock> WOODEN_WINDMILL = piece("wooden_windmill", "badger_crate",
-            p -> new FurnitureBlock(p, false, Form.FLOOR));
+    /** Animated: Ren's GeckoLib model, {@code geckolib/models/furniture/wooden_windmill.geo.json}, its sails turning. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> WOODEN_WINDMILL = piece("wooden_windmill", "badger_crate",
+            p -> new AnimatedFurnitureBlock(p, "furniture", false, "wooden_windmill", null));
 
     private DecorFurniture() {}
 

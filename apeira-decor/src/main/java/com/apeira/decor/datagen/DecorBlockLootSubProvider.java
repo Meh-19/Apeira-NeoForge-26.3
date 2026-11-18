@@ -27,19 +27,20 @@ public final class DecorBlockLootSubProvider extends ApeiraBlockLootProvider {
     protected void generate() {
         dropSelf(DecorBlocks.PAINTING_TABLE.get());
         for (DeferredBlock<? extends FurnitureBlock> furniture : DecorFurniture.all()) {
-            if (furniture.get().takesPaint()) {
-                add(furniture.get(), this::dropSelfWithPaint);
-            } else {
-                dropSelf(furniture.get());
-            }
+            // A wall or ceiling variant drops its base piece.
+            FurnitureBlock block = furniture.get();
+            add(block, b -> dropWithPaint(b, block.dropBlock(), block.takesPaint()));
         }
     }
 
-    /** Drops a paintable block's item, carrying the block's paint. */
-    private LootTable.Builder dropSelfWithPaint(Block block) {
+    /** Drops {@code drop}'s item, carrying the block's paint when it takes paint. */
+    private LootTable.Builder dropWithPaint(Block block, Block drop, boolean paint) {
+        LootItem.Builder<?> item = LootItem.lootTableItem(drop);
+        if (paint) {
+            item.apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
+                    .include(DecorDataComponents.PAINT.get()));
+        }
         return LootTable.lootTable().withPool(applyExplosionCondition(block, LootPool.lootPool()
-                .setRolls(ContextIntProviders.exactly(1))
-                .add(LootItem.lootTableItem(block).apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
-                        .include(DecorDataComponents.PAINT.get())))));
+                .setRolls(ContextIntProviders.exactly(1)).add(item)));
     }
 }

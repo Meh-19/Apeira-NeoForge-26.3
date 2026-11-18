@@ -6,8 +6,10 @@ import java.util.stream.Stream;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.main.Apeira;
 import com.apeira.decor.ApeiraDecor;
+import com.apeira.decor.furniture.FurnitureBlock;
 
 import net.minecraft.core.Holder;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -24,6 +26,9 @@ public final class MainCreativeTabs {
             .icon(MainItems.RUBY::toStack)
             .displayItems(Stream.concat(R.items().getEntries().stream(), ApeiraDecor.REGISTRAR.items().getEntries().stream())
                     .filter(item -> !item.getId().equals(MainBadgerCrate.BADGER_CRATE.getId()))
+                    // Furniture wall and ceiling variants are placed through their base piece.
+                    .filter(item -> !(item.get() instanceof BlockItem block && block.getBlock() instanceof FurnitureBlock furniture
+                            && furniture.dropBlock() != furniture))
                     .toList()));
 
     /** "Crates": the Badger Crate. */

@@ -21,7 +21,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 /** English names for the decor module's blocks, items, entities and painting table. */
 public final class DecorLanguageProvider extends ApeiraLanguageProvider {
     /** The Crates mod's furniture names that are not just the id in title case. */
-    private static final Map<String, String> NAMES = Map.of("i_beam", "I-Beam", "santa_sleigh", "Santa's Sleigh", "dj_booth", "DJ Booth",
+    private static final Map<String, String> NAMES = Map.of("sash_banner_wall", "Sash Banner", "i_beam", "I-Beam", "santa_sleigh", "Santa's Sleigh", "dj_booth", "DJ Booth",
             "santa_chair", "Santa's Chair");
 
     public DecorLanguageProvider(PackOutput output, String namespace) {
