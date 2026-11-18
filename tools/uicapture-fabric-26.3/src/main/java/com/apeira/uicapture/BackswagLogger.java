@@ -34,7 +34,10 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -118,7 +121,13 @@ final class BackswagLogger {
         if (player == null || minecraft.level == null) {
             return;
         }
+        // Around the player and the camera, which is elsewhere while spectating (the wardrobe's turning dummy).
         AABB box = player.getBoundingBox().inflate(RADIUS);
+        Entity camera = minecraft.getCameraEntity();
+        if (camera != null && camera != player) {
+            box = box.minmax(camera.getBoundingBox().inflate(RADIUS));
+        }
+        AABB search = box;
         List<ArmorStand> stands = new ArrayList<>(minecraft.level.getEntitiesOfClass(ArmorStand.class, box,
                 stand -> stand.isInvisible() && !stand.getItemBySlot(EquipmentSlot.HEAD).isEmpty()));
         if (stands.isEmpty()) {
@@ -132,27 +141,42 @@ final class BackswagLogger {
         List<JsonObject> logged = new ArrayList<>();
         for (ArmorStand stand : stands) {
             ItemStack head = stand.getItemBySlot(EquipmentSlot.HEAD);
-            double dy = stand.getY() - player.getY();
-            double dx = stand.getX() - player.getX();
-            double dz = stand.getZ() - player.getZ();
-            float yawDelta = wrap(stand.getYRot() - player.getYRot());
+            // The wearer: the nearest avatar (a mannequin dummy or another player) close to the stand, else the player.
+            LivingEntity wearer = wearer(minecraft, stand, search);
+            double dy = stand.getY() - wearer.getY();
+            double dx = stand.getX() - wearer.getX();
+            double dz = stand.getZ() - wearer.getZ();
+            float bodyYaw = wearer.yBodyRot;
+            double yawRad = Math.toRadians(bodyYaw);
+            // The wearer's body frame: forward is where the body faces (yaw 0 is +z), right is its right hand side.
+            double forward = -dx * Math.sin(yawRad) + dz * Math.cos(yawRad);
+            double right = -dx * Math.cos(yawRad) - dz * Math.sin(yawRad);
+            float yawDelta = wrap(stand.getYRot() - bodyYaw);
             JsonObject json = new JsonObject();
             json.addProperty("type", "backswag_height");
             json.addProperty("time", LocalDateTime.now().toString());
+            json.addProperty("wearer", wearer == player ? "player" : BuiltInRegistries.ENTITY_TYPE.getKey(wearer.getType()).toString());
+            json.addProperty("wearer_name", wearer.getName().getString());
+            json.addProperty("wearer_scale", wearer.getScale());
             json.addProperty("dy", dy);
             json.addProperty("dx", dx);
             json.addProperty("dz", dz);
+            json.addProperty("forward", forward);
+            json.addProperty("right", right);
+            json.addProperty("dy_scaled", dy / wearer.getScale());
             json.addProperty("stand_y", stand.getY());
+            json.addProperty("wearer_y", wearer.getY());
             json.addProperty("player_y", player.getY());
-            json.addProperty("player_eye_height", player.getEyeHeight());
-            json.addProperty("player_pose", player.getPose().name());
+            json.addProperty("player_eye_height", wearer.getEyeHeight());
+            json.addProperty("player_pose", wearer.getPose().name());
             json.addProperty("stand_yaw", stand.getYRot());
-            json.addProperty("player_yaw", player.getYRot());
-            json.addProperty("player_body_yaw", player.yBodyRot);
+            json.addProperty("wearer_yaw", wearer.getYRot());
+            json.addProperty("wearer_body_yaw", bodyYaw);
+            json.addProperty("wearer_head_yaw", wearer.yHeadRot);
             json.addProperty("yaw_delta", yawDelta);
             json.addProperty("small", stand.isSmall());
             json.addProperty("marker", stand.isMarker());
-            json.addProperty("riding_player", isRiding(stand, player));
+            json.addProperty("riding_player", isRiding(stand, wearer));
             Rotations pose = stand.getHeadPose();
             JsonArray headPose = new JsonArray();
             headPose.add(pose.x());
@@ -168,7 +192,8 @@ final class BackswagLogger {
             String dyText = String.format(Locale.ROOT, "%.6f", dy);
             Feedback.ok(Component.literal("  dy = ").withStyle(ChatFormatting.GRAY)
                     .append(copyable(dyText).withStyle(ChatFormatting.GREEN))
-                    .append(Component.literal(String.format(Locale.ROOT, "  (dx %.4f, dz %.4f, yaw %+.1f%s%s)", dx, dz, yawDelta,
+                    .append(Component.literal(String.format(Locale.ROOT, "  over %s (forward %.4f, right %.4f, yaw %+.1f%s%s)",
+                            wearer == player ? "you" : wearer.getName().getString(), forward, right, yawDelta,
                             stand.isSmall() ? ", small" : "", stand.isMarker() ? ", marker" : "")).withStyle(ChatFormatting.GRAY)));
             Feedback.ok(copyable("    " + head.getHoverName().getString() + "  " + json.get("match").getAsString()));
             Feedback.ok(copyable("    colours " + colours(json)));
@@ -215,7 +240,7 @@ final class BackswagLogger {
         entry.addProperty("name", cosmetic.get("name").getAsString());
         entry.addProperty("linked_by", how);
         entry.addProperty("time", LocalDateTime.now().toString());
-        for (String field : new String[] {"dy", "dx", "dz", "yaw_delta", "head_pose", "small", "marker", "riding_player", "player_pose", "player_eye_height"}) {
+        for (String field : new String[] {"wearer", "wearer_name", "wearer_scale", "forward", "right", "dy_scaled", "dy", "dx", "dz", "yaw_delta", "head_pose", "small", "marker", "riding_player", "player_pose", "player_eye_height"}) {
             entry.add(field, stand.get(field));
         }
         entry.add("cosmetic", cosmetic);
@@ -239,8 +264,25 @@ final class BackswagLogger {
         }
     }
 
+    /** The nearest avatar other than the local player within 3 blocks across of the stand, else the player. */
+    private static LivingEntity wearer(Minecraft minecraft, ArmorStand stand, AABB search) {
+        Player player = minecraft.player;
+        LivingEntity best = null;
+        double bestDistance = 9.0;
+        for (Avatar avatar : minecraft.level.getEntitiesOfClass(Avatar.class, search.inflate(3.0), avatar -> avatar != player)) {
+            double x = avatar.getX() - stand.getX();
+            double z = avatar.getZ() - stand.getZ();
+            double distance = x * x + z * z;
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                best = avatar;
+            }
+        }
+        return best != null ? best : player;
+    }
+
     /** True when the stand rides the player, directly or through other passengers. */
-    private static boolean isRiding(ArmorStand stand, Player player) {
+    private static boolean isRiding(ArmorStand stand, Entity player) {
         for (net.minecraft.world.entity.Entity vehicle = stand.getVehicle(); vehicle != null; vehicle = vehicle.getVehicle()) {
             if (vehicle == player) {
                 return true;
