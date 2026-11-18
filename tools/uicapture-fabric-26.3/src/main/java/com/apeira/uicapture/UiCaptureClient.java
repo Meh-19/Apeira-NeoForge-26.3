@@ -34,7 +34,9 @@ import net.minecraft.network.chat.Component;
  * {@code /apeirasound} inspects a sound event and logs played sounds ({@link SoundInspector}); {@code /apeiracommands}
  * logs the server's command tree and, with {@code probe}, the server's completions, and records the commands the player
  * runs ({@link CommandLogger}); {@code /apeiradev area} and {@code /apeiradev record} record the armor stands and other
- * entities in an area as a GeckoLib model and animation ({@link ArmorStandRecorder}). They are client commands, so they
+ * entities in an area as a GeckoLib model and animation ({@link ArmorStandRecorder}). "Backswag: Log Hovered Cosmetic"
+ * (Page Up, in a screen) and "Backswag: Log Head Height" (Page Down, no screen) log a back cosmetic and the height of the
+ * invisible armor stand a server shows it on ({@link BackswagLogger}). They are client commands, so they
  * work on any server. It works on any screen, container or not: nothing is registered and nothing is sent but a
  * probe's completion requests, so a plain Fabric 26.3 client with only this jar and Fabric API can join a server without Apeira.
  */
@@ -48,6 +50,9 @@ public final class UiCaptureClient implements ClientModInitializer {
     public static final KeyMapping RECORD_POS1 = new KeyMapping("key.apeira.record_pos1", InputConstants.KEY_LBRACKET, KeyMapping.Category.MISC);
     public static final KeyMapping RECORD_POS2 = new KeyMapping("key.apeira.record_pos2", InputConstants.KEY_RBRACKET, KeyMapping.Category.MISC);
     public static final KeyMapping RECORD_TOGGLE = new KeyMapping("key.apeira.record_toggle", InputConstants.KEY_F6, KeyMapping.Category.MISC);
+    // F9 and F10 are the deep inspect and HUD log keys, so the backswag keys default to Page Up and Page Down.
+    public static final KeyMapping BACKSWAG_HOVER = new KeyMapping("key.apeira.backswag_hover", InputConstants.KEY_PAGEUP, KeyMapping.Category.MISC);
+    public static final KeyMapping BACKSWAG_HEIGHT = new KeyMapping("key.apeira.backswag_height", InputConstants.KEY_PAGEDOWN, KeyMapping.Category.MISC);
 
     /** What the next frame should capture: a screen, a screen with a deep inspection, the HUD, the HUD with its text log, or nothing. */
     private enum Pending { NONE, SCREEN, INSPECT, HUD, HUD_LOG }
@@ -63,6 +68,8 @@ public final class UiCaptureClient implements ClientModInitializer {
         KeyMappingHelper.registerKeyMapping(RECORD_POS1);
         KeyMappingHelper.registerKeyMapping(RECORD_POS2);
         KeyMappingHelper.registerKeyMapping(RECORD_TOGGLE);
+        KeyMappingHelper.registerKeyMapping(BACKSWAG_HOVER);
+        KeyMappingHelper.registerKeyMapping(BACKSWAG_HEIGHT);
         ClientTickEvents.END_CLIENT_TICK.register(UiCaptureClient::onClientTick);
         // Commands going to the server; client commands are not included.
         ClientSendMessageEvents.COMMAND.register(CommandLogger::ran);
@@ -107,6 +114,17 @@ public final class UiCaptureClient implements ClientModInitializer {
             ChatCapture.toggle(minecraft);
             return false;
         }
+        if (BACKSWAG_HOVER.matches(event)) {
+            Screen screen = minecraft.gui.screen();
+            if (screen != null) {
+                BackswagLogger.logHovered(minecraft, screen);
+            }
+            return false;
+        }
+        if (BACKSWAG_HEIGHT.matches(event)) {
+            minecraft.gui.hud.getChat().addClientSystemMessage(Component.translatable("message.apeira.backswag.height_needs_no_screen"));
+            return false;
+        }
         if (LOG_HUD.matches(event)) {
             minecraft.gui.hud.getChat().addClientSystemMessage(Component.translatable("message.apeira.ui_capture.hud_needs_no_screen"));
             return false;
@@ -140,6 +158,16 @@ public final class UiCaptureClient implements ClientModInitializer {
         }
         while (LOG_CHAT.consumeClick()) {
             ChatCapture.toggle(minecraft);
+        }
+        while (BACKSWAG_HOVER.consumeClick()) {
+            if (noScreen) {
+                minecraft.gui.hud.getChat().addClientSystemMessage(Component.translatable("message.apeira.backswag.hover_needs_screen"));
+            }
+        }
+        while (BACKSWAG_HEIGHT.consumeClick()) {
+            if (noScreen) {
+                BackswagLogger.logHeights(minecraft);
+            }
         }
         recordingKeys(minecraft);
     }
