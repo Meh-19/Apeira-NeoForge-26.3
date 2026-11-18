@@ -11,6 +11,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -58,7 +60,11 @@ import com.apeira.uicapture.mixin.AbstractContainerScreenAccessor;
  */
 final class BackswagLogger {
     static final String LOG = "logs/apeira_backswag_log.jsonl";
+    static final String OFFSETS = "logs/apeira_backswag_offsets.json";
     static final double RADIUS = 5.0;
+    private static final Gson PRETTY = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    /** The last hovered cosmetic, which the next height log links its stand to. */
+    private static @Nullable JsonObject armed;
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
     private BackswagLogger() {}
@@ -91,6 +97,7 @@ final class BackswagLogger {
         json.add("tooltip_json", linesJson);
         json.add("components", UiCaptureWriter.item(stack, ops));
         write(json);
+        armed = json;
 
         Feedback.ok(Component.literal("[Backswag] Hovered: ").withStyle(ChatFormatting.GOLD)
                 .append(Component.literal(stack.getHoverName().getString()).withStyle(ChatFormatting.WHITE)));
@@ -101,7 +108,8 @@ final class BackswagLogger {
             // The first line is the name, written above.
             Feedback.ok(Component.literal("  | ").withStyle(ChatFormatting.DARK_GRAY).append(tooltip.get(i).copy()));
         }
-        Feedback.ok(Component.literal("  -> " + LOG).withStyle(ChatFormatting.GRAY));
+        Feedback.ok(Component.literal("  -> " + LOG + "; equip it, close the menu and press the height key to link its offset")
+                .withStyle(ChatFormatting.GRAY));
     }
 
     /** Every invisible armor stand near the player with a head item, nearest first. */
@@ -121,6 +129,7 @@ final class BackswagLogger {
         DynamicOps<JsonElement> ops = UiCaptureWriter.ops(minecraft);
         Feedback.ok(Component.literal("[Backswag] " + stands.size() + " invisible head-item stand(s) within " + (int) RADIUS + " blocks:")
                 .withStyle(ChatFormatting.GOLD));
+        List<JsonObject> logged = new ArrayList<>();
         for (ArmorStand stand : stands) {
             ItemStack head = stand.getItemBySlot(EquipmentSlot.HEAD);
             double dy = stand.getY() - player.getY();
@@ -154,6 +163,7 @@ final class BackswagLogger {
             describe(head, json, ops);
             json.add("components", UiCaptureWriter.item(head, ops));
             write(json);
+            logged.add(json);
 
             String dyText = String.format(Locale.ROOT, "%.6f", dy);
             Feedback.ok(Component.literal("  dy = ").withStyle(ChatFormatting.GRAY)
@@ -168,6 +178,65 @@ final class BackswagLogger {
             }
         }
         Feedback.ok(Component.literal("  -> " + LOG).withStyle(ChatFormatting.GRAY));
+        link(logged);
+    }
+
+    /**
+     * Links one of the logged stands to the last hovered cosmetic and stores it in {@link #OFFSETS} under the cosmetic's
+     * name (lowercase, {@code cosmo_robe}), replacing an earlier entry of that name, so going through every backswag
+     * builds one table. The stand is the one whose head item has the hovered item's {@code match} key, else the one
+     * riding the player, else the nearest one above the player's eyes. The hovered cosmetic is used once.
+     */
+    private static void link(List<JsonObject> logged) {
+        JsonObject cosmetic = armed;
+        if (cosmetic == null) {
+            Feedback.ok(Component.literal("  Not linked: hover a cosmetic and press the hover key first").withStyle(ChatFormatting.YELLOW));
+            return;
+        }
+        String how = "match";
+        JsonObject stand = logged.stream().filter(e -> e.get("match").equals(cosmetic.get("match"))).findFirst().orElse(null);
+        if (stand == null) {
+            how = "riding_player";
+            stand = logged.stream().filter(e -> e.get("riding_player").getAsBoolean()).findFirst().orElse(null);
+        }
+        if (stand == null) {
+            how = "nearest_above_eyes";
+            stand = logged.stream().filter(e -> e.get("dy").getAsDouble() > e.get("player_eye_height").getAsDouble()).findFirst().orElse(null);
+        }
+        if (stand == null) {
+            Feedback.error(Component.literal("  Not linked: no stand matches " + cosmetic.get("name").getAsString() + ", rides you or is above your eyes"));
+            return;
+        }
+        String key = cosmetic.get("name").getAsString().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "_").replaceAll("^_|_$", "");
+        if (key.isEmpty()) {
+            key = cosmetic.get("match").getAsString();
+        }
+        JsonObject entry = new JsonObject();
+        entry.addProperty("name", cosmetic.get("name").getAsString());
+        entry.addProperty("linked_by", how);
+        entry.addProperty("time", LocalDateTime.now().toString());
+        for (String field : new String[] {"dy", "dx", "dz", "yaw_delta", "head_pose", "small", "marker", "riding_player", "player_pose", "player_eye_height"}) {
+            entry.add(field, stand.get(field));
+        }
+        entry.add("cosmetic", cosmetic);
+        entry.add("worn", stand);
+        Path file = FabricLoader.getInstance().getGameDir().resolve(OFFSETS);
+        try {
+            JsonObject table = Files.exists(file)
+                    ? com.google.gson.JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject() : new JsonObject();
+            table.add(key, entry);
+            Files.createDirectories(file.getParent());
+            Files.writeString(file, PRETTY.toJson(table), StandardCharsets.UTF_8);
+            armed = null;
+            Feedback.ok(Component.literal("  Linked " + key + " -> dy " + String.format(Locale.ROOT, "%.6f", stand.get("dy").getAsDouble())
+                    + " (by " + how + ", " + table.size() + " in " + OFFSETS + ")").withStyle(ChatFormatting.GREEN));
+            if (!how.equals("match")) {
+                Feedback.ok(Component.literal("  The worn item differs from the hovered one; check the stand is the right one").withStyle(ChatFormatting.YELLOW));
+            }
+        } catch (IOException | RuntimeException e) {
+            UiCaptureClient.LOGGER.error("Backswag offset table failed", e);
+            Feedback.error(Component.literal("Backswag offset table failed: " + e.getMessage()));
+        }
     }
 
     /** True when the stand rides the player, directly or through other passengers. */
