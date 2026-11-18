@@ -1,0 +1,4 @@
+# Furniture hitboxes and outlines for apeira-decor's multiblock footprints (FurnitureFootprints), in the format
+# scripts/artifact_footprints.py writes: name|straight|diagonal|outline, x1 y1 z1 x2 y2 z2 pixel boxes relative to the
+# piece's block at rotation 0 and at rotation 1, then the outline's lines at rotation 0. A piece not listed here uses
+# its catalogue shape as a one-block footprint. Generate it from the tuned furniture models; do not edit by hand.

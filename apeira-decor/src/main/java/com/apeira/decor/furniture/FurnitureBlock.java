@@ -4,8 +4,12 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.decor.block.ApeiraFurnitureBlock;
 import com.apeira.decor.block.SeatBlock;
+import com.apeira.decor.multiblock.Footprint;
+import com.apeira.decor.multiblock.Multiblock;
+import com.apeira.decor.multiblock.MultiblockController;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -24,11 +28,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * {@link FurnitureBlockEntity}, which keeps its paint and which {@code FurnitureRenderer} draws. Seats are
  * {@link Seat}s.
  *
+ * <p>Like an artifact, a piece is the controller of a multiblock piece ({@link MultiblockController}): its
+ * {@link FurnitureFootprints footprint} may cover the blocks around it, filled with parts that share its hitboxes, and
+ * looking at any of them outlines the whole piece.
+ *
  * <p>While {@link FurnitureTunings} are on, a tuned piece takes its shape, placement and seat from its
  * {@link FurnitureTuning} instead.
  */
-public class FurnitureBlock extends ApeiraFurnitureBlock {
+public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockController {
     private final Furniture furniture;
+    private @Nullable Footprint footprint;
 
     public FurnitureBlock(BlockBehaviour.Properties properties, Furniture furniture) {
         super(properties, furniture.shape());
@@ -54,16 +63,51 @@ public class FurnitureBlock extends ApeiraFurnitureBlock {
         return new FurnitureBlockEntity(pos, state);
     }
 
-    /** Tunable shapes can change at any time, so they are not cached while tunings are on. */
+    /** Shapes come from the footprint, cut for a turn only once a piece is placed at it, and tunings can change them. */
     @Override
     public boolean hasDynamicShape() {
-        return super.hasDynamicShape() || FurnitureTunings.enabled();
+        return true;
+    }
+
+    /** The piece's footprint, looked up the first time it is needed. */
+    @Override
+    public Footprint footprint(BlockState state) {
+        Footprint known = footprint;
+        if (known == null) {
+            known = FurnitureFootprints.of(furniture);
+            footprint = known;
+        }
+        return known;
     }
 
     @Override
+    public int turn(BlockState state) {
+        return state.getValue(ROTATION);
+    }
+
+    @Override
+    public boolean partsCollide(BlockState state) {
+        return furniture.collision();
+    }
+
+    /** A tuned shape while tunings are on, else the part of the footprint in the piece's own block. */
+    @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         VoxelShape tuned = FurnitureTunings.shape(this, state.getValue(ROTATION));
-        return tuned != null ? tuned : super.getShape(state, level, pos, context);
+        return tuned != null ? tuned : controllerShape(state);
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        Multiblock.placeParts(level, pos, state, oldState);
+    }
+
+    /** The piece's parts go with it, however it is removed. */
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        Multiblock.removeParts(level, pos, state);
     }
 
     @Override

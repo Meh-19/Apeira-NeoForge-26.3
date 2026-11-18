@@ -8,6 +8,7 @@ import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.ApeiraDecor;
 import com.apeira.decor.furniture.Furniture;
 import com.apeira.decor.furniture.FurnitureBlock;
+import com.apeira.decor.furniture.FurnitureBlockItem;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -48,7 +49,8 @@ public final class DecorFurniture {
         for (Furniture furniture : Furniture.all()) {
             DeferredBlock<FurnitureBlock> block = R.blocks().registerBlock(furniture.name(),
                     properties -> FurnitureBlock.create(properties, furniture), properties -> properties(properties, furniture));
-            R.items().registerSimpleBlockItem(block, properties -> itemProperties(properties, furniture));
+            R.items().registerItem(furniture.name(), properties -> new FurnitureBlockItem(block.get(), properties),
+                    properties -> itemProperties(properties, furniture).useBlockDescriptionPrefix());
             blocks.add(block);
         }
         return List.copyOf(blocks);
