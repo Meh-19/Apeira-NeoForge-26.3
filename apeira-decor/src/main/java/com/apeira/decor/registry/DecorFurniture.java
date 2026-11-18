@@ -60,9 +60,10 @@ public final class DecorFurniture {
             p -> new FurnitureBlock(p, false, Form.FURNITURE));
     public static final DeferredBlock<FurnitureBlock> STALL_CART = piece("stall_cart", "badger_crate",
             p -> new FurnitureBlock(p, true, Form.FURNITURE));
-    /** Animated: Ren's GeckoLib model, {@code geckolib/models/furniture/wooden_windmill.geo.json}, its sails turning. */
+    /** Animated: Ren's GeckoLib model, {@code geckolib/models/furniture/wooden_windmill.geo.json}, its sails turning, turned round
+     * (the model faces the other way from the rest). */
     public static final DeferredBlock<AnimatedFurnitureBlock> WOODEN_WINDMILL = piece("wooden_windmill", "badger_crate",
-            p -> new AnimatedFurnitureBlock(p, "furniture", true, "wooden_windmill", null));
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "wooden_windmill", null).modelYaw(180));
 
     private DecorFurniture() {}
 

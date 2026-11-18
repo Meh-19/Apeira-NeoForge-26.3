@@ -64,6 +64,7 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         state.offsetX = tuning != null ? tuning.offsetX() / 16.0F : offset[0];
         state.offsetY = tuning != null ? tuning.offsetY() / 16.0F : offset[1];
         state.offsetZ = tuning != null ? tuning.offsetZ() / 16.0F : offset[2];
+        state.modelYaw = block.getBlock() instanceof FurnitureBlock yawed ? yawed.modelYaw() : 0.0F;
         state.rotation += tuning != null ? tuning.rotation() : 0;
         state.facing = block.getOptionalValue(HorizontalDirectionalBlock.FACING).orElse(null);
         ItemStack stack = new ItemStack(block.getBlock());
@@ -81,6 +82,12 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         }
         poseStack.pushPose();
         poseStack.translate(state.offsetX, state.offsetY, state.offsetZ);
+        if (state.modelYaw != 0.0F) {
+            // A model authored facing the other way is turned about the block's centre column first.
+            poseStack.translate(0.5F, 0.0F, 0.5F);
+            poseStack.rotateDegrees(Axis.YP, state.modelYaw);
+            poseStack.translate(-0.5F, 0.0F, -0.5F);
+        }
         switch (state.mode) {
             case WALL -> {
                 poseStack.translate(0.5F, 0.5F, 0.5F);
@@ -138,6 +145,7 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         float offsetX;
         float offsetY;
         float offsetZ;
+        float modelYaw;
         @Nullable Direction facing;
     }
 }
