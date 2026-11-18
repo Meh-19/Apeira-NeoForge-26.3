@@ -401,7 +401,7 @@ final class UiCaptureWriter {
     }
 
     /** An item with every component (name, lore, item model, custom model data), as the item stack codec writes it. */
-    private static JsonElement item(ItemStack stack, DynamicOps<JsonElement> ops) {
+    static JsonElement item(ItemStack stack, DynamicOps<JsonElement> ops) {
         return ItemStack.OPTIONAL_CODEC.encodeStart(ops, stack).result().orElseGet(() -> {
             JsonObject fallback = new JsonObject();
             fallback.addProperty("id", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
