@@ -9,7 +9,9 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.main.Apeira;
 import com.apeira.main.network.BadgerPhasePayload;
+import com.apeira.main.realm.RealmPool;
 import com.apeira.main.registry.MainBadgerCrate;
+import com.apeira.main.registry.MainGameRules;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -40,7 +42,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * rewards; the client fades in and locks its camera to the recorded track;</li>
  * <li>{@link #PHASE_SELECT}, from {@link #SELECT_AT} (ten seconds in): the reward picked with the scroll wheel is
  * collected by crouching, or after {@link #SELECT_TIMEOUT} (five minutes); one reward, no rerolls;</li>
- * <li>{@link #PHASE_CLAIM}: the ding plays and the client fades to black; the player goes back to their respawn point
+ * <li>{@link #PHASE_CLAIM}: the ding plays and the client fades to black; the player goes back to their realm spawn ({@link #sendBack})
  * in their old game mode, the instance is deleted and a nameless double chest opens with the reward
  * ({@link #PHASE_END}).</li>
  * </ol>
@@ -202,12 +204,22 @@ final class BadgerSession {
         return rewards.get(Math.min(selected, rewards.size() - 1)).stack().copy();
     }
 
+    /**
+     * To the player's own realm spawn when the world uses realm presets ({@code apeira:realm_presets}) and they have a
+     * realm; otherwise, or without a realm, to their spawn point (a bed or anchor), else the world spawn.
+     */
+    static void sendBack(ServerPlayer player) {
+        if (MainGameRules.realmPresets(player.level().getServer()) && RealmPool.sendHome(player)) {
+            return;
+        }
+        player.teleport(player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING));
+    }
+
     /** Sends the player back, restores their game mode and deletes the instance; with {@code popup}, shows the reward. */
     void finish(MinecraftServer server, ServerPlayer player, boolean popup) {
         ItemStack reward = reward();
         if (instance != null && player.level() == instance) {
-            TeleportTransition back = player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING);
-            player.teleport(back);
+            sendBack(player);
         }
         player.setGameMode(returnMode);
         player.getPersistentData().remove(MODE_KEY);

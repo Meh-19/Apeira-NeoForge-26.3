@@ -164,5 +164,55 @@
       "apeira:mono/voices/male1/3",
       "apeira:mono/voices/male1/4"
     ]
+  },
+  "badger_crate.land": {
+    "sounds": [
+      "apeira:badger_crate/land"
+    ]
+  },
+  "badger_crate.open_no_land": {
+    "sounds": [
+      "apeira:badger_crate/open_no_land"
+    ]
+  },
+  "badger_crate.fly_1": {
+    "sounds": [
+      "apeira:badger_crate/fly_1"
+    ]
+  },
+  "badger_crate.fly_2": {
+    "sounds": [
+      "apeira:badger_crate/fly_2"
+    ]
+  },
+  "badger_crate.fly_3": {
+    "sounds": [
+      "apeira:badger_crate/fly_3"
+    ]
+  },
+  "badger_crate.idle": {
+    "sounds": [
+      "apeira:badger_crate/idle"
+    ]
+  },
+  "badger_crate.hit_1": {
+    "sounds": [
+      "apeira:badger_crate/hit_1"
+    ]
+  },
+  "badger_crate.hit_2": {
+    "sounds": [
+      "apeira:badger_crate/hit_2"
+    ]
+  },
+  "badger_crate.hit_3": {
+    "sounds": [
+      "apeira:badger_crate/hit_3"
+    ]
+  },
+  "badger_crate.finish": {
+    "sounds": [
+      "apeira:badger_crate/finish"
+    ]
   }
 }

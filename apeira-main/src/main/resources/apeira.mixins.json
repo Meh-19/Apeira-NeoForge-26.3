@@ -23,6 +23,9 @@
   ],
   "client": [
     "client.BadgerCameraMixin",
+    "client.BadgerOutlineFeatureMixin",
+    "client.BadgerOutlineSubmitMixin",
+    "client.RenderTypeFeatureRendererInvoker",
     "client.ClientPacketListenerMixin",
     "client.CreateWorldTabMixin",
     "client.LevelLoadingScreenMixin",

@@ -4,6 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.network.client.ApeiraClientNetwork;
 import com.apeira.main.Apeira;
+import com.apeira.main.client.realm.RealmTopBar;
 import com.apeira.main.crate.BadgerCrateItem;
 import com.apeira.main.crate.BadgerCrateShowEntity;
 import com.apeira.main.network.BadgerInputPayload;
@@ -18,6 +19,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -46,12 +48,15 @@ public final class BadgerCrateClient {
     private static final Identifier LAYER = Apeira.REGISTRAR.id("badger_crate");
     private static final int FADE_TICKS = 10;
     private static final int READY_DELAY = 10;
-    private static final int SELECT_TICKS = 5 * 60 * 20;
     /** The vanilla cooldown overlay's white at half alpha. */
     private static final int HOLD_OVERLAY = 0x7FFFFFFF;
     private static final int WHITE = 0xFFFFFFFF;
-    private static final int GREEN = 0xFF55FF55;
-    private static final int GREY = 0xFFAAAAAA;
+    /** The capture's text colours: Origin Realms' green and its grey. */
+    private static final int GREEN = 0x85CC16;
+    private static final int GREY = 0xA7AEBA;
+    /** Where vanilla writes the first and second boss bars' names. */
+    private static final int FIRST_BAR_Y = 3;
+    private static final int SECOND_BAR_Y = 22;
 
     private static int phase = -1;
     private static int entityId = -1;
@@ -61,12 +66,15 @@ public final class BadgerCrateClient {
     private static boolean readySent;
     private static boolean sneakWasDown;
     private static int selected;
+    /** The animation tick the opening sounds were last played up to. */
+    private static int soundTick = -1;
 
     private BadgerCrateClient() {}
 
     public static void register(IEventBus modBus, IEventBus gameBus) {
         modBus.addListener(BadgerCrateClient::registerLayer);
         modBus.addListener(BadgerCrateClient::registerDecorations);
+        modBus.addListener(SelectionOutline::registerPipelines);
         gameBus.addListener(BadgerCrateClient::onClientTick);
         gameBus.addListener(BadgerCrateClient::onMovementInput);
         gameBus.addListener(BadgerCrateClient::onScroll);
@@ -89,6 +97,9 @@ public final class BadgerCrateClient {
         }
         if (phase == BadgerPhase.LOADING) {
             readySent = false;
+        }
+        if (phase == BadgerPhase.SHOW) {
+            soundTick = -1;
         }
         if (phase == BadgerPhase.END) {
             entityId = -1;
@@ -157,6 +168,11 @@ public final class BadgerCrateClient {
             player.setDeltaMovement(Vec3.ZERO);
             player.setYRot((float) pose[3]);
             player.setXRot((float) pose[4]);
+        }
+        BadgerCrateShowEntity show = entity();
+        if (show != null && (phase == BadgerPhase.SHOW || phase == BadgerPhase.SELECT)) {
+            BadgerCrateSounds.play(soundTick, show.tickCount);
+            soundTick = show.tickCount;
         }
         if (phase == BadgerPhase.LOADING && !readySent && phaseTicks >= READY_DELAY && minecraft.gui.screen() == null
                 && minecraft.levelRenderer.hasRenderedAllSections()) {
@@ -251,16 +267,11 @@ public final class BadgerCrateClient {
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
         int width = graphics.guiWidth();
-        int bottom = graphics.guiHeight() - 40;
         if (phase == BadgerPhase.SHOW) {
-            line(graphics, font, width, bottom, Component.translatable("message.apeira.badger_crate.opening"), WHITE);
+            bossBarPill(graphics, font, width, FIRST_BAR_Y, "message.apeira.badger_crate.opening", GREY);
         } else if (phase == BadgerPhase.SELECT) {
-            line(graphics, font, width, bottom - 12, Component.translatable("message.apeira.badger_crate.collect"), GREEN);
-            int secondsLeft = Math.max(0, (SELECT_TICKS - phaseTicks) / 20);
-            Component left = Component.translatable("message.apeira.badger_crate.time_left",
-                    String.format("%d:%02d", secondsLeft / 60, secondsLeft % 60));
-            line(graphics, font, width, bottom, Component.translatable("message.apeira.badger_crate.scroll").copy()
-                    .append(" · ").append(left), GREY);
+            bossBarPill(graphics, font, width, FIRST_BAR_Y, "message.apeira.badger_crate.collect", GREEN);
+            bossBarPill(graphics, font, width, SECOND_BAR_Y, "message.apeira.badger_crate.scroll", GREY);
         }
         float alpha = Mth.lerp(deltaTracker.getGameTimeDeltaPartialTick(true), fadeO, fade);
         if (alpha > 0.0F) {
@@ -272,9 +283,15 @@ public final class BadgerCrateClient {
         return Mth.clamp((int) (alpha * 255.0F), 0, 255) << 24;
     }
 
-    private static void line(GuiGraphicsExtractor graphics, Font font, int screenWidth, int y, Component text, int color) {
-        int x = (screenWidth - font.width(text)) / 2;
-        graphics.text(font, text, x, y, color, true);
+    /**
+     * One of the server's boss bar hints as Ren's HUD capture shows them: the text in a top bar pill
+     * ({@link RealmTopBar#pill}, Origin Realms' {@code boss_bar_1} and {@code boss_bar_2} glyphs), centred where vanilla
+     * writes the first or second boss bar's name.
+     */
+    private static void bossBarPill(GuiGraphicsExtractor graphics, Font font, int screenWidth, int y, String key, int color) {
+        MutableComponent bar = Component.empty();
+        RealmTopBar.pill(font, bar, Component.translatable(key).withStyle(RealmTopBar.FONT.withColor(color)), true);
+        graphics.text(font, bar, screenWidth / 2 - font.width(bar) / 2, y, WHITE, true);
     }
 
     private static void registerDecorations(RegisterItemDecorationsEvent event) {

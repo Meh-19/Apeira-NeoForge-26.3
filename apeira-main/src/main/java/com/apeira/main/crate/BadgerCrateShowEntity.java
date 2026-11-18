@@ -95,8 +95,8 @@ public class BadgerCrateShowEntity extends Entity implements GeoEntity {
 
     @Override
     public void tick() {
-        // Nothing moves it; only its age advances, which the animation and the client's camera follow.
-        tickCount++;
+        // Nothing moves it. The level already advances tickCount before calling this, which the animation and the
+        // client's camera follow; counting it here too played the opening twice as fast.
     }
 
     @Override

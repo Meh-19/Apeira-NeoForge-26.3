@@ -76,11 +76,10 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         item(MainBadgerCrate.BADGER_CRATE, "Badger Crate");
         addId("entity", "badger_crate_show", "Badger Crate");
         // The Badger Crate opening's HUD (client/crate/BadgerCrateClient).
-        addId("message", "badger_crate.opening", "Opening crate...");
+        addId("message", "badger_crate.opening", "Opening Crate...");
         addId("message", "badger_crate.collect", "Crouch to collect selected reward");
-        addId("message", "badger_crate.scroll", "Scroll to choose");
+        addId("message", "badger_crate.scroll", "Scroll to select reward");
         addId("message", "badger_crate.selected", "Selected");
-        addId("message", "badger_crate.time_left", "%s left");
 
     }
 

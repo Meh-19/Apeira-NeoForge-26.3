@@ -98,7 +98,20 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
         private static final String[] TEXT_BONES = {"item_1_text", "item_2_text", "item_3_text"};
         private static final float ITEM_SCALE = 1.5F;
         private static final float LABEL_SCALE = 0.025F;
-        private static final int OUTLINE = 0xFFFFFFFF;
+        /** How much bigger the outline copy is than the item, and how far behind it. */
+        private static final float OUTLINE_GROWTH = 1.12F;
+        private static final float OUTLINE_PUSH = 0.06F;
+        /** The recorded {@code selected_text} display's scale against the names'. */
+        private static final float SELECTED_SCALE = LABEL_SCALE * 0.8F;
+        /**
+         * Where Ren's Blockbench file puts the {@code selected_text} anchor under each reward, from that reward's
+         * {@code item_<n>_text} anchor, in blocks (Blockbench's axes are the world's here: the model is not turned).
+         * Measured from the recording: the anchor's rest pivot and its position keys while each reward was selected.
+         */
+        private static final float[][] SELECTED_OFFSETS = {
+                {-0.2856F / 16.0F, -20.8F / 16.0F, 6.3921F / 16.0F},
+                {-2.6923F / 16.0F, -20.8F / 16.0F, 5.8062F / 16.0F},
+                {-4.6918F / 16.0F, -20.8F / 16.0F, 4.3512F / 16.0F}};
         private static final int LABEL_BACKGROUND = 0x40000000;
         private static final int[] TIER_COLOURS = {0xFFFFFFFF, 0xFF55AAFF, 0xFFBB66FF, 0xFFFFCC33};
 
@@ -150,22 +163,46 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
                 if (!item.isEmpty()) {
                     renderPassInfo.model().getBone(ITEM_BONES[i]).ifPresent(bone -> consumer.accept(bone, (info, renderBone, tasks) -> {
                         PoseStack poseStack = info.poseStack();
+                        if (slot == selected) {
+                            outline(poseStack, tasks, item, info.packedLight());
+                        }
                         poseStack.pushPose();
                         poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
-                        item.submit(poseStack, tasks, info.packedLight(), OverlayTexture.NO_OVERLAY, slot == selected ? OUTLINE : 0);
+                        item.submit(poseStack, tasks, info.packedLight(), OverlayTexture.NO_OVERLAY, 0);
                         poseStack.popPose();
                     }));
                 }
                 if (i < labels.size() && !labels.get(i).getString().isEmpty()) {
                     Component label = labels.get(i);
                     renderPassInfo.model().getBone(TEXT_BONES[i]).ifPresent(bone -> consumer.accept(bone,
-                            (info, renderBone, tasks) -> label(info, tasks, label, slot == selected)));
+                            (info, renderBone, tasks) -> label(info, tasks, label, slot == selected ? slot : -1)));
                 }
             }
         }
 
-        /** The name facing the camera at the text bone, hidden while the bone is scaled away, "Selected" under it. */
-        private void label(RenderPassInfo<EntityRenderState> info, SubmitNodeCollector tasks, Component label, boolean selected) {
+        /**
+         * The white rim round the selected reward ({@link SelectionOutline}): the item again, {@link #OUTLINE_GROWTH}
+         * larger and pushed {@link #OUTLINE_PUSH} blocks away from the camera, so the real item covers all but its edge.
+         */
+        private static void outline(PoseStack poseStack, SubmitNodeCollector tasks, ItemStackRenderState item, int light) {
+            Vector3f away = poseStack.last().pose().getTranslation(new Vector3f());
+            if (away.lengthSquared() > 1.0E-6F) {
+                away.normalize(OUTLINE_PUSH);
+            }
+            poseStack.pushPose();
+            poseStack.last().pose().translateLocal(away);
+            float scale = ITEM_SCALE * OUTLINE_GROWTH;
+            poseStack.scale(scale, scale, scale);
+            item.submit(poseStack, tasks, light, OverlayTexture.NO_OVERLAY, SelectionOutline.MARK);
+            poseStack.popPose();
+        }
+
+        /**
+         * The name facing the camera at the text bone, hidden while the bone is scaled away; for the selected reward
+         * ({@code selectedSlot} 0 to 2, else -1), "Selected" where Ren's file has its {@code selected_text} anchor for
+         * that reward ({@link #SELECTED_OFFSETS}).
+         */
+        private void label(RenderPassInfo<EntityRenderState> info, SubmitNodeCollector tasks, Component label, int selectedSlot) {
             PoseStack poseStack = info.poseStack();
             Matrix4f pose = poseStack.last().pose();
             Vector3f scale = pose.getScale(new Vector3f());
@@ -178,11 +215,17 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
                     .scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
             poseStack.last().normal().identity();
             text(poseStack, tasks, label.getVisualOrderText(), 0, info.packedLight());
-            if (selected) {
-                text(poseStack, tasks, Component.translatable("message.apeira.badger_crate.selected").getVisualOrderText(),
-                        font.lineHeight + 2, info.packedLight());
-            }
             poseStack.popPose();
+            if (selectedSlot >= 0) {
+                float[] offset = SELECTED_OFFSETS[selectedSlot];
+                poseStack.pushPose();
+                poseStack.last().pose().identity().translate(position).translate(offset[0], offset[1], offset[2])
+                        .rotate(info.cameraState().orientation).scale(SELECTED_SCALE, -SELECTED_SCALE, SELECTED_SCALE);
+                poseStack.last().normal().identity();
+                text(poseStack, tasks, Component.translatable("message.apeira.badger_crate.selected").getVisualOrderText(), 0,
+                        info.packedLight());
+                poseStack.popPose();
+            }
         }
 
         private void text(PoseStack poseStack, SubmitNodeCollector tasks, FormattedCharSequence text, int y, int light) {

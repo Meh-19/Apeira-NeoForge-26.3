@@ -40,7 +40,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * the icon 4 pixels inside it; pills are 2 pixels apart.
  */
 public final class RealmTopBar {
-    private static final Style FONT = Style.EMPTY.withFont(new FontDescription.Resource(ApeiraIds.id("top_bar")));
+    public static final Style FONT = Style.EMPTY.withFont(new FontDescription.Resource(ApeiraIds.id("top_bar")));
     private static final int Y = 3;
     private static final int COLOR = 0xFFFFFFFF;
     private static final char END = 'ꈁ';
@@ -111,7 +111,7 @@ public final class RealmTopBar {
     }
 
     /** Appends one pill: its background, then {@code content} (its icon and text, in the top bar font) drawn back over it. */
-    private static void pill(Font font, MutableComponent bar, Component content, boolean last) {
+    public static void pill(Font font, MutableComponent bar, Component content, boolean last) {
         int width = font.width(content) + 6;
         StringBuilder glyphs = new StringBuilder().append(END).append('');
         int left = width;

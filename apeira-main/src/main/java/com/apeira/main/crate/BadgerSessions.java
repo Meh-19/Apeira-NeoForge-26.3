@@ -9,7 +9,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.portal.TeleportTransition;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
@@ -97,7 +96,7 @@ public final class BadgerSessions {
         GameType mode = GameType.byName(player.getPersistentData().getStringOr(BadgerSession.MODE_KEY, "survival"));
         player.getPersistentData().remove(BadgerSession.MODE_KEY);
         if (BadgerInstances.isInstance(player.level().dimension()) || player.isSpectator()) {
-            player.teleport(player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING));
+            BadgerSession.sendBack(player);
         }
         player.setGameMode(mode);
     }
