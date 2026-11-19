@@ -64,6 +64,8 @@ public final class BadgerCrateClient {
 
     private static int phase = -1;
     private static int entityId = -1;
+    /** The latest animation time the camera was placed at, so it never steps back (a frame drawn before the show entity's tick ran). */
+    private static float cameraTicks;
     private static int phaseTicks;
     private static float fade;
     private static float fadeO;
@@ -99,6 +101,7 @@ public final class BadgerCrateClient {
         phaseTicks = 0;
         if (payload.entity() >= 0) {
             entityId = payload.entity();
+            cameraTicks = 0.0F;
         }
         if (phase == BadgerPhase.LOADING) {
             readySent = false;
@@ -108,6 +111,7 @@ public final class BadgerCrateClient {
         }
         if (phase == BadgerPhase.END) {
             entityId = -1;
+            cameraTicks = 0.0F;
             BadgerCrateFx.release();
         }
     }
@@ -132,16 +136,19 @@ public final class BadgerCrateClient {
         if (!cameraLocked()) {
             return null;
         }
-        float ticks = animationTicks(partialTick);
+        // The track is placed on the fixed origin, not the entity's interpolated position, and its time only moves on:
+        // a frame whose partial tick has wrapped before the entity's tick ran, or the entity briefly untracked,
+        // would otherwise step the camera back a tick, which showed as a dip and recovery.
         BadgerCrateShowEntity entity = entity();
-        Vec3 origin = entity != null ? entity.position() : BadgerCrateShowEntity.ORIGIN;
-        Vec3 eye = BadgerCrateCamera.position(ticks).add(origin);
-        return new double[] {eye.x, eye.y, eye.z, BadgerCrateCamera.yaw(ticks), BadgerCrateCamera.pitch(ticks)};
+        if (entity != null) {
+            cameraTicks = Math.max(cameraTicks, entity.tickCount + partialTick);
+        }
+        return pose(cameraTicks);
     }
 
-    private static float animationTicks(float partialTick) {
-        BadgerCrateShowEntity entity = entity();
-        return entity == null ? 0.0F : entity.tickCount + partialTick;
+    private static double[] pose(float ticks) {
+        Vec3 eye = BadgerCrateCamera.position(ticks).add(BadgerCrateShowEntity.ORIGIN);
+        return new double[] {eye.x, eye.y, eye.z, BadgerCrateCamera.yaw(ticks), BadgerCrateCamera.pitch(ticks)};
     }
 
     private static @Nullable BadgerCrateShowEntity entity() {
@@ -167,8 +174,9 @@ public final class BadgerCrateClient {
             return;
         }
         // Keep the player at the camera, so the chunks around it load and nothing drifts while spectating.
-        double[] pose = cameraPose(1.0F);
-        if (pose != null) {
+        if (cameraLocked()) {
+            BadgerCrateShowEntity current = entity();
+            double[] pose = pose(current != null ? Math.max(cameraTicks, current.tickCount) : cameraTicks);
             player.setPos(pose[0], pose[1] - player.getEyeHeight(), pose[2]);
             player.setDeltaMovement(Vec3.ZERO);
             player.setYRot((float) pose[3]);
@@ -267,6 +275,7 @@ public final class BadgerCrateClient {
     private static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         phase = -1;
         entityId = -1;
+        cameraTicks = 0.0F;
         fade = 0.0F;
         fadeO = 0.0F;
         BadgerCrateFx.release();
@@ -313,6 +322,7 @@ public final class BadgerCrateClient {
     private static void registerDecorations(RegisterItemDecorationsEvent event) {
         event.register(MainBadgerCrate.BADGER_CRATE.get(), BadgerCrateClient::decorate);
         event.register(MainBadgerCrate.ANIMAL_CRATE.get(), BadgerCrateClient::decorate);
+        event.register(MainBadgerCrate.BATHROOM_CRATE.get(), BadgerCrateClient::decorate);
     }
 
     /**

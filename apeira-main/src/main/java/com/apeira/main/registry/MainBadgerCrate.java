@@ -23,6 +23,9 @@ public final class MainBadgerCrate {
     /** The Animal Crate: the Badger Crate's opening with its own lid, base and loot ({@code crate_loot/animal.json}). */
     public static final DeferredItem<BadgerCrateItem> ANIMAL_CRATE = R.items().registerItem("animal_crate",
             properties -> new BadgerCrateItem(properties, CrateKind.ANIMAL), properties -> properties.stacksTo(16));
+    /** The Bathroom Crate: the pack's bathroom_crate_full with the Badger Crate's displays, and its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> BATHROOM_CRATE = R.items().registerItem("bathroom_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.BATHROOM), properties -> properties.stacksTo(16));
 
     /** Big enough to always be in view: the model reaches a few blocks around and above its origin. */
     public static final DeferredHolder<EntityType<?>, EntityType<BadgerCrateShowEntity>> SHOW = R.entityType("badger_crate_show",

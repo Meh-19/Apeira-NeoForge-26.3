@@ -262,5 +262,17 @@
       "default_paint": "#B2B2B2",
       "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10050.0]"
     }
+  },
+  "tub": {
+    "name": "Tub",
+    "linked_by": "apeira_guess",
+    "note": "Not logged yet: the other backswags' 1.8 blocks.",
+    "dy": 1.8,
+    "dx": 0.0,
+    "dz": 0.0,
+    "forward": 0.0,
+    "right": 0.0,
+    "dy_scaled": 1.8,
+    "small": false
   }
 }

@@ -1,0 +1,7 @@
+{
+  "common": ["apeira:toiletries_rack", "apeira:bathroom_bin", "apeira:bathroom_lamp", "apeira:shower_head", "apeira:bathroom_towels",
+    "apeira:toilet_paper", "apeira:bathroom_mirror", "apeira:bathroom_rug", "apeira:bathroom_cabinet"],
+  "rare": ["apeira:plunger", "apeira:toilet", "apeira:bathroom_shelf", "apeira:washing_machine", "apeira:bathroom_sink"],
+  "epic": ["apeira:bathtub", "apeira:rubber_duckie_hat"],
+  "legendary": ["apeira:tub"]
+}

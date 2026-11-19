@@ -3,6 +3,7 @@ package com.apeira.decor.registry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.jspecify.annotations.Nullable;
 
@@ -17,10 +18,9 @@ import com.apeira.decor.furniture.FurnitureBlock.Form;
 import com.apeira.decor.furniture.FurnitureBlockItem;
 import com.apeira.decor.furniture.FurnitureFootprints;
 import com.apeira.decor.furniture.SeatFurnitureBlock;
+import com.apeira.decor.furniture.WallFurnitureBlock;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -46,6 +46,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 public final class DecorFurniture {
     private static final ApeiraRegistrar R = ApeiraDecor.REGISTRAR;
     private static final List<DeferredBlock<? extends FurnitureBlock>> ALL = new ArrayList<>();
+    /** The bathtub's two seats, x, y, z in pixels at turn 0 (see {@link SeatFurnitureBlock#seats(double...)}). */
+    private static final double[] SEATS = {-2, 4, 0, 18, 4, 0};
 
     public static final DeferredBlock<SeatFurnitureBlock> OUTDOOR_ROCKING_CHAIR = piece("outdoor_rocking_chair", "badger_crate", 0xA0643E,
             p -> new SeatFurnitureBlock(p, true, 8));
@@ -106,6 +108,61 @@ public final class DecorFurniture {
     public static final DeferredBlock<AnimatedFurnitureBlock> ELEPHANT_INFLATABLE = piece("elephant_inflatable", "animal_crate", 0xB0DFE5,
             p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.elephant_inflatable.bob", null).modelYaw(-90));
 
+
+    // The Bathroom Crate's furniture: the server pack's models/custom/furniture/bathroom/ models, names, rarities and
+    // paints from Ren's F9 capture of the Bathroom Crate's reward page (the cabinet was not on it). Floor pieces with a
+    // wall variant place it when clicked against a wall; wall pieces (WallFurnitureBlock) hang only on a wall or, the
+    // lamp and shower head, under a block as their ceiling variant (the pack's shower_head model). Variants drop their
+    // base piece and are not in the creative tab.
+    public static final DeferredBlock<FurnitureBlock> BATHROOM_BIN = piece("bathroom_bin", "bathroom_crate", 0xA0643E,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> BATHROOM_CABINET = piece("bathroom_cabinet", "bathroom_crate",
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.BATHROOM_CABINET_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> BATHROOM_CABINET_WALL = piece("bathroom_cabinet_wall", "bathroom_crate",
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BATHROOM_CABINET.get()));
+    /** The pack's bathroom_lights_wall; under a block, bathroom_lights_ceiling. */
+    public static final DeferredBlock<WallFurnitureBlock> BATHROOM_LAMP = piece("bathroom_lamp", "bathroom_crate", 0xB2B2B2,
+            p -> new WallFurnitureBlock(p, true, () -> DecorFurniture.BATHROOM_LAMP_CEILING.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> BATHROOM_LAMP_CEILING = piece("bathroom_lamp_ceiling", "bathroom_crate", 0xB2B2B2,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BATHROOM_LAMP.get()));
+    public static final DeferredBlock<WallFurnitureBlock> BATHROOM_MIRROR = piece("bathroom_mirror", "bathroom_crate", 0xB2B2B2,
+            p -> new WallFurnitureBlock(p, true));
+    /** No collision: walked over. */
+    public static final DeferredBlock<FurnitureBlock> BATHROOM_RUG = piece("bathroom_rug", "bathroom_crate", 0x74A4CA,
+            BlockBehaviour.Properties::noCollision, p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> BATHROOM_SHELF = piece("bathroom_shelf", "bathroom_crate", 0x74A4CA,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.BATHROOM_SHELF_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> BATHROOM_SHELF_WALL = piece("bathroom_shelf_wall", "bathroom_crate", 0x74A4CA,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BATHROOM_SHELF.get()));
+    public static final DeferredBlock<FurnitureBlock> BATHROOM_SINK = piece("bathroom_sink", "bathroom_crate",
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.BATHROOM_SINK_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> BATHROOM_SINK_WALL = piece("bathroom_sink_wall", "bathroom_crate",
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BATHROOM_SINK.get()));
+    public static final DeferredBlock<FurnitureBlock> BATHROOM_TOWELS = piece("bathroom_towels", "bathroom_crate", 0x74A4CA,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.BATHROOM_TOWELS_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> BATHROOM_TOWELS_WALL = piece("bathroom_towels_wall", "bathroom_crate", 0x74A4CA,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BATHROOM_TOWELS.get()));
+    /** Two seats in the tub, from its footprint: SEATS. */
+    public static final DeferredBlock<SeatFurnitureBlock> BATHTUB = piece("bathtub", "bathroom_crate",
+            p -> new SeatFurnitureBlock(p, true, 4).seats(SEATS));
+    /** The pack's shower_head_wall; under a block, the pack's shower_head. */
+    public static final DeferredBlock<WallFurnitureBlock> SHOWER_HEAD = piece("shower_head", "bathroom_crate", 0xB2B2B2,
+            p -> new WallFurnitureBlock(p, true, () -> DecorFurniture.SHOWER_HEAD_CEILING.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> SHOWER_HEAD_CEILING = piece("shower_head_ceiling", "bathroom_crate", 0xB2B2B2,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.SHOWER_HEAD.get()));
+    public static final DeferredBlock<FurnitureBlock> TOILET = piece("toilet", "bathroom_crate",
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> TOILET_PAPER = piece("toilet_paper", "bathroom_crate", 0xB2B2B2,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.TOILET_PAPER_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> TOILET_PAPER_WALL = piece("toilet_paper_wall", "bathroom_crate", 0xB2B2B2,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.TOILET_PAPER.get()));
+    public static final DeferredBlock<FurnitureBlock> TOILETRIES_RACK = piece("toiletries_rack", "bathroom_crate", 0xB2B2B2,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.TOILETRIES_RACK_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> TOILETRIES_RACK_WALL = piece("toiletries_rack_wall", "bathroom_crate", 0xB2B2B2,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.TOILETRIES_RACK.get()));
+    public static final DeferredBlock<FurnitureBlock> WASHING_MACHINE = piece("washing_machine", "bathroom_crate",
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+
     private DecorFurniture() {}
 
     /** Every decor furniture block, in registration order. */
@@ -128,16 +185,21 @@ public final class DecorFurniture {
      */
     private static <B extends FurnitureBlock> DeferredBlock<B> piece(String name, @Nullable String crate, @Nullable Integer defaultPaint,
             Function<BlockBehaviour.Properties, ? extends B> factory) {
+        return piece(name, crate, defaultPaint, UnaryOperator.identity(), factory);
+    }
+
+    /** As {@link #piece(String, String, Integer, Function)}, with {@code tweak} changing the block's properties (the rug has no collision). */
+    private static <B extends FurnitureBlock> DeferredBlock<B> piece(String name, @Nullable String crate, @Nullable Integer defaultPaint,
+            UnaryOperator<BlockBehaviour.Properties> tweak, Function<BlockBehaviour.Properties, ? extends B> factory) {
         DeferredBlock<B> block = R.blocks().registerBlock(name, factory, () -> FurnitureFootprints.properties(name,
-                BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(1.0F).sound(SoundType.WOOD).noOcclusion()));
+                tweak.apply(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(1.0F).sound(SoundType.WOOD).noOcclusion())));
         R.items().registerItem(name, properties -> new FurnitureBlockItem(block.get(), properties), properties -> {
             properties.useBlockDescriptionPrefix();
             if (defaultPaint != null) {
                 properties.component(DecorDataComponents.PAINT.get(), defaultPaint);
             }
             if (crate != null) {
-                properties.component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("tooltip.apeira.exclusive." + crate)
-                        .withStyle(Style.EMPTY.withColor(CosmeticItem.EXCLUSIVE_COLOR).withItalic(false)))));
+                properties.component(DataComponents.LORE, new ItemLore(List.of(CosmeticItem.exclusive(crate).withStyle(style -> style.withItalic(false)))));
             }
             return properties;
         });
