@@ -1,5 +1,9 @@
 package com.apeira.decor.block;
 
+import java.util.List;
+
+import net.minecraft.world.phys.Vec3;
+
 import com.apeira.decor.entity.ApeiraSeatEntity;
 
 import net.minecraft.core.BlockPos;
@@ -19,6 +23,14 @@ import net.minecraft.world.level.block.state.BlockState;
 public interface SeatBlock {
     /** The height of the top of the seat above the bottom of the block, in blocks. */
     double seatHeight();
+
+    /**
+     * Where the seats are, relative to the block's bottom north-west corner, in blocks: one at the centre at
+     * {@link #seatHeight}, unless the block has several (the bathtub's two). A sitter takes the free seat nearest them.
+     */
+    default List<Vec3> seats(BlockState state) {
+        return List.of(new Vec3(0.5, seatHeight(), 0.5));
+    }
 
     /**
      * The way the sitter faces, in degrees: out of the front of the furniture. Blocks that seat players some other way,

@@ -15,14 +15,15 @@ import com.apeira.decor.registry.DecorEntities;
 import com.apeira.decor.registry.DecorFurniture;
 import com.apeira.decor.registry.DecorItems;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 /** English names for the decor module's blocks, items, entities and painting table. */
 public final class DecorLanguageProvider extends ApeiraLanguageProvider {
-    /** The Crates mod's furniture names that are not just the id in title case. */
-    private static final Map<String, String> NAMES = Map.of("sash_banner_wall", "Sash Banner", "i_beam", "I-Beam", "santa_sleigh", "Santa's Sleigh", "dj_booth", "DJ Booth",
-            "santa_chair", "Santa's Chair", "monkey_plushie_wall", "Monkey Plushie", "monkey_plushie_ceiling", "Monkey Plushie");
+    /** Furniture names that are not just the id in title case (wall and ceiling variants take their base piece's name). */
+    private static final Map<String, String> NAMES = Map.of("i_beam", "I-Beam", "santa_sleigh", "Santa's Sleigh", "dj_booth", "DJ Booth",
+            "santa_chair", "Santa's Chair", "toilet_paper", "Toiletpaper");
 
     public DecorLanguageProvider(PackOutput output, String namespace) {
         super(output, namespace);
@@ -34,10 +35,10 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
         item(DecorItems.PAINTBRUSH, "Paintbrush");
 
         for (DeferredBlock<? extends FurnitureBlock> furniture : DecorFurniture.all()) {
-            String name = furniture.getId().getPath();
+            String name = BuiltInRegistries.BLOCK.getKey(furniture.get().dropBlock()).getPath();
             block(furniture, NAMES.getOrDefault(name, title(name)));
         }
-        Set<String> crates = new LinkedHashSet<>(List.of("badger_crate", "animal_crate"));
+        Set<String> crates = new LinkedHashSet<>(List.of("badger_crate", "animal_crate", "bathroom_crate"));
         // The same lines as the cosmetics' (the main module's language file), for the crates furniture comes from.
         for (String crate : crates) {
             tooltip("exclusive." + crate, title(crate) + " Exclusive");

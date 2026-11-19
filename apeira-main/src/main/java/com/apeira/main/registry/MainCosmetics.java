@@ -2,6 +2,7 @@ package com.apeira.main.registry;
 
 import static com.apeira.decor.cosmetic.CosmeticRarity.COMMON;
 import static com.apeira.decor.cosmetic.CosmeticRarity.EPIC;
+import static com.apeira.decor.cosmetic.CosmeticRarity.LEGENDARY;
 import static com.apeira.decor.cosmetic.CosmeticRarity.RARE;
 import static com.apeira.decor.cosmetic.CosmeticSlot.BACK;
 import static com.apeira.decor.cosmetic.CosmeticSlot.HAND;
@@ -10,6 +11,8 @@ import static com.apeira.decor.cosmetic.CosmeticSlot.HAT;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.cosmetic.CosmeticItem;
@@ -21,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 /**
- * The Animal Crate's cosmetics, from Ren's F9 capture of its reward page ("Next Cycle"): names, rarities (the name's
+ * The crates' cosmetics. The Animal Crate's, from Ren's F9 capture of its reward page ("Next Cycle"): names, rarities (the name's
  * rarity glyph) and default paints (the captured {@code minecraft:firework_explosion} colour), the server pack's
  * {@code models/custom/cosmetics/} models as {@code models/item/cosmetic/<name>.json} (textures in
  * {@code textures/item/cosmetics/animal/}), all paintable on tint index 1. They show their model when worn and their
@@ -31,6 +34,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 public final class MainCosmetics {
     private static final List<Cosmetic> ALL = new ArrayList<>();
     private static final Component ANIMAL_CRATE = Component.translatable("tooltip.apeira.exclusive.animal_crate");
+    private static final Component BATHROOM_CRATE = CosmeticItem.exclusive("bathroom_crate");
 
     /** A registered cosmetic, its slot and rarity. */
     public record Cosmetic(DeferredItem<CosmeticItem> item, CosmeticSlot slot, CosmeticRarity rarity) {}
@@ -46,6 +50,13 @@ public final class MainCosmetics {
     public static final DeferredItem<CosmeticItem> MONKEY_BACKSWAG = cosmetic("monkey_backswag", BACK, EPIC, 0xA0643E);
     public static final DeferredItem<CosmeticItem> GIRAFFE_HELMET = cosmetic("giraffe_helmet", HAT, EPIC, 0xF89D25);
 
+    // The Bathroom Crate's, from Ren's F9 capture of its reward page (the server pack's models/custom/cosmetics/bathroom/,
+    // textures in textures/item/cosmetics/bathroom/; the rubber duckie hat and tub also use bathroom furniture textures).
+    // The plunger's linked gesture and the Flushed gesture are left out. The tub's capture has no paint.
+    public static final DeferredItem<CosmeticItem> PLUNGER = cosmetic("plunger", HAND, RARE, 0xCB3C2A, BATHROOM_CRATE);
+    public static final DeferredItem<CosmeticItem> RUBBER_DUCKIE_HAT = cosmetic("rubber_duckie_hat", HAT, EPIC, 0x74A4CA, BATHROOM_CRATE);
+    public static final DeferredItem<CosmeticItem> TUB = cosmetic("tub", BACK, LEGENDARY, null, BATHROOM_CRATE);
+
     private MainCosmetics() {}
 
     public static void init(ApeiraRegistrar registrar) {}
@@ -56,8 +67,13 @@ public final class MainCosmetics {
     }
 
     private static DeferredItem<CosmeticItem> cosmetic(String name, CosmeticSlot slot, CosmeticRarity rarity, int defaultPaint) {
+        return cosmetic(name, slot, rarity, defaultPaint, ANIMAL_CRATE);
+    }
+
+    private static DeferredItem<CosmeticItem> cosmetic(String name, CosmeticSlot slot, CosmeticRarity rarity, @Nullable Integer defaultPaint,
+            Component exclusive) {
         DeferredItem<CosmeticItem> item = Apeira.REGISTRAR.items().registerItem(name,
-                properties -> new CosmeticItem(properties, slot, rarity, true, defaultPaint, ANIMAL_CRATE));
+                properties -> new CosmeticItem(properties, slot, rarity, true, defaultPaint, exclusive));
         ALL.add(new Cosmetic(item, slot, rarity));
         return item;
     }

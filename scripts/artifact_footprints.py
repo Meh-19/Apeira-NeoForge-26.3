@@ -73,7 +73,7 @@ FORM_MODES = {
 }
 # Animated pieces whose hitbox is only the cubes under one bone (the elephant's, not its floating head and trunk).
 HITBOX_BONES = {"elephant_inflatable": "elephant_inflatable_body_tintable"}
-FACING_CLASSES = {"FacingFurnitureBlock", "CeilingFurnitureBlock", "WaterloggedFurnitureBlock"}
+FACING_CLASSES = {"FacingFurnitureBlock", "CeilingFurnitureBlock", "WaterloggedFurnitureBlock", "WallFurnitureBlock"}
 # A piece: its name, its block class, the argument after its paintability (a Form, a DisplayMode, a seat height or an
 # animation name) and the rest of its declaration, which may hold a renderOffset(x, y, z) in pixels. An animated
 # piece's folder comes before its paintability.
@@ -126,6 +126,9 @@ def artifacts(module: dict) -> list[dict]:
             mode = "WALL" if "wall" in name else "FLOOR" if "side" in name else "TOP_FACE"
         elif cls == "CeilingFurnitureBlock":
             mode = "TOP_FACE"
+        elif cls == "WallFurnitureBlock":
+            # A still piece held only by a wall (the bathroom mirror).
+            mode = "WALL"
         elif cls == "SeatFurnitureBlock":
             # A seat lies on the top face unless it names its Form (the froggy chair's FLOOR).
             mode = FORM_MODES[arg.split(".")[1]] if arg.startswith("Form.") else "TOP_FACE"

@@ -10,6 +10,7 @@ import com.apeira.decor.paint.PaintColor;
 import com.apeira.decor.registry.DecorDataComponents;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Item;
@@ -33,6 +34,17 @@ public class CosmeticItem extends Item {
     public static final String PAINTABLE_BADGE = "ꑞ";
     /** The colour of the exclusive line (the Crates mod's gold). */
     public static final int EXCLUSIVE_COLOR = 0xFFAA00;
+    /** The Bathroom Crate's exclusive line colour, as Ren's capture shows it. */
+    public static final int BATHROOM_EXCLUSIVE_COLOR = 0x74A4CA;
+
+    /**
+     * A crate's "Exclusive" line ({@code tooltip.apeira.exclusive.<crate>}): gold, or the colour Ren's capture shows for
+     * crates whose capture has one (the Bathroom Crate's).
+     */
+    public static MutableComponent exclusive(String crate) {
+        int colour = "bathroom_crate".equals(crate) ? BATHROOM_EXCLUSIVE_COLOR : EXCLUSIVE_COLOR;
+        return Component.translatable("tooltip.apeira.exclusive." + crate).withStyle(Style.EMPTY.withColor(colour));
+    }
 
     private final CosmeticSlot slot;
     private final CosmeticRarity rarity;
@@ -105,7 +117,8 @@ public class CosmeticItem extends Item {
             builder.accept(Component.literal(PAINTABLE_BADGE).withStyle(Style.EMPTY.withFont(FONT)));
         }
         if (exclusive != null) {
-            builder.accept(exclusive.copy().withStyle(Style.EMPTY.withColor(EXCLUSIVE_COLOR)));
+            // Gold, unless the line brings its own colour (the Bathroom Crate's captured #74A4CA).
+            builder.accept(exclusive.getStyle().getColor() != null ? exclusive : exclusive.copy().withStyle(Style.EMPTY.withColor(EXCLUSIVE_COLOR)));
         }
     }
 }

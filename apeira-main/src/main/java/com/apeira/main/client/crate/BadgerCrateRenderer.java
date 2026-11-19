@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.decor.client.EmissiveRenderTypes;
+import com.apeira.decor.client.WornCosmetic;
 import com.apeira.main.crate.BadgerCrateShowEntity;
 import com.apeira.main.crate.BadgerTier;
 import com.apeira.main.crate.CrateKind;
@@ -154,14 +155,22 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
                 ItemStack stack = entity.item(i);
                 ItemStackRenderState item = new ItemStackRenderState();
                 if (!stack.isEmpty()) {
-                    itemModelResolver.updateForTopItem(item, stack, ItemDisplayContext.GROUND, entity.level(), null, entity.getId() * 3 + i);
+                    // Cosmetics show their worn 3-D model here, not the rarity token.
+                    int seed = entity.getId() * 3 + i;
+                    WornCosmetic.whileWorn(() -> itemModelResolver.updateForTopItem(item, stack, ItemDisplayContext.GROUND, entity.level(), null, seed));
                 }
                 items.add(item);
-                labels.add(stack.isEmpty() ? Component.empty() : stack.getHoverName().copy().withColor(TIER_COLOURS[entity.tier(i).ordinal()]));
+                labels.add(stack.isEmpty() ? Component.empty() : plainName(stack).withColor(TIER_COLOURS[entity.tier(i).ordinal()]));
             }
             renderState.addGeckolibData(ITEMS, items);
             renderState.addGeckolibData(LABELS, labels);
             renderState.addGeckolibData(SELECTED, entity.selecting() ? BadgerCrateClient.selected(entity) : -1);
+        }
+
+        /** The item's own name, without the rarity badge or colour a cosmetic's name carries; a custom name as it is. */
+        private static net.minecraft.network.chat.MutableComponent plainName(ItemStack stack) {
+            Component custom = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_NAME);
+            return custom != null ? Component.literal(custom.getString()) : Component.translatable(stack.getItem().getDescriptionId());
         }
 
         @Override
