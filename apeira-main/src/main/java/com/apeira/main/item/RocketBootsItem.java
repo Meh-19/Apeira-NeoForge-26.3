@@ -55,6 +55,11 @@ public class RocketBootsItem extends Item {
         if (slot != EquipmentSlot.FEET || !(owner instanceof Player player)) {
             return;
         }
+        // Creative and spectator players fly anyway: the boots stay off, burn no fuel and shed no sparks.
+        if (player.isCreative() || player.isSpectator()) {
+            revokeFlight(player);
+            return;
+        }
         int fuel = getFuel(stack);
         if (fuel <= 0) {
             revokeFlight(player);

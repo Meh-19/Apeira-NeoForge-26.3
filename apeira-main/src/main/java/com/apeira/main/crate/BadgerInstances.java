@@ -20,7 +20,9 @@ import com.apeira.main.mixin.MinecraftServerAccessor;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.level.Level;
@@ -104,6 +106,9 @@ public final class BadgerInstances {
                 return false;
             }
         };
+        // The constructor copies the overworld's rain and thunder; an instance starts, and stays, clear.
+        level.setRainLevel(0.0F);
+        level.setThunderLevel(0.0F);
         accessor.apeira$levels().put(key, level);
         NeoForge.EVENT_BUS.post(new LevelEvent.Load(level));
         return level;
@@ -117,6 +122,13 @@ public final class BadgerInstances {
         Holder<WorldClock> clock = server.registryAccess().lookupOrThrow(Registries.WORLD_CLOCK).getOrThrow(CLOCK);
         server.clockManager().setTotalTicks(clock, NOON);
         server.clockManager().setPaused(clock, true);
+    }
+
+    /** Tells a player who just arrived in an instance that it is clear, whatever weather their client brought along. */
+    public static void sendClearWeather(ServerPlayer player) {
+        player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.STOP_RAINING, 0.0F));
+        player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.RAIN_LEVEL_CHANGE, 0.0F));
+        player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 0.0F));
     }
 
     /** Unloads the instance, if loaded, and deletes its folder. Players still in it must have been moved out first. */
