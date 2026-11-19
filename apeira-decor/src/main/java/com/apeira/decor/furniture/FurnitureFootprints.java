@@ -21,13 +21,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public final class FurnitureFootprints {
     private static final List<FootprintTable> TABLES = new CopyOnWriteArrayList<>(
-            List.of(FootprintTable.read("/apeira_decor/furniture_footprints.txt")));
+            List.of(FootprintTable.read(FurnitureFootprints.class, "/apeira_decor/furniture_footprints.txt")));
 
     private FurnitureFootprints() {}
 
-    /** Adds a module's table, read from the class path {@code resource}; call it from the module's constructor. */
-    public static void addTable(String resource) {
-        TABLES.add(FootprintTable.read(resource));
+    /**
+     * Adds a module's table, {@code resource} in the module of {@code owner} (a class of that mod: a decor class cannot
+     * see another mod's resources); call it before the module's furniture registers.
+     */
+    public static void addTable(Class<?> owner, String resource) {
+        TABLES.add(FootprintTable.read(owner, resource));
     }
 
     /**

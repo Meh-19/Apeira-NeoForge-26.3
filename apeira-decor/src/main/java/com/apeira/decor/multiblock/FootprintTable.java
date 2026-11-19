@@ -27,12 +27,16 @@ public final class FootprintTable {
         this.lines = lines;
     }
 
-    /** Reads the table at the class path {@code resource}; a missing table is an empty one. */
-    public static FootprintTable read(String resource) {
+    /**
+     * Reads the table at {@code resource} in {@code owner}'s module. Mods are separate Java modules, and a class only
+     * finds resources of its own module, so the table is looked up through a class of the mod that ships it; a missing
+     * table is an error, as every piece in it would silently fall back to a one-block shape.
+     */
+    public static FootprintTable read(Class<?> owner, String resource) {
         Map<String, String[]> lines = new HashMap<>();
-        try (InputStream stream = FootprintTable.class.getResourceAsStream(resource)) {
+        try (InputStream stream = owner.getResourceAsStream(resource)) {
             if (stream == null) {
-                return new FootprintTable(resource, Map.of());
+                throw new IllegalStateException("Missing the footprint table " + resource + " beside " + owner.getName());
             }
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             String line;
