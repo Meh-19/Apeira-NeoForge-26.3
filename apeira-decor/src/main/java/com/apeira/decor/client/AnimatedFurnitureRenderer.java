@@ -17,12 +17,13 @@ import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 
 /**
  * Draws an animated piece's GeckoLib model ({@link FurnitureGeoModel}) as Argon's {@code TintableGeoFurnitureRenderer}
- * did: turned by the block's {@link FurnitureBlock#ROTATION}, translucent (texels of alpha 254 glow,
+ * did: turned by the block's {@link FurnitureBlock#ROTATION} (a wall piece by its facing), translucent (texels of alpha 254 glow,
  * {@link EmissiveRenderTypes}), and with the paint on every bone whose name contains {@code _tintable} and on its child
  * bones ({@link TintedBones}). A finish shows as its representative colour.
  */
@@ -41,7 +42,9 @@ public class AnimatedFurnitureRenderer extends GeoBlockRenderer<AnimatedFurnitur
     @Override
     public void addRenderData(AnimatedFurnitureBlockEntity artifact, @Nullable Void relatedObject, BlockEntityRenderState renderState,
             float partialTick) {
-        renderState.addGeckolibData(ROTATION, artifact.getBlockState().getValueOrElse(FurnitureBlock.ROTATION, 0));
+        // The piece's turn in 45 degree steps: its ROTATION, or for a wall piece its facing (FurnitureBlock#turn).
+        renderState.addGeckolibData(ROTATION, artifact.getBlockState().getBlock() instanceof FurnitureBlock block
+                ? block.turn(artifact.getBlockState()) : 0);
         Integer paint = artifact.paint();
         // A finish is drawn by the finish shader, which reads the finish from the vertex colour: its paint value, opaque.
         FinishType finish = paint != null ? FinishType.fromPaint(paint) : null;
@@ -54,6 +57,12 @@ public class AnimatedFurnitureRenderer extends GeoBlockRenderer<AnimatedFurnitur
     public void adjustRenderPose(RenderPassInfo<BlockEntityRenderState> renderPassInfo) {
         int rotation = renderPassInfo.getOrDefaultGeckolibData(ROTATION, 0);
         renderPassInfo.poseStack().rotateDegrees(Axis.YP, rotation * -45.0F + renderPassInfo.getOrDefaultGeckolibData(YAW, 0.0F));
+    }
+
+    /** No facing turn of GeckoLib's own: {@link #adjustRenderPose} turns the model by the piece's turn, wall pieces' too. */
+    @Override
+    protected Direction getBlockStateDirection(AnimatedFurnitureBlockEntity artifact) {
+        return Direction.NORTH;
     }
 
     /** Culled by the box around the whole piece, as {@link FurnitureRenderer} is. */

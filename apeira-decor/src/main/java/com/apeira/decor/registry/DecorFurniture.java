@@ -10,6 +10,7 @@ import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.ApeiraDecor;
 import com.apeira.decor.cosmetic.CosmeticItem;
 import com.apeira.decor.furniture.AnimatedFurnitureBlock;
+import com.apeira.decor.furniture.AnimatedWallFurnitureBlock;
 import com.apeira.decor.furniture.FacingFurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlock.Form;
@@ -68,7 +69,7 @@ public final class DecorFurniture {
 
     // The Animal Crate's furniture: the server pack's models/custom/furniture/animal/ models, names, rarities and paints
     // from Ren's F9 capture of the Animal Crate's reward page ("Next Cycle"). All lie on the floor (fixed display
-    // rotation x -90) but the cat clock, which hangs on a wall.
+    // rotation x -90) but the cat clock, which hangs on a wall, and the monkey's wall and ceiling variants.
     public static final DeferredBlock<FurnitureBlock> CAPYBARA_PLUSHIE = piece("capybara_plushie", "animal_crate", 0xA0643E,
             p -> new FurnitureBlock(p, true, Form.FLOOR));
     public static final DeferredBlock<FurnitureBlock> CAT_PLUSHIE = piece("cat_plushie", "animal_crate", 0xE88438,
@@ -80,13 +81,30 @@ public final class DecorFurniture {
             p -> new SeatFurnitureBlock(p, true, Form.FLOOR, 6));
     public static final DeferredBlock<FurnitureBlock> GIRAFFE_PLUSHIE = piece("giraffe_plushie", "animal_crate", 0xF89D25,
             p -> new FurnitureBlock(p, true, Form.FLOOR));
-    /** The pack's {@code monkey_plushie_sitting} model. */
+    /**
+     * The pack's {@code monkey_plushie_sitting} model on the floor; clicked against a wall it is {@link #MONKEY_PLUSHIE_WALL}
+     * ({@code monkey_plushie_wall}), under a block {@link #MONKEY_PLUSHIE_CEILING} ({@code monkey_plushie_hanging}).
+     */
     public static final DeferredBlock<FurnitureBlock> MONKEY_PLUSHIE = piece("monkey_plushie", "animal_crate", 0xA0643E,
-            p -> new FurnitureBlock(p, true, Form.FLOOR));
-    public static final DeferredBlock<FurnitureBlock> CAT_CLOCK = piece("cat_clock", "animal_crate", 0xE88438,
-            p -> new FurnitureBlock(p, true, Form.WALL_MOUNTED));
-    public static final DeferredBlock<FurnitureBlock> ELEPHANT_INFLATABLE = piece("elephant_inflatable", "animal_crate", 0xB0DFE5,
-            p -> new FurnitureBlock(p, true, Form.FLOOR));
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.MONKEY_PLUSHIE_WALL.get(),
+                    () -> DecorFurniture.MONKEY_PLUSHIE_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> MONKEY_PLUSHIE_WALL = piece("monkey_plushie_wall", "animal_crate", 0xA0643E,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MONKEY_PLUSHIE.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> MONKEY_PLUSHIE_CEILING = piece("monkey_plushie_ceiling", "animal_crate", 0xA0643E,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MONKEY_PLUSHIE.get()));
+    /**
+     * Animated: Ren's model ({@code geckolib/models/furniture/cat_clock.geo.json}, from the armor stand recording), its
+     * tail swinging and eyes looking left and right. Only on a wall, its Blockbench north towards the player.
+     */
+    public static final DeferredBlock<AnimatedWallFurnitureBlock> CAT_CLOCK = piece("cat_clock", "animal_crate", 0xE88438,
+            p -> new AnimatedWallFurnitureBlock(p, "furniture", true, "animation.cat_clock.tick"));
+    /**
+     * Animated: Ren's model ({@code geckolib/models/furniture/elephant_inflatable.geo.json}, from the armor stand
+     * recording, moved so its body stands on its block), bobbing; its hitbox is only its body (the script's
+     * {@code HITBOX_BONES}). Turned a quarter so its head points the way the pack's still model's does.
+     */
+    public static final DeferredBlock<AnimatedFurnitureBlock> ELEPHANT_INFLATABLE = piece("elephant_inflatable", "animal_crate", 0xB0DFE5,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.elephant_inflatable.bob", null).modelYaw(-90));
 
     private DecorFurniture() {}
 

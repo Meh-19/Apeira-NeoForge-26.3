@@ -71,6 +71,8 @@ FORM_MODES = {
     "BLOCK_UP": "BLOCK_UP", "WALL_MOUNTED": "WALL", "TWO_TALL": "TOP_FACE", "THREE_TALL": "TOP_FACE",
     "FOUR_TALL": "TOP_FACE", "FOUR_TALL_FLOOR": "FLOOR", "FIVE_TALL": "TOP_FACE",
 }
+# Animated pieces whose hitbox is only the cubes under one bone (the elephant's, not its floating head and trunk).
+HITBOX_BONES = {"elephant_inflatable": "elephant_inflatable_body_tintable"}
 FACING_CLASSES = {"FacingFurnitureBlock", "CeilingFurnitureBlock", "WaterloggedFurnitureBlock"}
 # A piece: its name, its block class, the argument after its paintability (a Form, a DisplayMode, a seat height or an
 # animation name) and the rest of its declaration, which may hold a renderOffset(x, y, z) in pixels. An animated
@@ -129,11 +131,11 @@ def artifacts(module: dict) -> list[dict]:
             mode = FORM_MODES[arg.split(".")[1]] if arg.startswith("Form.") else "TOP_FACE"
         elif cls == "WaterloggedFurnitureBlock":
             mode = arg.split(".")[1]
-        elif cls == "AnimatedFurnitureBlock":
+        elif cls in ("AnimatedFurnitureBlock", "AnimatedWallFurnitureBlock"):
             mode = "GECKOLIB"
         else:
             mode = FORM_MODES[arg.split(".")[1]]
-        if mode == "WALL" and facing:
+        if (mode == "WALL" and facing) or cls == "AnimatedWallFurnitureBlock":
             held = "wall"
         elif "ceiling" in name or cls == "CeilingArtifactBlock":
             held = "ceiling"
@@ -144,7 +146,7 @@ def artifacts(module: dict) -> list[dict]:
         found = OFFSET.search(after)
         offset = tuple(float(v) / 16 for v in found.groups()) if found else (0.0, 0.0, 0.0)
         yawed = YAW.search(after)
-        pieces.append({"name": name, "mode": mode, "facing": facing, "held": held, "offset": offset,
+        pieces.append({"name": name, "mode": mode, "facing": facing, "held": held, "offset": offset, "wall": held == "wall",
                        "yaw": float(yawed.group(1)) if yawed else 0.0, "module": module})
     if not pieces:
         raise ScriptError(f"{module['source']}: no furniture found")
@@ -157,8 +159,8 @@ def renderer(mode: str, facing: bool, turn_: int):
     ``turn_`` is the block's ``ROTATION``; for a wall piece it is its facing's ``toYRot() / 45`` (south is 0).
     """
     if mode == "GECKOLIB":
-        # GeoBlockRenderer stands the model on the block's bottom centre and Bedrock geometry is x mirrored.
-        return chain(translate(0.5, 0, 0.5), turn("y", -45 * turn_), scale(-1 / 16, 1 / 16, 1 / 16))
+        # GeoBlockRenderer stands the model on the block's bottom centre; geo_cubes has undone the geometry's mirrored x.
+        return chain(translate(0.5, 0, 0.5), turn("y", -45 * turn_), scale(1 / 16, 1 / 16, 1 / 16))
     if mode == "TOP_FACE":
         steps = [translate(0.5, 0.999, 0.5), turn("x", 180), turn("x", 90), turn("z", 180), turn("z", -45 * turn_)]
     elif mode in ("FLOOR", "BLOCK_UP"):
@@ -174,7 +176,7 @@ def placed(piece: dict, turn_: int, item):
     blocks, before its turn; not for GeckoLib pieces, whose renderer doesn't move them), laid in and turned."""
     if piece["mode"] == "GECKOLIB":
         # AnimatedFurnitureRenderer adds the piece's modelYaw to its turn.
-        return mul(chain(translate(0.5, 0, 0.5), turn("y", -45 * turn_ + piece["yaw"]), scale(-1 / 16, 1 / 16, 1 / 16)), item)
+        return mul(chain(translate(0.5, 0, 0.5), turn("y", -45 * turn_ + piece["yaw"]), scale(1 / 16, 1 / 16, 1 / 16)), item)
     matrix = mul(renderer(piece["mode"], piece["facing"], turn_), item)
     # FurnitureRenderer moves the model by renderOffset, then turns it by modelYaw about the block's centre column.
     yaw = chain(translate(0.5, 0, 0.5), turn("y", piece["yaw"]), translate(-0.5, 0, -0.5))
@@ -185,19 +187,7 @@ def model_cubes(piece: dict) -> tuple[list, list]:
     """The model's cubes as (corner, three edges) in the model's own units, and the matrix into the renderer's frame."""
     cubes = []
     if piece["mode"] == "GECKOLIB":
-        geo = read_json(piece["module"]["geo"] / f"{piece['name']}.geo.json")["minecraft:geometry"][0]
-        for bone in geo.get("bones", []):
-            for cube in bone.get("cubes", []):
-                o, size = cube["origin"], cube["size"]
-                start = [o[i] + min(size[i], 0) for i in range(3)]
-                end = [o[i] + max(size[i], 0) for i in range(3)]
-                if "rotation" in cube:
-                    pivot, angles = cube.get("pivot", [0, 0, 0]), cube["rotation"]
-                    point = lambda p, pivot=pivot, angles=angles: rotate(p, pivot, angles)
-                else:
-                    point = lambda p: tuple(p)
-                cubes.append(oriented(start, end, point))
-        return cubes, translate(0, 0, 0)
+        return geo_cubes(piece), translate(0, 0, 0)
     model = read_json(piece["module"]["models"] / f"{piece['name']}.json")
     fixed = model.get("display", {}).get("fixed", {})
     t = fixed.get("translation", [0, 0, 0])
@@ -214,6 +204,99 @@ def model_cubes(piece: dict) -> tuple[list, list]:
             point = lambda p: tuple(p)
         cubes.append(oriented(element["from"], element["to"], point))
     return cubes, item
+
+
+def rest_pose(piece: dict) -> dict:
+    """Each bone's position, rotation and scale at the start of the piece's first animation (keyframe values that are
+    numbers; Molang is taken as 0), as GeckoLib holds a bone before its first keyframe: the recorded item scales
+    (the elephant's 3.6) and a face the animation hides."""
+    folder = piece["module"]["geo"]
+    path = folder.parent.parent / "animations" / folder.name / f"{piece['name']}.animation.json"
+    if not path.is_file():
+        return {}
+    animations = read_json(path).get("animations", {})
+    if not animations:
+        return {}
+    clip = next(iter(animations.values()))
+
+    def first(channel, default):
+        if channel is None:
+            return default
+        if isinstance(channel, dict) and "vector" not in channel:
+            if not channel:
+                return default
+            channel = channel[min(channel, key=float)]
+        if isinstance(channel, dict):
+            channel = channel.get("vector", channel.get("post", channel.get("pre", default)))
+            if isinstance(channel, dict):
+                channel = channel.get("vector", default)
+        if not isinstance(channel, list):
+            channel = [channel] * 3
+        return tuple(float(v) if isinstance(v, (int, float)) else 0.0 for v in channel)
+
+    pose = {}
+    for name, bone in clip.get("bones", {}).items():
+        pose[name] = (first(bone.get("position"), (0, 0, 0)), first(bone.get("rotation"), (0, 0, 0)),
+                      first(bone.get("scale"), (1, 1, 1)))
+    return pose
+
+
+def geo_cubes(piece: dict) -> list:
+    """A GeckoLib model's cubes in Blockbench's own space (pixels, x not mirrored), as GeckoLib draws them at rest:
+    each cube turned about its pivot and then by every bone above it, about each bone's pivot (Z, Y, X order, as
+    ``RenderUtil`` turns a bone; the geometry's mirrored x and its negated x and y angles undone). Only the bones
+    under ``HITBOX_BONES``' bone, when the piece names one, count."""
+    geo = read_json(piece["module"]["geo"] / f"{piece['name']}.geo.json")["minecraft:geometry"][0]
+    bones = {bone["name"]: bone for bone in geo.get("bones", [])}
+    only = HITBOX_BONES.get(piece["name"])
+
+    rest = rest_pose(piece)
+
+    def pose(pivot, angles, moved=(0, 0, 0), scaled=(1, 1, 1)):
+        p = (-pivot[0], pivot[1], pivot[2])
+        a = (-angles[0], -angles[1], angles[2])
+        return chain(translate(-moved[0], moved[1], moved[2]), translate(*p), turn("z", a[2]), turn("y", a[1]),
+                     turn("x", a[0]), scale(*scaled), translate(*(-v for v in p)))
+
+    def matrix(name):
+        bone = bones[name]
+        moved, turned, scaled = rest.get(name, ((0, 0, 0), (0, 0, 0), (1, 1, 1)))
+        angles = [a + b for a, b in zip(bone.get("rotation", [0, 0, 0]), turned)]
+        own = pose(bone.get("pivot", [0, 0, 0]), angles, moved, scaled)
+        parent = bone.get("parent")
+        return mul(matrix(parent), own) if parent in bones else own
+
+    def hidden(name):
+        # A bone the animation starts scaled to nothing (one of the cat clock's two faces) has no hitbox.
+        while name in bones:
+            if min(abs(v) for v in rest.get(name, (None, None, (1, 1, 1)))[2]) < 0.01:
+                return True
+            name = bones[name].get("parent")
+        return False
+
+    def under(name):
+        while name in bones:
+            if name == only:
+                return True
+            name = bones[name].get("parent")
+        return False
+
+    cubes = []
+    for name, bone in bones.items():
+        if only is not None and not under(name):
+            continue
+        if hidden(name):
+            continue
+        placed_bone = matrix(name)
+        for cube in bone.get("cubes", []):
+            o, size = cube["origin"], cube["size"]
+            # Blockbench's from and to: the geometry's x is mirrored, its origin the cube's mirrored low corner.
+            lo = [-(o[0] + size[0]), o[1], o[2]]
+            start = [lo[i] + min(size[i], 0) for i in range(3)]
+            end = [lo[i] + max(size[i], 0) for i in range(3)]
+            m = mul(placed_bone, pose(cube.get("pivot", [0, 0, 0]), cube.get("rotation", [0, 0, 0])))
+            cubes.append(oriented(start, end, lambda p, m=m: apply(m, p)))
+    return cubes
 
 
 def oriented(start, end, point) -> tuple:
@@ -382,7 +465,7 @@ def footprint(piece: dict, turn_: int, step: float = STEP) -> list[Box]:
     cubes, item = model_cubes(piece)
     mode = piece["mode"]
     matrix = placed(piece, turn_, item)
-    held = "floor" if mode == "GECKOLIB" else piece["held"]
+    held = "floor" if mode == "GECKOLIB" and piece["held"] != "wall" else piece["held"]
     world = [w for w in (world_cube(cube, matrix) for cube in cubes) if w is not None]
     boxes = []
     turned = []
@@ -527,7 +610,7 @@ def main(argv=None) -> int:
         for piece in artifacts(module):
             straight = footprint(piece, 0)
             # Wall pieces only face the four sides; those are quarter turns of their straight boxes.
-            diagonal = None if piece["mode"] == "WALL" else footprint(piece, 1)
+            diagonal = None if piece["mode"] == "WALL" or piece["wall"] else footprint(piece, 1)
             pieces.append((piece, straight, diagonal, outline(piece)))
         if args.report:
             for piece, straight, diagonal, edges in pieces:
