@@ -178,6 +178,7 @@ final class BadgerSession {
         player.setGameMode(GameType.SPECTATOR);
         Vec3 feet = ANIMATION_ORIGIN.add(CAMERA_FEET);
         player.teleportTo(instance, feet.x, feet.y, feet.z, Set.of(), -154.7F, 4.2F, true);
+        BadgerInstances.sendClearWeather(player);
         move(player, PHASE_LOADING);
     }
 

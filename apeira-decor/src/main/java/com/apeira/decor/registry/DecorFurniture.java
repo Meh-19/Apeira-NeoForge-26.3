@@ -117,7 +117,7 @@ public final class DecorFurniture {
     public static final DeferredBlock<FurnitureBlock> BATHROOM_BIN = piece("bathroom_bin", "bathroom_crate", 0xA0643E,
             p -> new FurnitureBlock(p, true, Form.FURNITURE));
     public static final DeferredBlock<FurnitureBlock> BATHROOM_CABINET = piece("bathroom_cabinet", "bathroom_crate",
-            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.BATHROOM_CABINET_WALL.get(), null, null));
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.BATHROOM_CABINET_WALL.get(), null, null).renderOffset(0, 16, 0));
     public static final DeferredBlock<FacingFurnitureBlock> BATHROOM_CABINET_WALL = piece("bathroom_cabinet_wall", "bathroom_crate",
             p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BATHROOM_CABINET.get()));
     /** The pack's bathroom_lights_wall; under a block, bathroom_lights_ceiling. */
@@ -141,7 +141,7 @@ public final class DecorFurniture {
     public static final DeferredBlock<FurnitureBlock> BATHROOM_TOWELS = piece("bathroom_towels", "bathroom_crate", 0x74A4CA,
             p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.BATHROOM_TOWELS_WALL.get(), null, null));
     public static final DeferredBlock<FacingFurnitureBlock> BATHROOM_TOWELS_WALL = piece("bathroom_towels_wall", "bathroom_crate", 0x74A4CA,
-            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BATHROOM_TOWELS.get()));
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BATHROOM_TOWELS.get()).renderOffset(0, 6, 0));
     /** Two seats in the tub, from its footprint: SEATS. */
     public static final DeferredBlock<SeatFurnitureBlock> BATHTUB = piece("bathtub", "bathroom_crate",
             p -> new SeatFurnitureBlock(p, true, 4).seats(SEATS));
