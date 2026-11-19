@@ -63,7 +63,7 @@ public final class ArchaeArtifacts {
 
     static {
         // Artifacts are decor furniture; their footprints are this module's table, needed as they register.
-        FurnitureFootprints.addTable("/apeira_archae/artifact_footprints.txt");
+        FurnitureFootprints.addTable(ArchaeArtifacts.class, "/apeira_archae/artifact_footprints.txt");
     }
     /** Argon's gold "Archeology Exclusive" line under every artifact's name. */
     private static final ItemLore EXCLUSIVE_LORE = new ItemLore(List.of(Component.translatable("tooltip.apeira.exclusive.archaeology")
