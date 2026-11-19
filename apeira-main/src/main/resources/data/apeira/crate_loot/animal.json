@@ -1,0 +1,7 @@
+{
+  "common": ["apeira:capybara_plushie", "apeira:cat_plushie", "apeira:dog_plushie", "apeira:froggy_chair", "apeira:giraffe_plushie",
+    "apeira:monkey_plushie", "apeira:axolotl_hat", "apeira:animal_ears", "apeira:wolf_helmet", "apeira:wolf_tail", "apeira:wolf_paw"],
+  "rare": ["apeira:cat_clock", "apeira:moose_antlers", "apeira:gorilla_mask", "apeira:mascot_dog_helmet"],
+  "epic": ["apeira:monkey_backswag", "apeira:giraffe_helmet"],
+  "legendary": ["apeira:elephant_inflatable"]
+}

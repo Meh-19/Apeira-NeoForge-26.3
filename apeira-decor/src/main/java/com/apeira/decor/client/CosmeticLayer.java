@@ -8,6 +8,7 @@ import com.apeira.decor.cosmetic.BackOffsets;
 import com.apeira.decor.cosmetic.CosmeticSlot;
 import com.apeira.decor.cosmetic.Wardrobe;
 import com.apeira.decor.registry.DecorAttachments;
+import com.apeira.decor.registry.DecorDataComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
@@ -33,7 +34,9 @@ import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 /**
  * Draws the cosmetics in a player's (or mannequin's) wardrobe: the hat on the head, the back cosmetic on the body
  * and the hand cosmetic in the off hand while it holds nothing. Transforms are CosmoLib's {@code CosmeticPlayerLayer}.
- * The back cosmetic also takes its tuned {@link BackOffset}, if any. Models are resolved under {@link WornCosmetic}, so
+ * A back cosmetic with a logged backswag ({@link BackswagTable}) is drawn instead where the server's armor stand wore
+ * it, from its {@code head} display and the logged height; the others sit on the body. Either takes its tuned
+ * {@link BackOffset}, if any. Models are resolved under {@link WornCosmetic}, so
  * item definitions draw the cosmetic's 3D model here and its token everywhere else.
  */
 public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
@@ -42,7 +45,15 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
     private static final ContextKey<Worn> WORN = new ContextKey<>(ApeiraIds.id("cosmetics"));
 
     /** The resolved models of the worn cosmetics, collected while extracting the render state, and the back one's offset. */
-    private record Worn(ItemStackRenderState hat, ItemStackRenderState back, @Nullable BackOffset backOffset, ItemStackRenderState hand) {}
+    private record Worn(ItemStackRenderState hat, ItemStackRenderState back, @Nullable BackOffset backOffset,
+            BackswagTable.@Nullable Entry backswag, ItemStackRenderState hand) {}
+
+    /** The model's scale for players ({@code AvatarRenderer#scale}), undone for backswags, which ride at full size. */
+    private static final float AVATAR_SCALE = 0.9375F;
+    /** {@code LivingEntityRenderer}'s lift of the model space, in blocks. */
+    private static final float MODEL_LIFT = 1.501F;
+    /** The armor stand model's head pivot, one pixel below the player model's ({@code ArmorStandModel}). */
+    private static final float STAND_HEAD_Y = 1.0F / 16.0F;
 
     public CosmeticLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent) {
         super(parent);
@@ -59,10 +70,18 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
             }
             ItemModelResolver resolver = Minecraft.getInstance().getItemModelResolver();
             HumanoidArm offArm = avatar.getMainArm().getOpposite();
+            ItemStack back = wardrobe.get(CosmeticSlot.BACK);
+            BackswagTable.Entry backswag = back.isEmpty() ? null : BackswagTable.get(back.getItem());
+            if (backswag != null && backswag.defaultPaint() != null && !back.has(DecorDataComponents.PAINT.get())) {
+                // The logged colour, for a back cosmetic that has no paint of its own.
+                back = back.copy();
+                back.set(DecorDataComponents.PAINT.get(), backswag.defaultPaint());
+            }
             state.setRenderData(WORN, new Worn(
                     resolve(resolver, avatar, wardrobe.get(CosmeticSlot.HAT), ItemDisplayContext.HEAD),
-                    resolve(resolver, avatar, wardrobe.get(CosmeticSlot.BACK), ItemDisplayContext.HEAD),
-                    BackOffsets.get(wardrobe.get(CosmeticSlot.BACK).getItem()),
+                    resolve(resolver, avatar, back, ItemDisplayContext.HEAD),
+                    BackOffsets.get(back.getItem()),
+                    backswag,
                     resolve(resolver, avatar, wardrobe.get(CosmeticSlot.HAND), offArm == HumanoidArm.LEFT
                             ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                             : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)));
@@ -94,9 +113,14 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
         }
         if (!worn.back().isEmpty()) {
             poseStack.pushPose();
-            model.root().translateAndRotate(poseStack);
-            model.body.translateAndRotate(poseStack);
-            poseStack.translate(0.0F, BACK_Y, 0.0F);
+            BackswagTable.Entry backswag = worn.backswag();
+            if (backswag != null) {
+                standHead(poseStack, backswag);
+            } else {
+                model.root().translateAndRotate(poseStack);
+                model.body.translateAndRotate(poseStack);
+                poseStack.translate(0.0F, BACK_Y, 0.0F);
+            }
             poseStack.rotateDegrees(Axis.YP, 180.0F);
             poseStack.scale(0.625F, -0.625F, -0.625F);
             BackOffset offset = worn.backOffset();
@@ -124,5 +148,27 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
             worn.hand().submit(poseStack, collector, lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
             poseStack.popPose();
         }
+    }
+
+    /**
+     * Moves from the player's model space to where a server's backswag stand wears its head item, as
+     * {@code CustomHeadLayer} draws it on an armor stand riding the player: the stand turned with the body, standing
+     * {@code dy} blocks over the player's feet ({@code forward}, {@code right} along the body's facing), up to its head
+     * pivot and {@code translateToHead}'s quarter block. The player model's 0.9375 scale is undone (the stand is full
+     * size), the entity's own scale kept; nothing follows the body's bend, as the stand does not. The caller adds the
+     * head item's turn and 0.625 scale.
+     */
+    private static void standHead(PoseStack poseStack, BackswagTable.Entry backswag) {
+        // In model space y and x point down and left of the player (LivingEntityRenderer's scale(-1, -1, 1)) and the
+        // face looks along -z.
+        poseStack.translate(0.0F, MODEL_LIFT, 0.0F);
+        poseStack.scale(1.0F / AVATAR_SCALE, 1.0F / AVATAR_SCALE, 1.0F / AVATAR_SCALE);
+        poseStack.translate((float) -backswag.right(), (float) -backswag.dy(), (float) -backswag.forward());
+        if (backswag.small()) {
+            // A small stand's model is drawn at half size.
+            poseStack.scale(0.5F, 0.5F, 0.5F);
+        }
+        poseStack.translate(0.0F, -MODEL_LIFT + STAND_HEAD_Y, 0.0F);
+        poseStack.translate(0.0F, -0.25F, 0.0F);
     }
 }

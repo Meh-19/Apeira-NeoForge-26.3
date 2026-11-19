@@ -3,6 +3,7 @@ package com.apeira.main.datagen;
 import com.apeira.core.datagen.ApeiraLanguageProvider;
 import com.apeira.core.registry.ShapeSet;
 import com.apeira.main.registry.MainBadgerCrate;
+import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCrystals;
@@ -74,6 +75,17 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         creativeTab("content", "Apeira Content");
         creativeTab("crates", "Crates");
         item(MainBadgerCrate.BADGER_CRATE, "Badger Crate");
+        item(MainBadgerCrate.ANIMAL_CRATE, "Animal Crate");
+        item(MainCosmetics.AXOLOTL_HAT, "Axolotl Hat");
+        item(MainCosmetics.ANIMAL_EARS, "Animal Ears");
+        item(MainCosmetics.WOLF_HELMET, "Wolf Helmet");
+        item(MainCosmetics.WOLF_TAIL, "Wolf Tail");
+        item(MainCosmetics.WOLF_PAW, "Wolf Paw");
+        item(MainCosmetics.MOOSE_ANTLERS, "Moose Antlers");
+        item(MainCosmetics.GORILLA_MASK, "Gorilla Mask");
+        item(MainCosmetics.MASCOT_DOG_HELMET, "Mascot Dog Helmet");
+        item(MainCosmetics.MONKEY_BACKSWAG, "Monkey Backswag");
+        item(MainCosmetics.GIRAFFE_HELMET, "Giraffe Helmet");
         addId("entity", "badger_crate_show", "Badger Crate");
         // The Badger Crate opening's HUD (client/crate/BadgerCrateClient).
         addId("message", "badger_crate.opening", "Opening Crate...");

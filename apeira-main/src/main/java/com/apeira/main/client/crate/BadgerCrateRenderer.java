@@ -12,6 +12,7 @@ import com.apeira.core.registry.ApeiraIds;
 import com.apeira.decor.client.EmissiveRenderTypes;
 import com.apeira.main.crate.BadgerCrateShowEntity;
 import com.apeira.main.crate.BadgerTier;
+import com.apeira.main.crate.CrateKind;
 import com.geckolib.cache.model.GeoBone;
 import com.geckolib.constant.dataticket.DataTicket;
 import com.geckolib.model.GeoModel;
@@ -47,6 +48,7 @@ import net.minecraft.world.item.ItemStack;
  */
 public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity, EntityRenderState> {
     private static final DataTicket<Integer> AGE = DataTicket.create("apeira_badger_age", Integer.class);
+    private static final DataTicket<Integer> KIND = DataTicket.create("apeira_crate_kind", Integer.class);
 
     public BadgerCrateRenderer(EntityRendererProvider.Context context) {
         super(context, new Model());
@@ -62,8 +64,9 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
 
     @Override
     public void addRenderData(BadgerCrateShowEntity entity, @Nullable Void relatedObject, EntityRenderState renderState, float partialTick) {
-        BadgerCrateFx.update(new BadgerTier[] {entity.tier(0), entity.tier(1), entity.tier(2)}, entity.tickCount);
+        BadgerCrateFx.update(entity.kind(), new BadgerTier[] {entity.tier(0), entity.tier(1), entity.tier(2)}, entity.tickCount);
         renderState.addGeckolibData(AGE, entity.tickCount);
+        renderState.addGeckolibData(KIND, entity.kind().ordinal());
     }
 
     /** Translucent (the VFX fade), with alpha 254 texels glowing ({@link EmissiveRenderTypes}). */
@@ -72,18 +75,26 @@ public class BadgerCrateRenderer extends GeoEntityRenderer<BadgerCrateShowEntity
         return EmissiveRenderTypes.entityTranslucent(texture);
     }
 
-    /** {@code geckolib/models/badger_crate.geo.json} and {@code geckolib/animations/badger_crate.animation.json}. */
+    /**
+     * The crate's model ({@code geckolib/models/<kind>_crate.geo.json}, {@link CrateKind#model}: every crate has the
+     * Badger Crate's bones and pivots) and the shared {@code geckolib/animations/badger_crate.animation.json}.
+     */
     private static final class Model extends GeoModel<BadgerCrateShowEntity> {
         private static final Identifier ID = ApeiraIds.id("badger_crate");
 
+        private static CrateKind kind(GeoRenderState renderState) {
+            Integer kind = renderState.getGeckolibData(KIND);
+            return kind == null ? CrateKind.BADGER : CrateKind.byId(kind);
+        }
+
         @Override
         public Identifier getModelResource(GeoRenderState renderState) {
-            return ID;
+            return kind(renderState).model();
         }
 
         @Override
         public Identifier getTextureResource(GeoRenderState renderState) {
-            return BadgerCrateFx.ready() ? BadgerCrateFx.TEXTURE : BadgerCrateFx.BASE;
+            return BadgerCrateFx.ready() ? BadgerCrateFx.TEXTURE : kind(renderState).texture();
         }
 
         @Override

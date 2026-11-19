@@ -26,7 +26,12 @@ public class SeatFurnitureBlock extends FurnitureBlock implements SeatBlock {
 
     /** @param seatPixels the height of the seat, in pixels (Argon's {@code seatLevel}) */
     public SeatFurnitureBlock(BlockBehaviour.Properties properties, boolean paintable, int seatPixels) {
-        super(properties, paintable, Form.FURNITURE);
+        this(properties, paintable, Form.FURNITURE, seatPixels);
+    }
+
+    /** A seat drawn in another {@link Form}'s display mode (the froggy chair lies on the floor). */
+    public SeatFurnitureBlock(BlockBehaviour.Properties properties, boolean paintable, Form form, int seatPixels) {
+        super(properties, paintable, form);
         this.seatHeight = Math.min(seatPixels, MAX_SEAT) / 16.0;
     }
 

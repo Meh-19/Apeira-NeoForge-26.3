@@ -122,8 +122,11 @@ def artifacts(module: dict) -> list[dict]:
         facing = cls in FACING_CLASSES
         if cls == "FacingFurnitureBlock":
             mode = "WALL" if "wall" in name else "FLOOR" if "side" in name else "TOP_FACE"
-        elif cls == "CeilingFurnitureBlock" or cls == "SeatFurnitureBlock":
+        elif cls == "CeilingFurnitureBlock":
             mode = "TOP_FACE"
+        elif cls == "SeatFurnitureBlock":
+            # A seat lies on the top face unless it names its Form (the froggy chair's FLOOR).
+            mode = FORM_MODES[arg.split(".")[1]] if arg.startswith("Form.") else "TOP_FACE"
         elif cls == "WaterloggedFurnitureBlock":
             mode = arg.split(".")[1]
         elif cls == "AnimatedFurnitureBlock":
