@@ -312,6 +312,7 @@ public final class BadgerCrateClient {
 
     private static void registerDecorations(RegisterItemDecorationsEvent event) {
         event.register(MainBadgerCrate.BADGER_CRATE.get(), BadgerCrateClient::decorate);
+        event.register(MainBadgerCrate.ANIMAL_CRATE.get(), BadgerCrateClient::decorate);
     }
 
     /**

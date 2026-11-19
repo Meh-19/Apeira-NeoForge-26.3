@@ -8,10 +8,10 @@ import java.util.Locale;
  * the reward it was rolled for.
  */
 public enum BadgerTier {
-    COMMON("white", 60),
-    RARE("blue", 25),
-    EPIC("purple", 11),
-    LEGENDARY("yellow", 4);
+    COMMON("white", 55),
+    RARE("blue", 27),
+    EPIC("purple", 13),
+    LEGENDARY("yellow", 5);
 
     private final String colour;
     private final int weight;
@@ -26,7 +26,10 @@ public enum BadgerTier {
         return colour;
     }
 
-    /** The roll weight, out of 100. */
+    /**
+     * The tier's chance in percent, shared by every crate (55/27/13/5); a crate's items of one tier split it evenly
+     * ({@link BadgerLoot#chance}).
+     */
     public int weight() {
         return weight;
     }

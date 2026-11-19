@@ -1,11 +1,14 @@
 package com.apeira.main.datagen;
 
 import com.apeira.core.datagen.ApeiraItemModelProvider;
+import com.apeira.decor.client.PaintTintSource;
+import com.apeira.decor.client.WornCosmetic;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.apeira.main.client.CapturedMobProperty;
 import com.apeira.main.registry.MainBadgerCrate;
+import com.apeira.main.registry.MainCosmetics;
 import com.apeira.main.registry.MainDataComponents;
 import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainGear;
@@ -38,6 +41,9 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
         simpleItem(MainItems.RUBY);
         // The Badger Crate's 3D model, the server pack's full crate (hand-made, models/item/badger_crate.json).
         generators().itemModelOutput.accept(MainBadgerCrate.BADGER_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/badger_crate")));
+        // The Animal Crate's, the server pack's animal_crate_full with the Badger Crate's displays (hand-made).
+        generators().itemModelOutput.accept(MainBadgerCrate.ANIMAL_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/animal_crate")));
+        MainCosmetics.all().forEach(this::cosmetic);
         MainItems.tools().forEach(this::toolItem);
         trimmableArmor(MainItems.PLATINUM_HELMET, ItemModelGenerators.TRIM_PREFIX_HELMET);
         trimmableArmor(MainItems.PLATINUM_CHESTPLATE, ItemModelGenerators.TRIM_PREFIX_CHESTPLATE);
@@ -62,6 +68,19 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
 
 
         farming();
+    }
+
+    /**
+     * A cosmetic shows its rarity token ({@code item/<rarity>_<slot>_token}, apeira-decor's) everywhere except when
+     * worn, where the {@code apeira:worn_cosmetic} condition shows its 3-D model ({@code item/cosmetic/<name>}), the
+     * paint on tint index 1.
+     */
+    private void cosmetic(MainCosmetics.Cosmetic cosmetic) {
+        ItemModel.Unbaked token = ItemModelUtils.plainModel(modLoc("item/" + cosmetic.rarity().id() + "_"
+                + cosmetic.slot().getSerializedName() + "_token"));
+        ItemModel.Unbaked worn = ItemModelUtils.tintedModel(modLoc("item/cosmetic/" + cosmetic.item().getId().getPath()),
+                ItemModelUtils.constantTint(-1), new PaintTintSource());
+        generators().itemModelOutput.accept(cosmetic.item().get(), ItemModelUtils.conditional(new WornCosmetic(), worn, token));
     }
 
     /**

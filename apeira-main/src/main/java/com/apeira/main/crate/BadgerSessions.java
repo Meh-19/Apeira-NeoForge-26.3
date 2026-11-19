@@ -39,12 +39,12 @@ public final class BadgerSessions {
         return SESSIONS.containsKey(player.getUUID());
     }
 
-    /** Starts an opening; false if the player is already opening one. */
-    public static boolean start(ServerPlayer player) {
+    /** Starts an opening of {@code kind}; false if the player is already opening a crate. */
+    public static boolean start(ServerPlayer player, CrateKind kind) {
         if (SESSIONS.containsKey(player.getUUID())) {
             return false;
         }
-        SESSIONS.put(player.getUUID(), new BadgerSession(player, BadgerLoot.get().roll(player.getRandom())));
+        SESSIONS.put(player.getUUID(), new BadgerSession(player, kind, BadgerLoot.get(kind).roll(player.getRandom())));
         return true;
     }
 

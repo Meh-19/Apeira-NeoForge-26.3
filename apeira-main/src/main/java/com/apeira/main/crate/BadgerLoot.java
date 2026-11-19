@@ -22,9 +22,11 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 
 /**
- * The Badger Crate's rewards, {@code data/apeira/badger_crate/loot.json}: item ids for each {@link BadgerTier}. An
- * opening rolls three rewards, each its own tier by {@link BadgerTier#weight}; an empty tier falls back to the next lower
- * one, then to the next higher. The three are different items while the lists allow it.
+ * A crate's rewards, {@code data/apeira/crate_loot/<kind>.json} ({@link CrateKind#id}): item ids for each
+ * {@link BadgerTier}. An opening rolls three rewards, each its own tier by the shared odds ({@link BadgerTier#weight}:
+ * common 55, rare 27, epic 13, legendary 5), then an item of that tier with equal weight, so each item's chance is its
+ * tier's split evenly ({@link #chance}; two legendaries are 2.5% each). An empty tier falls back to the next lower one,
+ * then to the next higher. The three are different items while the lists allow it.
  */
 public record BadgerLoot(Map<BadgerTier, List<Identifier>> items) {
     public static final BadgerLoot EMPTY = new BadgerLoot(Map.of());
@@ -42,16 +44,23 @@ public record BadgerLoot(Map<BadgerTier, List<Identifier>> items) {
                 map.put(BadgerTier.LEGENDARY, legendary.orElse(List.of()));
                 return new BadgerLoot(map);
             }));
-    public static final Identifier FILE = ApeiraIds.id("loot");
-
-    private static volatile BadgerLoot current = EMPTY;
+    private static volatile Map<CrateKind, BadgerLoot> current = Map.of();
 
     public List<Identifier> of(BadgerTier tier) {
         return items.getOrDefault(tier, List.of());
     }
 
-    public static BadgerLoot get() {
-        return current;
+    public static BadgerLoot get(CrateKind kind) {
+        return current.getOrDefault(kind, EMPTY);
+    }
+
+    /**
+     * One roll's chance of each item of {@code tier}, in percent: the tier's share split evenly among its items (before
+     * the empty-tier fallback and the no-repeats rule of the second and third rewards).
+     */
+    public double chance(BadgerTier tier) {
+        List<Item> pool = resolved(tier);
+        return pool.isEmpty() ? 0.0 : (double) tier.weight() / pool.size();
     }
 
     /** One rolled reward. */
@@ -110,19 +119,23 @@ public record BadgerLoot(Map<BadgerTier, List<Identifier>> items) {
         return of(tier).stream().map(id -> BuiltInRegistries.ITEM.getOptional(id)).flatMap(Optional::stream).toList();
     }
 
-    /** Loads {@code data/<namespace>/badger_crate/loot.json}. */
+    /** Loads {@code data/apeira/crate_loot/<kind>.json} for every {@link CrateKind}. */
     public static final class Manager extends SimpleJsonResourceReloadListener<BadgerLoot> {
         private Manager() {
-            super(CODEC, FileToIdConverter.json("badger_crate"));
+            super(CODEC, FileToIdConverter.json("crate_loot"));
         }
 
         public static void addListener(AddServerReloadListenersEvent event) {
-            event.addListener(ApeiraIds.id("badger_crate_loot"), new Manager());
+            event.addListener(ApeiraIds.id("crate_loot"), new Manager());
         }
 
         @Override
         protected void apply(Map<Identifier, BadgerLoot> prepared, ResourceManager manager, ProfilerFiller profiler) {
-            current = prepared.getOrDefault(FILE, EMPTY);
+            Map<CrateKind, BadgerLoot> loaded = new EnumMap<>(CrateKind.class);
+            for (CrateKind kind : CrateKind.values()) {
+                loaded.put(kind, prepared.getOrDefault(ApeiraIds.id(kind.id()), EMPTY));
+            }
+            current = loaded;
         }
     }
 }

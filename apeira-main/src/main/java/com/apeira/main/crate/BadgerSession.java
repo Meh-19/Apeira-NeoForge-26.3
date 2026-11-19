@@ -32,7 +32,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
- * One player's Badger Crate opening, ticked by {@link BadgerSessions} on the server:
+ * One player's crate opening (any {@link CrateKind}), ticked by {@link BadgerSessions} on the server:
  * <ol>
  * <li>{@link #PHASE_FADE_OUT}: the client fades to black ({@link #FADE_TICKS});</li>
  * <li>{@link #PHASE_LOADING}: the player's instance ({@link BadgerInstances}) is copied and loaded, the player is put
@@ -71,6 +71,7 @@ final class BadgerSession {
     static final String MODE_KEY = "apeira_badger_crate_return_mode";
 
     final UUID player;
+    final CrateKind kind;
     private final List<BadgerLoot.Reward> rewards;
     private int phase = PHASE_FADE_OUT;
     private int ticks;
@@ -80,8 +81,9 @@ final class BadgerSession {
     private @Nullable ServerLevel instance;
     private @Nullable BadgerCrateShowEntity show;
 
-    BadgerSession(ServerPlayer player, List<BadgerLoot.Reward> rewards) {
+    BadgerSession(ServerPlayer player, CrateKind kind, List<BadgerLoot.Reward> rewards) {
         this.player = player.getUUID();
+        this.kind = kind;
         this.rewards = rewards;
         send(player, PHASE_FADE_OUT);
     }
@@ -161,10 +163,10 @@ final class BadgerSession {
 
     private void enterInstance(MinecraftServer server, ServerPlayer player) {
         try {
-            instance = BadgerInstances.create(server, this.player);
+            instance = BadgerInstances.create(server, this.player, kind);
         } catch (IOException e) {
-            Apeira.LOGGER.error("Could not make the Badger Crate instance for {}", player.getGameProfile().name(), e);
-            give(player, new ItemStack(MainBadgerCrate.BADGER_CRATE.get()));
+            Apeira.LOGGER.error("Could not make the {} crate instance for {}", kind.id(), player.getGameProfile().name(), e);
+            give(player, new ItemStack(kind.item()));
             send(player, PHASE_END);
             phase = PHASE_END;
             return;
@@ -188,6 +190,7 @@ final class BadgerSession {
         if (entity != null) {
             entity.setPos(ANIMATION_ORIGIN);
             entity.setYRot(180.0F);
+            entity.setKind(kind);
             entity.setRewards(rewards);
             instance.addFreshEntity(entity);
             show = entity;

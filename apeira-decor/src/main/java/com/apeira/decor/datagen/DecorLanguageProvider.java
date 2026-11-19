@@ -37,7 +37,7 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
             String name = furniture.getId().getPath();
             block(furniture, NAMES.getOrDefault(name, title(name)));
         }
-        Set<String> crates = new LinkedHashSet<>(List.of("badger_crate"));
+        Set<String> crates = new LinkedHashSet<>(List.of("badger_crate", "animal_crate"));
         // The same lines as the cosmetics' (the main module's language file), for the crates furniture comes from.
         for (String crate : crates) {
             tooltip("exclusive." + crate, title(crate) + " Exclusive");

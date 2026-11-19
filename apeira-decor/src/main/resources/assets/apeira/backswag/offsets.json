@@ -1,0 +1,266 @@
+{
+  "adventurer_pack": {
+    "name": "Adventurer Pack",
+    "linked_by": "riding_player",
+    "time": "2026-11-18T17:33:39.404706300",
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "forward": 0.0,
+    "right": 0.0,
+    "dy_scaled": 1.7999999523162842,
+    "yaw_delta": 61.25,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-18T17:33:39.404706300",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": 0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": -11.25,
+      "wearer_body_yaw": 21898.75,
+      "wearer_head_yaw": 21948.75,
+      "yaw_delta": 61.25,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 577967,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑶ Adventurer Pack",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑶ ",
+            "color": "white"
+          },
+          {
+            "text": "Adventurer Pack",
+            "color": "#7EBE1B"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10341.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#93BA4F"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#93BA4F",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10341.0]"
+    }
+  },
+  "monkey_backswag": {
+    "name": "Monkey Backswag",
+    "linked_by": "riding_player",
+    "time": "2026-11-18T17:54:14.547672600",
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "forward": 0.0,
+    "right": -0.0,
+    "dy_scaled": 1.7999999523162842,
+    "yaw_delta": -31.5625,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-18T17:54:14.547672600",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": -0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": 81.5625,
+      "wearer_body_yaw": 751.5625,
+      "wearer_head_yaw": 801.5625,
+      "yaw_delta": -31.5625,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 604982,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Monkey Backswag",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑴ ",
+            "color": "white"
+          },
+          {
+            "text": "Monkey Backswag",
+            "color": "#8B5CF6"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10702.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#A0643E"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#A0643E",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10702.0]"
+    }
+  },
+  "wolf_tail": {
+    "name": "Wolf Tail",
+    "linked_by": "riding_player",
+    "time": "2026-11-18T17:54:30.406675800",
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "forward": 0.0,
+    "right": 0.0,
+    "dy_scaled": 1.7999999523162842,
+    "yaw_delta": 137.1875,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-18T17:54:30.406675800",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": 0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": -87.1875,
+      "wearer_body_yaw": 2022.8125,
+      "wearer_head_yaw": 2072.8125,
+      "yaw_delta": 137.1875,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 606202,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑲ Wolf Tail",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑲ ",
+            "color": "white"
+          },
+          {
+            "text": "Wolf Tail",
+            "color": "#828282"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10050.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#B2B2B2"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#B2B2B2",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10050.0]"
+    }
+  }
+}

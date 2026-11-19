@@ -37,8 +37,10 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
 /**
- * Per-player copies of the Badger Crate's void world, {@code apeira:<uuid>_badgercrate}: one dimension per opener, so
- * openings never share blocks, entities or chunks. Each is made from the template (the overworld region and entity
+ * Per-player copies of the crates' void world, {@code apeira:<uuid>_badgercrate} or {@code apeira:<uuid>_animalcrate}
+ * ({@link CrateKind#suffix}): one dimension per opener and crate, so openings never share blocks, entities or chunks.
+ * Every crate copies the same template; the session deletes its instance when the reward is claimed, the five
+ * minutes run out or the player leaves, so the next opening makes a fresh one. Each is made from the template (the overworld region and entity
  * files of Ren's {@code run/saves/New World (8)}, shipped in {@code apeira/badger_crate_template/}) copied into the
  * dimension's own folder, then loaded as a void world (flat, no layers, {@code the_void} biome) that only reads the
  * copied chunks, with no weather and always at noon ({@link #holdNoon}). {@link #remove} unloads it and deletes its folder; leftovers from a crash are deleted on server start.
@@ -47,7 +49,6 @@ import net.neoforged.neoforge.event.level.LevelEvent;
  * level map.
  */
 public final class BadgerInstances {
-    private static final String SUFFIX = "_badgercrate";
     private static final ResourceKey<DimensionType> DIMENSION_TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, ApeiraIds.id("badger_crate"));
     private static final ResourceKey<WorldClock> CLOCK = ResourceKey.create(Registries.WORLD_CLOCK, ApeiraIds.id("badger_crate"));
     /** Six hours past sunrise: noon. */
@@ -58,18 +59,31 @@ public final class BadgerInstances {
 
     private BadgerInstances() {}
 
-    /** {@code apeira:<uuid>_badgercrate}. */
-    public static ResourceKey<Level> key(UUID player) {
-        return ResourceKey.create(Registries.DIMENSION, ApeiraIds.id(player.toString().toLowerCase(Locale.ROOT) + SUFFIX));
+    /** {@code apeira:<uuid>_badgercrate} or {@code apeira:<uuid>_animalcrate}. */
+    public static ResourceKey<Level> key(UUID player, CrateKind kind) {
+        return ResourceKey.create(Registries.DIMENSION, ApeiraIds.id(player.toString().toLowerCase(Locale.ROOT) + kind.suffix()));
     }
 
+    /** True for any crate's instance. */
     public static boolean isInstance(ResourceKey<Level> key) {
-        return key.identifier().getNamespace().equals(Apeira.MOD_ID) && key.identifier().getPath().endsWith(SUFFIX);
+        return key.identifier().getNamespace().equals(Apeira.MOD_ID) && isInstanceFolder(key.identifier().getPath());
     }
 
-    /** Copies the template and loads the player's instance, replacing any old one. */
-    public static ServerLevel create(MinecraftServer server, UUID player) throws IOException {
-        ResourceKey<Level> key = key(player);
+    private static boolean isInstanceFolder(String name) {
+        for (CrateKind kind : CrateKind.values()) {
+            if (name.endsWith(kind.suffix())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Copies the template (the same world for every crate) and loads the player's instance of {@code kind}, replacing
+     * any old one.
+     */
+    public static ServerLevel create(MinecraftServer server, UUID player, CrateKind kind) throws IOException {
+        ResourceKey<Level> key = key(player, kind);
         remove(server, key);
         MinecraftServerAccessor accessor = (MinecraftServerAccessor) server;
         Path folder = accessor.apeira$storageSource().getDimensionPath(key);
@@ -122,12 +136,12 @@ public final class BadgerInstances {
 
     /** Deletes every instance folder left by a server that stopped mid-opening. */
     public static void deleteLeftovers(MinecraftServer server) {
-        Path apeiraDimensions = ((MinecraftServerAccessor) server).apeira$storageSource().getDimensionPath(key(new UUID(0, 0))).getParent();
+        Path apeiraDimensions = ((MinecraftServerAccessor) server).apeira$storageSource().getDimensionPath(key(new UUID(0, 0), CrateKind.BADGER)).getParent();
         if (!Files.isDirectory(apeiraDimensions)) {
             return;
         }
         try (Stream<Path> folders = Files.list(apeiraDimensions)) {
-            folders.filter(path -> path.getFileName().toString().endsWith(SUFFIX)).forEach(BadgerInstances::delete);
+            folders.filter(path -> isInstanceFolder(path.getFileName().toString())).forEach(BadgerInstances::delete);
         } catch (IOException e) {
             Apeira.LOGGER.warn("Could not list Badger Crate instances", e);
         }

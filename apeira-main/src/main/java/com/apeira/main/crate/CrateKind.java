@@ -1,0 +1,53 @@
+package com.apeira.main.crate;
+
+import java.util.Locale;
+
+import com.apeira.core.registry.ApeiraIds;
+import com.apeira.main.registry.MainBadgerCrate;
+
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+
+/**
+ * The crates that play the shared crate opening: the same template world, session, camera, animation and HUD, each
+ * with its own instance suffix ({@code apeira:<uuid>_badgercrate}, {@code apeira:<uuid>_animalcrate}), loot file
+ * ({@code data/apeira/crate_loot/<id>.json}), GeckoLib model ({@code geckolib/models/<id>_crate.geo.json}, the Badger
+ * Crate's bones with the crate's own lid and base cubes) and texture ({@code textures/entity/badger_crate/<id>_crate.png}).
+ * The animation ({@code badger_crate.animation.json}) and VFX layout are shared.
+ */
+public enum CrateKind {
+    BADGER,
+    ANIMAL;
+
+    /** {@code badger}, {@code animal}. */
+    public String id() {
+        return name().toLowerCase(Locale.ROOT);
+    }
+
+    /** The instance dimension's path suffix, {@code _badgercrate} or {@code _animalcrate}. */
+    public String suffix() {
+        return "_" + id() + "crate";
+    }
+
+    /** {@code apeira:badger_crate}, {@code apeira:animal_crate}: the GeckoLib model. */
+    public Identifier model() {
+        return ApeiraIds.id(id() + "_crate");
+    }
+
+    /** The recorded atlas with this crate's lid and base in its crate region. */
+    public Identifier texture() {
+        return ApeiraIds.id("textures/entity/badger_crate/" + id() + "_crate.png");
+    }
+
+    public Item item() {
+        return switch (this) {
+            case BADGER -> MainBadgerCrate.BADGER_CRATE.get();
+            case ANIMAL -> MainBadgerCrate.ANIMAL_CRATE.get();
+        };
+    }
+
+    public static CrateKind byId(int ordinal) {
+        CrateKind[] kinds = values();
+        return kinds[Math.floorMod(ordinal, kinds.length)];
+    }
+}

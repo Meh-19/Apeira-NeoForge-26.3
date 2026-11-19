@@ -39,6 +39,7 @@ public class BadgerCrateShowEntity extends Entity implements GeoEntity {
             SynchedEntityData.defineId(BadgerCrateShowEntity.class, EntityDataSerializers.ITEM_STACK));
     private static final EntityDataAccessor<Integer> TIERS = SynchedEntityData.defineId(BadgerCrateShowEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SELECTED = SynchedEntityData.defineId(BadgerCrateShowEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> KIND = SynchedEntityData.defineId(BadgerCrateShowEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> SELECTING = SynchedEntityData.defineId(BadgerCrateShowEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -56,6 +57,16 @@ public class BadgerCrateShowEntity extends Entity implements GeoEntity {
         builder.define(TIERS, 0);
         builder.define(SELECTED, 0);
         builder.define(SELECTING, false);
+        builder.define(KIND, CrateKind.BADGER.ordinal());
+    }
+
+    /** Which crate is opened: picks the model and the texture. */
+    public CrateKind kind() {
+        return CrateKind.byId(entityData.get(KIND));
+    }
+
+    public void setKind(CrateKind kind) {
+        entityData.set(KIND, kind.ordinal());
     }
 
     public void setRewards(List<BadgerLoot.Reward> rewards) {

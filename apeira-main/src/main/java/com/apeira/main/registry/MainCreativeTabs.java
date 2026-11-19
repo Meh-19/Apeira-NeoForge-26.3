@@ -25,7 +25,7 @@ public final class MainCreativeTabs {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CONTENT = R.creativeTab("content", tab -> tab
             .icon(MainItems.RUBY::toStack)
             .displayItems(Stream.concat(R.items().getEntries().stream(), ApeiraDecor.REGISTRAR.items().getEntries().stream())
-                    .filter(item -> !item.getId().equals(MainBadgerCrate.BADGER_CRATE.getId()))
+                    .filter(item -> !item.getId().equals(MainBadgerCrate.BADGER_CRATE.getId()) && !item.getId().equals(MainBadgerCrate.ANIMAL_CRATE.getId()))
                     // Furniture wall and ceiling variants are placed through their base piece.
                     .filter(item -> !(item.get() instanceof BlockItem block && block.getBlock() instanceof FurnitureBlock furniture
                             && furniture.dropBlock() != furniture))
@@ -35,7 +35,7 @@ public final class MainCreativeTabs {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CRATES = R.creativeTab("crates", tab -> tab
             .icon(MainBadgerCrate.BADGER_CRATE::toStack)
             .withTabsBefore(CONTENT.getId())
-            .displayItems(List.<Holder<? extends ItemLike>>of(MainBadgerCrate.BADGER_CRATE)));
+            .displayItems(List.<Holder<? extends ItemLike>>of(MainBadgerCrate.BADGER_CRATE, MainBadgerCrate.ANIMAL_CRATE)));
 
     private MainCreativeTabs() {}
 

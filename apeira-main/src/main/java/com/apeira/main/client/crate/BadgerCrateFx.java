@@ -11,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.Apeira;
+import com.apeira.main.crate.CrateKind;
 import com.apeira.main.crate.BadgerTier;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -29,7 +30,6 @@ import net.minecraft.resources.Identifier;
  */
 final class BadgerCrateFx {
     static final Identifier TEXTURE = ApeiraIds.id("dynamic/badger_crate_fx");
-    static final Identifier BASE = ApeiraIds.id("textures/entity/badger_crate/badger_crate.png");
     private static final Identifier LAYOUT = ApeiraIds.id("badger_crate/fx_layout.json");
     private static final int LAST_SPARK_FRAME = 8;
 
@@ -41,17 +41,22 @@ final class BadgerCrateFx {
     private static final Map<String, NativeImage> SOURCES = new HashMap<>();
     private static int paintedTiers = -1;
     private static int paintedPulseFrame = -1;
+    /** The crate whose atlas ({@link CrateKind#texture}) the texture was made from. */
+    private static @Nullable CrateKind paintedKind;
 
     private BadgerCrateFx() {}
 
-    /** True once the texture exists; the renderer falls back to {@link #BASE} until then. */
+    /** True once the texture exists; the renderer falls back to the crate's atlas until then. */
     static boolean ready() {
         return texture != null;
     }
 
     /** Paints the three rewards' tiers (and the pulse frame for {@code age}), uploading only what changed. */
-    static void update(BadgerTier[] tiers, int age) {
-        if (texture == null && !create()) {
+    static void update(CrateKind kind, BadgerTier[] tiers, int age) {
+        if (texture != null && paintedKind != kind) {
+            release();
+        }
+        if (texture == null && !create(kind)) {
             return;
         }
         int key = tiers[0].ordinal() | tiers[1].ordinal() << 2 | tiers[2].ordinal() << 4;
@@ -87,11 +92,12 @@ final class BadgerCrateFx {
         SOURCES.clear();
         paintedTiers = -1;
         paintedPulseFrame = -1;
+        paintedKind = null;
     }
 
-    private static boolean create() {
+    private static boolean create(CrateKind kind) {
         try {
-            base = read(BASE);
+            base = read(kind.texture());
             if (base == null) {
                 return false;
             }
@@ -109,6 +115,7 @@ final class BadgerCrateFx {
             pixels.copyFrom(base);
             texture = new DynamicTexture(() -> "Badger Crate VFX", pixels);
             Minecraft.getInstance().getTextureManager().register(TEXTURE, texture);
+            paintedKind = kind;
             return true;
         } catch (Exception e) {
             Apeira.LOGGER.warn("Could not make the Badger Crate VFX texture", e);

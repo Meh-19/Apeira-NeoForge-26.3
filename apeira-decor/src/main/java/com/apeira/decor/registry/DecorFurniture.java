@@ -65,6 +65,29 @@ public final class DecorFurniture {
     public static final DeferredBlock<AnimatedFurnitureBlock> WOODEN_WINDMILL = piece("wooden_windmill", "badger_crate",
             p -> new AnimatedFurnitureBlock(p, "furniture", true, "wooden_windmill", null).modelYaw(180));
 
+
+    // The Animal Crate's furniture: the server pack's models/custom/furniture/animal/ models, names, rarities and paints
+    // from Ren's F9 capture of the Animal Crate's reward page ("Next Cycle"). All lie on the floor (fixed display
+    // rotation x -90) but the cat clock, which hangs on a wall.
+    public static final DeferredBlock<FurnitureBlock> CAPYBARA_PLUSHIE = piece("capybara_plushie", "animal_crate", 0xA0643E,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> CAT_PLUSHIE = piece("cat_plushie", "animal_crate", 0xE88438,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> DOG_PLUSHIE = piece("dog_plushie", "animal_crate", 0xFA9B5C,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** A seat; its height (6 pixels) is a guess until tuned with the furniture wand. */
+    public static final DeferredBlock<SeatFurnitureBlock> FROGGY_CHAIR = piece("froggy_chair", "animal_crate", 0x93BA4F,
+            p -> new SeatFurnitureBlock(p, true, Form.FLOOR, 6));
+    public static final DeferredBlock<FurnitureBlock> GIRAFFE_PLUSHIE = piece("giraffe_plushie", "animal_crate", 0xF89D25,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** The pack's {@code monkey_plushie_sitting} model. */
+    public static final DeferredBlock<FurnitureBlock> MONKEY_PLUSHIE = piece("monkey_plushie", "animal_crate", 0xA0643E,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> CAT_CLOCK = piece("cat_clock", "animal_crate", 0xE88438,
+            p -> new FurnitureBlock(p, true, Form.WALL_MOUNTED));
+    public static final DeferredBlock<FurnitureBlock> ELEPHANT_INFLATABLE = piece("elephant_inflatable", "animal_crate", 0xB0DFE5,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+
     private DecorFurniture() {}
 
     /** Every decor furniture block, in registration order. */
