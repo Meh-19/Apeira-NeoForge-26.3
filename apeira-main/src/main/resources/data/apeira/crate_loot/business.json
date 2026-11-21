@@ -1,0 +1,7 @@
+{
+  "common": ["apeira:office_supplies", "apeira:fluorescent_light", "apeira:laptop", "apeira:suit_case", "apeira:top_hat",
+    "apeira:office_chair", "apeira:desk_lamp", "apeira:office_blinds"],
+  "rare": ["apeira:office_desk", "apeira:filing_cabinet", "apeira:office_ceiling_fan", "apeira:monitor", "apeira:printing_machine"],
+  "epic": ["apeira:money_sack", "apeira:billboard", "apeira:cubicle"],
+  "legendary": ["apeira:revolving_door"]
+}

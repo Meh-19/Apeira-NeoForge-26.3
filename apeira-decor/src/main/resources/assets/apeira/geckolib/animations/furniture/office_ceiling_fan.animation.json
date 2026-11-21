@@ -1,0 +1,29 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.office_ceiling_fan.spin": {
+      "loop": true,
+      "animation_length": 3.5,
+      "bones": {
+        "group": {
+          "position": {
+            "vector": [
+              0,
+              -16,
+              0
+            ]
+          }
+        },
+        "bone_tintable_ignore": {
+          "rotation": {
+            "vector": [
+              0,
+              "-query.anim_time * (360 / 3.5)",
+              0
+            ]
+          }
+        }
+      }
+    }
+  }
+}

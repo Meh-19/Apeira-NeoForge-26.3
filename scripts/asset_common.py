@@ -25,6 +25,33 @@ class ScriptError(Exception):
     """A problem the user has to fix, reported without a traceback."""
 
 
+# Hitbox exclusion: a cube, Java model element, outliner group or GeckoLib bone whose name contains this tag, in any
+# place among the name's other tags (``fan_blades_ignore``, ``door_tintable_ignore``, ``door_ignore_tintable``), is
+# left out of every generated hitbox, as is everything inside such a group or bone. It changes nothing else: the
+# piece still draws it, and a ``_tintable`` tag in the same name still takes paint.
+IGNORE_TAG = "_ignore"
+
+
+def hitbox_ignored(name: Any) -> bool:
+    """Whether ``name`` (a cube, element, group or bone name) carries the ``_ignore`` hitbox tag, in any case."""
+    return isinstance(name, str) and IGNORE_TAG in name.lower()
+
+
+def java_ignored_elements(data: dict) -> set[int]:
+    """Indices of a Java block model's elements left out of hitboxes: an element named with ``_ignore``, or one inside
+    a Blockbench ``groups`` entry (nested, children as element indices) whose name, or an enclosing group's, has it."""
+    ignored = {i for i, element in enumerate(data.get("elements", [])) if hitbox_ignored(element.get("name"))}
+
+    def walk(nodes, inside):
+        for node in nodes:
+            if isinstance(node, dict):
+                walk(node.get("children", []), inside or hitbox_ignored(node.get("name")))
+            elif isinstance(node, int) and inside:
+                ignored.add(node)
+    walk(data.get("groups", []), False)
+    return ignored
+
+
 def to_snake_case(name: str) -> str:
     """Turns ``"Platinum Sword-Glow2"`` or ``"platinumSword"`` into ``"platinum_sword_glow2"``/``"platinum_sword"``.
 

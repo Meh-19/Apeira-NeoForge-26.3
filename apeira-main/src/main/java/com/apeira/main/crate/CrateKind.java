@@ -10,7 +10,7 @@ import net.minecraft.world.item.Item;
 
 /**
  * The crates that play the shared crate opening: the same template world, session, camera, animation and HUD, each
- * with its own instance suffix ({@code apeira:<uuid>_badgercrate}, {@code _animalcrate}, {@code _bathroomcrate}), loot file
+ * with its own instance suffix ({@code apeira:<uuid>_badgercrate}, {@code _animalcrate}, {@code _bathroomcrate}, {@code _businesscrate}, {@code _campingcrate}), loot file
  * ({@code data/apeira/crate_loot/<id>.json}), GeckoLib model ({@code geckolib/models/<id>_crate.geo.json}, the Badger
  * Crate's bones with the crate's own lid and base cubes) and texture ({@code textures/entity/badger_crate/<id>_crate.png}).
  * The animation ({@code badger_crate.animation.json}) and VFX layout are shared.
@@ -18,7 +18,9 @@ import net.minecraft.world.item.Item;
 public enum CrateKind {
     BADGER,
     ANIMAL,
-    BATHROOM;
+    BATHROOM,
+    BUSINESS,
+    CAMPING;
 
     /** {@code badger}, {@code animal}. */
     public String id() {
@@ -45,6 +47,8 @@ public enum CrateKind {
             case BADGER -> MainBadgerCrate.BADGER_CRATE.get();
             case ANIMAL -> MainBadgerCrate.ANIMAL_CRATE.get();
             case BATHROOM -> MainBadgerCrate.BATHROOM_CRATE.get();
+            case BUSINESS -> MainBadgerCrate.BUSINESS_CRATE.get();
+            case CAMPING -> MainBadgerCrate.CAMPING_CRATE.get();
         };
     }
 

@@ -36,7 +36,7 @@ import math
 import re
 from pathlib import Path
 
-from asset_common import REPO_ROOT, ScriptError, read_json, run
+from asset_common import REPO_ROOT, ScriptError, hitbox_ignored, java_ignored_elements, read_json, run
 from parse_blockbench_hitboxes import Box, java_rotation, rotate, simplify
 
 ARCHAE = REPO_ROOT / "apeira-archae" / "src" / "main"
@@ -81,6 +81,8 @@ DECLARATION = re.compile(r'DeferredBlock<\w+> \w+ = (?:artifact|variant|piece)\(
                          r'(?:true|false)(?:, (Form\.\w+|DisplayMode\.\w+|\d+|"\w*"))?([^;]*);', re.S)
 OFFSET = re.compile(r'renderOffset\(([-\d.]+)F?, ([-\d.]+)F?, ([-\d.]+)F?\)')
 YAW = re.compile(r'modelYaw\(([-\d.]+)F?\)')
+# FurnitureBlock#displayAs: the display mode a piece is drawn in whatever its class and id say.
+DISPLAY = re.compile(r'displayAs\(DisplayMode\.(\w+)\)')
 
 
 # Matrices --------------------------------------------------------------------------------------------------------
@@ -134,13 +136,18 @@ def artifacts(module: dict) -> list[dict]:
             mode = FORM_MODES[arg.split(".")[1]] if arg.startswith("Form.") else "TOP_FACE"
         elif cls == "WaterloggedFurnitureBlock":
             mode = arg.split(".")[1]
-        elif cls in ("AnimatedFurnitureBlock", "AnimatedWallFurnitureBlock"):
+        elif cls in ("AnimatedFurnitureBlock", "AnimatedWallFurnitureBlock", "AnimatedCeilingFurnitureBlock"):
             mode = "GECKOLIB"
         else:
             mode = FORM_MODES[arg.split(".")[1]]
-        if (mode == "WALL" and facing) or cls == "AnimatedWallFurnitureBlock":
+        shown = DISPLAY.search(after)
+        if shown:
+            mode = shown.group(1)
+        # A wall variant drawn in another mode (displayAs) is still held by its wall, turned by its facing.
+        if (mode == "WALL" and facing) or cls == "AnimatedWallFurnitureBlock" or (facing and "wall" in name and "ceiling" not in name) \
+                or cls == "WallFurnitureBlock":
             held = "wall"
-        elif "ceiling" in name or cls == "CeilingArtifactBlock":
+        elif "ceiling" in name or cls in ("CeilingArtifactBlock", "AnimatedCeilingFurnitureBlock"):
             held = "ceiling"
         elif mode == "WALL":
             held = "none"
@@ -199,7 +206,10 @@ def model_cubes(piece: dict) -> tuple[list, list]:
     # Vanilla's ItemTransform: translation, then rotation X, Y, Z, then scale, about the model's centre.
     item = chain(translate(*(v / 16 for v in t)), turn("x", r[0]), turn("y", r[1]), turn("z", r[2]), scale(*s),
                  translate(-0.5, -0.5, -0.5), scale(1 / 16, 1 / 16, 1 / 16))
-    for element in model.get("elements", []):
+    ignored = java_ignored_elements(model)
+    for index, element in enumerate(model.get("elements", [])):
+        if index in ignored:
+            continue
         origin, angles = java_rotation(element.get("rotation"))
         if any(abs(a) > 1e-6 for a in angles):
             point = lambda p, origin=origin, angles=angles: rotate(p, origin, angles)
@@ -248,7 +258,7 @@ def geo_cubes(piece: dict) -> list:
     """A GeckoLib model's cubes in Blockbench's own space (pixels, x not mirrored), as GeckoLib draws them at rest:
     each cube turned about its pivot and then by every bone above it, about each bone's pivot (Z, Y, X order, as
     ``RenderUtil`` turns a bone; the geometry's mirrored x and its negated x and y angles undone). Only the bones
-    under ``HITBOX_BONES``' bone, when the piece names one, count."""
+    under ``HITBOX_BONES``' bone, when the piece names one, count, and never a bone tagged ``_ignore`` or one under it."""
     geo = read_json(piece["module"]["geo"] / f"{piece['name']}.geo.json")["minecraft:geometry"][0]
     bones = {bone["name"]: bone for bone in geo.get("bones", [])}
     only = HITBOX_BONES.get(piece["name"])
@@ -277,6 +287,15 @@ def geo_cubes(piece: dict) -> list:
             name = bones[name].get("parent")
         return False
 
+    def ignored(name):
+        # The _ignore tag (asset_common.IGNORE_TAG), on the bone or any bone above it, in any order among its other
+        # tags (door_tintable_ignore, door_ignore_tintable): drawn, but no hitbox.
+        while name in bones:
+            if hitbox_ignored(name):
+                return True
+            name = bones[name].get("parent")
+        return False
+
     def under(name):
         while name in bones:
             if name == only:
@@ -288,7 +307,7 @@ def geo_cubes(piece: dict) -> list:
     for name, bone in bones.items():
         if only is not None and not under(name):
             continue
-        if hidden(name):
+        if hidden(name) or ignored(name):
             continue
         placed_bone = matrix(name)
         for cube in bone.get("cubes", []):
@@ -468,7 +487,7 @@ def footprint(piece: dict, turn_: int, step: float = STEP) -> list[Box]:
     cubes, item = model_cubes(piece)
     mode = piece["mode"]
     matrix = placed(piece, turn_, item)
-    held = "floor" if mode == "GECKOLIB" and piece["held"] != "wall" else piece["held"]
+    held = "floor" if mode == "GECKOLIB" and piece["held"] not in ("wall", "ceiling") else piece["held"]
     world = [w for w in (world_cube(cube, matrix) for cube in cubes) if w is not None]
     boxes = []
     turned = []

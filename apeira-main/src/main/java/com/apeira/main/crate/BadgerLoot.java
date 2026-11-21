@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.apeira.core.registry.ApeiraIds;
+import com.apeira.decor.furniture.AnimatedFurnitureBlock;
+import com.apeira.decor.furniture.FurnitureBlock;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -17,6 +19,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
@@ -27,22 +30,28 @@ import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
  * common 55, rare 27, epic 13, legendary 5), then an item of that tier with equal weight, so each item's chance is its
  * tier's split evenly ({@link #chance}; two legendaries are 2.5% each). An empty tier falls back to the next lower one,
  * then to the next higher. The three are different items while the lists allow it.
+ *
+ * <p>Every crate's lists are filtered the same way ({@link #resolved}): a furniture variant (a wall, ceiling or water
+ * piece, which drops its base piece) counts as its base piece, so a list naming both rolls it once, and an item listed
+ * twice counts once. A crate whose file sets {@code "exclude_animated": true} (the Camping Crate) never rolls an
+ * animated furniture piece ({@link AnimatedFurnitureBlock}).
  */
-public record BadgerLoot(Map<BadgerTier, List<Identifier>> items) {
-    public static final BadgerLoot EMPTY = new BadgerLoot(Map.of());
+public record BadgerLoot(Map<BadgerTier, List<Identifier>> items, boolean excludeAnimated) {
+    public static final BadgerLoot EMPTY = new BadgerLoot(Map.of(), false);
     private static final Codec<List<Identifier>> LIST = Identifier.CODEC.listOf();
     public static final Codec<BadgerLoot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             LIST.optionalFieldOf("common").forGetter(loot -> Optional.of(loot.of(BadgerTier.COMMON))),
             LIST.optionalFieldOf("rare").forGetter(loot -> Optional.of(loot.of(BadgerTier.RARE))),
             LIST.optionalFieldOf("epic").forGetter(loot -> Optional.of(loot.of(BadgerTier.EPIC))),
-            LIST.optionalFieldOf("legendary").forGetter(loot -> Optional.of(loot.of(BadgerTier.LEGENDARY))))
-            .apply(instance, (common, rare, epic, legendary) -> {
+            LIST.optionalFieldOf("legendary").forGetter(loot -> Optional.of(loot.of(BadgerTier.LEGENDARY))),
+            Codec.BOOL.optionalFieldOf("exclude_animated", false).forGetter(BadgerLoot::excludeAnimated))
+            .apply(instance, (common, rare, epic, legendary, excludeAnimated) -> {
                 Map<BadgerTier, List<Identifier>> map = new EnumMap<>(BadgerTier.class);
                 map.put(BadgerTier.COMMON, common.orElse(List.of()));
                 map.put(BadgerTier.RARE, rare.orElse(List.of()));
                 map.put(BadgerTier.EPIC, epic.orElse(List.of()));
                 map.put(BadgerTier.LEGENDARY, legendary.orElse(List.of()));
-                return new BadgerLoot(map);
+                return new BadgerLoot(map, excludeAnimated);
             }));
     private static volatile Map<CrateKind, BadgerLoot> current = Map.of();
 
@@ -115,8 +124,21 @@ public record BadgerLoot(Map<BadgerTier, List<Identifier>> items) {
         return from.get(random.nextInt(from.size()));
     }
 
-    private List<Item> resolved(BadgerTier tier) {
-        return of(tier).stream().map(id -> BuiltInRegistries.ITEM.getOptional(id)).flatMap(Optional::stream).toList();
+    /** The tier's items: variants as their base piece, each once, animated furniture left out when the crate excludes it. */
+    List<Item> resolved(BadgerTier tier) {
+        return of(tier).stream().map(id -> BuiltInRegistries.ITEM.getOptional(id)).flatMap(Optional::stream)
+                .map(BadgerLoot::base)
+                .filter(item -> !excludeAnimated || !(item instanceof BlockItem block && block.getBlock() instanceof AnimatedFurnitureBlock))
+                .distinct().toList();
+    }
+
+    /** A furniture variant's base piece's item, else the item itself. */
+    private static Item base(Item item) {
+        if (item instanceof BlockItem block && block.getBlock() instanceof FurnitureBlock furniture && furniture.dropBlock() != furniture) {
+            Item base = furniture.dropBlock().asItem();
+            return base == net.minecraft.world.item.Items.AIR ? item : base;
+        }
+        return item;
     }
 
     /** Loads {@code data/apeira/crate_loot/<kind>.json} for every {@link CrateKind}. */

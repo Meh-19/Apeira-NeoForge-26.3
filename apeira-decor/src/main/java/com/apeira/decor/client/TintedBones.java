@@ -2,6 +2,7 @@ package com.apeira.decor.client;
 
 import java.util.function.Predicate;
 
+import com.apeira.decor.model.BoneTags;
 import org.jspecify.annotations.Nullable;
 
 import com.geckolib.cache.model.GeoBone;
@@ -36,12 +37,14 @@ public final class TintedBones {
     }
 
     /**
-     * As {@link #submit}, but only the bones whose name ends with {@code suffix} take the tint; their child bones and
+     * As {@link #submit}, but only the bones whose name carries {@code suffix} as a tag ({@link BoneTags#has}: at its end
+     * or before other tags, {@code balloon_tint} or {@code balloon_tint_ignore}) take the tint; their child bones and
      * every other bone keep the texture's own colours.
      */
     public static boolean submitSuffixed(RenderPassInfo<?> renderPassInfo, OrderedSubmitNodeCollector renderTasks,
             @Nullable RenderType renderType, int tint, String suffix) {
-        return submit(renderPassInfo, renderTasks, renderType, tint, bone -> bone.name().endsWith(suffix), false);
+        String tag = suffix.startsWith("_") ? suffix.substring(1) : suffix;
+        return submit(renderPassInfo, renderTasks, renderType, tint, bone -> BoneTags.has(bone.name(), tag), false);
     }
 
     private static boolean submit(RenderPassInfo<?> renderPassInfo, OrderedSubmitNodeCollector renderTasks, @Nullable RenderType renderType,
