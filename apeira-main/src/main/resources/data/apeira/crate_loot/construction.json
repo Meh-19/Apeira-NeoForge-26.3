@@ -1,0 +1,7 @@
+{
+  "common": ["apeira:hard_hat", "apeira:construction_ladder", "apeira:construction_wheelbarrow", "apeira:construction_tools",
+    "apeira:pallet_stack", "apeira:traffic_cone_hat"],
+  "rare": ["apeira:i_beam", "apeira:metal_scaffolding", "apeira:porta_potty", "apeira:cement_mixer"],
+  "epic": ["apeira:storage_unit", "apeira:forklift", "apeira:treads"],
+  "legendary": ["apeira:excavator", "apeira:crane", "apeira:construction_crane"]
+}

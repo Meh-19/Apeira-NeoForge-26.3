@@ -1,0 +1,6 @@
+{
+  "common": ["apeira:mohawk_hair", "apeira:baseball_cap", "apeira:faded_hair", "apeira:afro_hair", "apeira:ponytail_hair", "apeira:hair_buns", "apeira:weave_ponytail_hair", "apeira:straw_hat", "apeira:sun_hat", "apeira:headphones_hat", "apeira:knitted_hat", "apeira:beret", "apeira:fedora", "apeira:beanie", "apeira:flowerbud_crown", "apeira:mug_hat", "apeira:rustys_hat", "apeira:adventurer_stick", "apeira:captain_hat", "apeira:backpack", "apeira:travel_case", "apeira:foam_finger", "apeira:toilet_paper_staff", "apeira:dino_tail", "apeira:tribal_staff", "apeira:dino_claw", "apeira:pirate_hook", "apeira:samurai_gauntlet"],
+  "rare": ["apeira:football_helmet", "apeira:television_helmet", "apeira:cardboard_helmet", "apeira:cardboard_suit", "apeira:tribal_mask", "apeira:pirate_hat", "apeira:dino_helmet", "apeira:pirate_chest", "apeira:samurai_swords", "apeira:flame_fist"],
+  "epic": ["apeira:replica_mayor_hat", "apeira:fish_bowl_helmet"],
+  "legendary": ["apeira:starry_blanket_cloak"]
+}

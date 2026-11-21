@@ -1,0 +1,2399 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.burger_mascot_inflatable",
+        "texture_width": 128,
+        "texture_height": 128,
+        "visible_bounds_width": 6,
+        "visible_bounds_height": 6,
+        "visible_bounds_offset": [
+          0,
+          2,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "root_rig",
+          "pivot": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_head_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            9.2296,
+            36.1998,
+            4.0598
+          ],
+          "rotation": [
+            -180,
+            45,
+            180
+          ],
+          "locators": {
+            "burger_mascot_inflatable_head": [
+              9.2296,
+              36.1998,
+              4.0598
+            ]
+          }
+        },
+        {
+          "name": "burger_mascot_inflatable_head_transform",
+          "parent": "burger_mascot_inflatable_head_ignore",
+          "pivot": [
+            10.0074,
+            34.6875,
+            3.7541
+          ],
+          "rotation": [
+            175.6166,
+            1.2155,
+            -168.847
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_head_transform_right",
+          "parent": "burger_mascot_inflatable_head_transform",
+          "pivot": [
+            10.0074,
+            34.6875,
+            3.7541
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_head_firework_star_cmd15093",
+          "parent": "burger_mascot_inflatable_head_transform_right",
+          "pivot": [
+            10.0074,
+            34.6875,
+            3.7541
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_head_firework_star_cmd15093_burger_mascot_inflatable_head",
+          "parent": "burger_mascot_inflatable_head_firework_star_cmd15093",
+          "pivot": [
+            10.0074,
+            25.1875,
+            3.7541
+          ],
+          "rotation": [
+            -180,
+            0,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                4.5074,
+                26.6875,
+                -1.7459
+              ],
+              "size": [
+                11,
+                3,
+                11
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    46,
+                    4
+                  ],
+                  "uv_size": [
+                    22,
+                    6
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    46,
+                    4
+                  ],
+                  "uv_size": [
+                    22,
+                    6
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    46,
+                    4
+                  ],
+                  "uv_size": [
+                    22,
+                    6
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    46,
+                    4
+                  ],
+                  "uv_size": [
+                    22,
+                    6
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    22,
+                    33
+                  ],
+                  "uv_size": [
+                    -22,
+                    -22
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    68,
+                    33
+                  ],
+                  "uv_size": [
+                    -22,
+                    -22
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                2.5074,
+                29.6875,
+                4.5041
+              ],
+              "size": [
+                6,
+                0,
+                3.5
+              ],
+              "pivot": [
+                5.5074,
+                29.8875,
+                6.0041
+              ],
+              "rotation": [
+                0,
+                -22.5,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    6,
+                    0
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    3.5,
+                    0
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    6,
+                    0
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    3.5,
+                    0
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    84,
+                    28
+                  ],
+                  "uv_size": [
+                    7,
+                    12
+                  ],
+                  "uv_rotation": 90
+                },
+                "down": {
+                  "uv": [
+                    84,
+                    28
+                  ],
+                  "uv_size": [
+                    7,
+                    12
+                  ],
+                  "uv_rotation": 90
+                }
+              }
+            },
+            {
+              "origin": [
+                1.0074,
+                29.6875,
+                0.5041
+              ],
+              "size": [
+                6,
+                0,
+                3.5
+              ],
+              "pivot": [
+                5.5074,
+                29.8875,
+                6.0041
+              ],
+              "rotation": [
+                0,
+                -22.5,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    6,
+                    0
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    3.5,
+                    0
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    6,
+                    0
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    3.5,
+                    0
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    84,
+                    28
+                  ],
+                  "uv_size": [
+                    7,
+                    12
+                  ],
+                  "uv_rotation": 90
+                },
+                "down": {
+                  "uv": [
+                    84,
+                    28
+                  ],
+                  "uv_size": [
+                    7,
+                    12
+                  ],
+                  "uv_rotation": 90
+                }
+              }
+            },
+            {
+              "origin": [
+                13.0074,
+                29.6875,
+                3.5041
+              ],
+              "size": [
+                6,
+                0,
+                3.5
+              ],
+              "pivot": [
+                14.5074,
+                29.8875,
+                1.5041
+              ],
+              "rotation": [
+                0,
+                -22.5,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    6,
+                    0
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    3.5,
+                    0
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    6,
+                    0
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    3.5,
+                    0
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    91,
+                    40
+                  ],
+                  "uv_size": [
+                    -7,
+                    -12
+                  ],
+                  "uv_rotation": 90
+                },
+                "down": {
+                  "uv": [
+                    91,
+                    40
+                  ],
+                  "uv_size": [
+                    -7,
+                    -12
+                  ],
+                  "uv_rotation": 90
+                }
+              }
+            },
+            {
+              "origin": [
+                11.5074,
+                29.6875,
+                -0.4959
+              ],
+              "size": [
+                6,
+                0,
+                3.5
+              ],
+              "pivot": [
+                14.5074,
+                29.8875,
+                1.5041
+              ],
+              "rotation": [
+                0,
+                -22.5,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    6,
+                    0
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    3.5,
+                    0
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    6,
+                    0
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    3.5,
+                    0
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    91,
+                    40
+                  ],
+                  "uv_size": [
+                    -7,
+                    -12
+                  ],
+                  "uv_rotation": 90
+                },
+                "down": {
+                  "uv": [
+                    91,
+                    40
+                  ],
+                  "uv_size": [
+                    -7,
+                    -12
+                  ],
+                  "uv_rotation": 90
+                }
+              }
+            },
+            {
+              "origin": [
+                4.5074,
+                29.6875,
+                -1.7459
+              ],
+              "size": [
+                11,
+                2,
+                11
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    69,
+                    0
+                  ],
+                  "uv_size": [
+                    22,
+                    4
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    69,
+                    0
+                  ],
+                  "uv_size": [
+                    22,
+                    4
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    69,
+                    0
+                  ],
+                  "uv_size": [
+                    22,
+                    4
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    69,
+                    0
+                  ],
+                  "uv_size": [
+                    22,
+                    4
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    91,
+                    27
+                  ],
+                  "uv_size": [
+                    -22,
+                    -22
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    87,
+                    23
+                  ],
+                  "uv_size": [
+                    -14,
+                    -14
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                4.5074,
+                31.7375,
+                -1.7459
+              ],
+              "size": [
+                11,
+                0,
+                11
+              ],
+              "pivot": [
+                10.0074,
+                31.8875,
+                3.7541
+              ],
+              "rotation": [
+                0,
+                -22.5,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    11,
+                    0
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    11,
+                    0
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    11,
+                    0
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    11,
+                    0
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    114,
+                    22
+                  ],
+                  "uv_size": [
+                    -22,
+                    -22
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    114,
+                    22
+                  ],
+                  "uv_size": [
+                    -22,
+                    -22
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                3.5074,
+                31.7875,
+                1.7541
+              ],
+              "size": [
+                6.5,
+                1,
+                6.5
+              ],
+              "pivot": [
+                10.0074,
+                31.8875,
+                3.7541
+              ],
+              "rotation": [
+                0,
+                22.5,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    106,
+                    41
+                  ],
+                  "uv_size": [
+                    13,
+                    2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    106,
+                    41
+                  ],
+                  "uv_size": [
+                    13,
+                    2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    106,
+                    41
+                  ],
+                  "uv_size": [
+                    13,
+                    2
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    106,
+                    41
+                  ],
+                  "uv_size": [
+                    13,
+                    2
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    119,
+                    57
+                  ],
+                  "uv_size": [
+                    -13,
+                    -13
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    119,
+                    57
+                  ],
+                  "uv_size": [
+                    -13,
+                    -13
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                10.0074,
+                31.7875,
+                -0.7459
+              ],
+              "size": [
+                6.5,
+                1,
+                6.5
+              ],
+              "pivot": [
+                10.0074,
+                31.8875,
+                3.7541
+              ],
+              "rotation": [
+                0,
+                22.5,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    92,
+                    41
+                  ],
+                  "uv_size": [
+                    13,
+                    2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    92,
+                    41
+                  ],
+                  "uv_size": [
+                    13,
+                    2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    92,
+                    41
+                  ],
+                  "uv_size": [
+                    13,
+                    2
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    92,
+                    41
+                  ],
+                  "uv_size": [
+                    13,
+                    2
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    105,
+                    57
+                  ],
+                  "uv_size": [
+                    -13,
+                    -13
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    105,
+                    57
+                  ],
+                  "uv_size": [
+                    -13,
+                    -13
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                5.0074,
+                31.7875,
+                -0.7459
+              ],
+              "size": [
+                3,
+                1,
+                3
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    85,
+                    41
+                  ],
+                  "uv_size": [
+                    6,
+                    2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    85,
+                    41
+                  ],
+                  "uv_size": [
+                    6,
+                    2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    85,
+                    41
+                  ],
+                  "uv_size": [
+                    6,
+                    2
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    85,
+                    41
+                  ],
+                  "uv_size": [
+                    6,
+                    2
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    91,
+                    50
+                  ],
+                  "uv_size": [
+                    -6,
+                    -6
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    91,
+                    50
+                  ],
+                  "uv_size": [
+                    -6,
+                    -6
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                12.0074,
+                31.7875,
+                5.2541
+              ],
+              "size": [
+                3,
+                1,
+                3
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    85,
+                    41
+                  ],
+                  "uv_size": [
+                    6,
+                    2
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    85,
+                    41
+                  ],
+                  "uv_size": [
+                    6,
+                    2
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    85,
+                    41
+                  ],
+                  "uv_size": [
+                    6,
+                    2
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    85,
+                    41
+                  ],
+                  "uv_size": [
+                    6,
+                    2
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    91,
+                    50
+                  ],
+                  "uv_size": [
+                    -6,
+                    -6
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    91,
+                    50
+                  ],
+                  "uv_size": [
+                    -6,
+                    -6
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                5.5074,
+                34.7875,
+                -2.7459
+              ],
+              "size": [
+                4,
+                4,
+                4
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    92,
+                    33
+                  ],
+                  "uv_size": [
+                    7,
+                    7
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    100,
+                    25
+                  ],
+                  "uv_size": [
+                    7,
+                    7
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    100,
+                    25
+                  ],
+                  "uv_size": [
+                    7,
+                    7
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    100,
+                    25
+                  ],
+                  "uv_size": [
+                    7,
+                    7
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    115,
+                    32
+                  ],
+                  "uv_size": [
+                    -7,
+                    -7
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    107,
+                    40
+                  ],
+                  "uv_size": [
+                    -7,
+                    -7
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                4.5074,
+                32.7875,
+                -1.7459
+              ],
+              "size": [
+                11,
+                5,
+                11
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    0,
+                    0
+                  ],
+                  "uv_size": [
+                    22,
+                    10
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    23,
+                    0
+                  ],
+                  "uv_size": [
+                    22,
+                    10
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    45,
+                    0
+                  ],
+                  "uv_size": [
+                    -22,
+                    10
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    23,
+                    0
+                  ],
+                  "uv_size": [
+                    22,
+                    10
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    45,
+                    11
+                  ],
+                  "uv_size": [
+                    -22,
+                    22
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    22,
+                    33
+                  ],
+                  "uv_size": [
+                    -22,
+                    -22
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                4.3574,
+                32.6375,
+                -1.8959
+              ],
+              "size": [
+                11.3,
+                5.3,
+                11.3
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    0,
+                    118
+                  ],
+                  "uv_size": [
+                    22,
+                    10
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    0,
+                    66
+                  ],
+                  "uv_size": [
+                    22,
+                    10
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    22,
+                    66
+                  ],
+                  "uv_size": [
+                    -22,
+                    10
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0,
+                    66
+                  ],
+                  "uv_size": [
+                    22,
+                    10
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    22,
+                    77
+                  ],
+                  "uv_size": [
+                    -22,
+                    22
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    22,
+                    128
+                  ],
+                  "uv_size": [
+                    -22,
+                    -22
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                10.5074,
+                34.7875,
+                -2.7459
+              ],
+              "size": [
+                4,
+                4,
+                4
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    92,
+                    25
+                  ],
+                  "uv_size": [
+                    7,
+                    7
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    100,
+                    25
+                  ],
+                  "uv_size": [
+                    7,
+                    7
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    100,
+                    25
+                  ],
+                  "uv_size": [
+                    7,
+                    7
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    100,
+                    25
+                  ],
+                  "uv_size": [
+                    7,
+                    7
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    115,
+                    32
+                  ],
+                  "uv_size": [
+                    -7,
+                    -7
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    107,
+                    40
+                  ],
+                  "uv_size": [
+                    -7,
+                    -7
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            9.2296,
+            36.1998,
+            4.0598
+          ],
+          "rotation": [
+            -180,
+            45,
+            180
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_transform",
+          "parent": "burger_mascot_inflatable_arm_ignore",
+          "pivot": [
+            22.6034,
+            23.985,
+            2.8995
+          ],
+          "rotation": [
+            91.3196,
+            37.499,
+            136.8608
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_transform_right",
+          "parent": "burger_mascot_inflatable_arm_transform",
+          "pivot": [
+            22.6034,
+            23.985,
+            2.8995
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_firework_star_cmd15094",
+          "parent": "burger_mascot_inflatable_arm_transform_right",
+          "pivot": [
+            22.6034,
+            23.985,
+            2.8995
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_firework_star_cmd15094_burger_mascot_inflatable_arm",
+          "parent": "burger_mascot_inflatable_arm_firework_star_cmd15094",
+          "pivot": [
+            21.6034,
+            21.985,
+            2.3995
+          ],
+          "rotation": [
+            0,
+            -89.972,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                17.3534,
+                14.235,
+                0.6495
+              ],
+              "size": [
+                3.5,
+                2,
+                3.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    66,
+                    60
+                  ],
+                  "uv_size": [
+                    7,
+                    4
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    79,
+                    52
+                  ],
+                  "uv_size": [
+                    4,
+                    7
+                  ],
+                  "uv_rotation": 90
+                },
+                "south": {
+                  "uv": [
+                    73,
+                    60
+                  ],
+                  "uv_size": [
+                    -7,
+                    4
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    74,
+                    52
+                  ],
+                  "uv_size": [
+                    4,
+                    7
+                  ],
+                  "uv_rotation": 90
+                },
+                "up": {
+                  "uv": [
+                    66,
+                    59
+                  ],
+                  "uv_size": [
+                    7,
+                    -7
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    91,
+                    59
+                  ],
+                  "uv_size": [
+                    -7,
+                    -7
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "w_tintable",
+          "parent": "burger_mascot_inflatable_arm_firework_star_cmd15094_burger_mascot_inflatable_arm",
+          "pivot": [
+            21.6034,
+            21.985,
+            2.3995
+          ],
+          "cubes": [
+            {
+              "origin": [
+                20.8534,
+                13.985,
+                1.1495
+              ],
+              "size": [
+                6.5,
+                2.5,
+                2.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    65,
+                    65
+                  ],
+                  "uv_size": [
+                    13,
+                    5
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    79,
+                    71
+                  ],
+                  "uv_size": [
+                    5,
+                    5
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    78,
+                    65
+                  ],
+                  "uv_size": [
+                    -13,
+                    5
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    79,
+                    65
+                  ],
+                  "uv_size": [
+                    5,
+                    5
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    65,
+                    76
+                  ],
+                  "uv_size": [
+                    13,
+                    -5
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    65,
+                    82
+                  ],
+                  "uv_size": [
+                    13,
+                    -5
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_2_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            9.2296,
+            36.1998,
+            4.0598
+          ],
+          "rotation": [
+            -180,
+            45,
+            180
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_2_transform",
+          "parent": "burger_mascot_inflatable_arm_2_ignore",
+          "pivot": [
+            -4.9451,
+            33.9482,
+            2.2117
+          ],
+          "rotation": [
+            -171.4821,
+            -73.0026,
+            -175.6175
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_2_transform_right",
+          "parent": "burger_mascot_inflatable_arm_2_transform",
+          "pivot": [
+            -4.9451,
+            33.9482,
+            2.2117
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_2_firework_star_cmd15094",
+          "parent": "burger_mascot_inflatable_arm_2_transform_right",
+          "pivot": [
+            -4.9451,
+            33.9482,
+            2.2117
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_arm_2_firework_star_cmd15094_burger_mascot_inflatable_arm",
+          "parent": "burger_mascot_inflatable_arm_2_firework_star_cmd15094",
+          "pivot": [
+            -5.9451,
+            30.9482,
+            -9.2883
+          ],
+          "rotation": [
+            0,
+            89.972,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -16.1951,
+                30.1982,
+                -11.0354
+              ],
+              "size": [
+                3.5,
+                2,
+                3.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    66,
+                    60
+                  ],
+                  "uv_size": [
+                    7,
+                    4
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    79,
+                    52
+                  ],
+                  "uv_size": [
+                    4,
+                    7
+                  ],
+                  "uv_rotation": 90
+                },
+                "south": {
+                  "uv": [
+                    73,
+                    60
+                  ],
+                  "uv_size": [
+                    -7,
+                    4
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    74,
+                    52
+                  ],
+                  "uv_size": [
+                    4,
+                    7
+                  ],
+                  "uv_rotation": 90
+                },
+                "up": {
+                  "uv": [
+                    66,
+                    59
+                  ],
+                  "uv_size": [
+                    7,
+                    -7
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    91,
+                    59
+                  ],
+                  "uv_size": [
+                    -7,
+                    -7
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "group1_tintable",
+          "parent": "burger_mascot_inflatable_arm_2_firework_star_cmd15094_burger_mascot_inflatable_arm",
+          "pivot": [
+            -5.9451,
+            30.9482,
+            -9.2854
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -12.6951,
+                29.9482,
+                -10.5354
+              ],
+              "size": [
+                6.5,
+                2.5,
+                2.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    65,
+                    65
+                  ],
+                  "uv_size": [
+                    13,
+                    5
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    79,
+                    71
+                  ],
+                  "uv_size": [
+                    5,
+                    5
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    78,
+                    65
+                  ],
+                  "uv_size": [
+                    -13,
+                    5
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    79,
+                    65
+                  ],
+                  "uv_size": [
+                    5,
+                    5
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    65,
+                    76
+                  ],
+                  "uv_size": [
+                    13,
+                    -5
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    65,
+                    82
+                  ],
+                  "uv_size": [
+                    13,
+                    -5
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_body",
+          "parent": "root_rig",
+          "pivot": [
+            7.9942,
+            20.44,
+            1.602
+          ],
+          "rotation": [
+            -180,
+            45,
+            180
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_body_transform",
+          "parent": "burger_mascot_inflatable_body",
+          "pivot": [
+            7.3255,
+            18.9543,
+            1.3947
+          ],
+          "rotation": [
+            177.0289,
+            -0.5351,
+            170.3916
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_body_transform_right",
+          "parent": "burger_mascot_inflatable_body_transform",
+          "pivot": [
+            7.3255,
+            18.9543,
+            1.3947
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_body_firework_star_cmd15092",
+          "parent": "burger_mascot_inflatable_body_transform_right",
+          "pivot": [
+            7.3255,
+            18.9543,
+            1.3947
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_body_firework_star_cmd15092_burger_mascot_inflatable_body",
+          "parent": "burger_mascot_inflatable_body_firework_star_cmd15092",
+          "pivot": [
+            7.3255,
+            36.2043,
+            1.3947
+          ],
+          "rotation": [
+            -180,
+            0,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                4.8255,
+                29.2043,
+                0.1447
+              ],
+              "size": [
+                5,
+                8.5,
+                2.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    1,
+                    34
+                  ],
+                  "uv_size": [
+                    10,
+                    17
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    12,
+                    34
+                  ],
+                  "uv_size": [
+                    5,
+                    17
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    18,
+                    34
+                  ],
+                  "uv_size": [
+                    10,
+                    17
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    12,
+                    34
+                  ],
+                  "uv_size": [
+                    5,
+                    17
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    39,
+                    39
+                  ],
+                  "uv_size": [
+                    -10,
+                    -5
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    39,
+                    40
+                  ],
+                  "uv_size": [
+                    -10,
+                    5
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "group33_tintable",
+          "parent": "burger_mascot_inflatable_body_firework_star_cmd15092_burger_mascot_inflatable_body",
+          "pivot": [
+            7.3255,
+            36.2043,
+            1.3947
+          ],
+          "cubes": [
+            {
+              "origin": [
+                4.8255,
+                29.2043,
+                0.1447
+              ],
+              "size": [
+                5,
+                8.5,
+                2.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    41,
+                    34
+                  ],
+                  "uv_size": [
+                    10,
+                    17
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    52,
+                    34
+                  ],
+                  "uv_size": [
+                    5,
+                    17
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    58,
+                    34
+                  ],
+                  "uv_size": [
+                    10,
+                    17
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    52,
+                    34
+                  ],
+                  "uv_size": [
+                    5,
+                    17
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    79,
+                    39
+                  ],
+                  "uv_size": [
+                    -10,
+                    -5
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    79,
+                    40
+                  ],
+                  "uv_size": [
+                    -10,
+                    5
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            7.9942,
+            20.44,
+            1.602
+          ],
+          "rotation": [
+            -180,
+            45,
+            180
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_transform",
+          "parent": "burger_mascot_inflatable_leg_ignore",
+          "pivot": [
+            19.5919,
+            7.1429,
+            -2.1703
+          ],
+          "rotation": [
+            135.2739,
+            57.1869,
+            -169.9494
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_transform_right",
+          "parent": "burger_mascot_inflatable_leg_transform",
+          "pivot": [
+            19.5919,
+            7.1429,
+            -2.1703
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_firework_star_cmd15095",
+          "parent": "burger_mascot_inflatable_leg_transform_right",
+          "pivot": [
+            19.5919,
+            7.1429,
+            -2.1703
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_firework_star_cmd15095_burger_mascot_inflatable_leg",
+          "parent": "burger_mascot_inflatable_leg_firework_star_cmd15095",
+          "pivot": [
+            19.5919,
+            0.1429,
+            -2.1703
+          ],
+          "rotation": [
+            -180,
+            0,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                18.3419,
+                -5.8571,
+                -3.1703
+              ],
+              "size": [
+                2.5,
+                6,
+                2.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    21,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    12
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    33,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    12
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    44,
+                    52
+                  ],
+                  "uv_size": [
+                    -5,
+                    12
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    27,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    12
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    44,
+                    70
+                  ],
+                  "uv_size": [
+                    -5,
+                    -5
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    44,
+                    70
+                  ],
+                  "uv_size": [
+                    -5,
+                    -5
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "group34_tintable",
+          "parent": "burger_mascot_inflatable_leg_firework_star_cmd15095_burger_mascot_inflatable_leg",
+          "pivot": [
+            19.5919,
+            7.1429,
+            -2.1703
+          ],
+          "cubes": [
+            {
+              "origin": [
+                18.3419,
+                -7.8571,
+                -4.1703
+              ],
+              "size": [
+                2.5,
+                2,
+                3.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    54,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    4
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    46,
+                    52
+                  ],
+                  "uv_size": [
+                    7,
+                    4
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    60,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    4
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    53,
+                    52
+                  ],
+                  "uv_size": [
+                    -7,
+                    4
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    54,
+                    62
+                  ],
+                  "uv_size": [
+                    7,
+                    -5
+                  ],
+                  "uv_rotation": 90
+                },
+                "down": {
+                  "uv": [
+                    53,
+                    62
+                  ],
+                  "uv_size": [
+                    -7,
+                    -5
+                  ],
+                  "uv_rotation": 90
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_2_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            7.9942,
+            20.44,
+            1.602
+          ],
+          "rotation": [
+            -180,
+            45,
+            180
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_2_transform",
+          "parent": "burger_mascot_inflatable_leg_2_ignore",
+          "pivot": [
+            1.638,
+            3.8638,
+            1.9082
+          ],
+          "rotation": [
+            79.7124,
+            -27.8408,
+            -177.821
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_2_transform_right",
+          "parent": "burger_mascot_inflatable_leg_2_transform",
+          "pivot": [
+            1.638,
+            3.8638,
+            1.9082
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_2_firework_star_cmd15095",
+          "parent": "burger_mascot_inflatable_leg_2_transform_right",
+          "pivot": [
+            1.638,
+            3.8638,
+            1.9082
+          ]
+        },
+        {
+          "name": "burger_mascot_inflatable_leg_2_firework_star_cmd15095_burger_mascot_inflatable_leg",
+          "parent": "burger_mascot_inflatable_leg_2_firework_star_cmd15095",
+          "pivot": [
+            -1.862,
+            2.3638,
+            -24.0918
+          ],
+          "rotation": [
+            90,
+            0,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.112,
+                -10.6362,
+                -25.0918
+              ],
+              "size": [
+                2.5,
+                6,
+                2.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    21,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    12
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    33,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    12
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    44,
+                    52
+                  ],
+                  "uv_size": [
+                    -5,
+                    12
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    27,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    12
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    44,
+                    70
+                  ],
+                  "uv_size": [
+                    -5,
+                    -5
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    44,
+                    70
+                  ],
+                  "uv_size": [
+                    -5,
+                    -5
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "group3_tintable",
+          "parent": "burger_mascot_inflatable_leg_2_firework_star_cmd15095_burger_mascot_inflatable_leg",
+          "pivot": [
+            -1.862,
+            2.3638,
+            -24.0918
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.112,
+                -12.6362,
+                -26.0918
+              ],
+              "size": [
+                2.5,
+                2,
+                3.5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    54,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    4
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    46,
+                    52
+                  ],
+                  "uv_size": [
+                    7,
+                    4
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    60,
+                    52
+                  ],
+                  "uv_size": [
+                    5,
+                    4
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    53,
+                    52
+                  ],
+                  "uv_size": [
+                    -7,
+                    4
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    54,
+                    62
+                  ],
+                  "uv_size": [
+                    7,
+                    -5
+                  ],
+                  "uv_rotation": 90
+                },
+                "down": {
+                  "uv": [
+                    53,
+                    62
+                  ],
+                  "uv_size": [
+                    -7,
+                    -5
+                  ],
+                  "uv_rotation": 90
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
