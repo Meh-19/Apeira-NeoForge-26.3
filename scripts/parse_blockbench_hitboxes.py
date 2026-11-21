@@ -30,7 +30,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-from asset_common import ScriptError, read_json, relative, run, to_snake_case
+from asset_common import ScriptError, hitbox_ignored, java_ignored_elements, read_json, relative, run, to_snake_case
 
 EPSILON = 1e-6
 HITBOX_GROUPS = ("hitbox", "collision", "hitboxes")
@@ -127,7 +127,10 @@ def read_java_model(data: dict, path: Path) -> list[Box]:
         hint = f" (its parent is {data['parent']})" if "parent" in data else ""
         raise ScriptError(f"{path}: the model has no elements{hint}")
     boxes = []
-    for element in elements:
+    ignored = java_ignored_elements(data)
+    for index, element in enumerate(elements):
+        if index in ignored:
+            continue
         origin, angles = java_rotation(element.get("rotation"))
         boxes.append(cube_box(element["from"], element["to"], origin, angles))
     return boxes
@@ -183,11 +186,18 @@ def read_bbmodel(data: dict, path: Path, group_name: str | None, include_hidden:
     if group_name and wanted is None:
         raise ScriptError(f"{path}: no outliner group named {group_name!r}")
     hidden = set() if include_hidden else hidden_elements(data, groups)
+    # The _ignore tag (asset_common.IGNORE_TAG) leaves a cube, or every cube of a group, out, inside a hitbox group too.
+    ignored: set[str] = set()
+    for group in groups.values():
+        if hitbox_ignored(group.get("name")):
+            ignored |= elements_in(group, groups)
 
     boxes = []
     for element in data.get("elements", []):
         uuid = element.get("uuid")
         if wanted is not None and uuid not in wanted:
+            continue
+        if uuid in ignored or hitbox_ignored(element.get("name")):
             continue
         if not include_hidden and (element.get("visibility") is False or uuid in hidden):
             continue

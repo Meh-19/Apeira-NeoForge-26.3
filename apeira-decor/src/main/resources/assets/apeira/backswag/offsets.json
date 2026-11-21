@@ -996,5 +996,1970 @@
         }
       }
     }
+  },
+  "money_sack": {
+    "name": "ꑴ Money Sack",
+    "linked_by": "match",
+    "time": "2026-11-21T15:15:04.988098800",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": 0.0,
+    "right": -0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": -47.03125,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:15:02.184634500",
+      "screen": "쌥쌥쌥쌥쌥쌥쌥쌦쌦쌦쌦쌦쌦쌦쌧쌧쌧쌧쌧쌧쌧",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 34,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Money Sack",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑴ ",
+            "color": "white"
+          },
+          {
+            "text": "Money Sack",
+            "color": "#8B5CF6"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10768.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#FFC766"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#FFC766",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10768.0]",
+      "tooltip": [
+        "ꑴ Money Sack",
+        "ꑞ",
+        "Business Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ],
+      "tooltip_json": [
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑴ ",
+                  "color": "white"
+                },
+                {
+                  "text": "Money Sack",
+                  "color": "#8B5CF6"
+                }
+              ]
+            }
+          ],
+          "color": "white"
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "Business Crate Exclusive",
+              "color": "#666666",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            ""
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "You do not currently own this",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "cosmetic, but you can unlock it",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "by opening cosmetic keys",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            ""
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "color": "white",
+                  "italic": false,
+                  "font": "minecraft:tooltips/keybind"
+                },
+                {
+                  "text": " ",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "text": "Left-click to preview",
+                  "color": "#85CC16",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "minecraft:firework_star",
+          "color": "dark_gray"
+        },
+        {
+          "translate": "item.components",
+          "with": [
+            18
+          ],
+          "color": "dark_gray"
+        }
+      ],
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:lore": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑞ",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "Business Crate Exclusive",
+                  "color": "#666666",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                ""
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "You do not currently own this",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "cosmetic, but you can unlock it",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "by opening cosmetic keys",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                ""
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "",
+                      "color": "white",
+                      "italic": false,
+                      "font": "minecraft:tooltips/keybind"
+                    },
+                    {
+                      "text": " ",
+                      "color": "white",
+                      "italic": false
+                    },
+                    {
+                      "text": "Left-click to preview",
+                      "color": "#85CC16",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion",
+              "minecraft:enchantments",
+              "minecraft:attribute_modifiers"
+            ]
+          },
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -14490
+            ]
+          },
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10768.0
+                  ]
+                },
+                "originrealms:rendered_tooltip": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#666666",
+                    "text": "Business Crate Exclusive",
+                    "italic": 0
+                  },
+                  "",
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "You do not currently own this",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "cosmetic, but you can unlock it",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "by opening cosmetic keys",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  "",
+                  {
+                    "extra": [
+                      {
+                        "color": "white",
+                        "text": "",
+                        "italic": 0,
+                        "font": "minecraft:tooltips/keybind"
+                      },
+                      {
+                        "color": "white",
+                        "text": " ",
+                        "italic": 0
+                      },
+                      {
+                        "color": "#85CC16",
+                        "text": "Left-click to preview",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  }
+                ],
+                "minecraft:item_name": "Money Sack",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#666666",
+                    "text": "Business Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -14490
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "money_sack",
+                    "rarity": "epic"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10768.0
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑴ ",
+                "color": "white"
+              },
+              {
+                "text": "Money Sack",
+                "color": "#8B5CF6"
+              }
+            ]
+          },
+          "minecraft:enchantment_glint_override": false,
+          "minecraft:use_cooldown": {
+            "seconds": 1e-05,
+            "cooldown_group": "minecraft:firework_star"
+          }
+        }
+      }
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:15:04.980556600",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": -0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": 97.03125,
+      "wearer_body_yaw": 2567.0312,
+      "wearer_head_yaw": 2613.2812,
+      "yaw_delta": -47.03125,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 842411,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Money Sack",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑴ ",
+            "color": "white"
+          },
+          {
+            "text": "Money Sack",
+            "color": "#8B5CF6"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10768.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#FFC766"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#FFC766",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10768.0]",
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion"
+            ]
+          },
+          "minecraft:lore": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "Business Crate Exclusive",
+              "color": "#666666",
+              "italic": false
+            }
+          ],
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -14490
+            ]
+          },
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10768.0
+                  ]
+                },
+                "minecraft:item_name": "Money Sack",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#666666",
+                    "text": "Business Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -14490
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "money_sack",
+                    "rarity": "epic"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10768.0
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑴ ",
+                "color": "white"
+              },
+              {
+                "text": "Money Sack",
+                "color": "#8B5CF6"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "cuckoo_clock": {
+    "name": "ꑵ Cuckoo Clock",
+    "linked_by": "match",
+    "time": "2026-11-21T15:15:25.278227500",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": 0.0,
+    "right": 0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": 132.96875,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:15:23.418822300",
+      "screen": "쌥쌥쌥쌥쌥쌥쌥쌦쌦쌦쌦쌦쌦쌦쌧쌧쌧쌧쌧쌧쌧",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 28,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Cuckoo Clock",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑵ ",
+            "color": "white"
+          },
+          {
+            "text": "Cuckoo Clock",
+            "color": "#F49E0B"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10844.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#D499FF"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#D499FF",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10844.0]",
+      "tooltip": [
+        "ꑵ Cuckoo Clock",
+        "ꑞ",
+        "Camping Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ],
+      "tooltip_json": [
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑵ ",
+                  "color": "white"
+                },
+                {
+                  "text": "Cuckoo Clock",
+                  "color": "#F49E0B"
+                }
+              ]
+            }
+          ],
+          "color": "white"
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "Camping Crate Exclusive",
+              "color": "#738B41",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            ""
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "You do not currently own this",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "cosmetic, but you can unlock it",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "by opening cosmetic keys",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            ""
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "color": "white",
+                  "italic": false,
+                  "font": "minecraft:tooltips/keybind"
+                },
+                {
+                  "text": " ",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "text": "Left-click to preview",
+                  "color": "#85CC16",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "minecraft:firework_star",
+          "color": "dark_gray"
+        },
+        {
+          "translate": "item.components",
+          "with": [
+            18
+          ],
+          "color": "dark_gray"
+        }
+      ],
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:lore": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑞ",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "Camping Crate Exclusive",
+                  "color": "#738B41",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                ""
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "You do not currently own this",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "cosmetic, but you can unlock it",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "by opening cosmetic keys",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                ""
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "",
+                      "color": "white",
+                      "italic": false,
+                      "font": "minecraft:tooltips/keybind"
+                    },
+                    {
+                      "text": " ",
+                      "color": "white",
+                      "italic": false
+                    },
+                    {
+                      "text": "Left-click to preview",
+                      "color": "#85CC16",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion",
+              "minecraft:enchantments",
+              "minecraft:attribute_modifiers"
+            ]
+          },
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -2844161
+            ]
+          },
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10844.0
+                  ]
+                },
+                "originrealms:rendered_tooltip": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#738B41",
+                    "text": "Camping Crate Exclusive",
+                    "italic": 0
+                  },
+                  "",
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "You do not currently own this",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "cosmetic, but you can unlock it",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "by opening cosmetic keys",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  "",
+                  {
+                    "extra": [
+                      {
+                        "color": "white",
+                        "text": "",
+                        "italic": 0,
+                        "font": "minecraft:tooltips/keybind"
+                      },
+                      {
+                        "color": "white",
+                        "text": " ",
+                        "italic": 0
+                      },
+                      {
+                        "color": "#85CC16",
+                        "text": "Left-click to preview",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  }
+                ],
+                "minecraft:item_name": "Cuckoo Clock",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#738B41",
+                    "text": "Camping Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -2844161
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "cuckoo_clock",
+                    "rarity": "legendary"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10844.0
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑵ ",
+                "color": "white"
+              },
+              {
+                "text": "Cuckoo Clock",
+                "color": "#F49E0B"
+              }
+            ]
+          },
+          "minecraft:enchantment_glint_override": false,
+          "minecraft:use_cooldown": {
+            "seconds": 1e-05,
+            "cooldown_group": "minecraft:firework_star"
+          }
+        }
+      }
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:15:25.276226500",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": 0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": -82.96875,
+      "wearer_body_yaw": 4187.0312,
+      "wearer_head_yaw": 4233.2812,
+      "yaw_delta": 132.96875,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 843663,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Cuckoo Clock",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑵ ",
+            "color": "white"
+          },
+          {
+            "text": "Cuckoo Clock",
+            "color": "#F49E0B"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10844.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#D499FF"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#D499FF",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10844.0]",
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion"
+            ]
+          },
+          "minecraft:lore": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "Camping Crate Exclusive",
+              "color": "#738B41",
+              "italic": false
+            }
+          ],
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -2844161
+            ]
+          },
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10844.0
+                  ]
+                },
+                "minecraft:item_name": "Cuckoo Clock",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#738B41",
+                    "text": "Camping Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -2844161
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "cuckoo_clock",
+                    "rarity": "legendary"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10844.0
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑵ ",
+                "color": "white"
+              },
+              {
+                "text": "Cuckoo Clock",
+                "color": "#F49E0B"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "log_bundle": {
+    "name": "ꑳ Log Bundle",
+    "linked_by": "match",
+    "time": "2026-11-21T15:15:41.988256300",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": -0.0,
+    "right": 0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": -125.078125,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:15:40.321733",
+      "screen": "쌥쌥쌥쌥쌥쌥쌥쌦쌦쌦쌦쌦쌦쌦쌧쌧쌧쌧쌧쌧쌧",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 24,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Log Bundle",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑳ ",
+            "color": "white"
+          },
+          {
+            "text": "Log Bundle",
+            "color": "#0099DB"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10827.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#884B44"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#884B44",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10827.0]",
+      "tooltip": [
+        "ꑳ Log Bundle",
+        "ꑞ",
+        "Camping Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ],
+      "tooltip_json": [
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑳ ",
+                  "color": "white"
+                },
+                {
+                  "text": "Log Bundle",
+                  "color": "#0099DB"
+                }
+              ]
+            }
+          ],
+          "color": "white"
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "Camping Crate Exclusive",
+              "color": "#738B41",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            ""
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "You do not currently own this",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "cosmetic, but you can unlock it",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "by opening cosmetic keys",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            ""
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "color": "white",
+                  "italic": false,
+                  "font": "minecraft:tooltips/keybind"
+                },
+                {
+                  "text": " ",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "text": "Left-click to preview",
+                  "color": "#85CC16",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "minecraft:firework_star",
+          "color": "dark_gray"
+        },
+        {
+          "translate": "item.components",
+          "with": [
+            18
+          ],
+          "color": "dark_gray"
+        }
+      ],
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:lore": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑞ",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "Camping Crate Exclusive",
+                  "color": "#738B41",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                ""
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "You do not currently own this",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "cosmetic, but you can unlock it",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "by opening cosmetic keys",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                ""
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "",
+                      "color": "white",
+                      "italic": false,
+                      "font": "minecraft:tooltips/keybind"
+                    },
+                    {
+                      "text": " ",
+                      "color": "white",
+                      "italic": false
+                    },
+                    {
+                      "text": "Left-click to preview",
+                      "color": "#85CC16",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion",
+              "minecraft:enchantments",
+              "minecraft:attribute_modifiers"
+            ]
+          },
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -7845052
+            ]
+          },
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10827.0
+                  ]
+                },
+                "originrealms:rendered_tooltip": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#738B41",
+                    "text": "Camping Crate Exclusive",
+                    "italic": 0
+                  },
+                  "",
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "You do not currently own this",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "cosmetic, but you can unlock it",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "by opening cosmetic keys",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  "",
+                  {
+                    "extra": [
+                      {
+                        "color": "white",
+                        "text": "",
+                        "italic": 0,
+                        "font": "minecraft:tooltips/keybind"
+                      },
+                      {
+                        "color": "white",
+                        "text": " ",
+                        "italic": 0
+                      },
+                      {
+                        "color": "#85CC16",
+                        "text": "Left-click to preview",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  }
+                ],
+                "minecraft:item_name": "Log Bundle",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#738B41",
+                    "text": "Camping Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -7845052
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "log",
+                    "rarity": "rare"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10827.0
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑳ ",
+                "color": "white"
+              },
+              {
+                "text": "Log Bundle",
+                "color": "#0099DB"
+              }
+            ]
+          },
+          "minecraft:enchantment_glint_override": false,
+          "minecraft:use_cooldown": {
+            "seconds": 1e-05,
+            "cooldown_group": "minecraft:firework_star"
+          }
+        }
+      }
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:15:41.985733",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": -0.0,
+      "right": 0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": 175.07812,
+      "wearer_body_yaw": 5525.078,
+      "wearer_head_yaw": 5572.9688,
+      "yaw_delta": -125.078125,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 844926,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Log Bundle",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑳ ",
+            "color": "white"
+          },
+          {
+            "text": "Log Bundle",
+            "color": "#0099DB"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10827.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#884B44"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#884B44",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10827.0]",
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion"
+            ]
+          },
+          "minecraft:lore": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "Camping Crate Exclusive",
+              "color": "#738B41",
+              "italic": false
+            }
+          ],
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -7845052
+            ]
+          },
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10827.0
+                  ]
+                },
+                "minecraft:item_name": "Log Bundle",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#738B41",
+                    "text": "Camping Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -7845052
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "log",
+                    "rarity": "rare"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10827.0
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑳ ",
+                "color": "white"
+              },
+              {
+                "text": "Log Bundle",
+                "color": "#0099DB"
+              }
+            ]
+          }
+        }
+      }
+    }
   }
 }

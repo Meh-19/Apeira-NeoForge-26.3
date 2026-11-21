@@ -35,6 +35,8 @@ public final class MainCosmetics {
     private static final List<Cosmetic> ALL = new ArrayList<>();
     private static final Component ANIMAL_CRATE = Component.translatable("tooltip.apeira.exclusive.animal_crate");
     private static final Component BATHROOM_CRATE = CosmeticItem.exclusive("bathroom_crate");
+    private static final Component BUSINESS_CRATE = CosmeticItem.exclusive("business_crate");
+    private static final Component CAMPING_CRATE = CosmeticItem.exclusive("camping_crate");
 
     /** A registered cosmetic, its slot and rarity. */
     public record Cosmetic(DeferredItem<CosmeticItem> item, CosmeticSlot slot, CosmeticRarity rarity) {}
@@ -56,6 +58,18 @@ public final class MainCosmetics {
     public static final DeferredItem<CosmeticItem> PLUNGER = cosmetic("plunger", HAND, RARE, 0xCB3C2A, BATHROOM_CRATE);
     public static final DeferredItem<CosmeticItem> RUBBER_DUCKIE_HAT = cosmetic("rubber_duckie_hat", HAT, EPIC, 0x74A4CA, BATHROOM_CRATE);
     public static final DeferredItem<CosmeticItem> TUB = cosmetic("tub", BACK, LEGENDARY, null, BATHROOM_CRATE);
+    // The Business Crate's, from Ren's F9 capture of its reward page: the server pack's suit_case, top_hat and
+    // business/money_sack (textures in textures/item/cosmetics/business/). The Money Rain gesture is left out.
+    public static final DeferredItem<CosmeticItem> SUIT_CASE = cosmetic("suit_case", HAND, COMMON, 0xAC5353, BUSINESS_CRATE);
+    public static final DeferredItem<CosmeticItem> TOP_HAT = cosmetic("top_hat", HAT, COMMON, 0xCB5148, BUSINESS_CRATE);
+    public static final DeferredItem<CosmeticItem> MONEY_SACK = cosmetic("money_sack", BACK, EPIC, 0xFFC766, BUSINESS_CRATE);
+    // The Camping Crate's, from Ren's F9 capture of its reward page: the pack's camping/flashlight_prop, log_backswag,
+    // chainsaw_prop and cuckcoo_clock (textures in textures/item/cosmetics/camping/). The Binoculars gesture and the
+    // chainsaw's linked gesture are left out; the chainsaw's capture is white, so it has no default paint.
+    public static final DeferredItem<CosmeticItem> FLASHLIGHT = cosmetic("flashlight", HAND, COMMON, 0x93BA4F, CAMPING_CRATE);
+    public static final DeferredItem<CosmeticItem> LOG_BUNDLE = cosmetic("log_bundle", BACK, RARE, 0x884B44, CAMPING_CRATE);
+    public static final DeferredItem<CosmeticItem> CHAINSAW = cosmetic("chainsaw", HAND, EPIC, null, CAMPING_CRATE);
+    public static final DeferredItem<CosmeticItem> CUCKOO_CLOCK = cosmetic("cuckoo_clock", BACK, LEGENDARY, 0xD499FF, CAMPING_CRATE);
 
     private MainCosmetics() {}
 

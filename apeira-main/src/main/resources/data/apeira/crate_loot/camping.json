@@ -1,0 +1,8 @@
+{
+  "exclude_animated": true,
+  "common": ["apeira:cabin_lamp", "apeira:potted_forest_fern", "apeira:flashlight", "apeira:cabin_chair", "apeira:deer_mount",
+    "apeira:cabin_table"],
+  "rare": ["apeira:young_cypress", "apeira:cabin_bed", "apeira:wooden_canoe", "apeira:log_bundle", "apeira:large_hammock"],
+  "epic": ["apeira:chainsaw", "apeira:cabin_fireplace", "apeira:bonfire"],
+  "legendary": ["apeira:cuckoo_clock", "apeira:campervan"]
+}

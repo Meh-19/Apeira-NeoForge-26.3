@@ -18,7 +18,7 @@ import flatten_textures  # noqa: E402
 import make_placeholder_textures as placeholders  # noqa: E402
 import parse_blockbench_hitboxes as hitboxes  # noqa: E402
 import process_server_pack  # noqa: E402
-from asset_common import to_snake_case  # noqa: E402
+from asset_common import hitbox_ignored, java_ignored_elements, to_snake_case  # noqa: E402
 
 PNG = b"\x89PNG\r\n\x1a\n"
 
@@ -237,6 +237,34 @@ class HitboxTest(TempDirTest):
         self.assertIn("CHAIR_SHAPE_EAST = Block.box(8, 0, 0, 16, 10, 16);", text)
         everything = self.shapes(model, "--group", "model", "--bounds")
         self.assertIn("Block.box(0, 0, 0, 16, 20, 16)", everything)
+
+    def test_ignore_tag(self):
+        for name in ("fan_ignore", "blades_tintable_ignore", "blades_ignore_tintable", "Door_IGNORE"):
+            self.assertTrue(hitbox_ignored(name), name)
+        for name in ("fan", "blades_tintable", "ignore", None):
+            self.assertFalse(hitbox_ignored(name), name)
+        model = write(self.root / "fan.json", {
+            "elements": [
+                {"from": [0, 0, 0], "to": [16, 2, 16]},
+                {"name": "blade_tintable_ignore", "from": [0, 8, 0], "to": [16, 9, 16]},
+                {"from": [7, 2, 7], "to": [9, 16, 9]},
+            ],
+            "groups": [{"name": "top", "children": [0, {"name": "rod_ignore_tintable", "children": [2]}]}, 1]})
+        self.assertEqual(java_ignored_elements(load(model)), {1, 2})
+        text = self.shapes(model)
+        self.assertIn("Block.box(0, 0, 0, 16, 2, 16)", text)
+        self.assertNotIn("Block.box(0, 8, 0", text)
+        self.assertNotIn("Block.box(7, 2, 7", text)
+        bbmodel = write(self.root / "door.bbmodel", {
+            "meta": {"model_format": "java_block"},
+            "elements": [
+                {"uuid": "frame", "type": "cube", "from": [0, 0, 0], "to": [16, 2, 16], "origin": [0, 0, 0]},
+                {"uuid": "panel", "type": "cube", "from": [0, 2, 7], "to": [16, 16, 9], "origin": [0, 0, 0]},
+            ],
+            "outliner": [{"name": "frame", "uuid": "g1", "children": ["frame", {"name": "door_tintable_ignore", "uuid": "g2",
+                                                                               "children": ["panel"]}]}]})
+        text = self.shapes(bbmodel, "--bounds")
+        self.assertIn("Block.box(0, 0, 0, 16, 2, 16)", text)
 
     def test_errors(self):
         model = write(self.root / "flat.json", {"parent": "item/generated"})

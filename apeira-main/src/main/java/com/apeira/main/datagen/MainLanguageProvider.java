@@ -77,6 +77,8 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         item(MainBadgerCrate.BADGER_CRATE, "Badger Crate");
         item(MainBadgerCrate.ANIMAL_CRATE, "Animal Crate");
         item(MainBadgerCrate.BATHROOM_CRATE, "Bathroom Crate");
+        item(MainBadgerCrate.BUSINESS_CRATE, "Business Crate");
+        item(MainBadgerCrate.CAMPING_CRATE, "Camping Crate");
         item(MainCosmetics.AXOLOTL_HAT, "Axolotl Hat");
         item(MainCosmetics.ANIMAL_EARS, "Animal Ears");
         item(MainCosmetics.WOLF_HELMET, "Wolf Helmet");
@@ -90,6 +92,13 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         item(MainCosmetics.PLUNGER, "Plunger");
         item(MainCosmetics.RUBBER_DUCKIE_HAT, "Rubber Duckie Hat");
         item(MainCosmetics.TUB, "Tub");
+        item(MainCosmetics.SUIT_CASE, "Suit Case");
+        item(MainCosmetics.TOP_HAT, "Top Hat");
+        item(MainCosmetics.MONEY_SACK, "Money Sack");
+        item(MainCosmetics.FLASHLIGHT, "Flashlight");
+        item(MainCosmetics.LOG_BUNDLE, "Log Bundle");
+        item(MainCosmetics.CHAINSAW, "Chainsaw");
+        item(MainCosmetics.CUCKOO_CLOCK, "Cuckoo Clock");
         addId("entity", "badger_crate_show", "Badger Crate");
         // The Badger Crate opening's HUD (client/crate/BadgerCrateClient).
         addId("message", "badger_crate.opening", "Opening Crate...");

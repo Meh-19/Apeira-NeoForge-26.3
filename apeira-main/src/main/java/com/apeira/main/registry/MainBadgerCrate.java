@@ -1,5 +1,7 @@
 package com.apeira.main.registry;
 
+import java.util.List;
+
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.main.Apeira;
 import com.apeira.main.crate.BadgerCrateItem;
@@ -26,11 +28,22 @@ public final class MainBadgerCrate {
     /** The Bathroom Crate: the pack's bathroom_crate_full with the Badger Crate's displays, and its lid and base on the shared geometry. */
     public static final DeferredItem<BadgerCrateItem> BATHROOM_CRATE = R.items().registerItem("bathroom_crate",
             properties -> new BadgerCrateItem(properties, CrateKind.BATHROOM), properties -> properties.stacksTo(16));
+    /** The Business Crate: the pack's business_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> BUSINESS_CRATE = R.items().registerItem("business_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.BUSINESS), properties -> properties.stacksTo(16));
+    /** The Camping Crate: the pack's camping_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> CAMPING_CRATE = R.items().registerItem("camping_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.CAMPING), properties -> properties.stacksTo(16));
 
     /** Big enough to always be in view: the model reaches a few blocks around and above its origin. */
     public static final DeferredHolder<EntityType<?>, EntityType<BadgerCrateShowEntity>> SHOW = R.entityType("badger_crate_show",
             BadgerCrateShowEntity::new, MobCategory.MISC, builder -> builder.sized(0.5F, 0.5F).noSave().noSummon()
                     .clientTrackingRange(8).updateInterval(1).fireImmune());
+
+    /** Every crate item, in the Crates tab's order. */
+    public static List<DeferredItem<BadgerCrateItem>> crates() {
+        return List.of(BADGER_CRATE, ANIMAL_CRATE, BATHROOM_CRATE, BUSINESS_CRATE, CAMPING_CRATE);
+    }
 
     private MainBadgerCrate() {}
 

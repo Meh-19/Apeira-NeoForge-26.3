@@ -47,14 +47,14 @@ public class WallFurnitureBlock extends FurnitureBlock {
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction side = context.getClickedFace();
         if (side.getAxis().isHorizontal()) {
-            return defaultBlockState().setValue(FACING, side.getOpposite());
+            return defaultBlockState().setValue(FACING, side.getOpposite()).setValue(ROTATION, wallTurn(side.getOpposite()));
         }
         return side == Direction.DOWN && hasCeiling ? super.getStateForPlacement(context) : null;
     }
 
     @Override
     public DisplayMode displayMode(BlockState state) {
-        return DisplayMode.WALL;
+        return displayOverride() != null ? displayOverride() : DisplayMode.WALL;
     }
 
     @Override

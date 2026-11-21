@@ -10,11 +10,13 @@ import org.jspecify.annotations.Nullable;
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.ApeiraDecor;
 import com.apeira.decor.cosmetic.CosmeticItem;
+import com.apeira.decor.furniture.AnimatedCeilingFurnitureBlock;
 import com.apeira.decor.furniture.AnimatedFurnitureBlock;
 import com.apeira.decor.furniture.AnimatedWallFurnitureBlock;
 import com.apeira.decor.furniture.FacingFurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlock;
 import com.apeira.decor.furniture.FurnitureBlock.Form;
+import com.apeira.decor.furniture.DisplayMode;
 import com.apeira.decor.furniture.FurnitureBlockItem;
 import com.apeira.decor.furniture.FurnitureFootprints;
 import com.apeira.decor.furniture.SeatFurnitureBlock;
@@ -162,6 +164,105 @@ public final class DecorFurniture {
             p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.TOILETRIES_RACK.get()));
     public static final DeferredBlock<FurnitureBlock> WASHING_MACHINE = piece("washing_machine", "bathroom_crate",
             p -> new FurnitureBlock(p, true, Form.FURNITURE));
+
+    // The Business Crate's furniture: the server pack's models/custom/furniture/business/ models, names, rarities and
+    // paints from Ren's F9 capture of the Business Crate's reward page (ids are the captured names; the pack's
+    // filling_cabinet, cubical and office_supply are the filing cabinet, cubicle and office supplies). The pack's
+    // business case, paper bin, security camera and ventilator are not on the capture and are left out. The ceiling fan
+    // and revolving door are animated, from Ren's GeckoLib models; their blades and doors are tagged _ignore, so the
+    // footprint generator gives them no hitbox. Paintable where the pack model has tint index 1 faces (all of them).
+    public static final DeferredBlock<FurnitureBlock> OFFICE_SUPPLIES = piece("office_supplies", "business_crate", 0x666666,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** The pack's fluorescent_light_wall, lying as the pack draws it (rotation x 90, a top face piece); under a block, fluorescent_light_ceiling. */
+    public static final DeferredBlock<WallFurnitureBlock> FLUORESCENT_LIGHT = piece("fluorescent_light", "business_crate", 0x666666,
+            p -> new WallFurnitureBlock(p, true, () -> DecorFurniture.FLUORESCENT_LIGHT_CEILING.get()).displayAs(DisplayMode.TOP_FACE));
+    public static final DeferredBlock<FacingFurnitureBlock> FLUORESCENT_LIGHT_CEILING = piece("fluorescent_light_ceiling", "business_crate", 0x666666,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.FLUORESCENT_LIGHT.get()));
+    public static final DeferredBlock<FurnitureBlock> LAPTOP = piece("laptop", "business_crate", 0x999999,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** A seat 7 pixels up (a guess until tried). */
+    public static final DeferredBlock<SeatFurnitureBlock> OFFICE_CHAIR = piece("office_chair", "business_crate", 0x666666,
+            p -> new SeatFurnitureBlock(p, true, 7));
+    public static final DeferredBlock<FurnitureBlock> DESK_LAMP = piece("desk_lamp", "business_crate", 0x999999,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<WallFurnitureBlock> OFFICE_BLINDS = piece("office_blinds", "business_crate", 0x999999,
+            p -> new WallFurnitureBlock(p, true));
+    public static final DeferredBlock<FurnitureBlock> OFFICE_DESK = piece("office_desk", "business_crate", 0x999999,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> FILING_CABINET = piece("filing_cabinet", "business_crate", 0x666666,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    /** Animated: Ren's model, its blades (bone_tintable_ignore) turning once every 3.5 seconds; only under a block. */
+    public static final DeferredBlock<AnimatedCeilingFurnitureBlock> OFFICE_CEILING_FAN = piece("office_ceiling_fan", "business_crate",
+            p -> new AnimatedCeilingFurnitureBlock(p, "furniture", true, "animation.office_ceiling_fan.spin"));
+    public static final DeferredBlock<FurnitureBlock> MONITOR = piece("monitor", "business_crate", 0x999999,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.MONITOR_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> MONITOR_WALL = piece("monitor_wall", "business_crate", 0x999999,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MONITOR.get()));
+    public static final DeferredBlock<FurnitureBlock> PRINTING_MACHINE = piece("printing_machine", "business_crate",
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> BILLBOARD = piece("billboard", "business_crate", 0x547483,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.BILLBOARD_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> BILLBOARD_WALL = piece("billboard_wall", "business_crate", 0x547483,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BILLBOARD.get()));
+    public static final DeferredBlock<FurnitureBlock> CUBICLE = piece("cubicle", "business_crate", 0x999999,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    /** Animated: Ren's model, its doors (bone2_tintable_ignore, bone2_ignore) turning once every 9 seconds. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> REVOLVING_DOOR = piece("revolving_door", "business_crate", 0x999999,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.revolving_door.spin", null));
+
+    // The Camping Crate's furniture: the server pack's models/custom/furniture/camping/ models, names, rarities and paints
+    // from Ren's F9 capture of the Camping Crate's reward page (the pack's log_chair, log_table, log_bed, young_cyprus and
+    // big_hammock are the cabin chair, table and bed, young cypress and large hammock). None is animated (the bonfire's
+    // and fireplace's flames are animated textures of still models). Each floor piece's pack variants are its wall and
+    // ceiling variants, which drop it and are never crate rewards (crate_loot lists only base pieces, BadgerLoot maps
+    // variants to their base and camping.json excludes animated furniture).
+    public static final DeferredBlock<FurnitureBlock> CABIN_LAMP = piece("cabin_lamp", "camping_crate", 0x93BA4F,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.CABIN_LAMP_WALL.get(), () -> DecorFurniture.CABIN_LAMP_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> CABIN_LAMP_WALL = piece("cabin_lamp_wall", "camping_crate", 0x93BA4F,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CABIN_LAMP.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> CABIN_LAMP_CEILING = piece("cabin_lamp_ceiling", "camping_crate", 0x93BA4F,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CABIN_LAMP.get()));
+    public static final DeferredBlock<FurnitureBlock> POTTED_FOREST_FERN = piece("potted_forest_fern", "camping_crate", 0x93BA4F,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, null, () -> DecorFurniture.POTTED_FOREST_FERN_CEILING.get(), null));
+    /** The pack's ceiling model lies like a floor piece (rotation x -90). */
+    public static final DeferredBlock<FacingFurnitureBlock> POTTED_FOREST_FERN_CEILING = piece("potted_forest_fern_ceiling", "camping_crate", 0x93BA4F,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.POTTED_FOREST_FERN.get()).displayAs(DisplayMode.FLOOR));
+    /** A seat 8 pixels up (a guess until tried). */
+    public static final DeferredBlock<SeatFurnitureBlock> CABIN_CHAIR = piece("cabin_chair", "camping_crate", 0xCB5148,
+            p -> new SeatFurnitureBlock(p, true, Form.FLOOR, 8));
+    /** The pack's deer_mount_floor (no tint index, so it shows no paint) and, against a wall, deer_mount_wall. */
+    public static final DeferredBlock<FurnitureBlock> DEER_MOUNT = piece("deer_mount", "camping_crate", 0x93BA4F,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.DEER_MOUNT_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> DEER_MOUNT_WALL = piece("deer_mount_wall", "camping_crate", 0x93BA4F,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.DEER_MOUNT.get()));
+    public static final DeferredBlock<FurnitureBlock> CABIN_TABLE = piece("cabin_table", "camping_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> YOUNG_CYPRESS = piece("young_cypress", "camping_crate", 0x647A4C,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> CABIN_BED = piece("cabin_bed", "camping_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> WOODEN_CANOE = piece("wooden_canoe", "camping_crate", 0x884B44,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.WOODEN_CANOE_WALL.get(), () -> DecorFurniture.WOODEN_CANOE_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> WOODEN_CANOE_WALL = piece("wooden_canoe_wall", "camping_crate", 0x884B44,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.WOODEN_CANOE.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> WOODEN_CANOE_CEILING = piece("wooden_canoe_ceiling", "camping_crate", 0x884B44,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.WOODEN_CANOE.get()));
+    public static final DeferredBlock<FurnitureBlock> LARGE_HAMMOCK = piece("large_hammock", "camping_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.LARGE_HAMMOCK_WALL.get(), () -> DecorFurniture.LARGE_HAMMOCK_CEILING.get(), null));
+    /** The pack's wall model stands like the floor one (rotation x -90), turned by its wall. */
+    public static final DeferredBlock<FacingFurnitureBlock> LARGE_HAMMOCK_WALL = piece("large_hammock_wall", "camping_crate", 0xCB5148,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.LARGE_HAMMOCK.get()).displayAs(DisplayMode.FLOOR));
+    public static final DeferredBlock<FacingFurnitureBlock> LARGE_HAMMOCK_CEILING = piece("large_hammock_ceiling", "camping_crate", 0xCB5148,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.LARGE_HAMMOCK.get()));
+    public static final DeferredBlock<FurnitureBlock> CABIN_FIREPLACE = piece("cabin_fireplace", "camping_crate", 0xAC5353,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.CABIN_FIREPLACE_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> CABIN_FIREPLACE_WALL = piece("cabin_fireplace_wall", "camping_crate", 0xAC5353,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CABIN_FIREPLACE.get()));
+    /** A paper item on the capture, with no tint index faces: not paintable. */
+    public static final DeferredBlock<FurnitureBlock> BONFIRE = piece("bonfire", "camping_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> CAMPERVAN = piece("campervan", "camping_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
 
     private DecorFurniture() {}
 

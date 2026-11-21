@@ -1,0 +1,35 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.revolving_door.spin": {
+      "loop": true,
+      "bones": {
+        "group": {
+          "scale": {
+            "vector": [
+              1.2,
+              1.2,
+              1.2
+            ]
+          }
+        },
+        "bone": {
+          "rotation": {
+            "vector": [
+              0,
+              "query.anim_time * (360 / 9)",
+              0
+            ]
+          },
+          "scale": {
+            "vector": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    }
+  }
+}

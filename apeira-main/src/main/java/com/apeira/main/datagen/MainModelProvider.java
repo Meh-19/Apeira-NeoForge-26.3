@@ -44,6 +44,8 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
         // The Animal Crate's, the server pack's animal_crate_full with the Badger Crate's displays (hand-made).
         generators().itemModelOutput.accept(MainBadgerCrate.ANIMAL_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/animal_crate")));
         generators().itemModelOutput.accept(MainBadgerCrate.BATHROOM_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/bathroom_crate")));
+        generators().itemModelOutput.accept(MainBadgerCrate.BUSINESS_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/business_crate")));
+        generators().itemModelOutput.accept(MainBadgerCrate.CAMPING_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/camping_crate")));
         MainCosmetics.all().forEach(this::cosmetic);
         MainItems.tools().forEach(this::toolItem);
         trimmableArmor(MainItems.PLATINUM_HELMET, ItemModelGenerators.TRIM_PREFIX_HELMET);

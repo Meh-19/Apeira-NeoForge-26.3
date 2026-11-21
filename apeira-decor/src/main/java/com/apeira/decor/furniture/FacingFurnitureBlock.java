@@ -42,13 +42,16 @@ public class FacingFurnitureBlock extends FurnitureBlock {
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction side = context.getClickedFace();
         if (side.getAxis().isHorizontal()) {
-            return defaultBlockState().setValue(FACING, side.getOpposite());
+            return defaultBlockState().setValue(FACING, side.getOpposite()).setValue(ROTATION, wallTurn(side.getOpposite()));
         }
         return defaultBlockState().setValue(ROTATION, rotation(context)).setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
     public DisplayMode displayMode(BlockState state) {
+        if (displayOverride() != null) {
+            return displayOverride();
+        }
         String name = getDescriptionId();
         if (name.contains("wall")) {
             return DisplayMode.WALL;

@@ -57,6 +57,7 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
     private float renderOffsetY;
     private float renderOffsetZ;
     private float modelYaw;
+    private @Nullable DisplayMode displayAs;
 
     /**
      * @param paintable whether the paintbrush and painting table paint it
@@ -124,7 +125,31 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
 
     /** How the renderer lays the model into the block, for a placed {@code state}. */
     public DisplayMode displayMode(BlockState state) {
-        return form.mode();
+        return displayAs != null ? displayAs : form.mode();
+    }
+
+    /**
+     * Lays the model in by {@code mode} whatever the piece's form or id says, for a pack model whose {@code fixed}
+     * display was made for another mode (the potted forest fern's ceiling model lies like a floor piece). Returns this block.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends FurnitureBlock> T displayAs(DisplayMode mode) {
+        displayAs = mode;
+        return (T) this;
+    }
+
+    /**
+     * The {@link #ROTATION} of a piece placed against a wall that {@code facing} points into: south is 0, as the
+     * footprint table has wall pieces, so a wall piece drawn in another mode ({@link #displayAs}) turns by it as a
+     * {@link DisplayMode#WALL} piece turns by its facing.
+     */
+    protected static int wallTurn(Direction facing) {
+        return Math.floorMod(Math.round(facing.toYRot() / 45.0F), ROTATIONS);
+    }
+
+    /** The mode {@link #displayAs} set, or {@code null}. */
+    protected @Nullable DisplayMode displayOverride() {
+        return displayAs;
     }
 
     /** The block whose item this one drops: its base piece for a wall or ceiling variant, else itself. */
