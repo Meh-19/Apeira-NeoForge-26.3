@@ -264,6 +264,106 @@ public final class DecorFurniture {
     public static final DeferredBlock<FurnitureBlock> CAMPERVAN = piece("campervan", "camping_crate", 0xCB5148,
             p -> new FurnitureBlock(p, true, Form.FLOOR));
 
+    // The Construction Crate's furniture: the server pack's models/custom/furniture/construction/ models, names, rarities
+    // and paints from Ren's F9 capture of the Construction Crate's reward page (ids are the captured names; the pack's
+    // ladder, wheelbarrow, tool_box/tool_rack, wood_pallet_floor/_wall and shipping_container are the construction
+    // ladder, wheelbarrow and tools, pallet stack and storage unit). The pack's cinderblocks, construction barrel, lights,
+    // sign and jackhammer are not on the capture and are left out. The cement mixer and construction crane are animated,
+    // from Ren's armor stand recordings (the mixer's _paintable bones renamed _tintable). Display modes follow each pack
+    // model's fixed display (rotation x -90 a floor piece, 90 a top face piece, none a wall piece); the pallet stack has no
+    // tinted faces, so it takes no paint.
+    public static final DeferredBlock<FurnitureBlock> CONSTRUCTION_LADDER = piece("construction_ladder", "construction_crate", 0xE7A127,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.CONSTRUCTION_LADDER_WALL.get(), null, null));
+    /** The pack's wall model stands like the floor one (rotation x -90), turned by its wall. */
+    public static final DeferredBlock<FacingFurnitureBlock> CONSTRUCTION_LADDER_WALL = piece("construction_ladder_wall", "construction_crate", 0xE7A127,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CONSTRUCTION_LADDER.get()).displayAs(DisplayMode.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> CONSTRUCTION_WHEELBARROW = piece("construction_wheelbarrow", "construction_crate", 0xE7A127,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** The tool box on the floor; against a wall, the pack's tool rack. */
+    public static final DeferredBlock<FurnitureBlock> CONSTRUCTION_TOOLS = piece("construction_tools", "construction_crate", 0xE7A127,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.CONSTRUCTION_TOOLS_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> CONSTRUCTION_TOOLS_WALL = piece("construction_tools_wall", "construction_crate", 0xE7A127,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CONSTRUCTION_TOOLS.get()));
+    public static final DeferredBlock<FurnitureBlock> PALLET_STACK = piece("pallet_stack", "construction_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR, () -> DecorFurniture.PALLET_STACK_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> PALLET_STACK_WALL = piece("pallet_stack_wall", "construction_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.PALLET_STACK.get()).displayAs(DisplayMode.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> I_BEAM = piece("i_beam", "construction_crate", 0x999999,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.I_BEAM_WALL.get(), () -> DecorFurniture.I_BEAM_CEILING.get(), null));
+    /** The pack's wall model is turned (rotation -90, 90, -90); drawn as a floor-style display (a guess until tried). */
+    public static final DeferredBlock<FacingFurnitureBlock> I_BEAM_WALL = piece("i_beam_wall", "construction_crate", 0x999999,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.I_BEAM.get()).displayAs(DisplayMode.FLOOR));
+    public static final DeferredBlock<FacingFurnitureBlock> I_BEAM_CEILING = piece("i_beam_ceiling", "construction_crate", 0x999999,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.I_BEAM.get()));
+    public static final DeferredBlock<FurnitureBlock> METAL_SCAFFOLDING = piece("metal_scaffolding", "construction_crate", 0x4C4C4C,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.METAL_SCAFFOLDING_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> METAL_SCAFFOLDING_WALL = piece("metal_scaffolding_wall", "construction_crate", 0x4C4C4C,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.METAL_SCAFFOLDING.get()));
+    public static final DeferredBlock<FurnitureBlock> PORTA_POTTY = piece("porta_potty", "construction_crate", 0x74A4CA,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** Animated: Ren's model, from the armor stand recording, its drum turning. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> CEMENT_MIXER = piece("cement_mixer", "construction_crate", 0xE7A127,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.cement_mixer.spin", null));
+    /** The pack's shipping container. */
+    public static final DeferredBlock<FurnitureBlock> STORAGE_UNIT = piece("storage_unit", "construction_crate", 0xB2B2B2,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> FORKLIFT = piece("forklift", "construction_crate", 0xE7A127,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> EXCAVATOR = piece("excavator", "construction_crate", 0xE7A127,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** Animated: Ren's model, from the armor stand recording; its _ignore bones get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> CONSTRUCTION_CRANE = piece("construction_crane", "construction_crate", 0xE7A127,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.construction_crane.loop", null));
+
+    // The Fast Food Crate's furniture: the server pack's models/custom/furniture/fast_food/ models, names, rarities and
+    // paints from Ren's F9 capture of the Fast Food Crate's reward page (the pack's menu_screen_floor is the menu screen).
+    // The pack's food stall and restaurant stool are not on the capture and are left out. The burger mascot inflatable is
+    // animated, from Ren's armor stand recording; its _ignore bones (head, arms, legs) get no hitbox. Display modes
+    // follow each pack model's fixed display (rotation x -90 a floor piece, 90 a top face piece, a wall model drawn on its
+    // wall with its own fixed turn).
+    public static final DeferredBlock<FurnitureBlock> CONDIMENT_CADDY = piece("condiment_caddy", "fast_food_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> BURGER_TRAY = piece("burger_tray", "fast_food_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> CONE_LIGHT = piece("cone_light", "fast_food_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.CONE_LIGHT_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> CONE_LIGHT_WALL = piece("cone_light_wall", "fast_food_crate", 0xCB5148,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CONE_LIGHT.get()));
+    public static final DeferredBlock<FurnitureBlock> RESTAURANT_TABLE = piece("restaurant_table", "fast_food_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> HOTDOG_TRAY = piece("hotdog_tray", "fast_food_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> DONUT_BOX = piece("donut_box", "fast_food_crate", 0xFB8EB0,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** A seat 7 pixels up (a guess until tried), drawn on the floor as the pack's booth lies (rotation x -90). */
+    public static final DeferredBlock<SeatFurnitureBlock> RESTAURANT_BOOTH = piece("restaurant_booth", "fast_food_crate", 0xCB5148,
+            p -> new SeatFurnitureBlock(p, true, Form.FLOOR, 7));
+    public static final DeferredBlock<FurnitureBlock> MENU_SCREEN = piece("menu_screen", "fast_food_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.MENU_SCREEN_WALL.get(), () -> DecorFurniture.MENU_SCREEN_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> MENU_SCREEN_WALL = piece("menu_screen_wall", "fast_food_crate", 0xCB5148,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MENU_SCREEN.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> MENU_SCREEN_CEILING = piece("menu_screen_ceiling", "fast_food_crate", 0xCB5148,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MENU_SCREEN.get()));
+    public static final DeferredBlock<FurnitureBlock> VENDING_MACHINE = piece("vending_machine", "fast_food_crate", 0xB2B2B2,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> BURGER_SIGNAGE = piece("burger_signage", "fast_food_crate", 0xCB3C2A,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.BURGER_SIGNAGE_WALL.get(), null, null));
+    /** The pack's wall model leans out 22.5 degrees, as it is drawn on the wall. */
+    public static final DeferredBlock<FacingFurnitureBlock> BURGER_SIGNAGE_WALL = piece("burger_signage_wall", "fast_food_crate", 0xCB3C2A,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BURGER_SIGNAGE.get()));
+    public static final DeferredBlock<FurnitureBlock> HOTDOG_SIGNAGE = piece("hotdog_signage", "fast_food_crate", 0xF7C021,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.HOTDOG_SIGNAGE_WALL.get(), null, null));
+    /** The pack's wall model is turned (rotation -90, 135, 0); drawn on the wall as it is (a guess until tried). */
+    public static final DeferredBlock<FacingFurnitureBlock> HOTDOG_SIGNAGE_WALL = piece("hotdog_signage_wall", "fast_food_crate", 0xF7C021,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.HOTDOG_SIGNAGE.get()));
+    public static final DeferredBlock<FurnitureBlock> DONUT_SIGNAGE = piece("donut_signage", "fast_food_crate", 0xFB8EB0,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.DONUT_SIGNAGE_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> DONUT_SIGNAGE_WALL = piece("donut_signage_wall", "fast_food_crate", 0xFB8EB0,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.DONUT_SIGNAGE.get()));
+    /** Animated: Ren's model, from the armor stand recording; its item is the pack's inflatable base. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> BURGER_MASCOT_INFLATABLE = piece("burger_mascot_inflatable", "fast_food_crate", 0xCB3C2A,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.burger_mascot_inflatable.bob", null));
+
     private DecorFurniture() {}
 
     /** Every decor furniture block, in registration order. */

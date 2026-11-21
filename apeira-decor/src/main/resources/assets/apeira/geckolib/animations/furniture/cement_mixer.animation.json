@@ -1,0 +1,29 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.cement_mixer.spin": {
+			"loop": true,
+			"animation_length": 3.5,
+			"bones": {
+				"root_rig": {
+					"rotation": {
+						"0": [
+							0,
+							-45,
+							0
+						]
+					}
+				},
+				"r_tintable": {
+					"rotation": {
+						"0": [
+							0,
+							"-(query.anim_time * (360 / 3.5))",
+							0
+						]
+					}
+				}
+			}
+		}
+	}
+}

@@ -37,6 +37,8 @@ public final class MainCosmetics {
     private static final Component BATHROOM_CRATE = CosmeticItem.exclusive("bathroom_crate");
     private static final Component BUSINESS_CRATE = CosmeticItem.exclusive("business_crate");
     private static final Component CAMPING_CRATE = CosmeticItem.exclusive("camping_crate");
+    private static final Component FAST_FOOD_CRATE = CosmeticItem.exclusive("fast_food_crate");
+    private static final Component CONSTRUCTION_CRATE = CosmeticItem.exclusive("construction_crate");
 
     /** A registered cosmetic, its slot and rarity. */
     public record Cosmetic(DeferredItem<CosmeticItem> item, CosmeticSlot slot, CosmeticRarity rarity) {}
@@ -70,6 +72,20 @@ public final class MainCosmetics {
     public static final DeferredItem<CosmeticItem> LOG_BUNDLE = cosmetic("log_bundle", BACK, RARE, 0x884B44, CAMPING_CRATE);
     public static final DeferredItem<CosmeticItem> CHAINSAW = cosmetic("chainsaw", HAND, EPIC, null, CAMPING_CRATE);
     public static final DeferredItem<CosmeticItem> CUCKOO_CLOCK = cosmetic("cuckoo_clock", BACK, LEGENDARY, 0xD499FF, CAMPING_CRATE);
+    // The Construction Crate's, from Ren's F9 capture of its reward page: the server pack's hard_hat, traffic_cone,
+    // construction/treads and construction/crane_backswag (textures in textures/item/cosmetics/construction/). The
+    // Jackhammer gesture and the crane's linked gesture are left out. The treads' slot is a guess (there is no feet slot).
+    public static final DeferredItem<CosmeticItem> HARD_HAT = cosmetic("hard_hat", HAT, COMMON, 0xE7A127, CONSTRUCTION_CRATE);
+    public static final DeferredItem<CosmeticItem> TRAFFIC_CONE_HAT = cosmetic("traffic_cone_hat", HAT, COMMON, 0xFD811C, CONSTRUCTION_CRATE);
+    public static final DeferredItem<CosmeticItem> TREADS = cosmetic("treads", BACK, EPIC, 0xF89D25, CONSTRUCTION_CRATE);
+    public static final DeferredItem<CosmeticItem> CRANE = cosmetic("crane", BACK, LEGENDARY, 0xF7C021, CONSTRUCTION_CRATE);
+    // The Fast Food Crate's, from Ren's F9 capture of its reward page: the server pack's large_fork, large_spoon,
+    // fry_pack and burger_cap (textures in textures/item/cosmetics/fast_food/). The Donut Balloon is left out, as the
+    // Animal Crate's balloons are.
+    public static final DeferredItem<CosmeticItem> COMICALLY_LARGE_FORK = cosmetic("comically_large_fork", HAND, COMMON, 0xCB3C2A, FAST_FOOD_CRATE);
+    public static final DeferredItem<CosmeticItem> COMICALLY_LARGE_SPOON = cosmetic("comically_large_spoon", HAND, COMMON, 0xCB3C2A, FAST_FOOD_CRATE);
+    public static final DeferredItem<CosmeticItem> FRY_PACK = cosmetic("fry_pack", BACK, RARE, 0xCB3C2A, FAST_FOOD_CRATE);
+    public static final DeferredItem<CosmeticItem> BURGER_CAP = cosmetic("burger_cap", HAT, RARE, 0xCB3C2A, FAST_FOOD_CRATE);
 
     private MainCosmetics() {}
 

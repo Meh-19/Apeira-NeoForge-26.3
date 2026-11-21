@@ -99,6 +99,16 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         item(MainCosmetics.LOG_BUNDLE, "Log Bundle");
         item(MainCosmetics.CHAINSAW, "Chainsaw");
         item(MainCosmetics.CUCKOO_CLOCK, "Cuckoo Clock");
+        item(MainBadgerCrate.CONSTRUCTION_CRATE, "Construction Crate");
+        item(MainCosmetics.HARD_HAT, "Hard Hat");
+        item(MainCosmetics.TRAFFIC_CONE_HAT, "Traffic Cone Hat");
+        item(MainCosmetics.TREADS, "Treads");
+        item(MainCosmetics.CRANE, "Crane");
+        item(MainBadgerCrate.FAST_FOOD_CRATE, "Fast Food Crate");
+        item(MainCosmetics.COMICALLY_LARGE_FORK, "Comically Large Fork");
+        item(MainCosmetics.COMICALLY_LARGE_SPOON, "Comically Large Spoon");
+        item(MainCosmetics.FRY_PACK, "Fry Pack");
+        item(MainCosmetics.BURGER_CAP, "Burger Cap");
         addId("entity", "badger_crate_show", "Badger Crate");
         // The Badger Crate opening's HUD (client/crate/BadgerCrateClient).
         addId("message", "badger_crate.opening", "Opening Crate...");

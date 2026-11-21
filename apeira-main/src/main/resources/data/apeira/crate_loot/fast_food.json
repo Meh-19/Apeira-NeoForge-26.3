@@ -1,0 +1,7 @@
+{
+  "common": ["apeira:condiment_caddy", "apeira:burger_tray", "apeira:cone_light", "apeira:restaurant_table", "apeira:hotdog_tray",
+    "apeira:donut_box", "apeira:comically_large_fork", "apeira:comically_large_spoon"],
+  "rare": ["apeira:restaurant_booth", "apeira:fry_pack", "apeira:menu_screen", "apeira:burger_cap"],
+  "epic": ["apeira:vending_machine", "apeira:burger_signage", "apeira:hotdog_signage", "apeira:donut_signage"],
+  "legendary": ["apeira:burger_mascot_inflatable"]
+}
