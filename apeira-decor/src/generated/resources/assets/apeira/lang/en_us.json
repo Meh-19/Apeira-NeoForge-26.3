@@ -149,6 +149,7 @@
   "tooltip.apeira.exclusive.business_crate": "Business Crate Exclusive",
   "tooltip.apeira.exclusive.camping_crate": "Camping Crate Exclusive",
   "tooltip.apeira.exclusive.construction_crate": "Construction Crate Exclusive",
+  "tooltip.apeira.exclusive.cosmetic_crate": "Cosmetic Crate Exclusive",
   "tooltip.apeira.exclusive.fast_food_crate": "Fast Food Crate Exclusive",
   "tooltip.apeira.paint.color": "Painted %s, Shade %s",
   "tooltip.apeira.paint.finish": "%s Finish"

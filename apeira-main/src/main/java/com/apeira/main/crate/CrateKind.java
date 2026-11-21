@@ -22,7 +22,8 @@ public enum CrateKind {
     BUSINESS,
     CAMPING,
     CONSTRUCTION,
-    FAST_FOOD;
+    FAST_FOOD,
+    COSMETIC;
 
     /** {@code badger}, {@code animal}. */
     public String id() {
@@ -53,6 +54,7 @@ public enum CrateKind {
             case CAMPING -> MainBadgerCrate.CAMPING_CRATE.get();
             case CONSTRUCTION -> MainBadgerCrate.CONSTRUCTION_CRATE.get();
             case FAST_FOOD -> MainBadgerCrate.FAST_FOOD_CRATE.get();
+            case COSMETIC -> MainBadgerCrate.COSMETIC_CRATE.get();
         };
     }
 
