@@ -175,7 +175,8 @@ public final class DecorFurniture {
             p -> new FurnitureBlock(p, true, Form.FLOOR));
     /** The pack's fluorescent_light_wall, lying as the pack draws it (rotation x 90, a top face piece); under a block, fluorescent_light_ceiling. */
     public static final DeferredBlock<WallFurnitureBlock> FLUORESCENT_LIGHT = piece("fluorescent_light", "business_crate", 0x666666,
-            p -> new WallFurnitureBlock(p, true, () -> DecorFurniture.FLUORESCENT_LIGHT_CEILING.get()).displayAs(DisplayMode.TOP_FACE));
+            p -> new WallFurnitureBlock(p, true, () -> DecorFurniture.FLUORESCENT_LIGHT_CEILING.get()).displayAs(DisplayMode.TOP_FACE)
+                    .modelYaw(90));
     public static final DeferredBlock<FacingFurnitureBlock> FLUORESCENT_LIGHT_CEILING = piece("fluorescent_light_ceiling", "business_crate", 0x666666,
             p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.FLUORESCENT_LIGHT.get()));
     public static final DeferredBlock<FurnitureBlock> LAPTOP = piece("laptop", "business_crate", 0x999999,
@@ -201,7 +202,7 @@ public final class DecorFurniture {
     public static final DeferredBlock<FurnitureBlock> PRINTING_MACHINE = piece("printing_machine", "business_crate",
             p -> new FurnitureBlock(p, true, Form.FURNITURE));
     public static final DeferredBlock<FurnitureBlock> BILLBOARD = piece("billboard", "business_crate", 0x547483,
-            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.BILLBOARD_WALL.get(), null, null));
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.BILLBOARD_WALL.get(), null, null).renderOffset(0, 16, 0));
     public static final DeferredBlock<FacingFurnitureBlock> BILLBOARD_WALL = piece("billboard_wall", "business_crate", 0x547483,
             p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.BILLBOARD.get()));
     public static final DeferredBlock<FurnitureBlock> CUBICLE = piece("cubicle", "business_crate", 0x999999,
@@ -226,7 +227,8 @@ public final class DecorFurniture {
             p -> new FurnitureBlock(p, true, Form.FLOOR, null, () -> DecorFurniture.POTTED_FOREST_FERN_CEILING.get(), null));
     /** The pack's ceiling model lies like a floor piece (rotation x -90). */
     public static final DeferredBlock<FacingFurnitureBlock> POTTED_FOREST_FERN_CEILING = piece("potted_forest_fern_ceiling", "camping_crate", 0x93BA4F,
-            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.POTTED_FOREST_FERN.get()).displayAs(DisplayMode.FLOOR));
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.POTTED_FOREST_FERN.get()).displayAs(DisplayMode.FLOOR)
+                    .renderOffset(0, -32, 0));
     /** A seat 8 pixels up (a guess until tried). */
     public static final DeferredBlock<SeatFurnitureBlock> CABIN_CHAIR = piece("cabin_chair", "camping_crate", 0xCB5148,
             p -> new SeatFurnitureBlock(p, true, Form.FLOOR, 8));
@@ -253,7 +255,7 @@ public final class DecorFurniture {
     public static final DeferredBlock<FacingFurnitureBlock> LARGE_HAMMOCK_WALL = piece("large_hammock_wall", "camping_crate", 0xCB5148,
             p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.LARGE_HAMMOCK.get()).displayAs(DisplayMode.FLOOR));
     public static final DeferredBlock<FacingFurnitureBlock> LARGE_HAMMOCK_CEILING = piece("large_hammock_ceiling", "camping_crate", 0xCB5148,
-            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.LARGE_HAMMOCK.get()));
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.LARGE_HAMMOCK.get()).renderOffset(0, -64, 0));
     public static final DeferredBlock<FurnitureBlock> CABIN_FIREPLACE = piece("cabin_fireplace", "camping_crate", 0xAC5353,
             p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.CABIN_FIREPLACE_WALL.get(), null, null));
     public static final DeferredBlock<FacingFurnitureBlock> CABIN_FIREPLACE_WALL = piece("cabin_fireplace_wall", "camping_crate", 0xAC5353,
