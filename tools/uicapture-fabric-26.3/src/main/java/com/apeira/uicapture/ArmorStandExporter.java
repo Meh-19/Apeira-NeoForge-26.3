@@ -924,7 +924,7 @@ public final class ArmorStandExporter {
             root.add("scale", discrete(ticks, t -> track.frames.containsKey(t) ? 1.0 : 0.0));
             if (first.transform() != null) {
                 // A fixed billboard turns the display by yaw, then pitch.
-                root.add("rotation", continuous(ticks, delta(t -> billboard(states[t].yaw(), states[t].pitch()), rest.get(track.bone), true), true));
+                root.add("rotation", rotation(ticks, t -> billboard(states[t].yaw(), states[t].pitch()), rest.get(track.bone)));
                 JsonObject transform = new JsonObject();
                 Rest transformRest = rest.get(track.bone + "_transform");
                 transform.add("position", continuous(ticks, delta(t -> {
@@ -933,20 +933,20 @@ public final class ArmorStandExporter {
                 }, transformRest, false), false));
                 // Vanilla's matrix is translation * left rotation * scale * right rotation; a bone is translation * rotation * scale,
                 // so the right rotation is a child bone of its own.
-                transform.add("rotation", continuous(ticks, delta(t -> {
+                transform.add("rotation", rotation(ticks, t -> {
                     AreaEntities.Transform tr = states[t].transform();
                     return tr == null ? new double[3] : euler(tr.left());
-                }, transformRest, true), true));
+                }, transformRest));
                 transform.add("scale", continuous(ticks, t -> {
                     AreaEntities.Transform tr = states[t].transform();
                     return tr == null ? new double[] {1, 1, 1} : new double[] {tr.scale().x(), tr.scale().y(), tr.scale().z()};
                 }, false));
                 bones.add(track.bone + "_transform", transform);
                 JsonObject right = new JsonObject();
-                right.add("rotation", continuous(ticks, delta(t -> {
+                right.add("rotation", rotation(ticks, t -> {
                     AreaEntities.Transform tr = states[t].transform();
                     return tr == null ? new double[3] : euler(tr.right());
-                }, rest.get(track.bone + "_transform_right"), true), true));
+                }, rest.get(track.bone + "_transform_right")));
                 bones.add(track.bone + "_transform_right", right);
                 for (ItemVariant variant : items.getOrDefault(track.bone, List.of())) {
                     // Scale 0 while the display shows another item or none.
@@ -1045,6 +1045,40 @@ public final class ArmorStandExporter {
     static double[] euler(Quaternionfc rotation) {
         Vector3f angles = rotation.getEulerAnglesZYX(new Vector3f());
         return new double[] {-Math.toDegrees(angles.x), -Math.toDegrees(angles.y), Math.toDegrees(angles.z)};
+    }
+
+    /**
+     * A decomposed rotation track as linear keyframes, like {@link #continuous} with {@link #delta}. Every rotation has two
+     * z-y-x Euler triples, (x, y, z) and (x + 180, 180 - y, z + 180), and {@link #euler} returns whichever keeps y within
+     * [-90, 90], so a turn whose y passes 90 jumped to the other triple for a frame or more ([0, y, 0] to [180, y, 180]),
+     * which GeckoLib then interpolated as a half spin. Each frame takes the triple nearest the previous frame's instead.
+     */
+    private static JsonObject rotation(int ticks, Function<Integer, double[]> value, @Nullable Rest rest) {
+        double[][] previous = new double[1][];
+        return continuous(ticks, delta(t -> {
+            double[] v = value.apply(t);
+            double[] reference = previous[0] != null ? previous[0] : rest != null ? rest.rotation() : null;
+            if (reference != null) {
+                double[] other = {v[0] + 180, 180 - v[1], v[2] + 180};
+                if (angularDistance(other, reference) < angularDistance(v, reference)) {
+                    v = other;
+                }
+                for (int i = 0; i < 3; i++) {
+                    v[i] = reference[i] + wrap(v[i] - reference[i]);
+                }
+            }
+            previous[0] = v.clone();
+            return v;
+        }, rest, true), true);
+    }
+
+    private static double angularDistance(double[] a, double[] b) {
+        double sum = 0;
+        for (int i = 0; i < 3; i++) {
+            double d = wrap(a[i] - b[i]);
+            sum += d * d;
+        }
+        return sum;
     }
 
     /** Linear keyframes at the ends of every run of equal values, so held values stay held. */
