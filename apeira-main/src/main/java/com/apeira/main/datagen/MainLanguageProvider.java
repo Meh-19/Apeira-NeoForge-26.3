@@ -109,6 +109,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         item(MainCosmetics.COMICALLY_LARGE_SPOON, "Comically Large Spoon");
         item(MainCosmetics.FRY_PACK, "Fry Pack");
         item(MainCosmetics.BURGER_CAP, "Burger Cap");
+        item(MainCosmetics.PARTY_HAT, "Party Hat");
         item(MainBadgerCrate.COSMETIC_CRATE, "Cosmetic Crate");
         item(MainBadgerCrate.FUN_FAIR_CRATE, "Fun Fair Crate");
         item(MainBadgerCrate.GARDEN_CRATE, "Garden Crate");
