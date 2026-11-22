@@ -37,8 +37,9 @@ from asset_common import ScriptError, read_json, relative, run, write_json
 FACES = ("north", "east", "south", "west", "up", "down")
 
 
-# Blockbench's GeckoLib ("animated_entity_model"), Bedrock and free project formats, whose groups and cubes are the same.
-FORMATS = ("animated_entity_model", "bedrock", "bedrock_old", "free")
+# Blockbench's GeckoLib ("animated_entity_model", and "geckolib_model" from newer GeckoLib plugins), Bedrock and free
+# project formats, whose groups and cubes are the same.
+FORMATS = ("animated_entity_model", "geckolib_model", "bedrock", "bedrock_old", "free")
 # Blockbench keeps keyframes in its own axes; the GeckoLib (Bedrock) export negates these components.
 NEGATED = {"position": (True, False, False), "rotation": (True, True, False)}
 

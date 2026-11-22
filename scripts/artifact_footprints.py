@@ -71,8 +71,9 @@ FORM_MODES = {
     "BLOCK_UP": "BLOCK_UP", "WALL_MOUNTED": "WALL", "TWO_TALL": "TOP_FACE", "THREE_TALL": "TOP_FACE",
     "FOUR_TALL": "TOP_FACE", "FOUR_TALL_FLOOR": "FLOOR", "FIVE_TALL": "TOP_FACE",
 }
-# Animated pieces whose hitbox is only the cubes under one bone (the elephant's, not its floating head and trunk).
-HITBOX_BONES = {"elephant_inflatable": "elephant_inflatable_body_tintable"}
+# Animated pieces whose hitbox is only the cubes under one bone (the elephant's, not its floating head and trunk; the
+# spot light's stand, not its turning lamp and beam).
+HITBOX_BONES = {"elephant_inflatable": "elephant_inflatable_body_tintable", "spot_light": "spotlight_stand"}
 FACING_CLASSES = {"FacingFurnitureBlock", "CeilingFurnitureBlock", "WaterloggedFurnitureBlock", "WallFurnitureBlock"}
 # A piece: its name, its block class, the argument after its paintability (a Form, a DisplayMode, a seat height or an
 # animation name) and the rest of its declaration, which may hold a renderOffset(x, y, z) in pixels. An animated

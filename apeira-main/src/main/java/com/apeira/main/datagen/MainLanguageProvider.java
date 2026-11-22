@@ -110,6 +110,8 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         item(MainCosmetics.FRY_PACK, "Fry Pack");
         item(MainCosmetics.BURGER_CAP, "Burger Cap");
         item(MainBadgerCrate.COSMETIC_CRATE, "Cosmetic Crate");
+        item(MainBadgerCrate.FUN_FAIR_CRATE, "Fun Fair Crate");
+        item(MainBadgerCrate.GARDEN_CRATE, "Garden Crate");
         item(MainCosmetics.MOHAWK_HAIR, "Mohawk Hair");
         item(MainCosmetics.BASEBALL_CAP, "Baseball Cap");
         item(MainCosmetics.FADED_HAIR, "Faded Hair");

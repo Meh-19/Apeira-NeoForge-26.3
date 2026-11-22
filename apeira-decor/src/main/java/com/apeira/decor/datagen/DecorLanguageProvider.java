@@ -38,10 +38,11 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
             String name = BuiltInRegistries.BLOCK.getKey(furniture.get().dropBlock()).getPath();
             block(furniture, NAMES.getOrDefault(name, title(name)));
         }
-        Set<String> crates = new LinkedHashSet<>(List.of("badger_crate", "animal_crate", "bathroom_crate", "business_crate", "camping_crate", "cosmetic_crate", "fast_food_crate", "construction_crate"));
+        Set<String> crates = new LinkedHashSet<>(List.of("badger_crate", "animal_crate", "bathroom_crate", "business_crate", "camping_crate", "cosmetic_crate", "fast_food_crate", "construction_crate", "fun_fair_crate", "garden_crate"));
         // The same lines as the cosmetics' (the main module's language file), for the crates furniture comes from.
         for (String crate : crates) {
-            tooltip("exclusive." + crate, title(crate) + " Exclusive");
+            // The Fun Fair Crate's line is the captured "Funfair Crate Exclusive".
+            tooltip("exclusive." + crate, ("fun_fair_crate".equals(crate) ? "Funfair Crate" : title(crate)) + " Exclusive");
         }
 
         addEntityType(DecorEntities.SEAT, "Seat");

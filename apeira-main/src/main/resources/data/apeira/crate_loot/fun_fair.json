@@ -1,0 +1,7 @@
+{
+  "common": ["apeira:circus_flag", "apeira:fair_lights", "apeira:cotton_candy_tray", "apeira:circus_podium", "apeira:photo_standee",
+    "apeira:popcorn_bucket"],
+  "rare": ["apeira:food_stall", "apeira:spot_light", "apeira:bumper_car", "apeira:balloon_bundle", "apeira:high_striker"],
+  "epic": ["apeira:tube_man", "apeira:circus_tent"],
+  "legendary": ["apeira:carousel"]
+}

@@ -10,7 +10,7 @@ import net.minecraft.world.item.Item;
 
 /**
  * The crates that play the shared crate opening: the same template world, session, camera, animation and HUD, each
- * with its own instance suffix ({@code apeira:<uuid>_badgercrate}, {@code _animalcrate}, {@code _bathroomcrate}, {@code _businesscrate}, {@code _campingcrate}), loot file
+ * with its own instance suffix ({@code apeira:<uuid>_badgercrate}, {@code _animalcrate}, {@code _bathroomcrate}, {@code _businesscrate}, {@code _campingcrate}, {@code _funfaircrate}, {@code _gardencrate} ...), loot file
  * ({@code data/apeira/crate_loot/<id>.json}), GeckoLib model ({@code geckolib/models/<id>_crate.geo.json}, the Badger
  * Crate's bones with the crate's own lid and base cubes) and texture ({@code textures/entity/badger_crate/<id>_crate.png}).
  * The animation ({@code badger_crate.animation.json}) and VFX layout are shared.
@@ -23,16 +23,18 @@ public enum CrateKind {
     CAMPING,
     CONSTRUCTION,
     FAST_FOOD,
-    COSMETIC;
+    COSMETIC,
+    FUN_FAIR,
+    GARDEN;
 
     /** {@code badger}, {@code animal}. */
     public String id() {
         return name().toLowerCase(Locale.ROOT);
     }
 
-    /** The instance dimension's path suffix, {@code _badgercrate} or {@code _animalcrate}. */
+    /** The instance dimension's path suffix, {@code _badgercrate}, {@code _animalcrate} or {@code _funfaircrate} (no underscores in the id). */
     public String suffix() {
-        return "_" + id() + "crate";
+        return "_" + id().replace("_", "") + "crate";
     }
 
     /** {@code apeira:badger_crate}, {@code apeira:animal_crate}: the GeckoLib model. */
@@ -55,6 +57,8 @@ public enum CrateKind {
             case CONSTRUCTION -> MainBadgerCrate.CONSTRUCTION_CRATE.get();
             case FAST_FOOD -> MainBadgerCrate.FAST_FOOD_CRATE.get();
             case COSMETIC -> MainBadgerCrate.COSMETIC_CRATE.get();
+            case FUN_FAIR -> MainBadgerCrate.FUN_FAIR_CRATE.get();
+            case GARDEN -> MainBadgerCrate.GARDEN_CRATE.get();
         };
     }
 
