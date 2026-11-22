@@ -3,8 +3,6 @@ package com.apeira.decor.client;
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.decor.furniture.FurnitureBlock;
-import com.apeira.decor.furniture.FurnitureTuning;
-import com.apeira.decor.furniture.FurnitureTunings;
 import com.apeira.decor.furniture.FurnitureBlockEntity;
 import com.apeira.decor.furniture.DisplayMode;
 import com.apeira.decor.paint.Paint;
@@ -56,16 +54,13 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         BlockState block = blockEntity.getBlockState();
         state.mode = block.getBlock() instanceof FurnitureBlock artifact ? artifact.displayMode(block) : DisplayMode.TOP_FACE;
         state.rotation = block.getValueOrElse(FurnitureBlock.ROTATION, 0);
-        // A piece being tuned with apeira-dev's wand is drawn as its tuning says: moved, scaled and turned further.
-        FurnitureTuning tuning = FurnitureTunings.enabled() ? FurnitureTunings.get(block.getBlock()) : null;
-        state.scale = tuning != null ? tuning.scale() : 1.0F;
-        // The piece's own offset (FurnitureBlock#renderOffset), or while it is being tuned, the tuning's instead.
+        state.scale = 1.0F;
+        // The piece's own offset (FurnitureBlock#renderOffset).
         float[] offset = block.getBlock() instanceof FurnitureBlock furniture ? furniture.renderOffset() : new float[3];
-        state.offsetX = tuning != null ? tuning.offsetX() / 16.0F : offset[0];
-        state.offsetY = tuning != null ? tuning.offsetY() / 16.0F : offset[1];
-        state.offsetZ = tuning != null ? tuning.offsetZ() / 16.0F : offset[2];
+        state.offsetX = offset[0];
+        state.offsetY = offset[1];
+        state.offsetZ = offset[2];
         state.modelYaw = block.getBlock() instanceof FurnitureBlock yawed ? yawed.modelYaw() : 0.0F;
-        state.rotation += tuning != null ? tuning.rotation() : 0;
         state.facing = block.getOptionalValue(HorizontalDirectionalBlock.FACING).orElse(null);
         ItemStack stack = new ItemStack(block.getBlock());
         if (blockEntity.paint() != null) {

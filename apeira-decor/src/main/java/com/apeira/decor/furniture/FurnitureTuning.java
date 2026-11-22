@@ -3,123 +3,165 @@ package com.apeira.decor.furniture;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.apeira.decor.block.ApeiraFurnitureBlock;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
 
 /**
- * A furniture piece's shape, drawing transform, placement and seat, as a dev tool edits them live
- * ({@link FurnitureTunings}). All lengths are in pixels, at turn 0, as footprints have them.
+ * What apeira-dev's furniture tuner changes on a piece, in its three modes: the seats (seating adjuster), the footprint
+ * boxes taken out of its hitbox (bounding box deleter), and its light level and collision (light and collision toggle).
+ * Lengths are in pixels at turn 0, as the footprint tables have them. The same values, applied to code, are the baked
+ * tunes of {@link FurnitureTunes}; live ones are {@link FurnitureTunings}.
  *
- * @param boxes      the shape's boxes
- * @param scale      the scale {@code FurnitureRenderer} draws the model at (1 is the size it is drawn at untuned)
- * @param offsetX    how far the model is moved east, before it is turned with the piece
- * @param offsetY    how far the model's bottom is lifted (in pixels)
- * @param offsetZ    how far the model is moved south, before it is turned with the piece
- * @param rotation   the 45 degree steps added to the placing rotation, or the rotation itself with
- *                   {@link FurniturePlacement#DEFAULT}
- * @param placements the {@link FurniturePlacement} bit mask
- * @param seatHeight the top of the seat, or a negative number for a piece without one
+ * @param removed   footprint boxes taken out, each as the table has it at turn 0 (or turn 1 for a diagonal box)
+ * @param seats     the seats ({@code x, y, z}, y the sit height), or an empty list for the piece's own; only seat
+ *                  pieces ({@link SeatFurnitureBlock}) use them
+ * @param light     the light the piece gives, 0-15, or {@link #OWN_LIGHT} for its own
+ * @param collision whether the piece (and its parts) stops entities
  */
-public record FurnitureTuning(List<Box> boxes, float scale, float offsetX, float offsetY, float offsetZ, int rotation, int placements,
-        double seatHeight) {
-    /** The most boxes a client may give a piece; the catalogue's shapes come to fewer. */
-    public static final int MAX_BOXES = 64;
-    /** Boxes stay in the block across (shapes are cut to it when turned) and at most a fence's height up. */
-    public static final double MAX_HEIGHT = 24.0;
+public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int light, boolean collision) {
+    /** The most boxes and seats a client may give a piece. */
+    public static final int MAX_ENTRIES = 64;
+    /** {@link #light} for a piece that gives its own light. */
+    public static final int OWN_LIGHT = -1;
+    /** Seats stay within the reach of the multiblock around the block (pixels). */
+    private static final double SEAT_REACH = 64.0;
 
     public static final StreamCodec<ByteBuf, FurnitureTuning> STREAM_CODEC = StreamCodec.composite(
-            Box.STREAM_CODEC.apply(ByteBufCodecs.list()), FurnitureTuning::boxes,
-            ByteBufCodecs.FLOAT, FurnitureTuning::scale,
-            ByteBufCodecs.FLOAT, FurnitureTuning::offsetX,
-            ByteBufCodecs.FLOAT, FurnitureTuning::offsetY,
-            ByteBufCodecs.FLOAT, FurnitureTuning::offsetZ,
-            ByteBufCodecs.VAR_INT, FurnitureTuning::rotation,
-            ByteBufCodecs.VAR_INT, FurnitureTuning::placements,
-            ByteBufCodecs.DOUBLE, FurnitureTuning::seatHeight,
+            RemovedBox.STREAM_CODEC.apply(ByteBufCodecs.list()), FurnitureTuning::removed,
+            Seat.STREAM_CODEC.apply(ByteBufCodecs.list()), FurnitureTuning::seats,
+            ByteBufCodecs.VAR_INT, FurnitureTuning::light,
+            ByteBufCodecs.BOOL, FurnitureTuning::collision,
             FurnitureTuning::new);
 
     public FurnitureTuning {
-        boxes = List.copyOf(boxes);
+        removed = List.copyOf(removed);
+        seats = List.copyOf(seats);
     }
 
-    /** The piece as it is: its footprint's boxes at turn 0, drawn at its own size, its seat height if it has a seat. */
+    /** {@code block} as its code has it (with its baked tune): what the tuner starts from. */
     public static FurnitureTuning of(FurnitureBlock block) {
-        List<Box> boxes = new ArrayList<>();
-        for (AABB box : block.footprint(block.defaultBlockState()).shape(0, net.minecraft.core.BlockPos.ZERO).toAabbs()) {
-            boxes.add(Box.ofBlocks(box));
+        FurnitureTuning baked = FurnitureTunes.get(block);
+        List<Seat> seats = baked != null && !baked.seats.isEmpty() ? baked.seats : ownSeats(block);
+        return new FurnitureTuning(baked != null ? baked.removed : List.of(), seats, baked != null ? baked.light : OWN_LIGHT,
+                baked != null ? baked.collision : block.ownCollision());
+    }
+
+    /** A seat piece's seats in pixels at turn 0, as it is registered; none for other pieces. */
+    private static List<Seat> ownSeats(FurnitureBlock block) {
+        if (!(block instanceof SeatFurnitureBlock seat)) {
+            return List.of();
         }
-        double seat = block instanceof SeatFurnitureBlock seatBlock ? seatBlock.seatHeight() * 16.0 : -1.0;
-        return new FurnitureTuning(boxes, 1.0F, 0.0F, 0.0F, 0.0F, 0, FurniturePlacement.ANY_FACE, seat);
+        List<Seat> seats = new ArrayList<>();
+        // Turn 0 is ROTATION 0 for every piece that sits (no seat is a wall piece).
+        for (Vec3 position : seat.ownSeats(block.defaultBlockState())) {
+            seats.add(new Seat(round(position.x * 16.0), round(position.y * 16.0), round(position.z * 16.0)));
+        }
+        return seats;
     }
 
     /** This tuning with the values a client may send kept in range. */
     public FurnitureTuning sanitized() {
-        List<Box> kept = new ArrayList<>();
-        for (Box box : boxes.subList(0, Math.min(boxes.size(), MAX_BOXES))) {
-            Box clamped = box.clamped();
-            if (clamped != null) {
-                kept.add(clamped);
+        List<Seat> kept = new ArrayList<>();
+        for (Seat seat : seats.subList(0, Math.min(seats.size(), MAX_ENTRIES))) {
+            kept.add(seat.clamped());
+        }
+        return new FurnitureTuning(removed.subList(0, Math.min(removed.size(), MAX_ENTRIES)), kept, Mth.clamp(light, OWN_LIGHT, 15), collision);
+    }
+
+    /** Whether {@code box} (turn 0, or turn 1 when {@code diagonal}) is one this tuning takes out. */
+    public boolean removes(AABB box, boolean diagonal) {
+        for (RemovedBox removedBox : removed) {
+            if (removedBox.diagonal == diagonal && removedBox.box.matches(box)) {
+                return true;
             }
         }
-        int mask = placements & (FurniturePlacement.ANY_FACE | FurniturePlacement.DEFAULT.bit());
-        return new FurnitureTuning(kept, Mth.clamp(scale, 0.05F, 16.0F), Mth.clamp(offsetX, -64.0F, 64.0F), Mth.clamp(offsetY, -64.0F, 64.0F),
-                Mth.clamp(offsetZ, -64.0F, 64.0F), Math.floorMod(rotation, ApeiraFurnitureBlock.ROTATIONS), mask == 0 ? FurniturePlacement.FLOOR.bit() : mask,
-                seatHeight < 0 ? -1.0 : Math.min(seatHeight, MAX_HEIGHT));
+        return false;
     }
 
-    /** The shape facing north; an empty shape when every box was removed. */
-    public VoxelShape shape() {
-        VoxelShape shape = Shapes.empty();
-        for (Box box : boxes) {
-            shape = Shapes.or(shape, box.shape());
+    public FurnitureTuning withRemoved(List<RemovedBox> removed) {
+        return new FurnitureTuning(removed, seats, light, collision);
+    }
+
+    public FurnitureTuning withSeats(List<Seat> seats) {
+        return new FurnitureTuning(removed, seats, light, collision);
+    }
+
+    public FurnitureTuning withSeat(int index, Seat seat) {
+        List<Seat> changed = new ArrayList<>(seats);
+        changed.set(index, seat);
+        return withSeats(changed);
+    }
+
+    public FurnitureTuning withLight(int light) {
+        return new FurnitureTuning(removed, seats, Mth.clamp(light, OWN_LIGHT, 15), collision);
+    }
+
+    public FurnitureTuning withCollision(boolean collision) {
+        return new FurnitureTuning(removed, seats, light, collision);
+    }
+
+    /** The tuning as the tune log and the baked tunes file write it. */
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject();
+        JsonArray straight = new JsonArray();
+        JsonArray diagonal = new JsonArray();
+        for (RemovedBox box : removed) {
+            (box.diagonal ? diagonal : straight).add(box.box.toJson());
         }
-        return shape.optimize();
+        json.add("removed_boxes", straight);
+        json.add("removed_diagonal_boxes", diagonal);
+        JsonArray seatList = new JsonArray();
+        for (Seat seat : seats) {
+            JsonArray numbers = new JsonArray();
+            numbers.add(seat.x);
+            numbers.add(seat.y);
+            numbers.add(seat.z);
+            seatList.add(numbers);
+        }
+        json.add("seats", seatList);
+        json.addProperty("light", light);
+        json.addProperty("collision", collision);
+        return json;
     }
 
-    public boolean seat() {
-        return seatHeight >= 0;
+    /**
+     * Reads {@link #toJson()}'s format; missing fields are {@code block}'s own (no removed boxes, its seats, its light
+     * and collision), so a baked entry may name only what it changes.
+     */
+    public static FurnitureTuning fromJson(JsonObject json, FurnitureBlock block) {
+        List<RemovedBox> removed = new ArrayList<>();
+        for (String key : new String[] {"removed_boxes", "removed_diagonal_boxes"}) {
+            if (json.has(key)) {
+                for (JsonElement element : json.getAsJsonArray(key)) {
+                    removed.add(new RemovedBox(Box.fromJson(element.getAsJsonArray()), key.contains("diagonal")));
+                }
+            }
+        }
+        List<Seat> seats = new ArrayList<>();
+        if (json.has("seats")) {
+            for (JsonElement element : json.getAsJsonArray("seats")) {
+                JsonArray numbers = element.getAsJsonArray();
+                seats.add(new Seat(numbers.get(0).getAsDouble(), numbers.get(1).getAsDouble(), numbers.get(2).getAsDouble()));
+            }
+        }
+        int light = json.has("light") ? json.get("light").getAsInt() : OWN_LIGHT;
+        boolean collision = json.has("collision") ? json.get("collision").getAsBoolean() : block.ownCollision();
+        return new FurnitureTuning(removed, seats, light, collision).sanitized();
     }
 
-    public FurnitureTuning withBoxes(List<Box> boxes) {
-        return new FurnitureTuning(boxes, scale, offsetX, offsetY, offsetZ, rotation, placements, seatHeight);
+    private static double round(double pixels) {
+        return Math.round(pixels * 100.0) / 100.0;
     }
 
-    public FurnitureTuning withBox(int index, Box box) {
-        List<Box> changed = new ArrayList<>(boxes);
-        changed.set(index, box);
-        return withBoxes(changed);
-    }
-
-    public FurnitureTuning withScale(float scale) {
-        return new FurnitureTuning(boxes, scale, offsetX, offsetY, offsetZ, rotation, placements, seatHeight);
-    }
-
-    public FurnitureTuning withOffset(float offsetX, float offsetY, float offsetZ) {
-        return new FurnitureTuning(boxes, scale, offsetX, offsetY, offsetZ, rotation, placements, seatHeight);
-    }
-
-    public FurnitureTuning withRotation(int rotation) {
-        return new FurnitureTuning(boxes, scale, offsetX, offsetY, offsetZ, Math.floorMod(rotation, ApeiraFurnitureBlock.ROTATIONS), placements,
-                seatHeight);
-    }
-
-    public FurnitureTuning withPlacements(int placements) {
-        return new FurnitureTuning(boxes, scale, offsetX, offsetY, offsetZ, rotation, placements, seatHeight);
-    }
-
-    public FurnitureTuning withSeatHeight(double seatHeight) {
-        return new FurnitureTuning(boxes, scale, offsetX, offsetY, offsetZ, rotation, placements, seatHeight);
-    }
-
-    /** One box of a shape, {@code Block.box} style: corners in pixels, facing north. */
+    /** One box of a footprint in pixels, relative to the controller's block, at turn 0 (or 1 for diagonal boxes). */
     public record Box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         public static final StreamCodec<ByteBuf, Box> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.DOUBLE, Box::minX,
@@ -132,27 +174,55 @@ public record FurnitureTuning(List<Box> boxes, float scale, float offsetX, float
 
         /** A box given in blocks, rounded to a hundredth of a pixel. */
         public static Box ofBlocks(AABB box) {
-            return new Box(pixels(box.minX), pixels(box.minY), pixels(box.minZ), pixels(box.maxX), pixels(box.maxY), pixels(box.maxZ));
+            return new Box(round(box.minX * 16.0), round(box.minY * 16.0), round(box.minZ * 16.0), round(box.maxX * 16.0),
+                    round(box.maxY * 16.0), round(box.maxZ * 16.0));
         }
 
-        private static double pixels(double blocks) {
-            return Math.round(blocks * 1600.0) / 100.0;
+        /** Whether {@code box} (in blocks) is this box, to a hundredth of a pixel. */
+        public boolean matches(AABB box) {
+            return equals(ofBlocks(box));
         }
 
-        public VoxelShape shape() {
-            return Block.box(minX, minY, minZ, maxX, maxY, maxZ);
+        JsonArray toJson() {
+            JsonArray numbers = new JsonArray();
+            for (double value : new double[] {minX, minY, minZ, maxX, maxY, maxZ}) {
+                numbers.add(value);
+            }
+            return numbers;
         }
 
-        /** The box in blocks. */
-        public AABB aabb() {
-            return new AABB(minX / 16.0, minY / 16.0, minZ / 16.0, maxX / 16.0, maxY / 16.0, maxZ / 16.0);
+        static Box fromJson(JsonArray numbers) {
+            double[] v = new double[6];
+            for (int i = 0; i < 6; i++) {
+                v[i] = numbers.get(i).getAsDouble();
+            }
+            return new Box(v[0], v[1], v[2], v[3], v[4], v[5]);
+        }
+    }
+
+    /** A footprint box taken out of the hitbox; {@code diagonal} for one of the turn 1 boxes. */
+    public record RemovedBox(Box box, boolean diagonal) {
+        public static final StreamCodec<ByteBuf, RemovedBox> STREAM_CODEC = StreamCodec.composite(
+                Box.STREAM_CODEC, RemovedBox::box,
+                ByteBufCodecs.BOOL, RemovedBox::diagonal,
+                RemovedBox::new);
+    }
+
+    /** A seat in pixels from the block's bottom north-west corner at turn 0; {@code y} is the sit height. */
+    public record Seat(double x, double y, double z) {
+        public static final StreamCodec<ByteBuf, Seat> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.DOUBLE, Seat::x,
+                ByteBufCodecs.DOUBLE, Seat::y,
+                ByteBufCodecs.DOUBLE, Seat::z,
+                Seat::new);
+
+        Seat clamped() {
+            return new Seat(Mth.clamp(x, -SEAT_REACH, 16 + SEAT_REACH), Mth.clamp(y, 0, SEAT_REACH), Mth.clamp(z, -SEAT_REACH, 16 + SEAT_REACH));
         }
 
-        /** The box cut to the block (and {@link #MAX_HEIGHT}), or {@code null} if nothing is left. */
-        public Box clamped() {
-            Box box = new Box(Mth.clamp(minX, 0, 16), Mth.clamp(minY, 0, MAX_HEIGHT), Mth.clamp(minZ, 0, 16), Mth.clamp(maxX, 0, 16),
-                    Mth.clamp(maxY, 0, MAX_HEIGHT), Mth.clamp(maxZ, 0, 16));
-            return box.minX < box.maxX && box.minY < box.maxY && box.minZ < box.maxZ ? box : null;
+        /** The seat in blocks. */
+        public Vec3 blocks() {
+            return new Vec3(x / 16.0, y / 16.0, z / 16.0);
         }
     }
 }

@@ -48,12 +48,55 @@ public final class Footprint {
     private final List<AABB> straight;
     private final @Nullable List<AABB> diagonal;
     private final @Nullable List<double[]> edges;
+    /** The footprint this one was cut down from ({@link #without}), whose blocks it keeps as parts, or {@code null}. */
+    private final @Nullable Footprint whole;
     private final Turn[] turns = new Turn[TURNS];
 
     private Footprint(List<AABB> straight, @Nullable List<AABB> diagonal, @Nullable List<double[]> edges) {
+        this(straight, diagonal, edges, null);
+    }
+
+    private Footprint(List<AABB> straight, @Nullable List<AABB> diagonal, @Nullable List<double[]> edges, @Nullable Footprint whole) {
         this.straight = List.copyOf(straight);
-        this.diagonal = diagonal == null || diagonal.isEmpty() ? null : List.copyOf(diagonal);
+        // A cut-down footprint keeps its (maybe emptied) diagonal list, so odd turns don't fall back on the straight boxes.
+        this.diagonal = diagonal == null || (diagonal.isEmpty() && whole == null) ? null : List.copyOf(diagonal);
         this.edges = edges == null || edges.isEmpty() ? null : List.copyOf(edges);
+        this.whole = whole;
+    }
+
+    /**
+     * This footprint without the boxes for which {@code removed} answers true (given each box at turn 0, and whether it
+     * is one of the diagonal boxes, the turn 1 list). It keeps this footprint's outline and covers the same blocks, the
+     * ones left without a box holding parts with an empty shape, so placed pieces keep their parts. Returns this
+     * footprint when nothing is removed.
+     */
+    public Footprint without(java.util.function.BiPredicate<AABB, Boolean> removed) {
+        List<AABB> keptStraight = straight.stream().filter(box -> !removed.test(box, false)).toList();
+        List<AABB> keptDiagonal = diagonal == null ? null : diagonal.stream().filter(box -> !removed.test(box, true)).toList();
+        if (keptStraight.size() == straight.size() && (diagonal == null || keptDiagonal.size() == diagonal.size())) {
+            return this;
+        }
+        // An emptied diagonal list must stay a (now empty) diagonal list, not fall back on turning the straight boxes.
+        Footprint root = whole != null ? whole : this;
+        return new Footprint(keptStraight, keptDiagonal, edges, root);
+    }
+
+    /** The boxes the piece is cut into at {@code turn}, in blocks relative to the controller's block, in source order. */
+    public List<AABB> boxes(int turn) {
+        return turn(turn).boxes;
+    }
+
+    /**
+     * Whether {@code turn}'s boxes ({@link #boxes(int)}) are the diagonal boxes turned (odd turns of a footprint with
+     * them) rather than the straight ones: box {@code i} of the turn is box {@code i} of that list at turn 0 or 1.
+     */
+    public boolean diagonalAt(int turn) {
+        return diagonal != null && Math.floorMod(turn, TURNS) % 2 == 1;
+    }
+
+    /** The diagonal boxes at turn 1, or an empty list for a footprint without them. */
+    public List<AABB> diagonalBoxes() {
+        return diagonal != null ? diagonal : List.of();
     }
 
     /** A footprint of {@code boxes}, in blocks relative to the controller's block, at turn 0. */
@@ -189,7 +232,14 @@ public final class Footprint {
         if (known == null) {
             // The straight boxes at even turns; the diagonal ones, when there are any, turned by t - 1 at odd turns.
             List<AABB> boxes = diagonal != null && t % 2 == 1 ? turned(diagonal, t - 1) : turned(straight, t);
-            known = new Turn(boxes, cut(boxes), bounds(boxes));
+            Map<BlockPos, VoxelShape> parts = cut(boxes);
+            if (whole != null) {
+                // Blocks the whole piece covers stay parts, empty where every box in them was removed.
+                Map<BlockPos, VoxelShape> kept = new LinkedHashMap<>(parts);
+                whole.parts(t).keySet().forEach(offset -> kept.putIfAbsent(offset, Shapes.empty()));
+                parts = Collections.unmodifiableMap(kept);
+            }
+            known = new Turn(boxes, parts, whole != null ? whole.bounds(t) : bounds(boxes));
             turns[t] = known;
         }
         return known;

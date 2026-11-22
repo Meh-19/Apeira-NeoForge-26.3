@@ -2,7 +2,6 @@ package com.apeira.dev.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -10,8 +9,8 @@ import com.apeira.core.registry.ApeiraIds;
 import com.apeira.decor.cosmetic.BackOffset;
 import com.apeira.decor.cosmetic.BackOffsets;
 import com.apeira.decor.furniture.FurnitureBlock;
-import com.apeira.decor.furniture.FurniturePlacement;
 import com.apeira.decor.furniture.FurnitureTuning;
+import com.apeira.decor.furniture.SeatFurnitureBlock;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -23,10 +22,10 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 /**
- * The dev wand's panel in the top left corner, while it is held: the bound piece's values, or the worn back cosmetic's,
- * the selected one marked. Rows carry Ren's tool icons ({@code textures/gui/dev/tools.png}, 16 pixel cells drawn at 8):
- * move for offsets, the hand for turns, add for boxes, the page for the editor, the clipboard for export, the bin for
- * reset. In back cosmetic mode Ren's axis gizmo ({@code axis_gizmo.png}) shows which colour is which axis.
+ * The dev wand's panel in the top left corner, while it is held: the bound piece's values in the tuner's mode, or the
+ * worn back cosmetic's, the selected one marked. Rows carry Ren's tool icons ({@code textures/gui/dev/tools.png}, 16
+ * pixel cells drawn at 8): the page for the mode and editor, add for the seat count, move for seat positions, undo for
+ * restoring deleted boxes, the bin for the box deleter; for back cosmetics move, turn, scale, export and reset. In back cosmetic mode Ren's axis gizmo ({@code axis_gizmo.png}) shows which colour is which axis.
  */
 final class TuningHud {
     private static final Identifier TOOLS = ApeiraIds.id("textures/gui/dev/tools.png");
@@ -35,6 +34,7 @@ final class TuningHud {
     private static final int GREY = 0xFFAAAAAA;
     private static final int YELLOW = 0xFFFFFF55;
     private static final int AQUA = 0xFF55FFFF;
+    private static final int RED = 0xFFFF5555;
     private static final int BACKGROUND = 0x99000000;
     private static final int MARGIN = 4;
     private static final int ICON = 8;
@@ -96,20 +96,36 @@ final class TuningHud {
 
     private static void furnitureLines(FurnitureBlock block, List<Line> lines) {
         FurnitureTuning tuning = DevSession.tuning(block);
-        String state = DevSession.tuned(block) ? " (tuned)" : " (catalogue)";
+        TunerMode mode = DevSession.mode();
+        String state = DevSession.tuned(block) ? " (tuned)" : " (code)";
         lines.add(new Line(block.getName().getString() + state, AQUA, null));
-        for (TuningParameter parameter : TuningParameter.values()) {
-            if (parameter.appliesTo(block)) {
-                boolean selected = parameter == DevSession.parameter();
-                lines.add(new Line((selected ? "> " : "  ") + parameter.label() + ": " + parameter.value(tuning, DevSession.box()),
-                        selected ? YELLOW : WHITE, tool(parameter)));
-            }
+        for (TuningParameter parameter : TuningParameter.shown(mode, block)) {
+            boolean selected = parameter == DevSession.parameter();
+            lines.add(new Line((selected ? "> " : "  ") + parameter.label() + ": " + parameter.value(mode, block, tuning, DevSession.seat()),
+                    selected ? YELLOW : WHITE, tool(parameter)));
         }
-        String placements = FurniturePlacement.of(tuning.placements()).stream().map(Enum::name).collect(Collectors.joining(" | "));
-        lines.add(new Line("  Placement: " + placements, WHITE, null));
+        switch (mode) {
+            case SEATING -> {
+                if (!(block instanceof SeatFurnitureBlock)) {
+                    lines.add(new Line(Component.translatable("hud.apeira.dev.not_a_seat").getString(), GREY, null));
+                }
+            }
+            case BOXES -> {
+                DevSession.TargetBox target = DevSession.targetBox();
+                lines.add(new Line(Component.translatable("hud.apeira.dev.box_deleter").getString(), GREY, Tool.RESET));
+                lines.add(new Line(target == null ? "  Looking at: no box" : "  Looking at: " + box(target.removed().box())
+                        + (target.removed().diagonal() ? " (diagonal)" : ""), target == null ? GREY : RED, null));
+            }
+            case LIGHT -> {}
+        }
         lines.add(new Line(Component.translatable("hud.apeira.dev.controls").getString(), GREY, null));
         lines.add(new Line(Component.translatable("hud.apeira.dev.editor", ApeiraDevClient.OPEN_EDITOR.getTranslatedKeyMessage()).getString(),
                 GREY, Tool.EDITOR));
+    }
+
+    private static String box(FurnitureTuning.Box box) {
+        return String.join(" ", TuningParameter.number(box.minX()), TuningParameter.number(box.minY()), TuningParameter.number(box.minZ()),
+                TuningParameter.number(box.maxX()), TuningParameter.number(box.maxY()), TuningParameter.number(box.maxZ()));
     }
 
     private static void backLines(Item back, List<Line> lines) {
@@ -130,10 +146,10 @@ final class TuningHud {
 
     private static @Nullable Tool tool(TuningParameter parameter) {
         return switch (parameter) {
-            case BOX -> Tool.ADD;
-            case OFFSET_X, OFFSET_Y, OFFSET_Z -> Tool.MOVE;
-            case ROTATION -> Tool.TURN;
-            case SCALE -> Tool.SCALE;
+            case MODE -> Tool.EDITOR;
+            case SEATS -> Tool.ADD;
+            case SEAT_X, SEAT_Y, SEAT_Z -> Tool.MOVE;
+            case RESTORE -> Tool.UNDO;
             default -> null;
         };
     }

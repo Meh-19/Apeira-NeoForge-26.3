@@ -16,11 +16,13 @@ import com.apeira.decor.furniture.FurnitureTunings;
 import com.apeira.dev.network.BackOffsetPayload;
 import com.apeira.dev.network.FurnitureTuningPayload;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -30,7 +32,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 /**
  * Keeps every client's {@link FurnitureTunings} and {@link BackOffsets} in step with the server's. Edits come from
  * clients as {@link FurnitureTuningPayload}s and {@link BackOffsetPayload}s, are kept in range and sent on to everyone; players who join get every tuning. Tunings
- * live only in memory: they end with the server, and the exporter is how they are kept.
+ * live only in memory on the server: they end with it, and the client's tune log
+ * ({@code client/TuneLog}) is how they are kept and sent again on the next join.
  */
 public final class TuningSync {
     private TuningSync() {}
@@ -49,7 +52,8 @@ public final class TuningSync {
         }
         FurnitureTuning tuning = payload.tuning().map(FurnitureTuning::sanitized).orElse(null);
         FurnitureTunings.set(block, tuning);
-        PacketDistributor.sendToAllPlayers(payload(block, tuning));
+        payload.at().ifPresent(pos -> relight(player.level(), pos, block));
+        PacketDistributor.sendToAllPlayers(new FurnitureTuningPayload(payload.block(), Optional.ofNullable(tuning), payload.at()));
     }
 
     /** A client moved or reset a back cosmetic. Only creative operators may. */
@@ -71,6 +75,16 @@ public final class TuningSync {
         PacketDistributor.sendToAllPlayers(backPayload(item, offset));
     }
 
+    /**
+     * Relights the piece at {@code pos} after its light was tuned: the light engine keeps a block's light until the
+     * block changes, so other placed copies of the piece relight when they are next updated.
+     */
+    public static void relight(Level level, BlockPos pos, Block block) {
+        if (level.isLoaded(pos) && level.getBlockState(pos).is(block)) {
+            level.getChunkSource().getLightEngine().checkBlock(pos);
+        }
+    }
+
     static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
@@ -90,7 +104,7 @@ public final class TuningSync {
     }
 
     private static FurnitureTuningPayload payload(Block block, FurnitureTuning tuning) {
-        return new FurnitureTuningPayload(BuiltInRegistries.BLOCK.getKey(block), Optional.ofNullable(tuning));
+        return new FurnitureTuningPayload(BuiltInRegistries.BLOCK.getKey(block), Optional.ofNullable(tuning), Optional.empty());
     }
 
     private static BackOffsetPayload backPayload(Item item, @Nullable BackOffset offset) {
