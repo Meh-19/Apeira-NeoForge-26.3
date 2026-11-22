@@ -9,6 +9,7 @@ import java.util.List;
 import com.apeira.main.client.CapturedMobProperty;
 import com.apeira.main.registry.MainBadgerCrate;
 import com.apeira.main.registry.MainCosmetics;
+import com.apeira.main.registry.MainToolSkins;
 import com.apeira.main.registry.MainDataComponents;
 import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainGear;
@@ -58,6 +59,9 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
         generators().itemModelOutput.accept(MainBadgerCrate.WESTERN_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/western_crate")));
         generators().itemModelOutput.accept(MainBadgerCrate.WIZARDRY_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/wizardry_crate")));
         MainCosmetics.all().forEach(this::cosmetic);
+        // Tool skin tokens: flat, from item/tool_skin/<skin>_<group>_token (the server pack's <skin>_<group>_token).
+        MainToolSkins.all().forEach(skin -> generators().itemModelOutput.accept(skin.get(),
+                flat("tool_skin/" + skin.get().skin() + "_" + skin.get().group().id() + "_token")));
         MainItems.tools().forEach(this::toolItem);
         trimmableArmor(MainItems.PLATINUM_HELMET, ItemModelGenerators.TRIM_PREFIX_HELMET);
         trimmableArmor(MainItems.PLATINUM_CHESTPLATE, ItemModelGenerators.TRIM_PREFIX_CHESTPLATE);

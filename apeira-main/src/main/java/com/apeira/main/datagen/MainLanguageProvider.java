@@ -4,6 +4,7 @@ import com.apeira.core.datagen.ApeiraLanguageProvider;
 import com.apeira.core.registry.ShapeSet;
 import com.apeira.main.registry.MainBadgerCrate;
 import com.apeira.main.registry.MainCosmetics;
+import com.apeira.main.registry.MainToolSkins;
 import com.apeira.main.registry.MainBlocks;
 import com.apeira.main.registry.MainBuildingBlocks;
 import com.apeira.main.registry.MainCrystals;
@@ -349,6 +350,10 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         add("tooltip.apeira.farming.sprinkler.1", "Waters planter boxes in");
         add("tooltip.apeira.farming.sprinkler.2", "a %s x %s square area");
         add("message.apeira.farming.sprinkler_full", "The sprinkler is full");
+
+        item(MainToolSkins.KNIGHT_SHIELD_SKIN, "Knight Shield Skin");
+        add("tool_skin.apeira.knight", "Knight");
+        add("container.apeira.salvaging_table", "Salvage");
 
         add("container.apeira.planter_box", "Planter Box");
         add("container.apeira.planter_box.info", "Learn more about Farming");

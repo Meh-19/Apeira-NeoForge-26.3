@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.main.Apeira;
+import com.apeira.main.toolskin.SalvagingTableBlock;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -61,7 +62,9 @@ public final class MainBuildingBlocks {
             MainBlockProperties::crates);
 
     public static final DeferredBlock<Block> SHOJI = block("shoji", Block::new, MainBlockProperties::shoji);
-    public static final DeferredBlock<Block> SALVAGING_TABLE = block("salvaging_table", Block::new, MainBlockProperties::table);
+    /** Opens the salvaging menu, which takes tool skins off tools ({@link SalvagingTableBlock}). */
+    public static final DeferredBlock<SalvagingTableBlock> SALVAGING_TABLE = block("salvaging_table", SalvagingTableBlock::new,
+            MainBlockProperties::table);
 
     private MainBuildingBlocks() {}
 

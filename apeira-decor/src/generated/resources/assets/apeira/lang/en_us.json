@@ -287,5 +287,8 @@
   "tooltip.apeira.exclusive.western_crate": "Western Crate Exclusive",
   "tooltip.apeira.exclusive.wizardry_crate": "Wizardry Crate Exclusive",
   "tooltip.apeira.paint.color": "Painted %s, Shade %s",
-  "tooltip.apeira.paint.finish": "%s Finish"
+  "tooltip.apeira.paint.finish": "%s Finish",
+  "tooltip.apeira.tool_skin.apply": "Apply this skin to any",
+  "tooltip.apeira.tool_skin.apply1": "tool in the Smithing Table",
+  "tooltip.apeira.tool_skin.skin": " Skin"
 }

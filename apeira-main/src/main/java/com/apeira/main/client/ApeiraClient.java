@@ -29,6 +29,8 @@ import com.apeira.main.client.realm.SpawnPlacement;
 import com.apeira.main.client.realm.StarterBalloonRenderer;
 import com.apeira.main.client.ruby.RubyDepositRenderer;
 import com.apeira.main.client.ruby.RubyDepositScreen;
+import com.apeira.main.client.toolskin.SalvagingTableScreen;
+import com.apeira.main.registry.MainToolSkins;
 import com.apeira.main.client.ruby.RubyHud;
 import com.apeira.main.client.ruby.RubyTickerAnimation;
 import com.apeira.main.ruby.RubyChangePayload;
@@ -126,6 +128,7 @@ public final class ApeiraClient {
         event.register(MainRubies.RUBY_DEPOSIT_MENU.get(), RubyDepositScreen::new);
         event.register(MainFarming.PLANTER_BOX_MENU.get(), PlanterBoxScreen::new);
         event.register(MainNpcs.NPC_SHOP_MENU.get(), NpcShopScreen::new);
+        event.register(MainToolSkins.SALVAGING_TABLE_MENU.get(), SalvagingTableScreen::new);
     }
 
     /** The ruby counter is drawn with the food bar, over its right end. */

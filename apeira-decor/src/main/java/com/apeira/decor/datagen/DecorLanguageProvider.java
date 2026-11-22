@@ -52,6 +52,11 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
         container("wardrobe", "Wardrobe");
         addId("key", "open_wardrobe", "Open Wardrobe");
 
+        // Tool skins (Ren's capture of the Knight Shield Skin): the token's lore and the skinned tool's " + Knight Skin".
+        tooltip("tool_skin.apply", "Apply this skin to any");
+        tooltip("tool_skin.apply1", "tool in the Smithing Table");
+        tooltip("tool_skin.skin", " Skin");
+
         tooltip("paint.color", "Painted %s, Shade %s");
         tooltip("paint.finish", "%s Finish");
         message("paint_copied", "Copied: %s");
