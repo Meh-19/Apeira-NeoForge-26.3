@@ -36,13 +36,22 @@ public class CosmeticItem extends Item {
     public static final int EXCLUSIVE_COLOR = 0xFFAA00;
     /** The Bathroom Crate's exclusive line colour, as Ren's capture shows it. */
     public static final int BATHROOM_EXCLUSIVE_COLOR = 0x74A4CA;
+    /** The Fun Fair Crate's exclusive line colour, as Ren's capture shows it. */
+    public static final int FUN_FAIR_EXCLUSIVE_COLOR = 0xCB5148;
+    /** The Garden Crate's exclusive line colour, as Ren's capture shows it. */
+    public static final int GARDEN_EXCLUSIVE_COLOR = 0x4D7A60;
 
     /**
      * A crate's "Exclusive" line ({@code tooltip.apeira.exclusive.<crate>}): gold, or the colour Ren's capture shows for
-     * crates whose capture has one (the Bathroom Crate's).
+     * crates whose capture has one (the Bathroom, Fun Fair and Garden Crates').
      */
     public static MutableComponent exclusive(String crate) {
-        int colour = "bathroom_crate".equals(crate) ? BATHROOM_EXCLUSIVE_COLOR : EXCLUSIVE_COLOR;
+        int colour = switch (crate) {
+            case "bathroom_crate" -> BATHROOM_EXCLUSIVE_COLOR;
+            case "fun_fair_crate" -> FUN_FAIR_EXCLUSIVE_COLOR;
+            case "garden_crate" -> GARDEN_EXCLUSIVE_COLOR;
+            default -> EXCLUSIVE_COLOR;
+        };
         return Component.translatable("tooltip.apeira.exclusive." + crate).withStyle(Style.EMPTY.withColor(colour));
     }
 

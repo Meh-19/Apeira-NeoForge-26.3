@@ -1,5 +1,7 @@
 package com.apeira.decor.furniture;
 
+import java.util.function.Supplier;
+
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -25,7 +27,17 @@ public class AnimatedWallFurnitureBlock extends AnimatedFurnitureBlock {
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 
     public AnimatedWallFurnitureBlock(BlockBehaviour.Properties properties, String folder, boolean paintable, String animation) {
-        super(properties, folder, paintable, animation, null);
+        this(properties, folder, paintable, animation, null);
+    }
+
+    /**
+     * An animated wall variant of another piece (the circus flag's), dropping that piece.
+     *
+     * @param drop the piece it drops, or {@code null} for itself
+     */
+    public AnimatedWallFurnitureBlock(BlockBehaviour.Properties properties, String folder, boolean paintable, String animation,
+            @Nullable Supplier<? extends Block> drop) {
+        super(properties, folder, paintable, animation, null, null, drop);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.SOUTH));
     }
 

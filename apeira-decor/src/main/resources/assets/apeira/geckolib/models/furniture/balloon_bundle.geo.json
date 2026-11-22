@@ -1,0 +1,1183 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.balloon_bundle",
+        "texture_width": 128,
+        "texture_height": 64,
+        "visible_bounds_width": 5,
+        "visible_bounds_height": 8,
+        "visible_bounds_offset": [
+          0,
+          3,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "root_rig",
+          "pivot": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand",
+          "parent": "root_rig",
+          "pivot": [
+            0,
+            -20,
+            0
+          ],
+          "rotation": [
+            0,
+            135,
+            0
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_head",
+          "parent": "balloon_bundle_balloon_stand",
+          "pivot": [
+            0,
+            3,
+            0
+          ],
+          "rotation": [
+            11.4912,
+            7.7698,
+            0.926
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_head_item",
+          "parent": "balloon_bundle_balloon_stand_head",
+          "pivot": [
+            0,
+            7,
+            0
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_head_item_firework_star_cmd15241",
+          "parent": "balloon_bundle_balloon_stand_head_item",
+          "pivot": [
+            0,
+            7,
+            0
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_head_item_firework_star_cmd15241_balloon_bundle_balloon",
+          "parent": "balloon_bundle_balloon_stand_head_item_firework_star_cmd15241",
+          "pivot": [
+            0,
+            40.25,
+            0
+          ],
+          "rotation": [
+            0,
+            51,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -1,
+                48.25,
+                -1
+              ],
+              "size": [
+                2,
+                1,
+                2
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    78,
+                    18
+                  ],
+                  "uv_size": [
+                    2,
+                    -1
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    80,
+                    17
+                  ],
+                  "uv_size": [
+                    -2,
+                    1
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    78,
+                    18
+                  ],
+                  "uv_size": [
+                    2,
+                    -1
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    80,
+                    17
+                  ],
+                  "uv_size": [
+                    -2,
+                    1
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -0.5,
+                16.25,
+                0
+              ],
+              "size": [
+                1,
+                31,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                0,
+                16.25,
+                -0.5
+              ],
+              "size": [
+                0,
+                31,
+                1
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "group_tintable",
+          "parent": "balloon_bundle_balloon_stand_head_item_firework_star_cmd15241_balloon_bundle_balloon",
+          "pivot": [
+            0,
+            40.25,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -6,
+                49.25,
+                -6
+              ],
+              "size": [
+                12,
+                13,
+                12
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    -12,
+                    -12
+                  ],
+                  "uv_rotation": 270
+                },
+                "down": {
+                  "uv": [
+                    88,
+                    12
+                  ],
+                  "uv_size": [
+                    -12,
+                    -12
+                  ],
+                  "uv_rotation": 270
+                }
+              }
+            },
+            {
+              "origin": [
+                -6,
+                49.25,
+                -6
+              ],
+              "size": [
+                12,
+                13,
+                12
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -2,
+                47.25,
+                -2
+              ],
+              "size": [
+                4,
+                1,
+                4
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    82,
+                    16
+                  ],
+                  "uv_size": [
+                    -4,
+                    -4
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    82,
+                    16
+                  ],
+                  "uv_size": [
+                    -4,
+                    -4
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_right_arm",
+          "parent": "balloon_bundle_balloon_stand",
+          "pivot": [
+            -5,
+            2,
+            0
+          ],
+          "rotation": [
+            0.2616,
+            18.4887,
+            -20.2447
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_mainhand_item",
+          "parent": "balloon_bundle_balloon_stand_right_arm",
+          "pivot": [
+            -5,
+            2,
+            0
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_mainhand_item_firework_star_cmd15240",
+          "parent": "balloon_bundle_balloon_stand_mainhand_item",
+          "pivot": [
+            -5,
+            2,
+            0
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_mainhand_item_firework_star_cmd15240_balloon_bundle_short_1",
+          "parent": "balloon_bundle_balloon_stand_mainhand_item_firework_star_cmd15240",
+          "pivot": [
+            0,
+            24.5,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -1,
+                34.5,
+                -1
+              ],
+              "size": [
+                2,
+                1,
+                2
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    78,
+                    18
+                  ],
+                  "uv_size": [
+                    2,
+                    -1
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    80,
+                    17
+                  ],
+                  "uv_size": [
+                    -2,
+                    1
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    78,
+                    18
+                  ],
+                  "uv_size": [
+                    2,
+                    -1
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    80,
+                    17
+                  ],
+                  "uv_size": [
+                    -2,
+                    1
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -0.5,
+                2.5,
+                0
+              ],
+              "size": [
+                1,
+                31,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                0,
+                2.5,
+                -0.5
+              ],
+              "size": [
+                0,
+                31,
+                1
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "group2_tintable",
+          "parent": "balloon_bundle_balloon_stand_mainhand_item_firework_star_cmd15240_balloon_bundle_short_1",
+          "pivot": [
+            0,
+            24.5,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -2,
+                33.5,
+                -2
+              ],
+              "size": [
+                4,
+                1,
+                4
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    82,
+                    16
+                  ],
+                  "uv_size": [
+                    -4,
+                    -4
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    82,
+                    16
+                  ],
+                  "uv_size": [
+                    -4,
+                    -4
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -6,
+                35.5,
+                -6
+              ],
+              "size": [
+                12,
+                13,
+                12
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    -12,
+                    -12
+                  ],
+                  "uv_rotation": 270
+                },
+                "down": {
+                  "uv": [
+                    88,
+                    12
+                  ],
+                  "uv_size": [
+                    -12,
+                    -12
+                  ],
+                  "uv_rotation": 270
+                }
+              }
+            },
+            {
+              "origin": [
+                -6,
+                35.5,
+                -6
+              ],
+              "size": [
+                12,
+                13,
+                12
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_left_arm",
+          "parent": "balloon_bundle_balloon_stand",
+          "pivot": [
+            5,
+            2,
+            0
+          ],
+          "rotation": [
+            -10.6599,
+            -12.6866,
+            16.1994
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_offhand_item",
+          "parent": "balloon_bundle_balloon_stand_left_arm",
+          "pivot": [
+            5,
+            2,
+            0
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_offhand_item_firework_star_cmd15240",
+          "parent": "balloon_bundle_balloon_stand_offhand_item",
+          "pivot": [
+            5,
+            2,
+            0
+          ]
+        },
+        {
+          "name": "balloon_bundle_balloon_stand_offhand_item_firework_star_cmd15240_balloon_bundle_short_1",
+          "parent": "balloon_bundle_balloon_stand_offhand_item_firework_star_cmd15240",
+          "pivot": [
+            0,
+            20.25,
+            0
+          ],
+          "rotation": [
+            0,
+            89.9657,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -1,
+                30.25,
+                -1
+              ],
+              "size": [
+                2,
+                1,
+                2
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    78,
+                    18
+                  ],
+                  "uv_size": [
+                    2,
+                    -1
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    80,
+                    17
+                  ],
+                  "uv_size": [
+                    -2,
+                    1
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    78,
+                    18
+                  ],
+                  "uv_size": [
+                    2,
+                    -1
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    80,
+                    17
+                  ],
+                  "uv_size": [
+                    -2,
+                    1
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -0.5,
+                -1.75,
+                0
+              ],
+              "size": [
+                1,
+                31,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                0,
+                -1.75,
+                -0.5
+              ],
+              "size": [
+                0,
+                31,
+                1
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    1,
+                    32
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "group2323_tintable",
+          "parent": "balloon_bundle_balloon_stand_offhand_item_firework_star_cmd15240_balloon_bundle_short_1",
+          "pivot": [
+            0,
+            20.25,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -2,
+                29.25,
+                -2
+              ],
+              "size": [
+                4,
+                1,
+                4
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    78,
+                    12
+                  ],
+                  "uv_size": [
+                    4,
+                    1
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    82,
+                    16
+                  ],
+                  "uv_size": [
+                    -4,
+                    -4
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    82,
+                    16
+                  ],
+                  "uv_size": [
+                    -4,
+                    -4
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -6,
+                31.25,
+                -6
+              ],
+              "size": [
+                12,
+                13,
+                12
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    64,
+                    12
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    76,
+                    12
+                  ],
+                  "uv_size": [
+                    -12,
+                    -12
+                  ],
+                  "uv_rotation": 270
+                },
+                "down": {
+                  "uv": [
+                    88,
+                    12
+                  ],
+                  "uv_size": [
+                    -12,
+                    -12
+                  ],
+                  "uv_rotation": 270
+                }
+              }
+            },
+            {
+              "origin": [
+                -6,
+                31.25,
+                -6
+              ],
+              "size": [
+                12,
+                13,
+                12
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    90,
+                    13
+                  ],
+                  "uv_size": [
+                    12,
+                    13
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

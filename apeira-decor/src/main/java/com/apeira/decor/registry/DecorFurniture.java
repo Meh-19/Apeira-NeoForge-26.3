@@ -50,6 +50,8 @@ public final class DecorFurniture {
     private static final List<DeferredBlock<? extends FurnitureBlock>> ALL = new ArrayList<>();
     /** The bathtub's two seats, x, y, z in pixels at turn 0 (see {@link SeatFurnitureBlock#seats(double...)}). */
     private static final double[] SEATS = {-2, 4, 0, 18, 4, 0};
+    /** The garden bench's seats at turn 0 ({@code x, y, z} pixels), one over each of the three blocks its footprint spans. */
+    private static final double[] BENCH_SEATS = {-8, 8, 8, 8, 8, 8, 24, 8, 8};
 
     public static final DeferredBlock<SeatFurnitureBlock> OUTDOOR_ROCKING_CHAIR = piece("outdoor_rocking_chair", "badger_crate", 0xA0643E,
             p -> new SeatFurnitureBlock(p, true, 8));
@@ -365,6 +367,102 @@ public final class DecorFurniture {
     /** Animated: Ren's model, from the armor stand recording; its item is the pack's inflatable base. */
     public static final DeferredBlock<AnimatedFurnitureBlock> BURGER_MASCOT_INFLATABLE = piece("burger_mascot_inflatable", "fast_food_crate", 0xCB3C2A,
             p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.burger_mascot_inflatable.bob", null));
+
+    // The Fun Fair Crate's furniture ("Funfair Crate Exclusive" in the captured #CB5148): the server pack's
+    // models/custom/furniture/fun_fair/ models (the spotlight's texture is the pack's jester one, the food stall the
+    // fast_food folder's), names, rarities and paints from Ren's F9 capture of the crate's reward page. The pack's funfair
+    // sign and snack stand are not on the capture and are left out, as are the capture's Rubber Balloon (no balloon slot)
+    // and its gestures. Animated, Ren's GeckoLib models (armor stand recordings cleaned up in Blockbench): the circus flag
+    // (floor and wall, with the pack's still flag under a block), the spot light, balloon bundle, tube man and carousel.
+    // Display modes follow each pack model's fixed display (rotation x -90 a floor piece, 90 a top face piece, none a wall
+    // piece); pieces whose pack model has no tinted faces take no paint.
+    /** Animated, swaying; against a wall its animated wall flag, under a block the pack's still ceiling flag. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> CIRCUS_FLAG = piece("circus_flag", "fun_fair_crate", 0xCB3C2A,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.circus_flag.wave",
+                    () -> DecorFurniture.CIRCUS_FLAG_WALL.get(), () -> DecorFurniture.CIRCUS_FLAG_CEILING.get(), null));
+    public static final DeferredBlock<AnimatedWallFurnitureBlock> CIRCUS_FLAG_WALL = piece("circus_flag_wall", "fun_fair_crate", 0xCB3C2A,
+            p -> new AnimatedWallFurnitureBlock(p, "furniture", true, "animation.circus_flag_wall.wave", () -> DecorFurniture.CIRCUS_FLAG.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> CIRCUS_FLAG_CEILING = piece("circus_flag_ceiling", "fun_fair_crate", 0xCB3C2A,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CIRCUS_FLAG.get()));
+    /** The pack's fair_lights_wall, hung on a wall; under a block its fair_lights_ceiling. */
+    public static final DeferredBlock<WallFurnitureBlock> FAIR_LIGHTS = piece("fair_lights", "fun_fair_crate", 0xFFC766,
+            p -> new WallFurnitureBlock(p, true, () -> DecorFurniture.FAIR_LIGHTS_CEILING.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> FAIR_LIGHTS_CEILING = piece("fair_lights_ceiling", "fun_fair_crate", 0xFFC766,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.FAIR_LIGHTS.get()));
+    public static final DeferredBlock<FurnitureBlock> COTTON_CANDY_TRAY = piece("cotton_candy_tray", "fun_fair_crate", 0xFFA8DE,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> CIRCUS_PODIUM = piece("circus_podium", "fun_fair_crate", 0xCB3C2A,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    /** The pack's photo_standees (its fixed display tips it 94 degrees: a top face piece). */
+    public static final DeferredBlock<FurnitureBlock> PHOTO_STANDEE = piece("photo_standee", "fun_fair_crate", 0xCB3C2A,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> POPCORN_BUCKET = piece("popcorn_bucket", "fun_fair_crate", 0xCB3C2A,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** The pack's fast_food/food_stall, which the Fun Fair Crate gives. */
+    public static final DeferredBlock<FurnitureBlock> FOOD_STALL = piece("food_stall", "fun_fair_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** Animated: Ren's model, the light sweeping; the pack's spotlight_whole is its item. No tinted bones, so no paint. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> SPOT_LIGHT = piece("spot_light", "fun_fair_crate",
+            p -> new AnimatedFurnitureBlock(p, "furniture", false, "animation.spot_light.loop", null));
+    public static final DeferredBlock<FurnitureBlock> BUMPER_CAR = piece("bumper_car", "fun_fair_crate", 0x3EB8DD,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    /** Animated: Ren's model, the balloons bobbing. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> BALLOON_BUNDLE = piece("balloon_bundle", "fun_fair_crate", 0xCB3C2A,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.balloon_bundle.float", null));
+    public static final DeferredBlock<FurnitureBlock> HIGH_STRIKER = piece("high_striker", "fun_fair_crate", 0xCB3C2A,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    /** Animated: Ren's model, flailing; its _ignore bones (the tube and arms) get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> TUBE_MAN = piece("tube_man", "fun_fair_crate", 0xCB5148,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.tube_man.dance", null));
+    /** The pack's circus_tent (its item model, circus_tent_inventory, is the same model). */
+    public static final DeferredBlock<FurnitureBlock> CIRCUS_TENT = piece("circus_tent", "fun_fair_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** Animated: Ren's model, turning; its _ignore horses get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> CAROUSEL = piece("carousel", "fun_fair_crate", 0xCB5148,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.carousel.spin", null));
+
+    // The Garden Crate's furniture ("Garden Crate Exclusive" in the captured #4D7A60): the server pack's
+    // models/custom/furniture/garden/ models, names, rarities and paints from Ren's F9 capture of the crate's reward page
+    // (the pack's delphinium_potted, garden_lamp_post and green_house are the potted delphiniums, garden lamppost and
+    // greenhouse). The pack's garden grass (and its potted and ceiling versions), horse topiary and watering can are not on
+    // the capture and are left out, as are its gestures. The garden fountain is animated, Ren's GeckoLib model; its
+    // _ignore spouts get no hitbox. The tall hedge, young tree, ivy trellis and ivy pergola have no tinted faces.
+    /** Three seats 8 pixels up along its three blocks (a guess until tried): BENCH_SEATS. */
+    public static final DeferredBlock<SeatFurnitureBlock> GARDEN_BENCH = piece("garden_bench", "garden_crate", 0x4D7A60,
+            p -> new SeatFurnitureBlock(p, true, 8).seats(BENCH_SEATS));
+    /** A seat 8 pixels up (a guess until tried). */
+    public static final DeferredBlock<SeatFurnitureBlock> GARDEN_CHAIR = piece("garden_chair", "garden_crate", 0xCCCCCC,
+            p -> new SeatFurnitureBlock(p, true, 8));
+    public static final DeferredBlock<FurnitureBlock> GARDEN_TABLE = piece("garden_table", "garden_crate", 0x4D7A60,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    /** On the floor the pack's garden_tools; against a wall its garden_tools_wall. */
+    public static final DeferredBlock<FurnitureBlock> GARDEN_TOOLS = piece("garden_tools", "garden_crate", 0x93BA4F,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.GARDEN_TOOLS_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> GARDEN_TOOLS_WALL = piece("garden_tools_wall", "garden_crate", 0x93BA4F,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.GARDEN_TOOLS.get()));
+    public static final DeferredBlock<FurnitureBlock> POTTED_DELPHINIUMS = piece("potted_delphiniums", "garden_crate", 0xD499FF,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> TALL_HEDGE = piece("tall_hedge", "garden_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> YARD_GNOME = piece("yard_gnome", "garden_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> YOUNG_TREE = piece("young_tree", "garden_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> GARDEN_LAMPPOST = piece("garden_lamppost", "garden_crate", 0x4D7A60,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> HYDRANGEA_BUSH = piece("hydrangea_bush", "garden_crate", 0xFB8EB0,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> IVY_TRELLIS = piece("ivy_trellis", "garden_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> PUSH_MOWER = piece("push_mower", "garden_crate", 0x93BA4F,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> GREENHOUSE = piece("greenhouse", "garden_crate", 0x4D7A60,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> IVY_PERGOLA = piece("ivy_pergola", "garden_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    /** Animated: Ren's model, its water running; the pack's garden_fountain_whole is its item. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> GARDEN_FOUNTAIN = piece("garden_fountain", "garden_crate", 0xCCCCCC,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.garden_fountain.loop", null));
 
     private DecorFurniture() {}
 

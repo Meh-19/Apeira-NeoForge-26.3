@@ -43,6 +43,12 @@ public final class MainBadgerCrate {
     /** The Cosmetic Crate: the pack's cosmetic_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
     public static final DeferredItem<BadgerCrateItem> COSMETIC_CRATE = R.items().registerItem("cosmetic_crate",
             properties -> new BadgerCrateItem(properties, CrateKind.COSMETIC), properties -> properties.stacksTo(16));
+    /** The Fun Fair Crate: the pack's fun_fair_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> FUN_FAIR_CRATE = R.items().registerItem("fun_fair_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.FUN_FAIR), properties -> properties.stacksTo(16));
+    /** The Garden Crate: the pack's garden_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> GARDEN_CRATE = R.items().registerItem("garden_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.GARDEN), properties -> properties.stacksTo(16));
 
     /** Big enough to always be in view: the model reaches a few blocks around and above its origin. */
     public static final DeferredHolder<EntityType<?>, EntityType<BadgerCrateShowEntity>> SHOW = R.entityType("badger_crate_show",
@@ -51,7 +57,7 @@ public final class MainBadgerCrate {
 
     /** Every crate item, in the Crates tab's order. */
     public static List<DeferredItem<BadgerCrateItem>> crates() {
-        return List.of(BADGER_CRATE, ANIMAL_CRATE, BATHROOM_CRATE, BUSINESS_CRATE, CAMPING_CRATE, CONSTRUCTION_CRATE, FAST_FOOD_CRATE, COSMETIC_CRATE);
+        return List.of(BADGER_CRATE, ANIMAL_CRATE, BATHROOM_CRATE, BUSINESS_CRATE, CAMPING_CRATE, CONSTRUCTION_CRATE, FAST_FOOD_CRATE, COSMETIC_CRATE, FUN_FAIR_CRATE, GARDEN_CRATE);
     }
 
     private MainBadgerCrate() {}

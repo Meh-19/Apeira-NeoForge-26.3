@@ -27,7 +27,17 @@ public class AnimatedFurnitureBlock extends FurnitureBlock {
      */
     public AnimatedFurnitureBlock(BlockBehaviour.Properties properties, String folder, boolean paintable, String animation,
             @Nullable Supplier<? extends Block> wall) {
-        super(properties, paintable, Form.FLOOR, wall, null, null);
+        this(properties, folder, paintable, animation, wall, null, null);
+    }
+
+    /**
+     * @param wall    the variant placed against the side of a block (still or animated), or {@code null}
+     * @param ceiling the variant placed under a block, or {@code null} (the circus flag's still ceiling flag)
+     * @param drop    the piece a variant drops, or {@code null} for itself
+     */
+    public AnimatedFurnitureBlock(BlockBehaviour.Properties properties, String folder, boolean paintable, String animation,
+            @Nullable Supplier<? extends Block> wall, @Nullable Supplier<? extends Block> ceiling, @Nullable Supplier<? extends Block> drop) {
+        super(properties, paintable, Form.FLOOR, wall, ceiling, drop);
         this.folder = folder;
         this.animation = animation;
     }

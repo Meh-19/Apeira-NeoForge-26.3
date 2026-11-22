@@ -39,6 +39,7 @@ public final class MainCosmetics {
     private static final Component CAMPING_CRATE = CosmeticItem.exclusive("camping_crate");
     private static final Component COSMETIC_CRATE = CosmeticItem.exclusive("cosmetic_crate");
     private static final Component FAST_FOOD_CRATE = CosmeticItem.exclusive("fast_food_crate");
+    private static final Component FUN_FAIR_CRATE = CosmeticItem.exclusive("fun_fair_crate");
     private static final Component CONSTRUCTION_CRATE = CosmeticItem.exclusive("construction_crate");
 
     /** A registered cosmetic, its slot and rarity. */
@@ -134,6 +135,10 @@ public final class MainCosmetics {
     public static final DeferredItem<CosmeticItem> REPLICA_MAYOR_HAT = cosmetic("replica_mayor_hat", HAT, EPIC, null, COSMETIC_CRATE);
     public static final DeferredItem<CosmeticItem> FISH_BOWL_HELMET = cosmetic("fish_bowl_helmet", HAT, EPIC, 0x169B9C, COSMETIC_CRATE);
     public static final DeferredItem<CosmeticItem> STARRY_BLANKET_CLOAK = cosmetic("starry_blanket_cloak", BACK, LEGENDARY, 0xD499FF, COSMETIC_CRATE);
+
+    // The Fun Fair Crate's, from Ren's F9 capture of its reward page: the Party Hat is the server pack's fun_fair/clown_hat
+    // (texture in textures/item/cosmetics/fun_fair/). The Rubber Balloon is left out, as the other crates' balloons are.
+    public static final DeferredItem<CosmeticItem> PARTY_HAT = cosmetic("party_hat", HAT, COMMON, 0xF7C021, FUN_FAIR_CRATE);
 
     private MainCosmetics() {}
 
