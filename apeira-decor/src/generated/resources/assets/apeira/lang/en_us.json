@@ -186,6 +186,10 @@
   "tooltip.apeira.exclusive.fast_food_crate": "Fast Food Crate Exclusive",
   "tooltip.apeira.exclusive.fun_fair_crate": "Funfair Crate Exclusive",
   "tooltip.apeira.exclusive.garden_crate": "Garden Crate Exclusive",
+  "tooltip.apeira.exclusive.medieval_crate": "Medieval Crate Exclusive",
   "tooltip.apeira.paint.color": "Painted %s, Shade %s",
-  "tooltip.apeira.paint.finish": "%s Finish"
+  "tooltip.apeira.paint.finish": "%s Finish",
+  "tooltip.apeira.tool_skin.apply": "Apply this skin to any",
+  "tooltip.apeira.tool_skin.apply1": "tool in the Smithing Table",
+  "tooltip.apeira.tool_skin.skin": " Skin"
 }
