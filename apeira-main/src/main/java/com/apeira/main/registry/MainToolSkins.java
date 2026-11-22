@@ -24,7 +24,8 @@ import net.neoforged.neoforge.registries.DeferredItem;
  * Tool skins (decor's {@code toolskin} framework) and the salvaging table's menu. The skins are Origin Realms' skin tokens:
  * the Knight Shield Skin from Ren's captures of the smithing table and salvaging table (common, "Medieval Crate Exclusive" in
  * the captured #738B41), the server pack's {@code knight_shield_token} picture and {@code knight_shield}/
- * {@code _blocking} models ({@code models/item/tool_skin/}, item definition {@code items/tool_skin/knight_shield.json}).
+ * {@code _blocking} models ({@code models/item/tool_skin/}, item definition {@code items/tool_skin/knight_shield.json}), and
+ * the Space Crate's Energy Bow and Energy Shield Skins (the pack's {@code energy_bow*}/{@code energy_shield*} models and tokens).
  * A new skin is a {@link #skin} line, its {@code tool_skin.apeira.<skin>} name, its token texture
  * {@code textures/item/tool_skin/<skin>_<group>_token.png} and its item definition {@code items/tool_skin/<skin>_<group>.json}.
  */
@@ -32,9 +33,13 @@ public final class MainToolSkins {
     private static final ApeiraRegistrar R = Apeira.REGISTRAR;
     private static final List<DeferredItem<ToolSkinItem>> ALL = new ArrayList<>();
     private static final Component MEDIEVAL_CRATE = CosmeticItem.exclusive("medieval_crate");
+    private static final Component SPACE_CRATE = CosmeticItem.exclusive("space_crate");
 
     public static final DeferredItem<ToolSkinItem> KNIGHT_SHIELD_SKIN = skin("knight", ToolGroup.SHIELD, CosmeticRarity.COMMON,
             MEDIEVAL_CRATE);
+    /** The Space Crate's skins: the pack's {@code energy_gear/energy_bow*} (the raygun) and {@code shield/energy_shield*}. */
+    public static final DeferredItem<ToolSkinItem> ENERGY_BOW_SKIN = skin("energy", ToolGroup.BOW, CosmeticRarity.COMMON, SPACE_CRATE);
+    public static final DeferredItem<ToolSkinItem> ENERGY_SHIELD_SKIN = skin("energy", ToolGroup.SHIELD, CosmeticRarity.COMMON, SPACE_CRATE);
 
     /** The salvaging table's menu, which takes skins off tools. */
     public static final DeferredHolder<MenuType<?>, MenuType<SalvagingTableMenu>> SALVAGING_TABLE_MENU = R.forRegistry(Registries.MENU)

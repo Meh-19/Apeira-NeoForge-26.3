@@ -56,6 +56,7 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
         generators().itemModelOutput.accept(MainBadgerCrate.MEDIEVAL_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/medieval_crate")));
         generators().itemModelOutput.accept(MainBadgerCrate.MUSIC_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/music_crate")));
         generators().itemModelOutput.accept(MainBadgerCrate.SPACE_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/space_crate")));
+        generators().itemModelOutput.accept(MainBadgerCrate.MINING_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/mining_crate")));
         generators().itemModelOutput.accept(MainBadgerCrate.WESTERN_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/western_crate")));
         generators().itemModelOutput.accept(MainBadgerCrate.WIZARDRY_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/wizardry_crate")));
         MainCosmetics.all().forEach(this::cosmetic);

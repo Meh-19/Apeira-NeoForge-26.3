@@ -241,6 +241,21 @@
     "apeira:magic_candles",
     "apeira:potion_station",
     "apeira:runic_statue",
-    "apeira:magic_cauldron"
+    "apeira:magic_cauldron",
+    "apeira:detonator",
+    "apeira:metal_minecart",
+    "apeira:caged_light",
+    "apeira:caged_light_wall",
+    "apeira:caged_light_ceiling",
+    "apeira:ore_pile",
+    "apeira:crystal_deposit",
+    "apeira:mining_tools",
+    "apeira:scaffolding_beam",
+    "apeira:scaffolding_beam_wall",
+    "apeira:scaffolding_archway",
+    "apeira:geyser",
+    "apeira:large_brazier",
+    "apeira:giant_forge",
+    "apeira:drill_excavator"
   ]
 }

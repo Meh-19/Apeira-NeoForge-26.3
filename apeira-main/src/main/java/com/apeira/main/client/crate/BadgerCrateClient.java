@@ -328,6 +328,7 @@ public final class BadgerCrateClient {
         event.register(MainBadgerCrate.MEDIEVAL_CRATE.get(), BadgerCrateClient::decorate);
         event.register(MainBadgerCrate.MUSIC_CRATE.get(), BadgerCrateClient::decorate);
         event.register(MainBadgerCrate.SPACE_CRATE.get(), BadgerCrateClient::decorate);
+        event.register(MainBadgerCrate.MINING_CRATE.get(), BadgerCrateClient::decorate);
         event.register(MainBadgerCrate.WESTERN_CRATE.get(), BadgerCrateClient::decorate);
         event.register(MainBadgerCrate.WIZARDRY_CRATE.get(), BadgerCrateClient::decorate);
         event.register(MainBadgerCrate.FAST_FOOD_CRATE.get(), BadgerCrateClient::decorate);

@@ -35,23 +35,28 @@ import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
  * piece, which drops its base piece) counts as its base piece, so a list naming both rolls it once, and an item listed
  * twice counts once. A crate whose file sets {@code "exclude_animated": true} (the Camping Crate) never rolls an
  * animated furniture piece ({@link AnimatedFurnitureBlock}).
+ *
+ * <p>A crate's tool skins ({@code "tool_skins"}) are one sub-pool of the common tier: each skin weighs as one common item
+ * (the Medieval Crate's six commons and Knight Shield Skin are 55 / 7 = 7.86% each, as captured), and once one of the
+ * three rewards is a skin the other two never are, so an opening gives at most one tool skin.
  */
-public record BadgerLoot(Map<BadgerTier, List<Identifier>> items, boolean excludeAnimated) {
-    public static final BadgerLoot EMPTY = new BadgerLoot(Map.of(), false);
+public record BadgerLoot(Map<BadgerTier, List<Identifier>> items, List<Identifier> toolSkins, boolean excludeAnimated) {
+    public static final BadgerLoot EMPTY = new BadgerLoot(Map.of(), List.of(), false);
     private static final Codec<List<Identifier>> LIST = Identifier.CODEC.listOf();
     public static final Codec<BadgerLoot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             LIST.optionalFieldOf("common").forGetter(loot -> Optional.of(loot.of(BadgerTier.COMMON))),
             LIST.optionalFieldOf("rare").forGetter(loot -> Optional.of(loot.of(BadgerTier.RARE))),
             LIST.optionalFieldOf("epic").forGetter(loot -> Optional.of(loot.of(BadgerTier.EPIC))),
             LIST.optionalFieldOf("legendary").forGetter(loot -> Optional.of(loot.of(BadgerTier.LEGENDARY))),
+            LIST.optionalFieldOf("tool_skins", List.of()).forGetter(BadgerLoot::toolSkins),
             Codec.BOOL.optionalFieldOf("exclude_animated", false).forGetter(BadgerLoot::excludeAnimated))
-            .apply(instance, (common, rare, epic, legendary, excludeAnimated) -> {
+            .apply(instance, (common, rare, epic, legendary, toolSkins, excludeAnimated) -> {
                 Map<BadgerTier, List<Identifier>> map = new EnumMap<>(BadgerTier.class);
                 map.put(BadgerTier.COMMON, common.orElse(List.of()));
                 map.put(BadgerTier.RARE, rare.orElse(List.of()));
                 map.put(BadgerTier.EPIC, epic.orElse(List.of()));
                 map.put(BadgerTier.LEGENDARY, legendary.orElse(List.of()));
-                return new BadgerLoot(map, excludeAnimated);
+                return new BadgerLoot(map, toolSkins, excludeAnimated);
             }));
     private static volatile Map<CrateKind, BadgerLoot> current = Map.of();
 
@@ -68,8 +73,8 @@ public record BadgerLoot(Map<BadgerTier, List<Identifier>> items, boolean exclud
      * the empty-tier fallback and the no-repeats rule of the second and third rewards).
      */
     public double chance(BadgerTier tier) {
-        List<Item> pool = resolved(tier);
-        return pool.isEmpty() ? 0.0 : (double) tier.weight() / pool.size();
+        int size = resolved(tier).size() + (tier == BadgerTier.COMMON ? skins().size() : 0);
+        return size == 0 ? 0.0 : (double) tier.weight() / size;
     }
 
     /** One rolled reward. */
@@ -79,10 +84,12 @@ public record BadgerLoot(Map<BadgerTier, List<Identifier>> items, boolean exclud
     public List<Reward> roll(RandomSource random) {
         List<Reward> rewards = new ArrayList<>(3);
         List<Item> taken = new ArrayList<>();
+        List<Item> skins = skins();
         for (int i = 0; i < 3; i++) {
             BadgerTier tier = rollTier(random);
-            BadgerTier available = available(tier);
-            Item item = pick(available, random, taken);
+            boolean skinOpen = taken.stream().noneMatch(skins::contains);
+            BadgerTier available = available(tier, skinOpen ? skins : List.of());
+            Item item = pick(available, random, taken, skinOpen ? skins : List.of());
             taken.add(item);
             rewards.add(new Reward(new ItemStack(item), available));
         }
@@ -100,28 +107,49 @@ public record BadgerLoot(Map<BadgerTier, List<Identifier>> items, boolean exclud
         return BadgerTier.COMMON;
     }
 
-    private BadgerTier available(BadgerTier tier) {
+    private BadgerTier available(BadgerTier tier, List<Item> skins) {
         for (int i = tier.ordinal(); i >= 0; i--) {
-            if (!resolved(BadgerTier.values()[i]).isEmpty()) {
+            if (!pool(BadgerTier.values()[i], skins).isEmpty()) {
                 return BadgerTier.values()[i];
             }
         }
         for (int i = tier.ordinal() + 1; i < BadgerTier.values().length; i++) {
-            if (!resolved(BadgerTier.values()[i]).isEmpty()) {
+            if (!pool(BadgerTier.values()[i], skins).isEmpty()) {
                 return BadgerTier.values()[i];
             }
         }
         return BadgerTier.COMMON;
     }
 
-    private Item pick(BadgerTier tier, RandomSource random, List<Item> taken) {
-        List<Item> pool = resolved(tier);
+    private Item pick(BadgerTier tier, RandomSource random, List<Item> taken, List<Item> skins) {
+        List<Item> pool = pool(tier, skins);
         if (pool.isEmpty()) {
             return net.minecraft.world.item.Items.STONE;
         }
         List<Item> fresh = pool.stream().filter(item -> !taken.contains(item)).toList();
         List<Item> from = fresh.isEmpty() ? pool : fresh;
         return from.get(random.nextInt(from.size()));
+    }
+
+    /** The tier's items, the common tier with the still-open tool skins, each weighing as one item. */
+    private List<Item> pool(BadgerTier tier, List<Item> skins) {
+        List<Item> items = resolved(tier);
+        if (tier != BadgerTier.COMMON || skins.isEmpty()) {
+            return items;
+        }
+        List<Item> pool = new ArrayList<>(items);
+        skins.stream().filter(skin -> !pool.contains(skin)).forEach(pool::add);
+        return pool;
+    }
+
+    /** The crate's tool skins, each once and not also in a tier list. */
+    List<Item> skins() {
+        List<Item> listed = new ArrayList<>();
+        for (BadgerTier tier : BadgerTier.values()) {
+            listed.addAll(resolved(tier));
+        }
+        return toolSkins.stream().map(id -> BuiltInRegistries.ITEM.getOptional(id)).flatMap(Optional::stream)
+                .filter(item -> !listed.contains(item)).distinct().toList();
     }
 
     /** The tier's items: variants as their base piece, each once, animated furniture left out when the crate excludes it. */
