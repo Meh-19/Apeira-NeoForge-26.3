@@ -1,20 +1,15 @@
 package com.apeira.dev.client;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 
 import com.apeira.decor.furniture.FurnitureBlock;
-import com.apeira.decor.furniture.SeatFurnitureBlock;
-import com.apeira.decor.furniture.FurniturePlacement;
 import com.apeira.decor.furniture.FurnitureTuning;
-import com.apeira.decor.furniture.FurnitureTuning.Box;
-import com.apeira.dev.ApeiraDev;
+import com.apeira.decor.furniture.FurnitureTuning.Seat;
+import com.apeira.decor.furniture.SeatFurnitureBlock;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -25,8 +20,10 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 
 /**
- * The dev wand's editor: the bound piece's boxes, scale, offsets, rotation, seat and placements as typed values and
- * toggles, and the exporter. Typed values apply as soon as they read as numbers; the world keeps running behind it.
+ * The furniture tuner's editor: the three mode tabs and, for the picked mode, the seats (count, selection, typed
+ * positions and sit height), the deleted boxes (restore the last or all; deleting is a right-click on the piece), or the
+ * light (off or 0-15) and collision toggle. Every edit goes to the tune log at once. Typed values apply as soon as they
+ * read as numbers; the world keeps running behind it.
  */
 public final class FurnitureEditorScreen extends Screen {
     private static final int WHITE = 0xFFFFFFFF;
@@ -48,72 +45,86 @@ public final class FurnitureEditorScreen extends Screen {
             return;
         }
         FurnitureTuning tuning = DevSession.tuning(block);
-        int box = DevSession.box();
         int left = width / 2 - 150;
-        int y = 34;
+        int y = 30;
 
-        // Boxes: pick, add, remove.
-        addRenderableWidget(Button.builder(Component.literal("<"), b -> selectBox(box - 1)).bounds(left, y, 20, 20).build());
-        labels.add(new Label(TuningParameter.BOX.label() + " " + TuningParameter.BOX.value(tuning, box), left + 26, y + 6, WHITE));
-        addRenderableWidget(Button.builder(Component.literal(">"), b -> selectBox(box + 1)).bounds(left + 90, y, 20, 20).build());
-        addRenderableWidget(Button.builder(Component.literal("Add box"), b -> addBox()).bounds(left + 120, y, 85, 20).build());
-        Button remove = addRenderableWidget(Button.builder(Component.literal("Remove box"), b -> removeBox()).bounds(left + 215, y, 85, 20).build());
-        remove.active = box < tuning.boxes().size();
-        y += ROW + 4;
-
-        // The selected box, min on the left and max on the right.
-        if (box < tuning.boxes().size()) {
-            Box selected = tuning.boxes().get(box);
-            y = boxRow(left, y, "X", selected.minX(), selected.maxX(), (b, v) -> new Box(v, b.minY(), b.minZ(), b.maxX(), b.maxY(), b.maxZ()),
-                    (b, v) -> new Box(b.minX(), b.minY(), b.minZ(), v, b.maxY(), b.maxZ()));
-            y = boxRow(left, y, "Y", selected.minY(), selected.maxY(), (b, v) -> new Box(b.minX(), v, b.minZ(), b.maxX(), b.maxY(), b.maxZ()),
-                    (b, v) -> new Box(b.minX(), b.minY(), b.minZ(), b.maxX(), v, b.maxZ()));
-            y = boxRow(left, y, "Z", selected.minZ(), selected.maxZ(), (b, v) -> new Box(b.minX(), b.minY(), v, b.maxX(), b.maxY(), b.maxZ()),
-                    (b, v) -> new Box(b.minX(), b.minY(), b.minZ(), b.maxX(), b.maxY(), v));
-        }
-
-        // The model.
-        field(left, y, "Scale", tuning.scale(), (t, v) -> t.withScale(v.floatValue()));
-        field(left + 150, y, "Rotation (x45°)", tuning.rotation(), (t, v) -> t.withRotation((int) Math.round(v)));
-        y += ROW;
-        field(left, y, "Offset X", tuning.offsetX(), (t, v) -> t.withOffset(v.floatValue(), t.offsetY(), t.offsetZ()));
-        field(left + 150, y, "Offset Y", tuning.offsetY(), (t, v) -> t.withOffset(t.offsetX(), v.floatValue(), t.offsetZ()));
-        y += ROW;
-        field(left, y, "Offset Z", tuning.offsetZ(), (t, v) -> t.withOffset(t.offsetX(), t.offsetY(), v.floatValue()));
-        if (block instanceof SeatFurnitureBlock) {
-            field(left + 150, y, "Seat height", Math.max(0.0, tuning.seatHeight()), (t, v) -> t.withSeatHeight(v));
-        }
-        y += ROW + 4;
-
-        // Placements.
-        labels.add(new Label("Placement", left, y - 10, GREY));
+        // Mode tabs.
         int x = left;
-        for (FurniturePlacement placement : FurniturePlacement.values()) {
-            boolean on = placement.in(tuning.placements());
-            Component text = Component.literal(placement.name()).withStyle(on ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY);
-            addRenderableWidget(Button.builder(text, b -> togglePlacement(placement)).bounds(x, y, 72, 20).build());
-            x += 76;
+        for (TunerMode mode : TunerMode.values()) {
+            boolean on = mode == DevSession.mode();
+            Component text = Component.literal(mode.label()).withStyle(on ? ChatFormatting.YELLOW : ChatFormatting.GRAY);
+            addRenderableWidget(Button.builder(text, b -> {
+                DevSession.setMode(mode);
+                rebuildWidgets();
+            }).bounds(x, y, 98, 20).build());
+            x += 101;
         }
         y += ROW + 8;
 
-        addRenderableWidget(Button.builder(Component.literal("Export"), b -> export()).bounds(left, y, 96, 20).build());
-        addRenderableWidget(Button.builder(Component.literal("Reset to catalogue"), b -> reset()).bounds(left + 102, y, 96, 20).build());
+        switch (DevSession.mode()) {
+            case SEATING -> y = seating(block, tuning, left, y);
+            case BOXES -> y = boxes(tuning, left, y);
+            case LIGHT -> y = light(tuning, left, y);
+        }
+        y += 8;
+
+        addRenderableWidget(Button.builder(Component.literal("Open tune log"), b -> openLog()).bounds(left, y, 96, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Reset to code"), b -> reset()).bounds(left + 102, y, 96, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose()).bounds(left + 204, y, 96, 20).build());
     }
 
-    private int boxRow(int left, int y, String axis, double min, double max, BiFunction<Box, Double, Box> setMin, BiFunction<Box, Double, Box> setMax) {
-        field(left, y, "Min " + axis, min, (t, v) -> editBox(t, b -> setMin.apply(b, v)));
-        field(left + 150, y, "Max " + axis, max, (t, v) -> editBox(t, b -> setMax.apply(b, v)));
+    private int seating(FurnitureBlock block, FurnitureTuning tuning, int left, int y) {
+        if (!(block instanceof SeatFurnitureBlock)) {
+            labels.add(new Label(Component.translatable("hud.apeira.dev.not_a_seat").getString(), left, y + 6, GREY));
+            return y + ROW;
+        }
+        int seat = DevSession.seat();
+        addRenderableWidget(Button.builder(Component.literal("<"), b -> selectSeat(seat - 1)).bounds(left, y, 20, 20).build());
+        labels.add(new Label("Seat " + TuningParameter.SEAT.value(DevSession.mode(), block, tuning, seat), left + 26, y + 6, WHITE));
+        addRenderableWidget(Button.builder(Component.literal(">"), b -> selectSeat(seat + 1)).bounds(left + 90, y, 20, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Add seat"), b -> seats(1)).bounds(left + 120, y, 85, 20).build());
+        Button remove = addRenderableWidget(Button.builder(Component.literal("Remove seat"), b -> seats(-1)).bounds(left + 215, y, 85, 20).build());
+        remove.active = tuning.seats().size() > 1;
+        y += ROW + 4;
+        if (seat < tuning.seats().size()) {
+            Seat selected = tuning.seats().get(seat);
+            field(left, y, "Seat X", selected.x(), (t, v) -> editSeat(t, s -> new Seat(v, s.y(), s.z())));
+            field(left + 150, y, "Seat Z", selected.z(), (t, v) -> editSeat(t, s -> new Seat(s.x(), s.y(), v)));
+            y += ROW;
+            field(left, y, "Sit height", selected.y(), (t, v) -> editSeat(t, s -> new Seat(s.x(), Math.max(0.0, v), s.z())));
+            y += ROW;
+        }
+        return y;
+    }
+
+    private int boxes(FurnitureTuning tuning, int left, int y) {
+        labels.add(new Label(Component.translatable("hud.apeira.dev.box_deleter").getString(), left, y, GREY));
+        y += 14;
+        labels.add(new Label("Deleted boxes: " + tuning.removed().size(), left, y + 6, WHITE));
+        Button last = addRenderableWidget(Button.builder(Component.literal("Restore last"), b -> restore(false)).bounds(left + 120, y, 85, 20).build());
+        Button all = addRenderableWidget(Button.builder(Component.literal("Restore all"), b -> restore(true)).bounds(left + 215, y, 85, 20).build());
+        last.active = all.active = !tuning.removed().isEmpty();
         return y + ROW;
     }
 
-    private FurnitureTuning editBox(FurnitureTuning tuning, Function<Box, Box> edit) {
-        int box = DevSession.box();
-        if (box >= tuning.boxes().size()) {
-            return tuning;
+    private int light(FurnitureTuning tuning, int left, int y) {
+        boolean lit = tuning.light() >= 0;
+        Component lightText = Component.literal(lit ? "Light: on" : "Light: off").withStyle(lit ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY);
+        addRenderableWidget(Button.builder(lightText, b -> edit(t -> t.withLight(t.light() >= 0 ? FurnitureTuning.OWN_LIGHT : 15)))
+                .bounds(left, y, 96, 20).build());
+        if (lit) {
+            field(left + 150, y, "Level (0-15)", tuning.light(), (t, v) -> t.withLight((int) Math.round(Math.max(0.0, Math.min(15.0, v)))));
         }
-        Box edited = edit.apply(tuning.boxes().get(box)).clamped();
-        return edited != null ? tuning.withBox(box, edited) : tuning;
+        y += ROW;
+        Component collision = Component.literal(tuning.collision() ? "Collision: on" : "Collision: off")
+                .withStyle(tuning.collision() ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY);
+        addRenderableWidget(Button.builder(collision, b -> edit(t -> t.withCollision(!t.collision()))).bounds(left, y, 96, 20).build());
+        return y + ROW;
+    }
+
+    private FurnitureTuning editSeat(FurnitureTuning tuning, java.util.function.UnaryOperator<Seat> edit) {
+        int seat = DevSession.seat();
+        return seat < tuning.seats().size() ? tuning.withSeat(seat, edit.apply(tuning.seats().get(seat))) : tuning;
     }
 
     /** A labelled number field; its value applies as soon as it reads as a number. */
@@ -140,53 +151,34 @@ public final class FurnitureEditorScreen extends Screen {
         }
     }
 
-    private void selectBox(int index) {
+    private void edit(java.util.function.UnaryOperator<FurnitureTuning> edit) {
         FurnitureBlock block = DevSession.block();
         if (block != null) {
-            DevSession.selectBox(index, DevSession.tuning(block));
+            DevSession.apply(block, edit.apply(DevSession.tuning(block)));
             rebuildWidgets();
         }
     }
 
-    /** Adds a box in the middle of the block, to be pulled into place. */
-    private void addBox() {
-        FurnitureBlock block = DevSession.block();
-        FurnitureTuning tuning = block != null ? DevSession.tuning(block) : null;
-        if (block == null || tuning.boxes().size() >= FurnitureTuning.MAX_BOXES) {
-            return;
-        }
-        List<Box> boxes = new ArrayList<>(tuning.boxes());
-        boxes.add(new Box(4, 0, 4, 12, 8, 12));
-        DevSession.apply(block, tuning.withBoxes(boxes));
-        DevSession.selectBox(boxes.size() - 1, DevSession.tuning(block));
-        rebuildWidgets();
-    }
-
-    private void removeBox() {
-        FurnitureBlock block = DevSession.block();
-        if (block == null) {
-            return;
-        }
-        FurnitureTuning tuning = DevSession.tuning(block);
-        if (DevSession.box() < tuning.boxes().size()) {
-            List<Box> boxes = new ArrayList<>(tuning.boxes());
-            boxes.remove(DevSession.box());
-            DevSession.apply(block, tuning.withBoxes(boxes));
-            rebuildWidgets();
-        }
-    }
-
-    private void togglePlacement(FurniturePlacement placement) {
+    private void selectSeat(int index) {
         FurnitureBlock block = DevSession.block();
         if (block != null) {
-            FurnitureTuning tuning = DevSession.tuning(block);
-            int placements = tuning.placements() ^ placement.bit();
-            // A piece must go somewhere.
-            if (placements != 0) {
-                DevSession.apply(block, tuning.withPlacements(placements));
-            }
+            DevSession.selectSeat(index, DevSession.tuning(block));
             rebuildWidgets();
         }
+    }
+
+    private void seats(int steps) {
+        FurnitureBlock block = DevSession.block();
+        if (block != null) {
+            FurnitureTuning changed = TuningParameter.seats(DevSession.tuning(block), steps);
+            DevSession.apply(block, changed);
+            DevSession.selectSeat(steps > 0 ? changed.seats().size() - 1 : DevSession.seat(), changed);
+            rebuildWidgets();
+        }
+    }
+
+    private void restore(boolean all) {
+        edit(t -> t.removed().isEmpty() ? t : t.withRemoved(all ? List.of() : t.removed().subList(0, t.removed().size() - 1)));
     }
 
     private void reset() {
@@ -197,19 +189,11 @@ public final class FurnitureEditorScreen extends Screen {
         }
     }
 
-    private void export() {
-        FurnitureBlock block = DevSession.block();
-        if (block == null || minecraft == null || minecraft.player == null) {
-            return;
-        }
-        try {
-            Path file = FurnitureExporter.export(block, DevSession.tuning(block));
-            minecraft.player.sendSystemMessage(Component.translatable("message.apeira.dev.exported", block.getName(),
-                    Component.literal(FurnitureExporter.FILE).withStyle(style -> style.withUnderlined(true)
-                            .withClickEvent(new ClickEvent.OpenFile(file.toAbsolutePath().toString())))));
-        } catch (IOException e) {
-            ApeiraDev.LOGGER.error("Furniture export failed", e);
-            minecraft.player.sendSystemMessage(Component.translatable("message.apeira.dev.export_failed", e.getMessage()));
+    private void openLog() {
+        if (minecraft != null && minecraft.player != null) {
+            minecraft.player.sendSystemMessage(Component.translatable("message.apeira.dev.tune_log_file",
+                    Component.literal(TuneLog.FILE).withStyle(style -> style.withUnderlined(true)
+                            .withClickEvent(new ClickEvent.OpenFile(TuneLog.file().toAbsolutePath().toString())))));
         }
     }
 
@@ -225,7 +209,7 @@ public final class FurnitureEditorScreen extends Screen {
         super.extractRenderState(graphics, mouseX, mouseY, a);
         FurnitureBlock block = DevSession.block();
         if (block != null) {
-            String state = DevSession.tuned(block) ? " (tuned)" : " (catalogue)";
+            String state = DevSession.tuned(block) ? " (tuned)" : " (code)";
             graphics.centeredText(font, Component.literal(block.getName().getString() + state), width / 2, 14, WHITE);
         }
         for (Label label : labels) {

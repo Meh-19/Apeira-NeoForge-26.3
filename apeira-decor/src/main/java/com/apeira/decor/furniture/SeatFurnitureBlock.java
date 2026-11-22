@@ -62,11 +62,29 @@ public class SeatFurnitureBlock extends FurnitureBlock implements SeatBlock {
         return this;
     }
 
+    /** The seats as the tuner (or a baked tune) has them, else as registered; turned with the piece. */
     @Override
     public List<Vec3> seats(BlockState state) {
+        List<FurnitureTuning.Seat> tuned = tuning().seats();
+        if (tuned.isEmpty()) {
+            return ownSeats(state);
+        }
+        List<Vec3> pixels = new ArrayList<>(tuned.size());
+        for (FurnitureTuning.Seat seat : tuned) {
+            pixels.add(new Vec3(seat.x(), seat.y(), seat.z()));
+        }
+        return turned(pixels, state);
+    }
+
+    /** The seats as registered, before any tune. */
+    public List<Vec3> ownSeats(BlockState state) {
         if (seatPixels == null) {
             return SeatBlock.super.seats(state);
         }
+        return turned(seatPixels, state);
+    }
+
+    private List<Vec3> turned(List<Vec3> seatPixels, BlockState state) {
         double angle = Math.toRadians(turn(state) * 45.0);
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);

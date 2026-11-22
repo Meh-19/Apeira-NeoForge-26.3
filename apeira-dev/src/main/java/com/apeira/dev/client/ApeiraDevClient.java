@@ -11,6 +11,8 @@ import com.apeira.decor.furniture.FurnitureTuning;
 import com.apeira.decor.furniture.FurnitureTunings;
 import com.apeira.dev.ApeiraDev;
 import com.apeira.dev.DevItems;
+import com.apeira.dev.TuningSync;
+import com.apeira.decor.multiblock.Multiblock;
 import com.apeira.dev.network.BackOffsetPayload;
 import com.apeira.dev.network.FurnitureTuningPayload;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -34,9 +36,11 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
- * Client entrypoint for Apeira Dev: binds the dev wand to the furniture piece it right-clicks, turns Ctrl + scroll and
- * Alt + scroll into edits while it is held (of the bound piece, or, bound to nothing, of the worn back cosmetic), and
- * adds the HUD, the in-world visualizer and the editor key (for a back cosmetic: export, Shift to reset).
+ * Client entrypoint for Apeira Dev: binds the dev wand (the furniture tuner) to the furniture piece it right-clicks,
+ * deletes the box under the crosshair in the bounding box deleter mode, turns Ctrl + scroll and Alt + scroll into edits
+ * while it is held (of the bound piece, or, bound to nothing, of the worn back cosmetic), and adds the HUD, the in-world
+ * visualizer and the editor key (for a back cosmetic: export, Shift to reset). On joining a world it prunes the tune log
+ * of entries the code already has and sends the rest to the server.
  */
 @Mod(value = ApeiraDev.MOD_ID, dist = Dist.CLIENT)
 public final class ApeiraDevClient {
@@ -51,6 +55,7 @@ public final class ApeiraDevClient {
         NeoForge.EVENT_BUS.addListener(ApeiraDevClient::onMouseScroll);
         NeoForge.EVENT_BUS.addListener(ApeiraDevClient::onClientTick);
         NeoForge.EVENT_BUS.addListener(ApeiraDevClient::onLoggingOut);
+        NeoForge.EVENT_BUS.addListener(ApeiraDevClient::onLoggingIn);
         NeoForge.EVENT_BUS.addListener(TuningHud::onRenderGui);
         ApeiraClientNetwork.create()
                 .handle(FurnitureTuningPayload.TYPE, ApeiraDevClient::onTuning)
@@ -72,8 +77,14 @@ public final class ApeiraDevClient {
             FurnitureTuning tuning = payload.tuning().orElse(null);
             FurnitureTunings.set(block, tuning);
             if (block == DevSession.block()) {
-                DevSession.selectBox(DevSession.box(), DevSession.tuning(block));
+                DevSession.selectSeat(DevSession.seat(), DevSession.tuning(block));
             }
+            Minecraft minecraft = Minecraft.getInstance();
+            payload.at().ifPresent(pos -> {
+                if (minecraft.level != null) {
+                    TuningSync.relight(minecraft.level, pos, block);
+                }
+            });
         }
     }
 
@@ -82,13 +93,21 @@ public final class ApeiraDevClient {
         BuiltInRegistries.ITEM.getOptional(payload.item()).ifPresent(item -> BackOffsets.set(item, payload.offset().orElse(null)));
     }
 
-    /** Binds the wand to a furniture piece; a sneaking click on anything else unbinds it. */
+    /**
+     * Binds the wand to the furniture piece of the clicked block (any of its parts); in the bounding box deleter, a click
+     * on the bound piece deletes the box under the crosshair instead. A sneaking click on anything else unbinds it.
+     */
     private static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!event.getLevel().isClientSide() || !event.getItemStack().is(DevItems.FURNITURE_DEV_WAND)) {
             return;
         }
-        if (event.getLevel().getBlockState(event.getPos()).getBlock() instanceof FurnitureBlock block) {
-            DevSession.bind(event.getPos(), block);
+        Multiblock.Piece piece = Multiblock.pieceAt(event.getLevel(), event.getPos());
+        if (piece != null && piece.controller() instanceof FurnitureBlock block) {
+            if (DevSession.mode() == TunerMode.BOXES && piece.pos().equals(DevSession.target()) && DevSession.block() == block) {
+                DevSession.deleteTargetBox(block);
+            } else {
+                DevSession.bind(piece.pos(), block);
+            }
         } else if (event.getEntity().isShiftKeyDown()) {
             DevSession.unbind();
         }
@@ -127,19 +146,18 @@ public final class ApeiraDevClient {
             DevSession.selectParameter(-steps);
             return;
         }
-        FurnitureTuning tuning = DevSession.tuning(block);
-        if (DevSession.parameter() == TuningParameter.BOX) {
-            DevSession.selectBox(DevSession.box() + steps, tuning);
-        } else {
-            FurnitureTuning changed = DevSession.parameter().adjust(tuning, DevSession.box(), steps, minecraft.hasShiftDown());
-            if (!changed.equals(tuning)) {
-                DevSession.apply(block, changed);
-            }
-        }
+        DevSession.adjust(block, steps, minecraft.hasShiftDown());
     }
 
     private static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
+        // Once the join has settled (the player's permissions have arrived), the tune log goes to the server again.
+        if (restoreIn > 0 && minecraft.player != null && --restoreIn == 0) {
+            int[] result = TuneLog.pruneAndRestore(minecraft.player.canUseGameMasterBlocks());
+            if (result[0] > 0 || result[1] > 0) {
+                minecraft.player.sendSystemMessage(Component.translatable("message.apeira.dev.tune_log", result[1], result[0], TuneLog.FILE));
+            }
+        }
         if (DevSession.target() != null && DevSession.block() == null && minecraft.level != null
                 && minecraft.level.isLoaded(DevSession.target())) {
             DevSession.unbind();
@@ -171,8 +189,16 @@ public final class ApeiraDevClient {
         }
     }
 
+    /** Ticks until the tune log is pruned and sent after joining, or 0. */
+    private static int restoreIn;
+
+    private static void onLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
+        restoreIn = 40;
+    }
+
     /** Tunings belong to the server that sent them. */
     private static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        restoreIn = 0;
         DevSession.clear();
         FurnitureTunings.clear();
         BackOffsets.clear();

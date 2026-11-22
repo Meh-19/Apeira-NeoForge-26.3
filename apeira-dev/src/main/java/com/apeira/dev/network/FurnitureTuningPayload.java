@@ -6,21 +6,25 @@ import com.apeira.core.network.ApeiraPayload;
 import com.apeira.core.network.ApeiraPayloadType;
 import com.apeira.decor.furniture.FurnitureTuning;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
 /**
- * A furniture piece's tuning, or its reset to the catalogue's values when empty. Client to server it is an edit from
- * the dev wand; server to client it is the tuning everyone now has.
+ * A furniture piece's tuning, or its reset to its code values when empty. Client to server it is an edit from the dev
+ * wand; server to client it is the tuning everyone now has.
  *
  * @param block  the furniture block's id
- * @param tuning the new tuning, or empty for the catalogue's values
+ * @param tuning the new tuning, or empty for the code values
+ * @param at     the placed piece the edit was made on, relit when its light changes, if any
  */
-public record FurnitureTuningPayload(Identifier block, Optional<FurnitureTuning> tuning) implements ApeiraPayload<FurnitureTuningPayload> {
+public record FurnitureTuningPayload(Identifier block, Optional<FurnitureTuning> tuning, Optional<BlockPos> at)
+        implements ApeiraPayload<FurnitureTuningPayload> {
     public static final ApeiraPayloadType<FurnitureTuningPayload> TYPE = ApeiraPayloadType.of("furniture_tuning",
             StreamCodec.composite(Identifier.STREAM_CODEC, FurnitureTuningPayload::block,
                     ByteBufCodecs.optional(FurnitureTuning.STREAM_CODEC), FurnitureTuningPayload::tuning,
+                    ByteBufCodecs.optional(BlockPos.STREAM_CODEC), FurnitureTuningPayload::at,
                     FurnitureTuningPayload::new));
 
     @Override

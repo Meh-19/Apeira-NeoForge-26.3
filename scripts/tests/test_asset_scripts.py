@@ -12,6 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import apply_furniture_tunes  # noqa: E402
 import bbmodel_to_geckolib  # noqa: E402
 import fix_geo_cubes  # noqa: E402
 import flatten_textures  # noqa: E402
@@ -394,6 +395,30 @@ class FixGeoCubesTest(unittest.TestCase):
         self.assertEqual(sorted(cubes[1]["uv"]), ["north", "south"])
         self.assertEqual(len(warnings), 1)
 
+
+
+class ApplyFurnitureTunesTest(unittest.TestCase):
+    def test_applies_and_removes_log_entries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            log = Path(tmp) / "log.json"
+            tunes = Path(tmp) / "tunes.json"
+            write(log, {
+                "apeira:bathtub": {"removed_boxes": [[0, 0, 0, 1, 1, 1]], "removed_diagonal_boxes": [], "seats": [[8, 4, 8]],
+                                   "light": -1, "collision": True, "logged_at": "now"},
+                "apeira:bathroom_lamp": {"removed_boxes": [], "removed_diagonal_boxes": [], "seats": [], "light": 12,
+                                         "collision": False},
+            })
+            write(tunes, {"apeira:toilet": {"light": 3}})
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(apply_furniture_tunes.main(["--log", str(log), "--tunes", str(tunes), "--only", "apeira:bathtub"]), 0)
+            baked = json.loads(tunes.read_text())
+            self.assertEqual(baked["apeira:bathtub"], {"removed_boxes": [[0, 0, 0, 1, 1, 1]], "seats": [[8, 4, 8]], "collision": True})
+            self.assertEqual(baked["apeira:toilet"], {"light": 3})
+            self.assertEqual(list(json.loads(log.read_text())), ["apeira:bathroom_lamp"])
+            with contextlib.redirect_stdout(io.StringIO()):
+                apply_furniture_tunes.main(["--log", str(log), "--tunes", str(tunes)])
+            self.assertEqual(json.loads(log.read_text()), {})
+            self.assertEqual(json.loads(tunes.read_text())["apeira:bathroom_lamp"], {"light": 12, "collision": False})
 
 if __name__ == "__main__":
     unittest.main()

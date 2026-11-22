@@ -30,7 +30,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * A furniture piece, Apeira's one furniture system (first written for Argon's archaeology artifacts, now used by every
  * module's furniture), on {@link ApeiraFurnitureBlock} (CosmoLib's furniture system, which Argon's
  * {@code AbstractFurnitureBlock} was): turned in eight 45 degree steps ({@link #ROTATION}) to face the player who
- * placed it. A tuning from apeira-dev's furniture wand ({@link FurnitureTunings}) overrides its shape while on.
+ * placed it. Its {@link #tuning()} (apeira-dev's furniture tuner, {@link FurnitureTunings}, else the baked
+ * {@link FurnitureTunes}) may take boxes out of its footprint, move its seats and set its light and collision.
  *
  * <p>Furniture pieces are drawn by {@code FurnitureRenderer}, which lays the block's item model into the block as its
  * {@link Form#mode() display mode} says (Argon's models are Origin Realms display models that reach far past a block
@@ -53,6 +54,7 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
     private final @Nullable Supplier<? extends Block> ceiling;
     private final @Nullable Supplier<? extends Block> drop;
     private @Nullable Footprint footprint;
+    private @Nullable Footprint tableFootprint;
     private float renderOffsetX;
     private float renderOffsetY;
     private float renderOffsetZ;
@@ -167,15 +169,77 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
         return new FurnitureBlockEntity(pos, state);
     }
 
-    /** The piece's footprint, looked up by its id the first time it is needed. */
+    /**
+     * The piece's footprint, looked up by its id the first time it is needed, without the boxes its baked tune takes
+     * out; while the furniture tuner tunes it, without the boxes the live tuning takes out instead.
+     */
     @Override
     public Footprint footprint(BlockState state) {
         Footprint known = footprint;
         if (known == null) {
-            known = FurnitureFootprints.of(BuiltInRegistries.BLOCK.getKey(this).getPath(), form.shape());
+            FurnitureTuning baked = FurnitureTunes.get(this);
+            known = baked != null ? tableFootprint().without(baked::removes) : tableFootprint();
             footprint = known;
         }
+        Footprint tuned = FurnitureTunings.footprint(this, tableFootprint());
+        return tuned != null ? tuned : known;
+    }
+
+    /** The footprint as the module's table (or the form) has it, before any tune. */
+    public Footprint tableFootprint() {
+        Footprint known = tableFootprint;
+        if (known == null) {
+            known = FurnitureFootprints.of(BuiltInRegistries.BLOCK.getKey(this).getPath(), form.shape());
+            tableFootprint = known;
+        }
         return known;
+    }
+
+    /** The values the piece has now: the furniture tuner's live tuning, else its code's (with its baked tune). */
+    public FurnitureTuning tuning() {
+        FurnitureTuning live = FurnitureTunings.get(this);
+        return live != null ? live : FurnitureTuning.of(this);
+    }
+
+    /** Whether the piece stops entities as registered, before any tune. */
+    public boolean ownCollision() {
+        return hasCollision;
+    }
+
+    private boolean collides() {
+        FurnitureTuning live = FurnitureTunings.get(this);
+        if (live != null) {
+            return live.collision();
+        }
+        FurnitureTuning baked = FurnitureTunes.get(this);
+        return baked != null ? baked.collision() : hasCollision;
+    }
+
+    /** The tuned light, or {@link FurnitureTuning#OWN_LIGHT}. */
+    private int tunedLight() {
+        FurnitureTuning live = FurnitureTunings.get(this);
+        if (live != null) {
+            return live.light();
+        }
+        FurnitureTuning baked = FurnitureTunes.get(this);
+        return baked != null ? baked.light() : FurnitureTuning.OWN_LIGHT;
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        int light = tunedLight();
+        return light >= 0 ? light : super.getLightEmission(state, level, pos);
+    }
+
+    /** A tuned light is not the state's cached one, so chunks look for it as a light source. */
+    @Override
+    public boolean hasDynamicLightEmission(BlockState state) {
+        return FurnitureTunings.enabled() || tunedLight() >= 0 || super.hasDynamicLightEmission(state);
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return collides() ? getShape(state, level, pos, context) : Shapes.empty();
     }
 
     /** By {@link #ROTATION}, or for a furniture piece drawn on a wall by its facing (south is turn 0, as the table has it). */
@@ -189,14 +253,13 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
 
     @Override
     public boolean partsCollide(BlockState state) {
-        return hasCollision;
+        return collides();
     }
 
     /** The piece's shape in its own block: the part of its footprint there. */
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        VoxelShape tuned = FurnitureTunings.shape(this, state.getValue(ROTATION));
-        return tuned != null ? tuned : controllerShape(state);
+        return controllerShape(state);
     }
 
     @Override

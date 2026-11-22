@@ -26,7 +26,7 @@ public final class ApeiraDev {
     /** Owns the dev wand, in the shared {@code apeira} namespace. */
     public static final ApeiraRegistrar REGISTRAR = ApeiraRegistrar.create();
     /** The dev module's payloads; bump the version when one of their codecs changes. */
-    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("2");
+    public static final ApeiraNetwork NETWORK = ApeiraNetwork.create("3");
 
     public ApeiraDev(IEventBus modEventBus, ModContainer modContainer) {
         // Before blocks cache their shapes, so furniture reads tuned shapes live.
