@@ -40,6 +40,8 @@ public class CosmeticItem extends Item {
     public static final int FUN_FAIR_EXCLUSIVE_COLOR = 0xCB5148;
     /** The Garden Crate's exclusive line colour, as Ren's capture shows it. */
     public static final int GARDEN_EXCLUSIVE_COLOR = 0x4D7A60;
+    /** The Medieval Crate's exclusive line colour, from Ren's capture of the Knight Shield Skin. */
+    public static final int MEDIEVAL_EXCLUSIVE_COLOR = 0x738B41;
 
     /**
      * A crate's "Exclusive" line ({@code tooltip.apeira.exclusive.<crate>}): gold, or the colour Ren's capture shows for
@@ -50,6 +52,7 @@ public class CosmeticItem extends Item {
             case "bathroom_crate" -> BATHROOM_EXCLUSIVE_COLOR;
             case "fun_fair_crate" -> FUN_FAIR_EXCLUSIVE_COLOR;
             case "garden_crate" -> GARDEN_EXCLUSIVE_COLOR;
+            case "medieval_crate" -> MEDIEVAL_EXCLUSIVE_COLOR;
             default -> EXCLUSIVE_COLOR;
         };
         return Component.translatable("tooltip.apeira.exclusive." + crate).withStyle(Style.EMPTY.withColor(colour));

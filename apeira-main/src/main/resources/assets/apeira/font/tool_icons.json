@@ -1,0 +1,94 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "apeira:item/platinum_shovel.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈓ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:item/shadow_shovel.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈔ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:item/platinum_axe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈚ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:item/shadow_axe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈛ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:item/platinum_hoe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈡ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:item/shadow_hoe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈢ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:item/platinum_pickaxe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈨ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:item/shadow_pickaxe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈩ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:item/platinum_sword.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈯ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:item/shadow_sword.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈰ"
+      ]
+    }
+  ]
+}

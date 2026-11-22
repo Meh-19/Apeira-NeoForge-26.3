@@ -1,0 +1,436 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_sword.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈅ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_pickaxe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈆ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_shovel.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈇ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_axe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈈ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_hoe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈉ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/bow.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈊ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/crossbow_arrow.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈌ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/fishing_rod.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈍ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/trident.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈎ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/shears.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈏ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/iron_shovel.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈑ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/golden_shovel.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈒ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/wooden_axe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈖ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/stone_axe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈗ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/iron_axe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈘ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/golden_axe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈙ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/wooden_hoe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈝ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/stone_hoe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈞ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/iron_hoe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈟ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/golden_hoe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈠ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/wooden_pickaxe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈤ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/stone_pickaxe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈥ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/iron_pickaxe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈦ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/golden_pickaxe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈧ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/wooden_sword.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈫ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/stone_sword.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈬ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/iron_sword.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈭ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/golden_sword.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈮ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "apeira:gui/tool_skin/shield.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈳ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/netherite_sword.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈶ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/netherite_shovel.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈷ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/netherite_hoe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈸ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/netherite_pickaxe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈹ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/netherite_axe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꈺ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/stone_shovel.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉇ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/copper_pickaxe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉔ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/copper_sword.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉕ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/copper_shovel.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉖ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/copper_hoe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉗ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/copper_axe.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉘ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/wooden_shovel.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉙ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_spear.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉛ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/wooden_spear.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉢ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/stone_spear.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉣ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/copper_spear.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉤ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/iron_spear.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉥ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/golden_spear.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉦ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/netherite_spear.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "ꉧ"
+      ]
+    }
+  ]
+}

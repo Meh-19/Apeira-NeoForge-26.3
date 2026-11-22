@@ -15,6 +15,7 @@ import com.apeira.decor.registry.DecorEntities;
 import com.apeira.decor.registry.DecorFurniture;
 import com.apeira.decor.registry.DecorItems;
 import com.apeira.decor.registry.DecorMenus;
+import com.apeira.decor.registry.DecorRecipes;
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
@@ -35,7 +36,8 @@ public final class ApeiraDecor {
 
     public ApeiraDecor(IEventBus modEventBus, ModContainer modContainer) {
         REGISTRAR.register(modEventBus, DecorDataComponents::init, DecorBlocks::init, DecorFurniture::init, DecorItems::init,
-                DecorBlockEntities::init, DecorEntities::init, DecorMenus::init, DecorAttachments::init);
+                DecorBlockEntities::init, DecorEntities::init, DecorMenus::init, DecorAttachments::init,
+                DecorRecipes::init);
         NETWORK.register(modEventBus, DecorPayloads::init);
         DATA.register(modEventBus, DecorData::init);
         LOGGER.info("{} initialized", MOD_ID);
