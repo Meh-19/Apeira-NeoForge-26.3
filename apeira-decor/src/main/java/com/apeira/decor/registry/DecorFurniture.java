@@ -683,6 +683,51 @@ public final class DecorFurniture {
     public static final DeferredBlock<AnimatedFurnitureBlock> MAGIC_CAULDRON = piece("magic_cauldron", "wizardry_crate", 0x93BA4F,
             p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.magic_cauldron.bubble", null));
 
+    // The Mining Crate's furniture ("Mining Crate Exclusive" in the captured #82BD2F): the server pack's
+    // models/custom/furniture/mining_crate/ models (textures in textures/block/furniture/mining/; the excavator's tracks are
+    // the construction forklift's texture, the brazier's flame the camping bonfire's), names, rarities and paints from
+    // Ren's F9 capture of the crate's reward page. The capture's unpainted pieces (no paintable badge) are the scaffolding,
+    // the large brazier and the giant forge (the pack's large_forge). The caged light is the pack's cage_light_floor, its
+    // wall and ceiling variants cage_light_wall and cage_light. Display modes come from each model's fixed rotation; none
+    // of these were checked in game yet.
+    public static final DeferredBlock<FurnitureBlock> DETONATOR = piece("detonator", "mining_crate", 0xCB3C2A,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> METAL_MINECART = piece("metal_minecart", "mining_crate", 0xB2B2B2,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> CAGED_LIGHT = piece("caged_light", "mining_crate", 0x4C4C4C,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.CAGED_LIGHT_WALL.get(), () -> DecorFurniture.CAGED_LIGHT_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> CAGED_LIGHT_WALL = piece("caged_light_wall", "mining_crate", 0x4C4C4C,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CAGED_LIGHT.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> CAGED_LIGHT_CEILING = piece("caged_light_ceiling", "mining_crate", 0x4C4C4C,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CAGED_LIGHT.get()));
+    public static final DeferredBlock<FurnitureBlock> ORE_PILE = piece("ore_pile", "mining_crate", 0xE7A127,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> CRYSTAL_DEPOSIT = piece("crystal_deposit", "mining_crate", 0xD499FF,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** The pack's mining_tool_crate. */
+    public static final DeferredBlock<FurnitureBlock> MINING_TOOLS = piece("mining_tools", "mining_crate", 0xB2B2B2,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> SCAFFOLDING_BEAM = piece("scaffolding_beam", "mining_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE, () -> DecorFurniture.SCAFFOLDING_BEAM_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> SCAFFOLDING_BEAM_WALL = piece("scaffolding_beam_wall", "mining_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.SCAFFOLDING_BEAM.get()));
+    public static final DeferredBlock<FurnitureBlock> SCAFFOLDING_ARCHWAY = piece("scaffolding_archway", "mining_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> GEYSER = piece("geyser", "mining_crate",
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> LARGE_BRAZIER = piece("large_brazier", "mining_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    /** The pack's large_forge (its still model; the pack's base and gear parts are not used). */
+    public static final DeferredBlock<FurnitureBlock> GIANT_FORGE = piece("giant_forge", "mining_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR));
+    /**
+     * Animated: Ren's armor stand recording ({@code drill_excavator.bbmodel}, its bones and pivots kept), the drill
+     * turning. Its {@code _ignore} bones (the drill and the base's {@code group_ignore}) get no hitbox; the
+     * {@code group_tintable} bone takes the paint.
+     */
+    public static final DeferredBlock<AnimatedFurnitureBlock> DRILL_EXCAVATOR = piece("drill_excavator", "mining_crate", 0xF7C021,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.drill_excavator.drill", null));
+
     private DecorFurniture() {}
 
     /** Every decor furniture block, in registration order. */

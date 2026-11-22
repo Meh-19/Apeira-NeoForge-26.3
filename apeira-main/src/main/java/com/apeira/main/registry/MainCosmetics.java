@@ -45,6 +45,7 @@ public final class MainCosmetics {
     private static final Component MEDIEVAL_CRATE = CosmeticItem.exclusive("medieval_crate");
     private static final Component MUSIC_CRATE = CosmeticItem.exclusive("music_crate");
     private static final Component SPACE_CRATE = CosmeticItem.exclusive("space_crate");
+    private static final Component MINING_CRATE = CosmeticItem.exclusive("mining_crate");
     private static final Component WESTERN_CRATE = CosmeticItem.exclusive("western_crate");
     private static final Component WIZARDRY_CRATE = CosmeticItem.exclusive("wizardry_crate");
 
@@ -178,6 +179,13 @@ public final class MainCosmetics {
     public static final DeferredItem<CosmeticItem> WIZARD_STAFF = cosmetic("wizard_staff", HAND, RARE, 0x8643AD, WIZARDRY_CRATE);
     public static final DeferredItem<CosmeticItem> WITCH_CAULDRON = cosmetic("witch_cauldron", BACK, RARE, 0xCB66F9, WIZARDRY_CRATE);
     public static final DeferredItem<CosmeticItem> WIZARD_ROBE = cosmetic("wizard_robe", BACK, EPIC, 0x8D4585, WIZARDRY_CRATE);
+    // The Mining Crate's (Ren's F9 capture of its reward page; models the pack's miner_cap, coal_pack (the Ore Backpack),
+    // mining_crate/drill_prop and crystal_spikes, textures in textures/item/cosmetics/mining/; the backs' rows are Ren's
+    // logged ones).
+    public static final DeferredItem<CosmeticItem> MINER_CAP = cosmetic("miner_cap", HAT, COMMON, 0xE88438, MINING_CRATE);
+    public static final DeferredItem<CosmeticItem> ORE_BACKPACK = cosmetic("ore_backpack", BACK, RARE, 0x999999, MINING_CRATE);
+    public static final DeferredItem<CosmeticItem> DRILL = cosmetic("drill", HAND, EPIC, 0xF7C021, MINING_CRATE);
+    public static final DeferredItem<CosmeticItem> CRYSTAL_SPIKES = cosmetic("crystal_spikes", BACK, LEGENDARY, 0xD499FF, MINING_CRATE);
 
     private MainCosmetics() {}
 

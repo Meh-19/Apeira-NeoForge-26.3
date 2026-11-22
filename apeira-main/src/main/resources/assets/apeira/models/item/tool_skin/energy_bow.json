@@ -1,0 +1,1 @@
+{"parent":"minecraft:item/bow","textures":{"layer0":"apeira:item/tool_skin/energy_bow","particle":"apeira:item/tool_skin/energy_bow"},"gui_light":"front","display":{"thirdperson_righthand":{"rotation":[0,-90,0],"translation":[0,5.25,0.5],"scale":[1.0,1.0,1.0]},"thirdperson_lefthand":{"rotation":[0,90,0],"translation":[0,5.25,0.5],"scale":[1.0,1.0,1.0]}}}

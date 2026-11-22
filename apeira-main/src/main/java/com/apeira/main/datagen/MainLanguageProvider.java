@@ -104,6 +104,7 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
         item(MainBadgerCrate.MEDIEVAL_CRATE, "Medieval Crate");
         item(MainBadgerCrate.MUSIC_CRATE, "Music Crate");
         item(MainBadgerCrate.SPACE_CRATE, "Space Crate");
+        item(MainBadgerCrate.MINING_CRATE, "Mining Crate");
         item(MainBadgerCrate.WESTERN_CRATE, "Western Crate");
         item(MainBadgerCrate.WIZARDRY_CRATE, "Wizardry Crate");
         item(MainCosmetics.CHEF_HAT, "Chef Hat");
@@ -353,6 +354,13 @@ public final class MainLanguageProvider extends ApeiraLanguageProvider {
 
         item(MainToolSkins.KNIGHT_SHIELD_SKIN, "Knight Shield Skin");
         add("tool_skin.apeira.knight", "Knight");
+        item(MainToolSkins.ENERGY_BOW_SKIN, "Energy Bow Skin");
+        item(MainToolSkins.ENERGY_SHIELD_SKIN, "Energy Shield Skin");
+        add("tool_skin.apeira.energy", "Energy");
+        item(MainCosmetics.MINER_CAP, "Miner Cap");
+        item(MainCosmetics.ORE_BACKPACK, "Ore Backpack");
+        item(MainCosmetics.DRILL, "Drill");
+        item(MainCosmetics.CRYSTAL_SPIKES, "Crystal Spikes");
         add("container.apeira.salvaging_table", "Salvage");
 
         add("container.apeira.planter_box", "Planter Box");

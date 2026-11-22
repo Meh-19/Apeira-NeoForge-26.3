@@ -2,5 +2,6 @@
   "common": ["apeira:medieval_chair", "apeira:medieval_table", "apeira:royal_banner", "apeira:royal_curtain", "apeira:jester_hat", "apeira:medieval_candelabra"],
   "rare": ["apeira:armor_display", "apeira:dungeon_cage", "apeira:knight_armor", "apeira:knight_helmet", "apeira:medieval_cart", "apeira:lute"],
   "epic": ["apeira:royal_throne", "apeira:dragon_wings", "apeira:royal_crown"],
-  "legendary": []
+  "legendary": [],
+  "tool_skins": ["apeira:knight_shield_skin"]
 }

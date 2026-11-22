@@ -4948,5 +4948,1294 @@
     },
     "dy_scaled": 1.7999999523162842,
     "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "crystal_spikes": {
+    "name": "ꑵ Crystal Spikes",
+    "linked_by": "match",
+    "time": "2026-11-22T10:29:29.601991600",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 103.65002,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:29:27.239020400",
+      "screen": "쌥쌥쌥쌥쌥쌥쌥쌦쌦쌦쌦쌦쌦쌦쌧쌧쌧쌧쌧쌧쌧",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 25,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Crystal Spikes",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑵ ",
+            "color": "white"
+          },
+          {
+            "text": "Crystal Spikes",
+            "color": "#F49E0B"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10820.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#D499FF"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#D499FF",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10820.0]",
+      "tooltip": [
+        "ꑵ Crystal Spikes",
+        "ꑞ",
+        "Mining Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ],
+      "tooltip_json": [
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑵ ",
+                  "color": "white"
+                },
+                {
+                  "text": "Crystal Spikes",
+                  "color": "#F49E0B"
+                }
+              ]
+            }
+          ],
+          "color": "white"
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "Mining Crate Exclusive",
+              "color": "#82BD2F",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            ""
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "You do not currently own this",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "cosmetic, but you can unlock it",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "by opening cosmetic keys",
+                  "color": "#DC2625",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            ""
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "color": "white",
+                  "italic": false,
+                  "font": "minecraft:tooltips/keybind"
+                },
+                {
+                  "text": " ",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "text": "Left-click to preview",
+                  "color": "#85CC16",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "minecraft:firework_star",
+          "color": "dark_gray"
+        },
+        {
+          "translate": "item.components",
+          "with": [
+            18
+          ],
+          "color": "dark_gray"
+        }
+      ],
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:lore": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑞ",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "Mining Crate Exclusive",
+                  "color": "#82BD2F",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                ""
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "You do not currently own this",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "cosmetic, but you can unlock it",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "by opening cosmetic keys",
+                      "color": "#DC2625",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                ""
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "",
+                      "color": "white",
+                      "italic": false,
+                      "font": "minecraft:tooltips/keybind"
+                    },
+                    {
+                      "text": " ",
+                      "color": "white",
+                      "italic": false
+                    },
+                    {
+                      "text": "Left-click to preview",
+                      "color": "#85CC16",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "minecraft:enchantment_glint_override": false,
+          "minecraft:use_cooldown": {
+            "seconds": 1e-05,
+            "cooldown_group": "minecraft:firework_star"
+          },
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10820.0
+                  ]
+                },
+                "originrealms:rendered_tooltip": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#82BD2F",
+                    "text": "Mining Crate Exclusive",
+                    "italic": 0
+                  },
+                  "",
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "You do not currently own this",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "cosmetic, but you can unlock it",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "#DC2625",
+                        "text": "by opening cosmetic keys",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  "",
+                  {
+                    "extra": [
+                      {
+                        "color": "white",
+                        "text": "",
+                        "italic": 0,
+                        "font": "minecraft:tooltips/keybind"
+                      },
+                      {
+                        "color": "white",
+                        "text": " ",
+                        "italic": 0
+                      },
+                      {
+                        "color": "#85CC16",
+                        "text": "Left-click to preview",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  }
+                ],
+                "minecraft:item_name": "Crystal Spikes",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#82BD2F",
+                    "text": "Mining Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -2844161
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "crystal_spikes",
+                    "rarity": "legendary"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion",
+              "minecraft:attribute_modifiers",
+              "minecraft:enchantments"
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑵ ",
+                "color": "white"
+              },
+              {
+                "text": "Crystal Spikes",
+                "color": "#F49E0B"
+              }
+            ]
+          },
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -2844161
+            ]
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10820.0
+            ]
+          }
+        }
+      }
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:29:29.599990500",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -103.65002,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 103.65002,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 836906,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Crystal Spikes",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑵ ",
+            "color": "white"
+          },
+          {
+            "text": "Crystal Spikes",
+            "color": "#F49E0B"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10820.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#D499FF"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#D499FF",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10820.0]",
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:lore": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "Mining Crate Exclusive",
+              "color": "#82BD2F",
+              "italic": false
+            }
+          ],
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10820.0
+                  ]
+                },
+                "minecraft:item_name": "Crystal Spikes",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#82BD2F",
+                    "text": "Mining Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -2844161
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "crystal_spikes",
+                    "rarity": "legendary"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10820.0
+            ]
+          },
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -2844161
+            ]
+          },
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion"
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑵ ",
+                "color": "white"
+              },
+              {
+                "text": "Crystal Spikes",
+                "color": "#F49E0B"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "ore_backpack": {
+    "name": "ꑳ Ore Backpack",
+    "linked_by": "match",
+    "time": "2026-11-22T10:30:51.249761",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 105.750015,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:30:48.359288",
+      "screen": "쌥쌥쌥쌥쌥쌥쌥쌦쌦쌦쌦쌦쌦쌦쌧쌧쌧쌧쌧쌧쌧",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 21,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Ore Backpack",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑳ ",
+            "color": "white"
+          },
+          {
+            "text": "Ore Backpack",
+            "color": "#0099DB"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10023.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#999999"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#999999",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10023.0]",
+      "tooltip": [
+        "ꑳ Ore Backpack",
+        "ꑞ",
+        "Mining Crate Exclusive",
+        "",
+        " ",
+        " Left-click to toggle",
+        "  Shift-click to withdraw",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ],
+      "tooltip_json": [
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑳ ",
+                  "color": "white"
+                },
+                {
+                  "text": "Ore Backpack",
+                  "color": "#0099DB"
+                }
+              ]
+            }
+          ],
+          "color": "white"
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "Mining Crate Exclusive",
+              "color": "#82BD2F",
+              "italic": false
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            ""
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": " ",
+                  "color": "white",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "color": "white",
+                  "italic": false,
+                  "font": "minecraft:tooltips/keybind"
+                },
+                {
+                  "text": " ",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "text": "Left-click to toggle",
+                  "color": "#85CC16",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "",
+          "extra": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "color": "white",
+                  "italic": false,
+                  "font": "minecraft:tooltips/keybind"
+                },
+                {
+                  "text": " ",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "text": "",
+                  "color": "white",
+                  "italic": false,
+                  "font": "minecraft:tooltips/keybind"
+                },
+                {
+                  "text": " ",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "text": "Shift-click to withdraw",
+                  "color": "#F49E0B",
+                  "italic": false
+                }
+              ]
+            }
+          ],
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": "minecraft:firework_star",
+          "color": "dark_gray"
+        },
+        {
+          "translate": "item.components",
+          "with": [
+            18
+          ],
+          "color": "dark_gray"
+        }
+      ],
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:lore": [
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "ꑞ",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "Mining Crate Exclusive",
+                  "color": "#82BD2F",
+                  "italic": false
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                ""
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": " ",
+                      "color": "white",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "",
+                      "color": "white",
+                      "italic": false,
+                      "font": "minecraft:tooltips/keybind"
+                    },
+                    {
+                      "text": " ",
+                      "color": "white",
+                      "italic": false
+                    },
+                    {
+                      "text": "Left-click to toggle",
+                      "color": "#85CC16",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "",
+              "extra": [
+                {
+                  "text": "",
+                  "extra": [
+                    {
+                      "text": "",
+                      "color": "white",
+                      "italic": false,
+                      "font": "minecraft:tooltips/keybind"
+                    },
+                    {
+                      "text": " ",
+                      "color": "white",
+                      "italic": false
+                    },
+                    {
+                      "text": "",
+                      "color": "white",
+                      "italic": false,
+                      "font": "minecraft:tooltips/keybind"
+                    },
+                    {
+                      "text": " ",
+                      "color": "white",
+                      "italic": false
+                    },
+                    {
+                      "text": "Shift-click to withdraw",
+                      "color": "#F49E0B",
+                      "italic": false
+                    }
+                  ]
+                }
+              ],
+              "color": "white",
+              "italic": false
+            }
+          ],
+          "minecraft:enchantment_glint_override": false,
+          "minecraft:use_cooldown": {
+            "seconds": 1e-05,
+            "cooldown_group": "minecraft:firework_star"
+          },
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10023.0
+                  ]
+                },
+                "originrealms:rendered_tooltip": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#82BD2F",
+                    "text": "Mining Crate Exclusive",
+                    "italic": 0
+                  },
+                  "",
+                  {
+                    "extra": [
+                      {
+                        "color": "white",
+                        "text": " ",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "white",
+                        "text": "",
+                        "italic": 0,
+                        "font": "minecraft:tooltips/keybind"
+                      },
+                      {
+                        "color": "white",
+                        "text": " ",
+                        "italic": 0
+                      },
+                      {
+                        "color": "#85CC16",
+                        "text": "Left-click to toggle",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  },
+                  {
+                    "extra": [
+                      {
+                        "color": "white",
+                        "text": "",
+                        "italic": 0,
+                        "font": "minecraft:tooltips/keybind"
+                      },
+                      {
+                        "color": "white",
+                        "text": " ",
+                        "italic": 0
+                      },
+                      {
+                        "color": "white",
+                        "text": "",
+                        "italic": 0,
+                        "font": "minecraft:tooltips/keybind"
+                      },
+                      {
+                        "color": "white",
+                        "text": " ",
+                        "italic": 0
+                      },
+                      {
+                        "color": "#F49E0B",
+                        "text": "Shift-click to withdraw",
+                        "italic": 0
+                      }
+                    ],
+                    "text": ""
+                  }
+                ],
+                "minecraft:item_name": "Ore Backpack",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#82BD2F",
+                    "text": "Mining Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -6710887
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "ore_backpack",
+                    "rarity": "rare"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion",
+              "minecraft:attribute_modifiers",
+              "minecraft:enchantments"
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑳ ",
+                "color": "white"
+              },
+              {
+                "text": "Ore Backpack",
+                "color": "#0099DB"
+              }
+            ]
+          },
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -6710887
+            ]
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10023.0
+            ]
+          }
+        }
+      }
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:30:51.246323100",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -105.750015,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 105.750015,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 840606,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Ore Backpack",
+      "name_json": {
+        "text": "",
+        "extra": [
+          {
+            "text": "ꑳ ",
+            "color": "white"
+          },
+          {
+            "text": "Ore Backpack",
+            "color": "#0099DB"
+          }
+        ]
+      },
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10023.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#999999"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#999999",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10023.0]",
+      "components": {
+        "id": "minecraft:firework_star",
+        "count": 1,
+        "components": {
+          "minecraft:lore": [
+            {
+              "text": "ꑞ",
+              "color": "white",
+              "italic": false
+            },
+            {
+              "text": "Mining Crate Exclusive",
+              "color": "#82BD2F",
+              "italic": false
+            }
+          ],
+          "minecraft:custom_data": {
+            "$polymer:stack": {
+              "components": {
+                "minecraft:custom_model_data": {
+                  "floats": [
+                    10023.0
+                  ]
+                },
+                "minecraft:item_name": "Ore Backpack",
+                "minecraft:lore": [
+                  {
+                    "color": "white",
+                    "text": "ꑞ",
+                    "italic": 0
+                  },
+                  {
+                    "color": "#82BD2F",
+                    "text": "Mining Crate Exclusive",
+                    "italic": 0
+                  }
+                ],
+                "minecraft:firework_explosion": {
+                  "shape": "small_ball",
+                  "colors": [
+                    -6710887
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion"
+                  ]
+                },
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "Cosmetic": "ore_backpack",
+                    "rarity": "rare"
+                  }
+                }
+              },
+              "id": "minecraft:firework_star"
+            }
+          },
+          "minecraft:custom_model_data": {
+            "floats": [
+              10023.0
+            ]
+          },
+          "minecraft:firework_explosion": {
+            "shape": "small_ball",
+            "colors": [
+              -6710887
+            ]
+          },
+          "minecraft:tooltip_display": {
+            "hidden_components": [
+              "minecraft:firework_explosion"
+            ]
+          },
+          "minecraft:item_name": {
+            "text": "",
+            "extra": [
+              {
+                "text": "ꑳ ",
+                "color": "white"
+              },
+              {
+                "text": "Ore Backpack",
+                "color": "#0099DB"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
   }
 }

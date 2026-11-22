@@ -1,0 +1,187 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.drill_excavator.drill": {
+      "loop": true,
+      "animation_length": 2,
+      "bones": {
+        "root_rig": {
+          "rotation": {
+            "0": [
+              0,
+              -135,
+              0
+            ]
+          },
+          "position": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "drill_excavator_base_transform": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "position": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              0.625,
+              0.625,
+              0.625
+            ]
+          }
+        },
+        "drill_excavator_base_transform_right": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "drill_excavator_base_firework_star_cmd15426": {
+          "scale": {
+            "0": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "drill_excavator_base_firework_star_cmd15426_drill_excavator_base": {
+          "scale": {
+            "0": [
+              3.2,
+              3.2,
+              3.2
+            ]
+          }
+        },
+        "drill_excavator_base": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "position": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "drill_excavator_drill_transform": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "position": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              0.625,
+              0.625,
+              0.625
+            ]
+          }
+        },
+        "drill_excavator_drill_transform_right": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "drill_excavator_drill_firework_star_cmd15427": {
+          "scale": {
+            "0": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "test_ignore": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              "-query.anim_time * (360/2)"
+            ]
+          },
+          "scale": {
+            "0": [
+              3.2,
+              3.2,
+              3.2
+            ]
+          }
+        },
+        "drill_excavator_drill_ignore": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "position": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    }
+  }
+}

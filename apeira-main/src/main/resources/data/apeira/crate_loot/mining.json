@@ -1,0 +1,6 @@
+{
+  "common": ["apeira:detonator", "apeira:metal_minecart", "apeira:caged_light", "apeira:miner_cap", "apeira:ore_pile", "apeira:crystal_deposit", "apeira:mining_tools"],
+  "rare": ["apeira:scaffolding_beam", "apeira:scaffolding_archway", "apeira:ore_backpack", "apeira:geyser"],
+  "epic": ["apeira:large_brazier", "apeira:drill", "apeira:giant_forge"],
+  "legendary": ["apeira:crystal_spikes", "apeira:drill_excavator"]
+}

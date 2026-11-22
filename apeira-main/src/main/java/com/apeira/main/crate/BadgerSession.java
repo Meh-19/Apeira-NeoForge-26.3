@@ -13,6 +13,7 @@ import com.apeira.main.realm.RealmPool;
 import com.apeira.main.registry.MainBadgerCrate;
 import com.apeira.main.registry.MainGameRules;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -28,6 +29,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -42,7 +44,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * rewards; the client fades in and locks its camera to the recorded track;</li>
  * <li>{@link #PHASE_SELECT}, from {@link #SELECT_AT} (ten seconds in): the reward picked with the scroll wheel is
  * collected by crouching, or after {@link #SELECT_TIMEOUT} (five minutes); one reward, no rerolls;</li>
- * <li>{@link #PHASE_CLAIM}: the ding plays and the client fades to black; the player goes back to their realm spawn ({@link #sendBack})
+ * <li>{@link #PHASE_CLAIM}: the ding plays and the client fades to black; the player goes back to their realm spawn ({@link #sendBack}; without realm presets or a realm, their bed or anchor, else the world spawn)
  * in their old game mode, the instance is deleted and a nameless double chest opens with the reward
  * ({@link #PHASE_END}).</li>
  * </ol>
@@ -213,10 +215,40 @@ final class BadgerSession {
      * realm; otherwise, or without a realm, to their spawn point (a bed or anchor), else the world spawn.
      */
     static void sendBack(ServerPlayer player) {
-        if (MainGameRules.realmPresets(player.level().getServer()) && RealmPool.sendHome(player)) {
+        MinecraftServer server = player.level().getServer();
+        if (MainGameRules.realmPresets(server) && RealmPool.sendHome(player)) {
             return;
         }
-        player.teleport(player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING));
+        if (player.getRespawnConfig() != null) {
+            TeleportTransition bed = player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING);
+            if (!bed.missingRespawnBlock() && !BadgerInstances.isInstance(bed.newLevel().dimension()) && standable(bed.newLevel(), bed.position())) {
+                player.teleport(bed);
+                return;
+            }
+        }
+        player.teleport(worldSpawn(server, player));
+    }
+
+    /**
+     * The world spawn ({@code /setworldspawn}): vanilla's spawn search round it, or the spawn block itself when that
+     * search lands over nothing (a void or unfinished world, where it gave the bottom of the world).
+     */
+    static TeleportTransition worldSpawn(MinecraftServer server, ServerPlayer player) {
+        ServerLevel level = server.findRespawnDimension();
+        LevelData.RespawnData data = level.getRespawnData();
+        BlockPos spawn = data.pos();
+        level.getChunk(spawn);
+        Vec3 pos = Vec3.atBottomCenterOf(player.adjustSpawnLocation(level, spawn));
+        if (!standable(level, pos)) {
+            pos = Vec3.atBottomCenterOf(spawn);
+        }
+        return new TeleportTransition(level, pos, Vec3.ZERO, data.yaw(), data.pitch(), TeleportTransition.DO_NOTHING);
+    }
+
+    /** Whether there is a block to stand on under {@code pos}, above the bottom of the world. */
+    private static boolean standable(ServerLevel level, Vec3 pos) {
+        BlockPos below = BlockPos.containing(pos).below();
+        return below.getY() >= level.getMinY() && !level.getBlockState(below).getCollisionShape(level, below).isEmpty();
     }
 
     /** Sends the player back, restores their game mode and deletes the instance; with {@code popup}, shows the reward. */
