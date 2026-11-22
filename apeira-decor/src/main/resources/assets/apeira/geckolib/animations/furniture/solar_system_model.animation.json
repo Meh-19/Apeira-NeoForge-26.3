@@ -1,0 +1,204 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.solar_system_model.orbit": {
+      "loop": true,
+      "animation_length": 1056,
+      "bones": {
+        "root_rig": {
+          "rotation": {
+            "0": [
+              0,
+              -45,
+              0
+            ]
+          },
+          "position": {
+            "0": [
+              -5.5,
+              0,
+              -5.5
+            ]
+          }
+        },
+        "solar_system_sun_transform": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              0.625,
+              0.625,
+              0.625
+            ]
+          }
+        },
+        "solar_system_sun_firework_star_cmd15140_solar_system_sun": {
+          "rotation": {
+            "0": [
+              0,
+              "-(-query.anim_time * (360/32))",
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              3.4,
+              3.4,
+              3.4
+            ]
+          }
+        },
+        "solar_system_base_firework_star_cmd15134_solar_system_base": {
+          "scale": {
+            "0": [
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "solar_system_planet_1_ignore": {
+          "rotation": {
+            "0": [
+              0,
+              "-(query.anim_time * (360/4 ))",
+              0
+            ]
+          }
+        },
+        "solar_system_planet_1_transform": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              0.625,
+              0.625,
+              0.625
+            ]
+          }
+        },
+        "solar_system_planet_1_firework_star_cmd15136_solar_system_planet_1": {
+          "scale": {
+            "0": [
+              3.4,
+              3.4,
+              3.4
+            ]
+          }
+        },
+        "solar_system_planet_2_ignore": {
+          "rotation": {
+            "0": [
+              0,
+              "-(-query.anim_time * (360/6)\n)",
+              0
+            ]
+          }
+        },
+        "solar_system_planet_2_transform": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              0.625,
+              0.625,
+              0.625
+            ]
+          }
+        },
+        "solar_system_planet_2_firework_star_cmd15137_solar_system_planet_2": {
+          "scale": {
+            "0": [
+              3.4,
+              3.4,
+              3.4
+            ]
+          }
+        },
+        "solar_system_planet_3_ignore": {
+          "rotation": {
+            "0": [
+              0,
+              "-(query.anim_time * (360/11))",
+              0
+            ]
+          }
+        },
+        "solar_system_planet_3_transform": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              0.625,
+              0.625,
+              0.625
+            ]
+          }
+        },
+        "solar_system_planet_3_firework_star_cmd15138_solar_system_planet_3": {
+          "scale": {
+            "0": [
+              3.4,
+              3.4,
+              3.4
+            ]
+          }
+        },
+        "solar_system_planet_4_ignore": {
+          "rotation": {
+            "0": [
+              0,
+              "-(query.anim_time * (360/12))",
+              0
+            ]
+          }
+        },
+        "solar_system_planet_4_transform": {
+          "rotation": {
+            "0": [
+              0,
+              0,
+              0
+            ]
+          },
+          "scale": {
+            "0": [
+              0.625,
+              0.625,
+              0.625
+            ]
+          }
+        },
+        "solar_system_planet_4_firework_star_cmd15139_solar_system_planet_4": {
+          "scale": {
+            "0": [
+              3.95,
+              3.95,
+              3.95
+            ]
+          }
+        }
+      }
+    }
+  }
+}

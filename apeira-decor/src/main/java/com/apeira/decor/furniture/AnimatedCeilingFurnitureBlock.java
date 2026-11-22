@@ -1,11 +1,14 @@
 package com.apeira.decor.furniture;
 
+import java.util.function.Supplier;
+
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -17,6 +20,12 @@ import net.minecraft.world.level.block.state.BlockState;
 public class AnimatedCeilingFurnitureBlock extends AnimatedFurnitureBlock {
     public AnimatedCeilingFurnitureBlock(BlockBehaviour.Properties properties, String folder, boolean paintable, String animation) {
         super(properties, folder, paintable, animation, null);
+    }
+
+    /** The ceiling variant of a floor piece (the solar system model's), dropping {@code drop}. */
+    public AnimatedCeilingFurnitureBlock(BlockBehaviour.Properties properties, String folder, boolean paintable, String animation,
+            @Nullable Supplier<? extends Block> drop) {
+        super(properties, folder, paintable, animation, null, null, drop);
     }
 
     /** Only under a block. */
