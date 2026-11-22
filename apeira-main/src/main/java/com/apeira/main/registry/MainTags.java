@@ -22,6 +22,8 @@ public final class MainTags {
     public static final TagKey<Block> INCORRECT_FOR_SHADOW_TOOL = block("incorrect_for_shadow_tool");
     /** What repairs shadow tools. Xenon's was the wraith rib, which is not ported (it has no texture), so it is empty. */
     public static final TagKey<Item> SHADOW_TOOL_MATERIALS = item("shadow_tool_materials");
+    /** {@code #apeira:tool_skins}: every tool skin, what the smithing table's template slot takes for tool skins. */
+    public static final TagKey<Item> TOOL_SKINS = item("tool_skins");
     /** What repairs shadow armour: empty, like {@link #SHADOW_TOOL_MATERIALS}. */
     public static final TagKey<Item> REPAIRS_SHADOW_ARMOR = item("repairs_shadow_armor");
     /** What repairs rocket boots: nothing, as in Xenon. */

@@ -2,6 +2,7 @@ package com.apeira.decor.registry;
 
 import com.apeira.core.registry.ApeiraRegistrar;
 import com.apeira.decor.ApeiraDecor;
+import com.apeira.decor.toolskin.AppliedToolSkin;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -18,6 +19,13 @@ public final class DecorDataComponents {
      */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> PAINT = R.dataComponent("paint",
             builder -> builder.persistent(ExtraCodecs.RGB_COLOR_CODEC).networkSynchronized(ByteBufCodecs.INT));
+
+    /**
+     * {@code apeira:tool_skin}: the tool skin on a tool ({@link AppliedToolSkin}), put on in the smithing table and taken off in
+     * the salvaging table. Saved and sent to clients.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<AppliedToolSkin>> TOOL_SKIN = R.dataComponent(
+            "tool_skin", builder -> builder.persistent(AppliedToolSkin.CODEC).networkSynchronized(AppliedToolSkin.STREAM_CODEC));
 
     private DecorDataComponents() {}
 

@@ -38,7 +38,7 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
             String name = BuiltInRegistries.BLOCK.getKey(furniture.get().dropBlock()).getPath();
             block(furniture, NAMES.getOrDefault(name, title(name)));
         }
-        Set<String> crates = new LinkedHashSet<>(List.of("badger_crate", "animal_crate", "bathroom_crate", "business_crate", "camping_crate", "cosmetic_crate", "fast_food_crate", "construction_crate", "fun_fair_crate", "garden_crate"));
+        Set<String> crates = new LinkedHashSet<>(List.of("badger_crate", "animal_crate", "bathroom_crate", "business_crate", "camping_crate", "cosmetic_crate", "fast_food_crate", "construction_crate", "fun_fair_crate", "garden_crate", "medieval_crate"));
         // The same lines as the cosmetics' (the main module's language file), for the crates furniture comes from.
         for (String crate : crates) {
             // The Fun Fair Crate's line is the captured "Funfair Crate Exclusive".
@@ -50,6 +50,11 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
         container("painting_table", "Painting Table");
         container("wardrobe", "Wardrobe");
         addId("key", "open_wardrobe", "Open Wardrobe");
+
+        // Tool skins (Ren's capture of the Knight Shield Skin): the token's lore and the skinned tool's " + Knight Skin".
+        tooltip("tool_skin.apply", "Apply this skin to any");
+        tooltip("tool_skin.apply1", "tool in the Smithing Table");
+        tooltip("tool_skin.skin", " Skin");
 
         tooltip("paint.color", "Painted %s, Shade %s");
         tooltip("paint.finish", "%s Finish");

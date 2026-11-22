@@ -1,0 +1,5 @@
+{
+  "type": "apeira:smithing_tool_skin",
+  "template": "#apeira:tool_skins",
+  "base": "#apeira:tool_skin/skinnable"
+}

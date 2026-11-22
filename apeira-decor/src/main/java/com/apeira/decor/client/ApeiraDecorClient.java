@@ -41,6 +41,9 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import com.apeira.decor.toolskin.AppliedToolSkin;
+import com.apeira.decor.toolskin.ToolSkinItem;
+import com.apeira.decor.toolskin.ToolSkins;
 
 /** Client entrypoint for the Apeira Decor module. */
 @Mod(value = ApeiraDecor.MOD_ID, dist = Dist.CLIENT)
@@ -63,6 +66,7 @@ public final class ApeiraDecorClient {
         modEventBus.addListener(ApeiraDecorClient::registerClientExtensions);
         modEventBus.addListener(ApeiraDecorClient::registerDebugRenderers);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addPaintTooltip);
+        NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::addToolSkinTooltip);
         NeoForge.EVENT_BUS.addListener(ApeiraDecorClient::openWardrobe);
         ApeiraClientNetwork.create()
                 .register(modEventBus);
@@ -156,6 +160,27 @@ public final class ApeiraDecorClient {
         if (description != null) {
             List<Component> tooltip = event.getToolTip();
             tooltip.add(Math.min(1, tooltip.size()), description);
+        }
+    }
+
+    /**
+     * Writes a skinned tool's skin under its name, as Origin Realms does: the tool's icon and "+ Knight Skin"
+     * ({@link ToolSkins#loreLine}), then the skin's exclusive line, if it has one. Runs after the paint line is added, so the
+     * skin lines come first.
+     */
+    private static void addToolSkinTooltip(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
+        Component line = ToolSkins.loreLine(stack);
+        if (line == null) {
+            return;
+        }
+        List<Component> tooltip = event.getToolTip();
+        int at = Math.min(1, tooltip.size());
+        tooltip.add(at, line);
+        AppliedToolSkin applied = ToolSkins.get(stack);
+        ToolSkinItem skin = applied == null ? null : applied.skin();
+        if (skin != null && skin.exclusive() != null) {
+            tooltip.add(at + 1, skin.exclusive());
         }
     }
 }

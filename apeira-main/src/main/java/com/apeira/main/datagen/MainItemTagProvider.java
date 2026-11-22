@@ -3,6 +3,7 @@ package com.apeira.main.datagen;
 import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.core.datagen.ApeiraItemTagsProvider;
 import com.apeira.main.registry.MainGear;
+import com.apeira.main.registry.MainToolSkins;
 import com.apeira.main.registry.MainItems;
 import com.apeira.main.registry.MainTags;
 
@@ -43,6 +44,8 @@ public final class MainItemTagProvider extends ApeiraItemTagsProvider {
         add(ItemTags.AXES, MainGear.SHADOW_AXE);
         add(ItemTags.SHOVELS, MainGear.SHADOW_SHOVEL);
         add(ItemTags.HOES, MainGear.SHADOW_HOE);
+        // What the smithing table's template slot takes for apeira:smithing_tool_skin: every tool skin.
+        MainToolSkins.all().forEach(skin -> add(MainTags.TOOL_SKINS, skin));
         add(ItemTags.HEAD_ARMOR, MainGear.SHADOW_HELMET);
         add(ItemTags.CHEST_ARMOR, MainGear.SHADOW_CHESTPLATE);
         add(ItemTags.LEG_ARMOR, MainGear.SHADOW_LEGGINGS);
