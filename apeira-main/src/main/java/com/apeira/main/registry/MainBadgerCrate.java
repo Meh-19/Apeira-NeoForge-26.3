@@ -49,6 +49,24 @@ public final class MainBadgerCrate {
     /** The Garden Crate: the pack's garden_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
     public static final DeferredItem<BadgerCrateItem> GARDEN_CRATE = R.items().registerItem("garden_crate",
             properties -> new BadgerCrateItem(properties, CrateKind.GARDEN), properties -> properties.stacksTo(16));
+    /** The Kitchen Crate: the pack's kitchen_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> KITCHEN_CRATE = R.items().registerItem("kitchen_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.KITCHEN), properties -> properties.stacksTo(16));
+    /** The Medieval Crate: the pack's medieval_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> MEDIEVAL_CRATE = R.items().registerItem("medieval_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.MEDIEVAL), properties -> properties.stacksTo(16));
+    /** The Music Crate: the pack's music_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> MUSIC_CRATE = R.items().registerItem("music_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.MUSIC), properties -> properties.stacksTo(16));
+    /** The Space Crate: the pack's space_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> SPACE_CRATE = R.items().registerItem("space_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.SPACE), properties -> properties.stacksTo(16));
+    /** The Western Crate: the pack's western_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> WESTERN_CRATE = R.items().registerItem("western_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.WESTERN), properties -> properties.stacksTo(16));
+    /** The Wizardry Crate: the pack's wizardry_crate_full with the Badger Crate's displays, its lid and base on the shared geometry. */
+    public static final DeferredItem<BadgerCrateItem> WIZARDRY_CRATE = R.items().registerItem("wizardry_crate",
+            properties -> new BadgerCrateItem(properties, CrateKind.WIZARDRY), properties -> properties.stacksTo(16));
 
     /** Big enough to always be in view: the model reaches a few blocks around and above its origin. */
     public static final DeferredHolder<EntityType<?>, EntityType<BadgerCrateShowEntity>> SHOW = R.entityType("badger_crate_show",
@@ -57,7 +75,8 @@ public final class MainBadgerCrate {
 
     /** Every crate item, in the Crates tab's order. */
     public static List<DeferredItem<BadgerCrateItem>> crates() {
-        return List.of(BADGER_CRATE, ANIMAL_CRATE, BATHROOM_CRATE, BUSINESS_CRATE, CAMPING_CRATE, CONSTRUCTION_CRATE, FAST_FOOD_CRATE, COSMETIC_CRATE, FUN_FAIR_CRATE, GARDEN_CRATE);
+        return List.of(BADGER_CRATE, ANIMAL_CRATE, BATHROOM_CRATE, BUSINESS_CRATE, CAMPING_CRATE, CONSTRUCTION_CRATE, FAST_FOOD_CRATE, COSMETIC_CRATE, FUN_FAIR_CRATE, GARDEN_CRATE,
+                KITCHEN_CRATE, MEDIEVAL_CRATE, MUSIC_CRATE, SPACE_CRATE, WESTERN_CRATE, WIZARDRY_CRATE);
     }
 
     private MainBadgerCrate() {}

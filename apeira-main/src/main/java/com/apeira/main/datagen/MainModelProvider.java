@@ -51,6 +51,12 @@ public final class MainModelProvider extends ApeiraItemModelProvider {
         generators().itemModelOutput.accept(MainBadgerCrate.COSMETIC_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/cosmetic_crate")));
         generators().itemModelOutput.accept(MainBadgerCrate.FUN_FAIR_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/fun_fair_crate")));
         generators().itemModelOutput.accept(MainBadgerCrate.GARDEN_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/garden_crate")));
+        generators().itemModelOutput.accept(MainBadgerCrate.KITCHEN_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/kitchen_crate")));
+        generators().itemModelOutput.accept(MainBadgerCrate.MEDIEVAL_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/medieval_crate")));
+        generators().itemModelOutput.accept(MainBadgerCrate.MUSIC_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/music_crate")));
+        generators().itemModelOutput.accept(MainBadgerCrate.SPACE_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/space_crate")));
+        generators().itemModelOutput.accept(MainBadgerCrate.WESTERN_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/western_crate")));
+        generators().itemModelOutput.accept(MainBadgerCrate.WIZARDRY_CRATE.get(), ItemModelUtils.plainModel(modLoc("item/wizardry_crate")));
         MainCosmetics.all().forEach(this::cosmetic);
         MainItems.tools().forEach(this::toolItem);
         trimmableArmor(MainItems.PLATINUM_HELMET, ItemModelGenerators.TRIM_PREFIX_HELMET);

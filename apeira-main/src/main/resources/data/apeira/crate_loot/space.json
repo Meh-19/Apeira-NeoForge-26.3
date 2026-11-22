@@ -1,0 +1,6 @@
+{
+  "common": ["apeira:control_panel", "apeira:metal_crate", "apeira:solar_panel", "apeira:tube_light", "apeira:telescope"],
+  "rare": ["apeira:cryotank", "apeira:astronaut_helmet", "apeira:astronaut_air_tank", "apeira:sussy_helmet"],
+  "epic": ["apeira:rocketship", "apeira:space_buggy"],
+  "legendary": ["apeira:stellar_hat", "apeira:solar_system_model"]
+}

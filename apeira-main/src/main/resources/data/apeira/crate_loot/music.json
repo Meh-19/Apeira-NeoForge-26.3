@@ -1,0 +1,6 @@
+{
+  "common": ["apeira:acoustic_guitar", "apeira:boombox", "apeira:stage_light", "apeira:keyboard_piano", "apeira:speaker", "apeira:edm_headset"],
+  "rare": ["apeira:drumset", "apeira:saxophone", "apeira:guitar"],
+  "epic": ["apeira:dj_booth", "apeira:grand_piano", "apeira:tuba"],
+  "legendary": ["apeira:concert_stage", "apeira:edm_aura"]
+}

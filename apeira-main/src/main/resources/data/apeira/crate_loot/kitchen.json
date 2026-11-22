@@ -1,0 +1,6 @@
+{
+  "common": ["apeira:kitchen_stool", "apeira:kitchen_cabinet", "apeira:cutting_board", "apeira:pan", "apeira:bowl_of_fruit", "apeira:utensils_rack", "apeira:chef_hat"],
+  "rare": ["apeira:oven_stove", "apeira:microwave", "apeira:kitchen_sink", "apeira:kitchen_shelf", "apeira:apron", "apeira:refridgerator"],
+  "epic": ["apeira:kitchen_island", "apeira:pancake_stack"],
+  "legendary": ["apeira:soup_pot"]
+}

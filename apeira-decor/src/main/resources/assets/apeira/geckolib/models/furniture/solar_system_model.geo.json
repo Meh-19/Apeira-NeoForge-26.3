@@ -1,0 +1,1650 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.solar_system_model",
+        "texture_width": 512,
+        "texture_height": 256,
+        "visible_bounds_width": 9,
+        "visible_bounds_height": 6,
+        "visible_bounds_offset": [
+          0,
+          2,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "root_rig",
+          "pivot": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_sun_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            8,
+            18.44,
+            0
+          ],
+          "rotation": [
+            -180,
+            45,
+            180
+          ]
+        },
+        {
+          "name": "solar_system_sun_transform",
+          "parent": "solar_system_sun_ignore",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ],
+          "rotation": [
+            -180,
+            7.6213,
+            180
+          ]
+        },
+        {
+          "name": "solar_system_sun_transform_right",
+          "parent": "solar_system_sun_transform",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_sun_firework_star_cmd15140",
+          "parent": "solar_system_sun_transform_right",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_sun_firework_star_cmd15140_solar_system_sun",
+          "parent": "solar_system_sun_firework_star_cmd15140",
+          "pivot": [
+            8,
+            26.016,
+            0
+          ],
+          "rotation": [
+            -180,
+            0,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                18.125,
+                25.131,
+                -10.125
+              ],
+              "size": [
+                -20.25,
+                20.25,
+                20.25
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    110,
+                    46
+                  ],
+                  "uv_size": [
+                    50,
+                    50
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    110,
+                    46
+                  ],
+                  "uv_size": [
+                    50,
+                    50
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    110,
+                    46
+                  ],
+                  "uv_size": [
+                    50,
+                    50
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    110,
+                    46
+                  ],
+                  "uv_size": [
+                    50,
+                    50
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    160,
+                    60
+                  ],
+                  "uv_size": [
+                    -50,
+                    -14
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    160,
+                    96
+                  ],
+                  "uv_size": [
+                    -50,
+                    -20
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -1.315,
+                25.941,
+                -9.315
+              ],
+              "size": [
+                18.63,
+                18.63,
+                18.63
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    64,
+                    0
+                  ],
+                  "uv_size": [
+                    46,
+                    46
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    110,
+                    0
+                  ],
+                  "uv_size": [
+                    -46,
+                    46
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    64,
+                    0
+                  ],
+                  "uv_size": [
+                    46,
+                    46
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    110,
+                    0
+                  ],
+                  "uv_size": [
+                    -46,
+                    46
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    156,
+                    46
+                  ],
+                  "uv_size": [
+                    -46,
+                    -46
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    110,
+                    92
+                  ],
+                  "uv_size": [
+                    -46,
+                    -46
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                7,
+                17.016,
+                -1
+              ],
+              "size": [
+                2,
+                9,
+                2
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    250,
+                    75
+                  ],
+                  "uv_size": [
+                    4,
+                    18
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    250,
+                    75
+                  ],
+                  "uv_size": [
+                    4,
+                    18
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    250,
+                    75
+                  ],
+                  "uv_size": [
+                    4,
+                    18
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    250,
+                    75
+                  ],
+                  "uv_size": [
+                    4,
+                    18
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                8,
+                42.0057,
+                -17.4142
+              ],
+              "size": [
+                8,
+                8,
+                0.001
+              ],
+              "pivot": [
+                12,
+                52.7231,
+                -16.7071
+              ],
+              "rotation": [
+                45,
+                0,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    416,
+                    0
+                  ],
+                  "uv_size": [
+                    16,
+                    16
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    416,
+                    0
+                  ],
+                  "uv_size": [
+                    16,
+                    16
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -8.7081,
+                42.0057,
+                -2.7071
+              ],
+              "size": [
+                0.001,
+                8,
+                8
+              ],
+              "pivot": [
+                -8,
+                52.7231,
+                1.2929
+              ],
+              "rotation": [
+                0,
+                0,
+                -45
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    432,
+                    0
+                  ],
+                  "uv_size": [
+                    16,
+                    16
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    432,
+                    0
+                  ],
+                  "uv_size": [
+                    16,
+                    16
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                24.7061,
+                21.0263,
+                -2.7071
+              ],
+              "size": [
+                0.001,
+                8,
+                8
+              ],
+              "pivot": [
+                24,
+                18.3089,
+                1.2929
+              ],
+              "rotation": [
+                0,
+                0,
+                -45
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    448,
+                    16
+                  ],
+                  "uv_size": [
+                    -16,
+                    -16
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    448,
+                    16
+                  ],
+                  "uv_size": [
+                    -16,
+                    -16
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -9.1014,
+                25.571,
+                -14.6759
+              ],
+              "size": [
+                0.001,
+                8,
+                8
+              ],
+              "pivot": [
+                -8.3933,
+                29.571,
+                -17.3933
+              ],
+              "rotation": [
+                0,
+                45,
+                0
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    448,
+                    16
+                  ],
+                  "uv_size": [
+                    -16,
+                    -16
+                  ],
+                  "uv_rotation": 270
+                },
+                "west": {
+                  "uv": [
+                    448,
+                    16
+                  ],
+                  "uv_size": [
+                    -16,
+                    -16
+                  ],
+                  "uv_rotation": 90
+                }
+              }
+            },
+            {
+              "origin": [
+                25.0994,
+                35.571,
+                6.676
+              ],
+              "size": [
+                0.001,
+                8,
+                8
+              ],
+              "pivot": [
+                24.3933,
+                39.571,
+                17.3933
+              ],
+              "rotation": [
+                0,
+                45,
+                0
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    448,
+                    16
+                  ],
+                  "uv_size": [
+                    -16,
+                    -16
+                  ],
+                  "uv_rotation": 90
+                },
+                "west": {
+                  "uv": [
+                    448,
+                    16
+                  ],
+                  "uv_size": [
+                    -16,
+                    -16
+                  ],
+                  "uv_rotation": 270
+                }
+              }
+            },
+            {
+              "origin": [
+                0.9702,
+                32.571,
+                11.2979
+              ],
+              "size": [
+                0.001,
+                8,
+                8
+              ],
+              "pivot": [
+                2.2212,
+                40.571,
+                7.5479
+              ],
+              "rotation": [
+                0,
+                -45,
+                0
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    416,
+                    0
+                  ],
+                  "uv_size": [
+                    16,
+                    16
+                  ],
+                  "uv_rotation": 270
+                },
+                "west": {
+                  "uv": [
+                    416,
+                    0
+                  ],
+                  "uv_size": [
+                    16,
+                    16
+                  ],
+                  "uv_rotation": 90
+                }
+              }
+            },
+            {
+              "origin": [
+                5,
+                20.7763,
+                17.1142
+              ],
+              "size": [
+                8,
+                8,
+                0.001
+              ],
+              "pivot": [
+                4,
+                18.0589,
+                16.4071
+              ],
+              "rotation": [
+                45,
+                0,
+                0
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    448,
+                    16
+                  ],
+                  "uv_size": [
+                    16,
+                    -16
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    448,
+                    16
+                  ],
+                  "uv_size": [
+                    16,
+                    -16
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                15.0278,
+                30.211,
+                -19.5979
+              ],
+              "size": [
+                0.001,
+                8,
+                8
+              ],
+              "pivot": [
+                13.7788,
+                30.211,
+                -7.8479
+              ],
+              "rotation": [
+                0,
+                -45,
+                0
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    432,
+                    0
+                  ],
+                  "uv_size": [
+                    -16,
+                    16
+                  ],
+                  "uv_rotation": 90
+                },
+                "west": {
+                  "uv": [
+                    464,
+                    0
+                  ],
+                  "uv_size": [
+                    -16,
+                    16
+                  ],
+                  "uv_rotation": 270
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "solar_system_base",
+          "parent": "root_rig",
+          "pivot": [
+            8,
+            18.44,
+            0
+          ],
+          "rotation": [
+            -180,
+            45,
+            180
+          ]
+        },
+        {
+          "name": "solar_system_base_transform",
+          "parent": "solar_system_base",
+          "pivot": [
+            2,
+            2.016,
+            -2
+          ],
+          "rotation": [
+            90,
+            0,
+            180
+          ]
+        },
+        {
+          "name": "solar_system_base_transform_right",
+          "parent": "solar_system_base_transform",
+          "pivot": [
+            2,
+            2.016,
+            -2
+          ]
+        },
+        {
+          "name": "solar_system_base_firework_star_cmd15134",
+          "parent": "solar_system_base_transform_right",
+          "pivot": [
+            2,
+            2.016,
+            -2
+          ]
+        },
+        {
+          "name": "solar_system_base_firework_star_cmd15134_solar_system_base",
+          "parent": "solar_system_base_firework_star_cmd15134",
+          "pivot": [
+            -4,
+            0.016,
+            -16
+          ],
+          "rotation": [
+            90,
+            0,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -16.5,
+                -7.984,
+                -28.5
+              ],
+              "size": [
+                25,
+                4.5,
+                25
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    156,
+                    0
+                  ],
+                  "uv_size": [
+                    50,
+                    9
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    156,
+                    0
+                  ],
+                  "uv_size": [
+                    50,
+                    9
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    156,
+                    0
+                  ],
+                  "uv_size": [
+                    50,
+                    9
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    156,
+                    0
+                  ],
+                  "uv_size": [
+                    50,
+                    9
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    210,
+                    59
+                  ],
+                  "uv_size": [
+                    -50,
+                    -50
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    260,
+                    59
+                  ],
+                  "uv_size": [
+                    -50,
+                    -50
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "solar_system_planet_1_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            8,
+            18.44,
+            0
+          ],
+          "rotation": [
+            0,
+            12.718,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_1_transform",
+          "parent": "solar_system_planet_1_ignore",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ],
+          "rotation": [
+            0,
+            55.25,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_1_transform_right",
+          "parent": "solar_system_planet_1_transform",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_1_firework_star_cmd15136",
+          "parent": "solar_system_planet_1_transform_right",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_1_firework_star_cmd15136_solar_system_planet_1",
+          "parent": "solar_system_planet_1_firework_star_cmd15136",
+          "pivot": [
+            8,
+            41.016,
+            -2
+          ],
+          "rotation": [
+            -180,
+            0,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                7.999,
+                34.016,
+                -20.5
+              ],
+              "size": [
+                0.001,
+                9,
+                1
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    260,
+                    22
+                  ],
+                  "uv_size": [
+                    2,
+                    18
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    262,
+                    22
+                  ],
+                  "uv_size": [
+                    -2,
+                    18
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                7.999,
+                33.016,
+                -20.5
+              ],
+              "size": [
+                0.001,
+                1,
+                20.5
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    301,
+                    20
+                  ],
+                  "uv_size": [
+                    -41,
+                    2
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    260,
+                    20
+                  ],
+                  "uv_size": [
+                    41,
+                    2
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                5.5,
+                43.016,
+                -22.5
+              ],
+              "size": [
+                5,
+                5,
+                5
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    270,
+                    0
+                  ],
+                  "uv_size": [
+                    -10,
+                    10
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    260,
+                    0
+                  ],
+                  "uv_size": [
+                    10,
+                    10
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    270,
+                    0
+                  ],
+                  "uv_size": [
+                    -10,
+                    10
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    260,
+                    0
+                  ],
+                  "uv_size": [
+                    10,
+                    10
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    280,
+                    10
+                  ],
+                  "uv_size": [
+                    -10,
+                    -10
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    270,
+                    20
+                  ],
+                  "uv_size": [
+                    -10,
+                    -10
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "solar_system_planet_2_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            8,
+            18.44,
+            0
+          ],
+          "rotation": [
+            -180,
+            -49.8817,
+            180
+          ]
+        },
+        {
+          "name": "solar_system_planet_2_transform",
+          "parent": "solar_system_planet_2_ignore",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ],
+          "rotation": [
+            0,
+            -86.5002,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_2_transform_right",
+          "parent": "solar_system_planet_2_transform",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_2_firework_star_cmd15137",
+          "parent": "solar_system_planet_2_transform_right",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_2_firework_star_cmd15137_solar_system_planet_2",
+          "parent": "solar_system_planet_2_firework_star_cmd15137",
+          "pivot": [
+            8,
+            41.016,
+            28.75
+          ],
+          "rotation": [
+            -180,
+            0,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                7.999,
+                33.016,
+                12.25
+              ],
+              "size": [
+                0.001,
+                1,
+                28.5
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    317,
+                    40
+                  ],
+                  "uv_size": [
+                    -57,
+                    2
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    260,
+                    40
+                  ],
+                  "uv_size": [
+                    57,
+                    2
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                7.999,
+                34.016,
+                12.25
+              ],
+              "size": [
+                0.001,
+                10.5,
+                1
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    260,
+                    42
+                  ],
+                  "uv_size": [
+                    2,
+                    21
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    260,
+                    42
+                  ],
+                  "uv_size": [
+                    2,
+                    21
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                5,
+                44.516,
+                9.75
+              ],
+              "size": [
+                6,
+                6,
+                6
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    172,
+                    75
+                  ],
+                  "uv_size": [
+                    12,
+                    12
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    160,
+                    75
+                  ],
+                  "uv_size": [
+                    12,
+                    12
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    172,
+                    75
+                  ],
+                  "uv_size": [
+                    12,
+                    12
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    160,
+                    75
+                  ],
+                  "uv_size": [
+                    12,
+                    12
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    184,
+                    99
+                  ],
+                  "uv_size": [
+                    -12,
+                    -12
+                  ],
+                  "uv_rotation": 90
+                },
+                "down": {
+                  "uv": [
+                    172,
+                    99
+                  ],
+                  "uv_size": [
+                    -12,
+                    -12
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "solar_system_planet_3_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            8,
+            18.44,
+            0
+          ],
+          "rotation": [
+            0,
+            -40.7677,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_3_transform",
+          "parent": "solar_system_planet_3_ignore",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ],
+          "rotation": [
+            0,
+            3.8474,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_3_transform_right",
+          "parent": "solar_system_planet_3_transform",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_3_firework_star_cmd15138",
+          "parent": "solar_system_planet_3_transform_right",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_3_firework_star_cmd15138_solar_system_planet_3",
+          "parent": "solar_system_planet_3_firework_star_cmd15138",
+          "pivot": [
+            8,
+            41.016,
+            66.25
+          ],
+          "rotation": [
+            -180,
+            0,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                7.999,
+                33.016,
+                51.75
+              ],
+              "size": [
+                0.001,
+                1,
+                38.5
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    320,
+                    64
+                  ],
+                  "uv_size": [
+                    -77,
+                    2
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    243,
+                    64
+                  ],
+                  "uv_size": [
+                    77,
+                    2
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                3.5,
+                45.016,
+                47.75
+              ],
+              "size": [
+                9,
+                9,
+                9
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    221,
+                    93
+                  ],
+                  "uv_size": [
+                    -18,
+                    18
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    185,
+                    75
+                  ],
+                  "uv_size": [
+                    18,
+                    18
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    221,
+                    93
+                  ],
+                  "uv_size": [
+                    -18,
+                    18
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    185,
+                    75
+                  ],
+                  "uv_size": [
+                    18,
+                    18
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    221,
+                    93
+                  ],
+                  "uv_size": [
+                    -18,
+                    -18
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    203,
+                    111
+                  ],
+                  "uv_size": [
+                    -18,
+                    -18
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                7.999,
+                34.016,
+                51.75
+              ],
+              "size": [
+                0.001,
+                11,
+                1
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    262,
+                    42
+                  ],
+                  "uv_size": [
+                    -2,
+                    22
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    260,
+                    42
+                  ],
+                  "uv_size": [
+                    2,
+                    22
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "solar_system_planet_4_ignore",
+          "parent": "root_rig",
+          "pivot": [
+            8,
+            18.44,
+            0
+          ],
+          "rotation": [
+            0,
+            36.5625,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_4_transform",
+          "parent": "solar_system_planet_4_ignore",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ],
+          "rotation": [
+            0,
+            81.75,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_4_transform_right",
+          "parent": "solar_system_planet_4_transform",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_4_firework_star_cmd15139",
+          "parent": "solar_system_planet_4_transform_right",
+          "pivot": [
+            8,
+            17.016,
+            0
+          ]
+        },
+        {
+          "name": "solar_system_planet_4_firework_star_cmd15139_solar_system_planet_4",
+          "parent": "solar_system_planet_4_firework_star_cmd15139",
+          "pivot": [
+            -46.9,
+            45.366,
+            52.9
+          ],
+          "rotation": [
+            -180,
+            45,
+            180
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -46.901,
+                37.366,
+                43.7
+              ],
+              "size": [
+                0.001,
+                0.8,
+                31.2
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    320,
+                    66
+                  ],
+                  "uv_size": [
+                    -84,
+                    2
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    236,
+                    66
+                  ],
+                  "uv_size": [
+                    84,
+                    2
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -46.901,
+                38.166,
+                43.7
+              ],
+              "size": [
+                0.001,
+                11.2,
+                0.8
+              ],
+              "uv": {
+                "east": {
+                  "uv": [
+                    303,
+                    0
+                  ],
+                  "uv_size": [
+                    -2,
+                    28
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    303,
+                    0
+                  ],
+                  "uv_size": [
+                    -2,
+                    28
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -49.7,
+                49.366,
+                41.3
+              ],
+              "size": [
+                5.6,
+                5.6,
+                5.6
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    222,
+                    75
+                  ],
+                  "uv_size": [
+                    14,
+                    14
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    222,
+                    75
+                  ],
+                  "uv_size": [
+                    14,
+                    14
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    222,
+                    75
+                  ],
+                  "uv_size": [
+                    14,
+                    14
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    222,
+                    75
+                  ],
+                  "uv_size": [
+                    14,
+                    14
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    250,
+                    89
+                  ],
+                  "uv_size": [
+                    -14,
+                    -14
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    236,
+                    103
+                  ],
+                  "uv_size": [
+                    -14,
+                    -14
+                  ]
+                }
+              }
+            },
+            {
+              "origin": [
+                -55.4294,
+                52.2324,
+                36.025
+              ],
+              "size": [
+                16.32,
+                0.001,
+                16.32
+              ],
+              "pivot": [
+                -47.2694,
+                52.2324,
+                44.185
+              ],
+              "rotation": [
+                22.5,
+                0,
+                0
+              ],
+              "uv": {
+                "up": {
+                  "uv": [
+                    270,
+                    151
+                  ],
+                  "uv_size": [
+                    -49,
+                    -48
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    270,
+                    151
+                  ],
+                  "uv_size": [
+                    -49,
+                    -48
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -22,8 +22,8 @@ import net.minecraft.world.level.Level;
 public class BadgerCrateItem extends Item {
     private final CrateKind kind;
 
-    /** 2 seconds. */
-    public static final int HOLD_TICKS = 40;
+    /** 2.5 seconds. */
+    public static final int HOLD_TICKS = 50;
 
     public BadgerCrateItem(Properties properties, CrateKind kind) {
         super(properties);

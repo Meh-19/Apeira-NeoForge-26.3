@@ -1,0 +1,6 @@
+{
+  "common": ["apeira:flat_cactus", "apeira:rustic_crate", "apeira:saloon_chair", "apeira:saloon_lantern", "apeira:saloon_table", "apeira:western_hat"],
+  "rare": ["apeira:saloon_sign", "apeira:oil_lamppost", "apeira:saloon_bench", "apeira:cactus_helmet"],
+  "epic": ["apeira:covered_wagon", "apeira:water_tower", "apeira:cactus_suit"],
+  "legendary": ["apeira:rustic_windmill", "apeira:rustic_waterwheel"]
+}

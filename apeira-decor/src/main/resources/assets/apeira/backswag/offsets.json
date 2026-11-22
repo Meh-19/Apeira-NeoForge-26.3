@@ -2961,5 +2961,1992 @@
         }
       }
     }
+  },
+  "treads": {
+    "name": "ꑴ Treads",
+    "linked_by": "match",
+    "time": "2026-11-21T15:28:33.974221200",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": -0.0,
+    "right": 0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": -155.3125,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:28:31.899262200",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 21,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Treads",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10849.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#F89D25"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#F89D25",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10849.0]",
+      "tooltip": [
+        "ꑴ Treads",
+        "ꑞ",
+        "Construction Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:28:33.971209100",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": -0.0,
+      "right": 0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": -154.6875,
+      "wearer_body_yaw": 515.3125,
+      "wearer_head_yaw": 561.09375,
+      "yaw_delta": -155.3125,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 857707,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Treads",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10849.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#F89D25"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#F89D25",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10849.0]"
+    }
+  },
+  "crane": {
+    "name": "ꑵ Crane",
+    "linked_by": "match",
+    "time": "2026-11-21T15:28:42.283335800",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": -0.0,
+    "right": 0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": -94.84375,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:28:40.020854100",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 23,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Crane",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10817.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#F7C021"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#F7C021",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10817.0]",
+      "tooltip": [
+        "ꑵ Crane",
+        "ꑞ",
+        "Construction Crate Exclusive",
+        "Linked Gesture: Crane",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:28:42.281328800",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": -0.0,
+      "right": 0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": 144.84375,
+      "wearer_body_yaw": 1174.8438,
+      "wearer_head_yaw": 1224.8438,
+      "yaw_delta": -94.84375,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 857708,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Crane",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10817.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#F7C021"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#F7C021",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10817.0]"
+    }
+  },
+  "fry_pack": {
+    "name": "ꑳ Fry Pack",
+    "linked_by": "match",
+    "time": "2026-11-21T15:29:26.076423100",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": 0.0,
+    "right": -0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": -66.71875,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:29:23.192515700",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 29,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Fry Pack",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10419.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#CB3C2A"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#CB3C2A",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10419.0]",
+      "tooltip": [
+        "ꑳ Fry Pack",
+        "ꑞ",
+        "Fast Food Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:29:26.073914300",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": -0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": 116.71875,
+      "wearer_body_yaw": 786.71875,
+      "wearer_head_yaw": 832.96875,
+      "yaw_delta": -66.71875,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 857713,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Fry Pack",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10419.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#CB3C2A"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#CB3C2A",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10419.0]"
+    }
+  },
+  "backpack": {
+    "name": "ꑲ Backpack",
+    "linked_by": "match",
+    "time": "2026-11-21T15:26:37.987000700",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": 0.0,
+    "right": -0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": -35.78125,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:26:35.317929",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 30,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑲ Backpack",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10034.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#884B44"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#884B44",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10034.0]",
+      "tooltip": [
+        "ꑲ Backpack",
+        "ꑞ",
+        "Cosmetic Crate Exclusive",
+        "",
+        " ",
+        " Left-click to toggle",
+        "  Shift-click to withdraw",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:26:37.984566800",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": -0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": 85.78125,
+      "wearer_body_yaw": 3275.7812,
+      "wearer_head_yaw": 3321.5625,
+      "yaw_delta": -35.78125,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 855171,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑲ Backpack",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10034.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#884B44"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#884B44",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10034.0]"
+    }
+  },
+  "cardboard_suit": {
+    "name": "ꑳ Cardboard Suit",
+    "linked_by": "match",
+    "time": "2026-11-21T15:26:50.230779200",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": 0.0,
+    "right": 0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": 66.875,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:26:47.471606200",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 40,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Cardboard Suit",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10422.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#CB5148"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#CB5148",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10422.0]",
+      "tooltip": [
+        "ꑳ Cardboard Suit",
+        "ꑞ",
+        "Cosmetic Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:26:50.227264300",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": 0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": -16.875,
+      "wearer_body_yaw": 4253.125,
+      "wearer_head_yaw": 4301.25,
+      "yaw_delta": 66.875,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 856427,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Cardboard Suit",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10422.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#CB5148"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#CB5148",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10422.0]"
+    }
+  },
+  "dino_tail": {
+    "name": "ꑲ Dino Tail",
+    "linked_by": "match",
+    "time": "2026-11-21T15:26:59.184020200",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": 0.0,
+    "right": 0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": 72.5,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:26:57.168048600",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 39,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑲ Dino Tail",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10041.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#8D6397"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#8D6397",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10041.0]",
+      "tooltip": [
+        "ꑲ Dino Tail",
+        "ꑞ",
+        "Cosmetic Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:26:59.182048800",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": 0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": -22.5,
+      "wearer_body_yaw": 4967.5,
+      "wearer_head_yaw": 5017.5,
+      "yaw_delta": 72.5,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 857697,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑲ Dino Tail",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10041.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#8D6397"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#8D6397",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10041.0]"
+    }
+  },
+  "samurai_swords": {
+    "name": "ꑳ Samurai Swords",
+    "linked_by": "match",
+    "time": "2026-11-21T15:27:37.030187300",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": 0.0,
+    "right": -0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": -77.265625,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:27:33.845784900",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 19,
+      "id": "minecraft:paper",
+      "translation_key": "item.minecraft.paper",
+      "name": "ꑳ Samurai Swords",
+      "item_model": "minecraft:paper",
+      "custom_model_data": {
+        "floats": [
+          10085.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "match": "minecraft:paper model=minecraft:paper cmd=[10085.0]",
+      "tooltip": [
+        "ꑳ Samurai Swords",
+        "Cosmetic Crate Exclusive",
+        "",
+        " ",
+        " Left-click to toggle",
+        "  Shift-click to withdraw",
+        "minecraft:paper",
+        "17 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:27:37.027529600",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": -0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": 127.265625,
+      "wearer_body_yaw": 7997.2656,
+      "wearer_head_yaw": 8045.1562,
+      "yaw_delta": -77.265625,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 857702,
+      "id": "minecraft:paper",
+      "translation_key": "item.minecraft.paper",
+      "name": "ꑳ Samurai Swords",
+      "item_model": "minecraft:paper",
+      "custom_model_data": {
+        "floats": [
+          10085.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "match": "minecraft:paper model=minecraft:paper cmd=[10085.0]"
+    }
+  },
+  "starry_blanket_cloak": {
+    "name": "ꑵ Starry Blanket Cloak",
+    "linked_by": "match",
+    "time": "2026-11-21T15:27:50.231101500",
+    "wearer": "minecraft:mannequin",
+    "wearer_name": "Mannequin",
+    "wearer_scale": 1.0,
+    "forward": 0.0,
+    "right": -0.0,
+    "dy_scaled": 1.7999999523162842,
+    "dy": 1.7999999523162842,
+    "dx": 0.0,
+    "dz": 0.0,
+    "yaw_delta": -53.359375,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": true,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-21T15:27:44.770696",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 39,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Starry Blanket Cloak",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          16592.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#D499FF"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#D499FF",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[16592.0]",
+      "tooltip": [
+        "ꑵ Starry Blanket Cloak",
+        "ꑞ",
+        "Cosmetic Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-21T15:27:50.227681200",
+      "wearer": "minecraft:mannequin",
+      "wearer_name": "Mannequin",
+      "wearer_scale": 1.0,
+      "dy": 1.7999999523162842,
+      "dx": 0.0,
+      "dz": 0.0,
+      "forward": 0.0,
+      "right": -0.0,
+      "dy_scaled": 1.7999999523162842,
+      "stand_y": 81.79999995231628,
+      "wearer_y": 80.0,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "wearer_yaw": 103.359375,
+      "wearer_body_yaw": 9053.359,
+      "wearer_head_yaw": 9101.25,
+      "yaw_delta": -53.359375,
+      "small": false,
+      "marker": true,
+      "riding_player": true,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 857703,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Starry Blanket Cloak",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          16592.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#D499FF"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#D499FF",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[16592.0]"
+    }
+  },
+  "apron": {
+    "name": "ꑳ Apron",
+    "linked_by": "match",
+    "time": "2026-11-22T10:28:39.443262",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 70.5,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:28:35.486060900",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 23,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Apron",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10819.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#F89D25"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#F89D25",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10819.0]",
+      "tooltip": [
+        "ꑳ Apron",
+        "ꑞ",
+        "Kitchen Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:28:39.440360700",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -70.5,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 70.5,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 836903,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Apron",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10819.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#F89D25"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#F89D25",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10819.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "astronaut_air_tank": {
+    "name": "ꑳ Astronaut Air Tank",
+    "linked_by": "match",
+    "time": "2026-11-22T10:28:46.542416400",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 73.05002,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:28:43.784199500",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 25,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Astronaut Air Tank",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10714.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#FD811C"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#FD811C",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10714.0]",
+      "tooltip": [
+        "ꑳ Astronaut Air Tank",
+        "ꑞ",
+        "Space Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:28:46.540420800",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -73.05002,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 73.05002,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 836904,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Astronaut Air Tank",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10714.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#FD811C"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#FD811C",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10714.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "cactus_suit": {
+    "name": "ꑴ Cactus Suit",
+    "linked_by": "match",
+    "time": "2026-11-22T10:29:15.194484300",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 103.65002,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:29:11.232128300",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 39,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Cactus Suit",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10766.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#FB8EB0"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#FB8EB0",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10766.0]",
+      "tooltip": [
+        "ꑴ Cactus Suit",
+        "ꑞ",
+        "Western Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:29:15.192495100",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -103.65002,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 103.65002,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 836905,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Cactus Suit",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10766.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#FB8EB0"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#FB8EB0",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10766.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "dragon_wings": {
+    "name": "ꑴ Dragon Wings",
+    "linked_by": "match",
+    "time": "2026-11-22T10:29:42.341738600",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 105.750015,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:29:39.891600",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 42,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Dragon Wings",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10098.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#CB3C2A"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#CB3C2A",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10098.0]",
+      "tooltip": [
+        "ꑴ Dragon Wings",
+        "ꑞ",
+        "Medieval Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:29:42.339724500",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -105.750015,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 105.750015,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 839377,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Dragon Wings",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10098.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#CB3C2A"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#CB3C2A",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10098.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "edm_aura": {
+    "name": "ꑵ EDM Aura",
+    "linked_by": "match",
+    "time": "2026-11-22T10:29:53.441454200",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 105.750015,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:29:51.215297700",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 19,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ EDM Aura",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          16219.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#81D8D0"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#81D8D0",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[16219.0]",
+      "tooltip": [
+        "ꑵ EDM Aura",
+        "ꑞ",
+        "Music Crate Exclusive",
+        "",
+        " ",
+        "Cosmetics:",
+        "• EDM Aura",
+        "• EDM Aura (Noteless)",
+        " ",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        " ",
+        " Left-click to preview",
+        " Right-click to cycle",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:29:53.439055900",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -105.750015,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 105.750015,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 839380,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ EDM Aura",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          16219.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#81D8D0"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#81D8D0",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[16219.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "knight_armor": {
+    "name": "ꑳ Knight Armor",
+    "linked_by": "match",
+    "time": "2026-11-22T10:30:13.291705",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 105.750015,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:30:11.465662700",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 43,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Knight Armor",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10789.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#A0643E"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#A0643E",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10789.0]",
+      "tooltip": [
+        "ꑳ Knight Armor",
+        "ꑞ",
+        "Medieval Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:30:13.288682400",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -105.750015,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 105.750015,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 839381,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Knight Armor",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10789.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#A0643E"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#A0643E",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10789.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "soup_pot": {
+    "name": "ꑵ Soup Pot",
+    "linked_by": "match",
+    "time": "2026-11-22T10:31:21.601321500",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 105.750015,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:31:17.997766",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 32,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Soup Pot",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10853.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#FFFFFF"
+        ],
+        "fade_colors": []
+      },
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10853.0]",
+      "tooltip": [
+        "ꑵ Soup Pot",
+        "ꑞ",
+        "Kitchen Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:31:21.598698200",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -105.750015,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 105.750015,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 843044,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑵ Soup Pot",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10853.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#FFFFFF"
+        ],
+        "fade_colors": []
+      },
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10853.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "tuba": {
+    "name": "ꑴ Tuba",
+    "linked_by": "match",
+    "time": "2026-11-22T10:31:45.907661300",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 105.750015,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:31:44.007008300",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 24,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Tuba",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10898.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#E88438"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#E88438",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10898.0]",
+      "tooltip": [
+        "ꑴ Tuba",
+        "ꑞ",
+        "Music Crate Exclusive",
+        "Linked Gesture: Tuba",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:31:45.904433100",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -105.750015,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 105.750015,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 844281,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Tuba",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10898.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#E88438"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#E88438",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10898.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "wizard_robe": {
+    "name": "ꑴ Wizard Robe",
+    "linked_by": "match",
+    "time": "2026-11-22T10:31:54.192148700",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 105.750015,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:31:51.682590100",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 33,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Wizard Robe",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10770.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#8D4585"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#8D4585",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10770.0]",
+      "tooltip": [
+        "ꑴ Wizard Robe",
+        "ꑞ",
+        "Wizardry Crate Exclusive",
+        "",
+        "You do not currently own this",
+        "cosmetic, but you can unlock it",
+        "by opening cosmetic keys",
+        "",
+        " Left-click to preview",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:31:54.189670200",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -105.750015,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 105.750015,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 845501,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑴ Wizard Robe",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10770.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#8D4585"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#8D4585",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10770.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
+  },
+  "witch_cauldron": {
+    "name": "ꑳ Witch Cauldron",
+    "linked_by": "match",
+    "time": "2026-11-22T10:32:00.254453200",
+    "dy": 2.299999952316284,
+    "dx": 2.5,
+    "dz": 2.5,
+    "yaw_delta": 105.750015,
+    "head_pose": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "small": false,
+    "marker": true,
+    "riding_player": false,
+    "player_pose": "STANDING",
+    "player_eye_height": 1.62,
+    "cosmetic": {
+      "type": "hovered_cosmetic",
+      "time": "2026-11-22T10:31:57.368333500",
+      "screen_class": "net.minecraft.client.gui.screens.inventory.ContainerScreen",
+      "slot": 32,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Witch Cauldron",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10056.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#CB66F9"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#CB66F9",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10056.0]",
+      "tooltip": [
+        "ꑳ Witch Cauldron",
+        "ꑞ",
+        "Wizardry Crate Exclusive",
+        "",
+        " ",
+        " Left-click to toggle",
+        "  Shift-click to withdraw",
+        "minecraft:firework_star",
+        "18 component(s)"
+      ]
+    },
+    "worn": {
+      "type": "backswag_height",
+      "time": "2026-11-22T10:32:00.251277900",
+      "dy": 2.299999952316284,
+      "dx": 2.5,
+      "dz": 2.5,
+      "stand_y": 81.79999995231628,
+      "player_y": 79.5,
+      "player_eye_height": 1.62,
+      "player_pose": "STANDING",
+      "stand_yaw": 0.0,
+      "player_yaw": -105.750015,
+      "player_body_yaw": 290.41754,
+      "yaw_delta": 105.750015,
+      "small": false,
+      "marker": true,
+      "riding_player": false,
+      "head_pose": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entity_id": 846765,
+      "id": "minecraft:firework_star",
+      "translation_key": "item.minecraft.firework_star",
+      "name": "ꑳ Witch Cauldron",
+      "item_model": "minecraft:firework_star",
+      "custom_model_data": {
+        "floats": [
+          10056.0
+        ],
+        "flags": [],
+        "strings": [],
+        "colors": []
+      },
+      "firework_explosion": {
+        "shape": "SMALL_BALL",
+        "colors": [
+          "#CB66F9"
+        ],
+        "fade_colors": []
+      },
+      "default_paint": "#CB66F9",
+      "match": "minecraft:firework_star model=minecraft:firework_star cmd=[10056.0]"
+    },
+    "dy_scaled": 1.7999999523162842,
+    "note": "logged from a display stand 2.5 blocks off (not worn): dy_scaled is the worn height every riding log shows"
   }
 }

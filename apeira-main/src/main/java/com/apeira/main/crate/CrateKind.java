@@ -10,7 +10,7 @@ import net.minecraft.world.item.Item;
 
 /**
  * The crates that play the shared crate opening: the same template world, session, camera, animation and HUD, each
- * with its own instance suffix ({@code apeira:<uuid>_badgercrate}, {@code _animalcrate}, {@code _bathroomcrate}, {@code _businesscrate}, {@code _campingcrate}, {@code _funfaircrate}, {@code _gardencrate} ...), loot file
+ * with its own instance suffix ({@code apeira:<uuid>_badgercrate}, {@code _animalcrate}, {@code _bathroomcrate}, {@code _businesscrate}, {@code _campingcrate}, {@code _funfaircrate}, {@code _gardencrate}, {@code _kitchencrate}, {@code _medievalcrate}, {@code _musiccrate}, {@code _spacecrate}, {@code _westerncrate}, {@code _wizardrycrate}), loot file
  * ({@code data/apeira/crate_loot/<id>.json}), GeckoLib model ({@code geckolib/models/<id>_crate.geo.json}, the Badger
  * Crate's bones with the crate's own lid and base cubes) and texture ({@code textures/entity/badger_crate/<id>_crate.png}).
  * The animation ({@code badger_crate.animation.json}) and VFX layout are shared.
@@ -25,7 +25,13 @@ public enum CrateKind {
     FAST_FOOD,
     COSMETIC,
     FUN_FAIR,
-    GARDEN;
+    GARDEN,
+    KITCHEN,
+    MEDIEVAL,
+    MUSIC,
+    SPACE,
+    WESTERN,
+    WIZARDRY;
 
     /** {@code badger}, {@code animal}. */
     public String id() {
@@ -59,6 +65,12 @@ public enum CrateKind {
             case COSMETIC -> MainBadgerCrate.COSMETIC_CRATE.get();
             case FUN_FAIR -> MainBadgerCrate.FUN_FAIR_CRATE.get();
             case GARDEN -> MainBadgerCrate.GARDEN_CRATE.get();
+            case KITCHEN -> MainBadgerCrate.KITCHEN_CRATE.get();
+            case MEDIEVAL -> MainBadgerCrate.MEDIEVAL_CRATE.get();
+            case MUSIC -> MainBadgerCrate.MUSIC_CRATE.get();
+            case SPACE -> MainBadgerCrate.SPACE_CRATE.get();
+            case WESTERN -> MainBadgerCrate.WESTERN_CRATE.get();
+            case WIZARDRY -> MainBadgerCrate.WIZARDRY_CRATE.get();
         };
     }
 

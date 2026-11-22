@@ -1,0 +1,6 @@
+{
+  "common": ["apeira:magic_herbs", "apeira:potted_glowshroom", "apeira:magic_book_stack", "apeira:dream_catcher", "apeira:magic_tapestry", "apeira:witch_hat", "apeira:witch_broom"],
+  "rare": ["apeira:magic_mirror", "apeira:wizard_hat", "apeira:wizard_staff", "apeira:witch_cauldron", "apeira:magic_candles"],
+  "epic": ["apeira:wizard_robe", "apeira:potion_station", "apeira:runic_statue"],
+  "legendary": ["apeira:magic_cauldron"]
+}

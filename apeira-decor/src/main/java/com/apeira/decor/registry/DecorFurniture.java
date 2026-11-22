@@ -464,6 +464,225 @@ public final class DecorFurniture {
     public static final DeferredBlock<AnimatedFurnitureBlock> GARDEN_FOUNTAIN = piece("garden_fountain", "garden_crate", 0xCCCCCC,
             p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.garden_fountain.loop", null));
 
+    // The Kitchen Crate's furniture ("Kitchen Crate Exclusive"): the server pack's models/custom/furniture/kitchen/ models,
+    // names, rarities and paints from Ren's F9 capture of its reward page. Display modes follow each model's fixed display.
+    /** A seat 10 pixels up (a guess until tried). */
+    public static final DeferredBlock<SeatFurnitureBlock> KITCHEN_STOOL = piece("kitchen_stool", "kitchen_crate", 0xCCCCCC,
+            p -> new SeatFurnitureBlock(p, true, Form.FLOOR, 10));
+    public static final DeferredBlock<FurnitureBlock> KITCHEN_CABINET = piece("kitchen_cabinet", "kitchen_crate", 0xCCCCCC,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.KITCHEN_CABINET_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> KITCHEN_CABINET_WALL = piece("kitchen_cabinet_wall", "kitchen_crate", 0xCCCCCC,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.KITCHEN_CABINET.get()));
+    public static final DeferredBlock<FurnitureBlock> CUTTING_BOARD = piece("cutting_board", "kitchen_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE, () -> DecorFurniture.CUTTING_BOARD_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> CUTTING_BOARD_WALL = piece("cutting_board_wall", "kitchen_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.CUTTING_BOARD.get()));
+    public static final DeferredBlock<FurnitureBlock> PAN = piece("pan", "kitchen_crate", 0x333333,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.PAN_WALL.get(), () -> DecorFurniture.PAN_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> PAN_WALL = piece("pan_wall", "kitchen_crate", 0x333333,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.PAN.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> PAN_CEILING = piece("pan_ceiling", "kitchen_crate", 0x333333,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.PAN.get()));
+    public static final DeferredBlock<FurnitureBlock> BOWL_OF_FRUIT = piece("bowl_of_fruit", "kitchen_crate",
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> UTENSILS_RACK = piece("utensils_rack", "kitchen_crate", 0x666666,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.UTENSILS_RACK_WALL.get(), () -> DecorFurniture.UTENSILS_RACK_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> UTENSILS_RACK_WALL = piece("utensils_rack_wall", "kitchen_crate", 0x666666,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.UTENSILS_RACK.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> UTENSILS_RACK_CEILING = piece("utensils_rack_ceiling", "kitchen_crate", 0x666666,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.UTENSILS_RACK.get()));
+    public static final DeferredBlock<FurnitureBlock> OVEN_STOVE = piece("oven_stove", "kitchen_crate",
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> MICROWAVE = piece("microwave", "kitchen_crate",
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.MICROWAVE_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> MICROWAVE_WALL = piece("microwave_wall", "kitchen_crate",
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MICROWAVE.get()).displayAs(DisplayMode.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> KITCHEN_SINK = piece("kitchen_sink", "kitchen_crate", 0xCCCCCC,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> KITCHEN_SHELF = piece("kitchen_shelf", "kitchen_crate",
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.KITCHEN_SHELF_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> KITCHEN_SHELF_WALL = piece("kitchen_shelf_wall", "kitchen_crate",
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.KITCHEN_SHELF.get()));
+    public static final DeferredBlock<FurnitureBlock> REFRIDGERATOR = piece("refridgerator", "kitchen_crate", 0xCCCCCC,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.REFRIDGERATOR_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> REFRIDGERATOR_WALL = piece("refridgerator_wall", "kitchen_crate", 0xCCCCCC,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.REFRIDGERATOR.get()));
+    public static final DeferredBlock<FurnitureBlock> KITCHEN_ISLAND = piece("kitchen_island", "kitchen_crate", 0xCCCCCC,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+
+    // The Medieval Crate's furniture ("Medieval Crate Exclusive"): the server pack's models/custom/furniture/medieval/ models,
+    // names, rarities and paints from Ren's F9 capture of its reward page. Display modes follow each model's fixed display.
+    /** A seat 8 pixels up (a guess until tried). */
+    public static final DeferredBlock<SeatFurnitureBlock> MEDIEVAL_CHAIR = piece("medieval_chair", "medieval_crate", 0x647A4C,
+            p -> new SeatFurnitureBlock(p, true, Form.FLOOR, 8));
+    public static final DeferredBlock<FurnitureBlock> MEDIEVAL_TABLE = piece("medieval_table", "medieval_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> ROYAL_BANNER = piece("royal_banner", "medieval_crate", 0x8D6397,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.ROYAL_BANNER_WALL.get(), () -> DecorFurniture.ROYAL_BANNER_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> ROYAL_BANNER_WALL = piece("royal_banner_wall", "medieval_crate", 0x8D6397,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.ROYAL_BANNER.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> ROYAL_BANNER_CEILING = piece("royal_banner_ceiling", "medieval_crate", 0x8D6397,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.ROYAL_BANNER.get()));
+    public static final DeferredBlock<WallFurnitureBlock> ROYAL_CURTAIN = piece("royal_curtain", "medieval_crate", 0x8D6397,
+            p -> new WallFurnitureBlock(p, true, null));
+    public static final DeferredBlock<FurnitureBlock> MEDIEVAL_CANDELABRA = piece("medieval_candelabra", "medieval_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR, () -> DecorFurniture.MEDIEVAL_CANDELABRA_WALL.get(), () -> DecorFurniture.MEDIEVAL_CANDELABRA_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> MEDIEVAL_CANDELABRA_WALL = piece("medieval_candelabra_wall", "medieval_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.MEDIEVAL_CANDELABRA.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> MEDIEVAL_CANDELABRA_CEILING = piece("medieval_candelabra_ceiling", "medieval_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.MEDIEVAL_CANDELABRA.get()));
+    public static final DeferredBlock<FurnitureBlock> ARMOR_DISPLAY = piece("armor_display", "medieval_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> DUNGEON_CAGE = piece("dungeon_cage", "medieval_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE, () -> DecorFurniture.DUNGEON_CAGE_WALL.get(), () -> DecorFurniture.DUNGEON_CAGE_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> DUNGEON_CAGE_WALL = piece("dungeon_cage_wall", "medieval_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.DUNGEON_CAGE.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> DUNGEON_CAGE_CEILING = piece("dungeon_cage_ceiling", "medieval_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.DUNGEON_CAGE.get()));
+    public static final DeferredBlock<FurnitureBlock> MEDIEVAL_CART = piece("medieval_cart", "medieval_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE));
+    /** A seat 8 pixels up (a guess until tried). */
+    public static final DeferredBlock<SeatFurnitureBlock> ROYAL_THRONE = piece("royal_throne", "medieval_crate", 0x8D6397,
+            p -> new SeatFurnitureBlock(p, true, Form.FURNITURE, 8));
+
+    // The Music Crate's furniture ("Music Crate Exclusive"): the server pack's models/custom/furniture/music/ models,
+    // names, rarities and paints from Ren's F9 capture of its reward page. Display modes follow each model's fixed display.
+    public static final DeferredBlock<FurnitureBlock> ACOUSTIC_GUITAR = piece("acoustic_guitar", "music_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.ACOUSTIC_GUITAR_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> ACOUSTIC_GUITAR_WALL = piece("acoustic_guitar_wall", "music_crate", 0xCB5148,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.ACOUSTIC_GUITAR.get()));
+    public static final DeferredBlock<FurnitureBlock> BOOMBOX = piece("boombox", "music_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> STAGE_LIGHT = piece("stage_light", "music_crate",
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.STAGE_LIGHT_WALL.get(), () -> DecorFurniture.STAGE_LIGHT_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> STAGE_LIGHT_WALL = piece("stage_light_wall", "music_crate",
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.STAGE_LIGHT.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> STAGE_LIGHT_CEILING = piece("stage_light_ceiling", "music_crate",
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.STAGE_LIGHT.get()));
+    public static final DeferredBlock<FurnitureBlock> KEYBOARD_PIANO = piece("keyboard_piano", "music_crate", 0x4C4C4C,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> SPEAKER = piece("speaker", "music_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.SPEAKER_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> SPEAKER_WALL = piece("speaker_wall", "music_crate", 0xCB5148,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.SPEAKER.get()));
+    public static final DeferredBlock<FurnitureBlock> DRUMSET = piece("drumset", "music_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    /** Animated: Ren's model; _ignore bones get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> DJ_BOOTH = piece("dj_booth", "music_crate", 0x3EB8DD,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.dj_booth.loop", null));
+    public static final DeferredBlock<FurnitureBlock> GRAND_PIANO = piece("grand_piano", "music_crate", 0x4C4C4C,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    /** Animated: Ren's model; _ignore bones get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> CONCERT_STAGE = piece("concert_stage", "music_crate", 0x547483,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.concert_stage.loop", null));
+
+    // The Space Crate's furniture ("Space Crate Exclusive"): the server pack's models/custom/furniture/space/ models,
+    // names, rarities and paints from Ren's F9 capture of its reward page. Display modes follow each model's fixed display.
+    public static final DeferredBlock<FurnitureBlock> CONTROL_PANEL = piece("control_panel", "space_crate", 0x81D8D0,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.CONTROL_PANEL_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> CONTROL_PANEL_WALL = piece("control_panel_wall", "space_crate", 0x81D8D0,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.CONTROL_PANEL.get()));
+    public static final DeferredBlock<FurnitureBlock> METAL_CRATE = piece("metal_crate", "space_crate",
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> SOLAR_PANEL = piece("solar_panel", "space_crate",
+            p -> new FurnitureBlock(p, false, Form.FURNITURE, () -> DecorFurniture.SOLAR_PANEL_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> SOLAR_PANEL_WALL = piece("solar_panel_wall", "space_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.SOLAR_PANEL.get()));
+    public static final DeferredBlock<FurnitureBlock> TUBE_LIGHT = piece("tube_light", "space_crate", 0xB0DFE5,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.TUBE_LIGHT_WALL.get(), () -> DecorFurniture.TUBE_LIGHT_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> TUBE_LIGHT_WALL = piece("tube_light_wall", "space_crate", 0xB0DFE5,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.TUBE_LIGHT.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> TUBE_LIGHT_CEILING = piece("tube_light_ceiling", "space_crate", 0xB0DFE5,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.TUBE_LIGHT.get()));
+    public static final DeferredBlock<FurnitureBlock> TELESCOPE = piece("telescope", "space_crate", 0x74A4CA,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> CRYOTANK = piece("cryotank", "space_crate", 0x81D8D0,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> ROCKETSHIP = piece("rocketship", "space_crate", 0xCB5148,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    public static final DeferredBlock<FurnitureBlock> SPACE_BUGGY = piece("space_buggy", "space_crate",
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    /** Animated: Ren's model; _ignore bones get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> SOLAR_SYSTEM_MODEL = piece("solar_system_model", "space_crate",
+            p -> new AnimatedFurnitureBlock(p, "furniture", false, "animation.solar_system_model.orbit", null, () -> DecorFurniture.SOLAR_SYSTEM_MODEL_CEILING.get(), null));
+    public static final DeferredBlock<AnimatedCeilingFurnitureBlock> SOLAR_SYSTEM_MODEL_CEILING = piece("solar_system_model_ceiling", "space_crate",
+            p -> new AnimatedCeilingFurnitureBlock(p, "furniture", false, "animation.solar_system_model_ceiling.orbit", () -> DecorFurniture.SOLAR_SYSTEM_MODEL.get()));
+
+    // The Western Crate's furniture ("Western Crate Exclusive"): the server pack's models/custom/furniture/western/ models,
+    // names, rarities and paints from Ren's F9 capture of its reward page. Display modes follow each model's fixed display.
+    public static final DeferredBlock<FurnitureBlock> FLAT_CACTUS = piece("flat_cactus", "western_crate", 0xFB8EB0,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> RUSTIC_CRATE = piece("rustic_crate", "western_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR));
+    /** A seat 8 pixels up (a guess until tried). */
+    public static final DeferredBlock<SeatFurnitureBlock> SALOON_CHAIR = piece("saloon_chair", "western_crate", 0x647A4C,
+            p -> new SeatFurnitureBlock(p, true, Form.FLOOR, 8));
+    public static final DeferredBlock<FurnitureBlock> SALOON_LANTERN = piece("saloon_lantern", "western_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR, () -> DecorFurniture.SALOON_LANTERN_WALL.get(), () -> DecorFurniture.SALOON_LANTERN_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> SALOON_LANTERN_WALL = piece("saloon_lantern_wall", "western_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.SALOON_LANTERN.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> SALOON_LANTERN_CEILING = piece("saloon_lantern_ceiling", "western_crate",
+            p -> new FacingFurnitureBlock(p, false, () -> DecorFurniture.SALOON_LANTERN.get()));
+    public static final DeferredBlock<FurnitureBlock> SALOON_TABLE = piece("saloon_table", "western_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR));
+    public static final DeferredBlock<WallFurnitureBlock> SALOON_SIGN = piece("saloon_sign", "western_crate",
+            p -> new WallFurnitureBlock(p, true, null));
+    public static final DeferredBlock<FurnitureBlock> OIL_LAMPPOST = piece("oil_lamppost", "western_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR));
+    /** A seat 8 pixels up (a guess until tried). */
+    public static final DeferredBlock<SeatFurnitureBlock> SALOON_BENCH = piece("saloon_bench", "western_crate",
+            p -> new SeatFurnitureBlock(p, false, Form.FLOOR, 8));
+    public static final DeferredBlock<FurnitureBlock> COVERED_WAGON = piece("covered_wagon", "western_crate",
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> WATER_TOWER = piece("water_tower", "western_crate",
+            p -> new FurnitureBlock(p, false, Form.FLOOR));
+    /** Animated: Ren's model; _ignore bones get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> RUSTIC_WINDMILL = piece("rustic_windmill", "western_crate",
+            p -> new AnimatedFurnitureBlock(p, "furniture", false, "animation.rustic_windmill.spin", null));
+    /** Animated: Ren's model; _ignore bones get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> RUSTIC_WATERWHEEL = piece("rustic_waterwheel", "western_crate",
+            p -> new AnimatedFurnitureBlock(p, "furniture", false, "animation.rustic_waterwheel.spin", null));
+
+    // The Wizardry Crate's furniture ("Wizardry Crate Exclusive"): the server pack's models/custom/furniture/wizardry/ models,
+    // names, rarities and paints from Ren's F9 capture of its reward page. Display modes follow each model's fixed display.
+    public static final DeferredBlock<FurnitureBlock> MAGIC_HERBS = piece("magic_herbs", "wizardry_crate", 0xD499FF,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.MAGIC_HERBS_WALL.get(), () -> DecorFurniture.MAGIC_HERBS_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> MAGIC_HERBS_WALL = piece("magic_herbs_wall", "wizardry_crate", 0xD499FF,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MAGIC_HERBS.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> MAGIC_HERBS_CEILING = piece("magic_herbs_ceiling", "wizardry_crate", 0xD499FF,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MAGIC_HERBS.get()));
+    public static final DeferredBlock<FurnitureBlock> POTTED_GLOWSHROOM = piece("potted_glowshroom", "wizardry_crate", 0x81D8D0,
+            p -> new FurnitureBlock(p, true, Form.FLOOR));
+    public static final DeferredBlock<FurnitureBlock> MAGIC_BOOK_STACK = piece("magic_book_stack", "wizardry_crate", 0x8D4585,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE, () -> DecorFurniture.MAGIC_BOOK_STACK_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> MAGIC_BOOK_STACK_WALL = piece("magic_book_stack_wall", "wizardry_crate", 0x8D4585,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MAGIC_BOOK_STACK.get()));
+    public static final DeferredBlock<WallFurnitureBlock> DREAM_CATCHER = piece("dream_catcher", "wizardry_crate", 0x8D4585,
+            p -> new WallFurnitureBlock(p, true, () -> DecorFurniture.DREAM_CATCHER_CEILING.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> DREAM_CATCHER_CEILING = piece("dream_catcher_ceiling", "wizardry_crate", 0x8D4585,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.DREAM_CATCHER.get()));
+    public static final DeferredBlock<FurnitureBlock> MAGIC_TAPESTRY = piece("magic_tapestry", "wizardry_crate", 0x8D4585,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.MAGIC_TAPESTRY_WALL.get(), () -> DecorFurniture.MAGIC_TAPESTRY_CEILING.get(), null));
+    public static final DeferredBlock<FacingFurnitureBlock> MAGIC_TAPESTRY_WALL = piece("magic_tapestry_wall", "wizardry_crate", 0x8D4585,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MAGIC_TAPESTRY.get()));
+    public static final DeferredBlock<FacingFurnitureBlock> MAGIC_TAPESTRY_CEILING = piece("magic_tapestry_ceiling", "wizardry_crate", 0x8D4585,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MAGIC_TAPESTRY.get()));
+    public static final DeferredBlock<FurnitureBlock> MAGIC_MIRROR = piece("magic_mirror", "wizardry_crate", 0xCB66F9,
+            p -> new FurnitureBlock(p, true, Form.FLOOR, () -> DecorFurniture.MAGIC_MIRROR_WALL.get(), null, null));
+    public static final DeferredBlock<FacingFurnitureBlock> MAGIC_MIRROR_WALL = piece("magic_mirror_wall", "wizardry_crate", 0xCB66F9,
+            p -> new FacingFurnitureBlock(p, true, () -> DecorFurniture.MAGIC_MIRROR.get()));
+    /** Animated: Ren's model; _ignore bones get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> MAGIC_CANDLES = piece("magic_candles", "wizardry_crate", 0xCB66F9,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.magic_candles.flicker", null));
+    public static final DeferredBlock<FurnitureBlock> POTION_STATION = piece("potion_station", "wizardry_crate", 0x93BA4F,
+            p -> new FurnitureBlock(p, true, Form.FURNITURE));
+    /** Animated: Ren's model; _ignore bones get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> RUNIC_STATUE = piece("runic_statue", "wizardry_crate", 0x81D8D0,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.runic_statue.loop", null));
+    /** Animated: Ren's model; _ignore bones get no hitbox. */
+    public static final DeferredBlock<AnimatedFurnitureBlock> MAGIC_CAULDRON = piece("magic_cauldron", "wizardry_crate", 0x93BA4F,
+            p -> new AnimatedFurnitureBlock(p, "furniture", true, "animation.magic_cauldron.bubble", null));
+
     private DecorFurniture() {}
 
     /** Every decor furniture block, in registration order. */

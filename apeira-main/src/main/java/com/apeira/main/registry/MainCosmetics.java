@@ -41,6 +41,12 @@ public final class MainCosmetics {
     private static final Component FAST_FOOD_CRATE = CosmeticItem.exclusive("fast_food_crate");
     private static final Component FUN_FAIR_CRATE = CosmeticItem.exclusive("fun_fair_crate");
     private static final Component CONSTRUCTION_CRATE = CosmeticItem.exclusive("construction_crate");
+    private static final Component KITCHEN_CRATE = CosmeticItem.exclusive("kitchen_crate");
+    private static final Component MEDIEVAL_CRATE = CosmeticItem.exclusive("medieval_crate");
+    private static final Component MUSIC_CRATE = CosmeticItem.exclusive("music_crate");
+    private static final Component SPACE_CRATE = CosmeticItem.exclusive("space_crate");
+    private static final Component WESTERN_CRATE = CosmeticItem.exclusive("western_crate");
+    private static final Component WIZARDRY_CRATE = CosmeticItem.exclusive("wizardry_crate");
 
     /** A registered cosmetic, its slot and rarity. */
     public record Cosmetic(DeferredItem<CosmeticItem> item, CosmeticSlot slot, CosmeticRarity rarity) {}
@@ -139,6 +145,39 @@ public final class MainCosmetics {
     // The Fun Fair Crate's, from Ren's F9 capture of its reward page: the Party Hat is the server pack's fun_fair/clown_hat
     // (texture in textures/item/cosmetics/fun_fair/). The Rubber Balloon is left out, as the other crates' balloons are.
     public static final DeferredItem<CosmeticItem> PARTY_HAT = cosmetic("party_hat", HAT, COMMON, 0xF7C021, FUN_FAIR_CRATE);
+
+
+    // The Kitchen, Medieval, Music, Space, Western and Wizardry Crates' cosmetics, from Ren's F9 captures of their reward pages
+    // (rarity from the name's glyph, default paint from the firework colour, white none; slots from the backswag logs and the
+    // models' head and hand displays). Balloons, gestures and tool skins are left out.
+    public static final DeferredItem<CosmeticItem> CHEF_HAT = cosmetic("chef_hat", HAT, COMMON, null, KITCHEN_CRATE);
+    public static final DeferredItem<CosmeticItem> APRON = cosmetic("apron", BACK, RARE, 0xF89D25, KITCHEN_CRATE);
+    public static final DeferredItem<CosmeticItem> PANCAKE_STACK = cosmetic("pancake_stack", HAT, EPIC, 0xF7C021, KITCHEN_CRATE);
+    public static final DeferredItem<CosmeticItem> SOUP_POT = cosmetic("soup_pot", BACK, LEGENDARY, null, KITCHEN_CRATE);
+    public static final DeferredItem<CosmeticItem> JESTER_HAT = cosmetic("jester_hat", HAT, COMMON, 0x5B7816, MEDIEVAL_CRATE);
+    public static final DeferredItem<CosmeticItem> KNIGHT_ARMOR = cosmetic("knight_armor", BACK, RARE, 0xA0643E, MEDIEVAL_CRATE);
+    public static final DeferredItem<CosmeticItem> KNIGHT_HELMET = cosmetic("knight_helmet", HAT, RARE, 0xCB3C2A, MEDIEVAL_CRATE);
+    public static final DeferredItem<CosmeticItem> LUTE = cosmetic("lute", HAND, RARE, null, MEDIEVAL_CRATE);
+    public static final DeferredItem<CosmeticItem> DRAGON_WINGS = cosmetic("dragon_wings", BACK, EPIC, 0xCB3C2A, MEDIEVAL_CRATE);
+    public static final DeferredItem<CosmeticItem> ROYAL_CROWN = cosmetic("royal_crown", HAT, EPIC, 0xCB3C2A, MEDIEVAL_CRATE);
+    public static final DeferredItem<CosmeticItem> EDM_HEADSET = cosmetic("edm_headset", HAT, COMMON, 0x81D8D0, MUSIC_CRATE);
+    public static final DeferredItem<CosmeticItem> SAXOPHONE = cosmetic("saxophone", HAND, RARE, 0xF7C021, MUSIC_CRATE);
+    public static final DeferredItem<CosmeticItem> GUITAR = cosmetic("guitar", HAND, RARE, 0xCB5148, MUSIC_CRATE);
+    public static final DeferredItem<CosmeticItem> TUBA = cosmetic("tuba", BACK, EPIC, 0xE88438, MUSIC_CRATE);
+    public static final DeferredItem<CosmeticItem> EDM_AURA = cosmetic("edm_aura", BACK, LEGENDARY, 0x81D8D0, MUSIC_CRATE);
+    public static final DeferredItem<CosmeticItem> ASTRONAUT_HELMET = cosmetic("astronaut_helmet", HAT, RARE, 0xFD811C, SPACE_CRATE);
+    public static final DeferredItem<CosmeticItem> ASTRONAUT_AIR_TANK = cosmetic("astronaut_air_tank", BACK, RARE, 0xFD811C, SPACE_CRATE);
+    public static final DeferredItem<CosmeticItem> SUSSY_HELMET = cosmetic("sussy_helmet", HAT, RARE, 0xCB3C2A, SPACE_CRATE);
+    public static final DeferredItem<CosmeticItem> STELLAR_HAT = cosmetic("stellar_hat", HAT, LEGENDARY, 0xCB66F9, SPACE_CRATE);
+    public static final DeferredItem<CosmeticItem> WESTERN_HAT = cosmetic("western_hat", HAT, COMMON, 0x93BA4F, WESTERN_CRATE);
+    public static final DeferredItem<CosmeticItem> CACTUS_HELMET = cosmetic("cactus_helmet", HAT, RARE, 0xFB8EB0, WESTERN_CRATE);
+    public static final DeferredItem<CosmeticItem> CACTUS_SUIT = cosmetic("cactus_suit", BACK, EPIC, 0xFB8EB0, WESTERN_CRATE);
+    public static final DeferredItem<CosmeticItem> WITCH_HAT = cosmetic("witch_hat", HAT, COMMON, 0xCB66F9, WIZARDRY_CRATE);
+    public static final DeferredItem<CosmeticItem> WITCH_BROOM = cosmetic("witch_broom", HAND, COMMON, null, WIZARDRY_CRATE);
+    public static final DeferredItem<CosmeticItem> WIZARD_HAT = cosmetic("wizard_hat", HAT, RARE, 0x8D4585, WIZARDRY_CRATE);
+    public static final DeferredItem<CosmeticItem> WIZARD_STAFF = cosmetic("wizard_staff", HAND, RARE, 0x8643AD, WIZARDRY_CRATE);
+    public static final DeferredItem<CosmeticItem> WITCH_CAULDRON = cosmetic("witch_cauldron", BACK, RARE, 0xCB66F9, WIZARDRY_CRATE);
+    public static final DeferredItem<CosmeticItem> WIZARD_ROBE = cosmetic("wizard_robe", BACK, EPIC, 0x8D4585, WIZARDRY_CRATE);
 
     private MainCosmetics() {}
 
