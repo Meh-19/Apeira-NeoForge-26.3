@@ -94,7 +94,6 @@ public final class MainConfiguredFeatures {
     public static final ResourceKey<Feature> SUNFLOWER_PATCH = key("sunflower_patch");
     public static final ResourceKey<Feature> DENSE_PUMPKIN = key("dense_pumpkin");
     public static final ResourceKey<Feature> COLD_BERRY_BUSH = key("cold_berry_bush");
-    public static final ResourceKey<Feature> DEPTHS_MUSHROOM_PATCH = key("depths_mushroom_patch");
 
     public static final ResourceKey<Feature> DIORITE_MOUND = key("diorite_mound");
     public static final ResourceKey<Feature> ANDESITE_MOUND = key("andesite_mound");
@@ -117,8 +116,6 @@ public final class MainConfiguredFeatures {
     public static final ResourceKey<Feature> FOOTHILLS_POND = key("foothills_pond");
     public static final ResourceKey<Feature> MYCENA_PATCH = key("mycena_patch");
 
-    public static final ResourceKey<Feature> DEPTHS_TUFF_ORE = key("depths_tuff_ore");
-    public static final ResourceKey<Feature> DEPTHS_ANDESITE_ORE = key("depths_andesite_ore");
 
     private MainConfiguredFeatures() {}
 
@@ -133,8 +130,6 @@ public final class MainConfiguredFeatures {
                 BlockReplacement.replace(deepslate, MainBlocks.DEEPSLATE_RUBY_ORE.get().defaultBlockState())), 8));
         context.register(SLATE_SHEET, new OreFeature(List.of(
                 BlockReplacement.replace(stone, MainStones.SLATE.get().defaultBlockState())), 48, 0.2F));
-        context.register(DEPTHS_TUFF_ORE, new OreFeature(deepslate, Blocks.TUFF.defaultBlockState(), 24));
-        context.register(DEPTHS_ANDESITE_ORE, new OreFeature(deepslate, Blocks.ANDESITE.defaultBlockState(), 48));
 
         // Xenon's trees and bushes, built in code from its structure files.
         context.register(MAPLE_TREE, new MapleTreeFeature());
@@ -183,7 +178,6 @@ public final class MainConfiguredFeatures {
         simple(context, SUNFLOWER_PATCH, BlockStateProvider.of(Blocks.SUNFLOWER));
         simple(context, DENSE_PUMPKIN, BlockStateProvider.of(Blocks.PUMPKIN));
         simple(context, COLD_BERRY_BUSH, BlockStateProvider.of(Blocks.SWEET_BERRY_BUSH));
-        simple(context, DEPTHS_MUSHROOM_PATCH, BlockStateProvider.of(Blocks.BROWN_MUSHROOM));
 
         context.register(DIORITE_MOUND, new StoneMoundFeature(Blocks.DIORITE.defaultBlockState(), false, true));
         context.register(ANDESITE_MOUND, new StoneMoundFeature(Blocks.ANDESITE.defaultBlockState(), false, true));

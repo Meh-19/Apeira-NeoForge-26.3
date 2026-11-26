@@ -100,9 +100,10 @@ public final class RealmData extends SavedData {
         return Map.copyOf(owners);
     }
 
-    /** The owner of the realm whose overworld is {@code dimension}, if it is one. */
+    /** The owner of the realm whose overworld or nether ({@link RealmLevels#netherId}) is {@code dimension}, if it is one. */
     public Optional<UUID> ownerOf(Identifier dimension) {
-        return owners.entrySet().stream().filter(entry -> entry.getValue().dimension().equals(dimension)).map(Map.Entry::getKey).findFirst();
+        Identifier overworld = RealmLevels.overworldId(dimension);
+        return owners.entrySet().stream().filter(entry -> entry.getValue().dimension().equals(overworld)).map(Map.Entry::getKey).findFirst();
     }
 
     /** {@code owner}'s realm's members and settings, made with defaults the first time they are asked for. */

@@ -140,16 +140,6 @@
       "minecraft:mob/illusion_illager/prepare_blind"
     ]
   },
-  "ambient.depths": {
-    "sounds": [
-      {
-        "name": "minecraft:ambient/nether/basalt_deltas/ambience",
-        "pitch": 0.5,
-        "volume": 0.5,
-        "stream": true
-      }
-    ]
-  },
   "ui.ruby_gain": {
     "subtitle": "subtitles.apeira.ui.ruby_gain",
     "sounds": [

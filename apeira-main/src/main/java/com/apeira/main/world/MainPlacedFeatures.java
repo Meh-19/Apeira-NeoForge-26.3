@@ -98,9 +98,6 @@ public final class MainPlacedFeatures {
     public static final ResourceKey<PlacedFeature> STONE_SHORE = key("stone_shore");
     public static final ResourceKey<PlacedFeature> FOOTHILLS_POND = key("foothills_pond");
 
-    public static final ResourceKey<PlacedFeature> DEPTHS_MUSHROOM_PATCH = key("depths_mushroom_patch");
-    public static final ResourceKey<PlacedFeature> DEPTHS_ANDESITE_ORE = key("depths_andesite_ore");
-    public static final ResourceKey<PlacedFeature> DEPTHS_TUFF_ORE = key("depths_tuff_ore");
 
     private static final PlacementModifier WORLD_SURFACE = PlacementUtils.HEIGHTMAP_WORLD_SURFACE;
     private static final PlacementModifier OCEAN_FLOOR = PlacementUtils.HEIGHTMAP_TOP_SOLID;
@@ -190,15 +187,6 @@ public final class MainPlacedFeatures {
                 patch(surface(RarityFilter.onAverageOnceEvery(4), WORLD_SURFACE), 24, 5, 0));
         place.at(HIGHLAND_FLOWER_PATCH, MainConfiguredFeatures.HIGHLAND_FLOWER_PATCH,
                 patch(surface(RarityFilter.onAverageOnceEvery(3), WORLD_SURFACE), 32, 6, 1));
-
-        // The Depths, from the bottom of the world to y 0.
-        HeightRangePlacement depths = HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(0));
-        place.at(DEPTHS_MUSHROOM_PATCH, MainConfiguredFeatures.DEPTHS_MUSHROOM_PATCH,
-                patch(List.of(RarityFilter.onAverageOnceEvery(8), InSquarePlacement.spread(), depths, BiomeFilter.biome()), 12, 3, 2));
-        place.at(DEPTHS_ANDESITE_ORE, MainConfiguredFeatures.DEPTHS_ANDESITE_ORE,
-                List.of(CountPlacement.of(8), InSquarePlacement.spread(), depths, BiomeFilter.biome()));
-        place.at(DEPTHS_TUFF_ORE, MainConfiguredFeatures.DEPTHS_TUFF_ORE,
-                List.of(CountPlacement.of(6), InSquarePlacement.spread(), depths, BiomeFilter.biome()));
     }
 
     /**

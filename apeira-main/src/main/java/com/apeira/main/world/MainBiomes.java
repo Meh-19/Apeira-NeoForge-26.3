@@ -1,27 +1,20 @@
 package com.apeira.main.world;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.apeira.core.registry.ApeiraIds;
 import com.apeira.main.registry.MainEntities;
-import com.apeira.main.registry.MainSounds;
 
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ARGB;
-import net.minecraft.world.attribute.AmbientMoodSettings;
-import net.minecraft.world.attribute.AmbientParticle;
 import net.minecraft.world.attribute.AmbientSounds;
 import net.minecraft.world.attribute.EnvironmentAttributes;
-import net.minecraft.world.attribute.modifier.ListModifier;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
@@ -32,7 +25,7 @@ import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 /**
- * Xenon's five biomes, with its ids, climate, colours and spawns ({@code ModBiomes}), written by datagen as
+ * Xenon's four surface biomes (The Depths is removed), with its ids, climate, colours and spawns ({@code ModBiomes}), written by datagen as
  * {@code data/apeira/worldgen/biome/}. Each biome's features are its own (Xenon's surface biomes had none but the cold
  * birch forest's carvers and lakes) followed by those Xenon added with Fabric's biome modifications, which ran in the
  * order of their ids: vanilla's first, then Xenon's by name. {@link MainBiomePlacement} puts them into the overworld.
@@ -42,9 +35,8 @@ public final class MainBiomes {
     public static final ResourceKey<Biome> FOOTHILLS = key("foothills");
     public static final ResourceKey<Biome> COLD_MAPLE_FOREST = key("cold_maple_forest");
     public static final ResourceKey<Biome> COLD_BIRCH_FOREST = key("cold_birch_forest");
-    public static final ResourceKey<Biome> THE_DEPTHS = key("the_depths");
     /** Every biome above, in that order. */
-    public static final List<ResourceKey<Biome>> ALL = List.of(MAPLE_FOREST, FOOTHILLS, COLD_MAPLE_FOREST, COLD_BIRCH_FOREST, THE_DEPTHS);
+    public static final List<ResourceKey<Biome>> ALL = List.of(MAPLE_FOREST, FOOTHILLS, COLD_MAPLE_FOREST, COLD_BIRCH_FOREST);
 
     private static final GenerationStep.Decoration ORES = GenerationStep.Decoration.UNDERGROUND_ORES;
     private static final GenerationStep.Decoration VEGETAL = GenerationStep.Decoration.VEGETAL_DECORATION;
@@ -60,7 +52,6 @@ public final class MainBiomes {
         context.register(FOOTHILLS, foothills(features, carvers));
         context.register(COLD_MAPLE_FOREST, coldMapleForest(features, carvers));
         context.register(COLD_BIRCH_FOREST, coldBirchForest(features, carvers));
-        context.register(THE_DEPTHS, theDepths(features, carvers));
     }
 
     private static Biome mapleForest(HolderGetter<PlacedFeature> features, HolderGetter<WorldCarver> carvers) {
@@ -149,36 +140,6 @@ public final class MainBiomes {
         add(generation, LOCAL, MainPlacedFeatures.ANDESITE_MOUND, MainPlacedFeatures.DIORITE_MOUND, MainPlacedFeatures.FOOTHILLS_POND,
                 MainPlacedFeatures.GRANITE_MOUND, MainPlacedFeatures.PUMPKIN_PATCH);
         return biome(0.6F, 10466802, 15456934, 4159204, 329011, 10335557, 10732103, spawns, generation).build();
-    }
-
-    private static Biome theDepths(HolderGetter<PlacedFeature> features, HolderGetter<WorldCarver> carvers) {
-        MobSpawnSettings.Builder spawns = new MobSpawnSettings.Builder();
-        BiomeDefaultFeatures.commonSpawns(spawns);
-        spawns.addSpawn(EntityTypes.CAVE_SPIDER, 10, 1, 3);
-        spawns.addSpawn(MainEntities.WRAITH.get(), 15, 1, 1);
-        // Xenon's biome modifications added the cave spiders a second time.
-        spawns.addSpawn(EntityTypes.CAVE_SPIDER, 10, 1, 3);
-
-        BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(features, carvers);
-        BiomeDefaultFeatures.addDefaultCarversAndLakes(generation);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(generation);
-        BiomeDefaultFeatures.addDefaultMonsterRoom(generation);
-        BiomeDefaultFeatures.addDefaultUndergroundVariety(generation);
-        BiomeDefaultFeatures.addDefaultOres(generation);
-        BiomeDefaultFeatures.addDefaultSoftDisks(generation);
-        BiomeDefaultFeatures.addDefaultSprings(generation);
-        // Xenon also added the underground lava lakes and lava springs, which the biome already has: a feature can only be
-        // in a step once.
-        add(generation, ORES, MainPlacedFeatures.DEPTHS_ANDESITE_ORE, MainPlacedFeatures.DEPTHS_TUFF_ORE);
-        addOres(generation);
-        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.FOSSIL_LOWER);
-        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, MainPlacedFeatures.DEPTHS_MUSHROOM_PATCH);
-
-        return biome(0.8F, 8233983, 2886411, 3111796, 2592367, 8428613, 10466622, spawns, generation)
-                .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, new AmbientSounds(Optional.of(MainSounds.DEPTHS_AMBIENT),
-                        Optional.of(AmbientMoodSettings.LEGACY_CAVE_SETTINGS), List.of()))
-                .modifyAttribute(EnvironmentAttributes.AMBIENT_PARTICLES, ListModifier.append(), AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.01F))
-                .build();
     }
 
     /** Xenon's surface biome spawns: farm animals, bats and the common monsters, plus each biome's own. */

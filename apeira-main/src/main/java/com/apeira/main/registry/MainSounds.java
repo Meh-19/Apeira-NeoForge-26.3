@@ -20,8 +20,6 @@ public final class MainSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> WRAITH_BITE = sound("entity.wraith.bite");
     public static final DeferredHolder<SoundEvent, SoundEvent> WRAITH_APPARATE = sound("entity.wraith.apparate");
     public static final DeferredHolder<SoundEvent, SoundEvent> WRAITH_APPEAR = sound("entity.wraith.appear");
-    /** The Depths' ambient loop: the basalt deltas' ambience, slowed down. */
-    public static final DeferredHolder<SoundEvent, SoundEvent> DEPTHS_AMBIENT = sound("ambient.depths");
     /** Played to a player when rubies are added to their balance (Origin Realms' {@code ruby-gain}). */
     public static final DeferredHolder<SoundEvent, SoundEvent> RUBY_GAIN = sound("ui.ruby_gain");
 

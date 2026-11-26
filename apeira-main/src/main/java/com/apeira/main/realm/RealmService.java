@@ -43,6 +43,14 @@ public final class RealmService {
         return data(level.getServer()).ownerOf(level.dimension().identifier());
     }
 
+    /**
+     * The owner of the realm whose overworld {@code level} is, if it is one: empty in a realm's nether, which has no
+     * balloon, spawn or reset of its own.
+     */
+    public static Optional<UUID> overworldOwnerOf(ServerLevel level) {
+        return RealmLevels.isRealmNether(level.dimension()) ? Optional.empty() : ownerOf(level);
+    }
+
     /** Records that Jeckyl was found in the realm {@code level} is, so a reset places him close by. */
     public static void markJeckylFound(ServerLevel level) {
         ownerOf(level).ifPresent(owner -> {
@@ -373,7 +381,7 @@ public final class RealmService {
         if (access == null) {
             return false;
         }
-        if (!ownerOf(owner.level()).equals(Optional.of(owner.getUUID()))) {
+        if (!overworldOwnerOf(owner.level()).equals(Optional.of(owner.getUUID()))) {
             fail(owner, "realm.not_in_realm");
             return false;
         }
@@ -391,7 +399,7 @@ public final class RealmService {
         if (access == null) {
             return false;
         }
-        if (!ownerOf(owner.level()).equals(Optional.of(owner.getUUID()))) {
+        if (!overworldOwnerOf(owner.level()).equals(Optional.of(owner.getUUID()))) {
             fail(owner, "realm.not_in_realm");
             return false;
         }
@@ -420,7 +428,7 @@ public final class RealmService {
             return false;
         }
         ServerLevel level = owner.level();
-        if (!ownerOf(level).equals(Optional.of(owner.getUUID()))) {
+        if (!overworldOwnerOf(level).equals(Optional.of(owner.getUUID()))) {
             fail(owner, "realm.not_in_realm");
             return false;
         }
@@ -463,7 +471,7 @@ public final class RealmService {
 
     /** Whether {@code owner} stands in their realm's overworld, which the overworld reset button needs. */
     public static boolean canResetOverworld(ServerPlayer owner) {
-        return ownerOf(owner.level()).equals(Optional.of(owner.getUUID()));
+        return overworldOwnerOf(owner.level()).equals(Optional.of(owner.getUUID()));
     }
 
     /**

@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
@@ -172,7 +173,8 @@ public record FirTreeFeature() implements Feature {
     public boolean place(WorldGenLevel world, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
         BlockState ground = world.getBlockState(origin.below());
         if (!ground.is(BlockTags.DIRT) && !ground.is(Blocks.MOSS_BLOCK)) return false;
-        if (hasNearbyLog(world, origin, MIN_SPACING)) return false;
+        // Spacing keeps generated forests apart; a sapling grows wherever it was planted, next to other trees too.
+        if (!(world instanceof ServerLevel) && hasNearbyLog(world, origin, MIN_SPACING)) return false;
 
         Block leaves = random.nextBoolean()
                 ? MainWoods.FIR.leaves().get(0).get()
@@ -319,7 +321,7 @@ public record FirTreeFeature() implements Feature {
 
     private static void placeLog(WorldGenLevel world, BlockPos pos, Block log) {
         BlockState s = world.getBlockState(pos);
-        if (s.isAir() || s.is(Blocks.WATER)) {
+        if (s.isAir() || s.is(Blocks.WATER) || s.canBeReplaced()) {
             world.setBlock(pos, log.defaultBlockState(), Block.UPDATE_ALL);
         }
     }
