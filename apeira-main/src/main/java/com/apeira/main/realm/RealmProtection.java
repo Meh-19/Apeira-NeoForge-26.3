@@ -86,7 +86,7 @@ public final class RealmProtection {
         if (!(level instanceof ServerLevel serverLevel)) {
             return Optional.empty();
         }
-        return RealmService.ownerOf(serverLevel).flatMap(owner -> RealmData.get(serverLevel.getServer()).access(owner).balloon());
+        return RealmService.overworldOwnerOf(serverLevel).flatMap(owner -> RealmData.get(serverLevel.getServer()).access(owner).balloon());
     }
 
     /** Whether {@code pos} is the balloon or one of its floor's barriers, which no one may break or change. */

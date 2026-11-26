@@ -25,9 +25,7 @@ import net.minecraft.world.level.biome.Climate;
  * so they are among its possible biomes (feature order, {@code /locate}, structure checks), and
  * {@code mixin/MultiNoiseBiomeSourceMixin} passes every biome the overworld's source picks through {@link Placement#wrap}:
  * <ul>
- * <li>Below y -48 (quart y -12) everything is The Depths, as Xenon's {@code DepthsBiomeMixin} did, and so is the deep
- * dark wherever it is, as Xenon's Biolith replacement did.</li>
- * <li>Above it, the world is split into regions about 512 blocks across with wavy edges, each Xenon's TerraBlender
+ * <li>The world is split into regions about 512 blocks across with wavy edges, each Xenon's TerraBlender
  * regions or vanilla's, with TerraBlender's weights: vanilla 10, each of Xenon's four 4. Inside one of Xenon's regions
  * the vanilla biomes it replaced become its biome: forest becomes maple forest; forest and the windswept hills,
  * gravelly hills and forest become foothills; taiga and old growth pine taiga become cold maple forest; old growth
@@ -37,8 +35,6 @@ import net.minecraft.world.level.biome.Climate;
  * regions are this mod's own shapes rather than TerraBlender's.
  */
 public final class MainBiomePlacement {
-    /** Quart y below which everything is The Depths: block y -48. */
-    private static final int DEPTHS_TOP_QUART = -12;
     /** Region cells, in quarts: 128 quarts are 512 blocks. */
     private static final int REGION_SIZE = 128;
     /** How far region edges wander, in quarts, and the size of their waves. */
@@ -60,28 +56,23 @@ public final class MainBiomePlacement {
 
     /**
      * Xenon's replacements for a biome source; empty (and passing biomes through) for a source that does not list
-     * The Depths, such as the Nether's.
+     * the maple forest, such as the Nether's.
      */
     public static final class Placement {
-        private static final Placement NONE = new Placement(null, null, Map.of());
+        private static final Placement NONE = new Placement(Map.of());
 
-        private final @Nullable Holder<Biome> depths;
-        private final @Nullable Holder<Biome> deepDark;
         /** For each vanilla biome Xenon replaced, its replacement in each region (null: kept). */
         private final Map<Holder<Biome>, @Nullable Holder<Biome>[]> replacements;
         private volatile @Nullable Salt salt;
 
-        private Placement(@Nullable Holder<Biome> depths, @Nullable Holder<Biome> deepDark, Map<Holder<Biome>, @Nullable Holder<Biome>[]> replacements) {
-            this.depths = depths;
-            this.deepDark = deepDark;
+        private Placement(Map<Holder<Biome>, @Nullable Holder<Biome>[]> replacements) {
             this.replacements = replacements;
         }
 
         public static Placement of(Set<Holder<Biome>> possibleBiomes) {
             Map<ResourceKey<Biome>, Holder<Biome>> byKey = new HashMap<>();
             possibleBiomes.forEach(biome -> biome.unwrapKey().ifPresent(key -> byKey.put(key, biome)));
-            Holder<Biome> depths = byKey.get(MainBiomes.THE_DEPTHS);
-            if (depths == null) {
+            if (!byKey.containsKey(MainBiomes.MAPLE_FOREST)) {
                 return NONE;
             }
             Map<Holder<Biome>, @Nullable Holder<Biome>[]> replacements = new IdentityHashMap<>();
@@ -90,7 +81,7 @@ public final class MainBiomePlacement {
                     List.of(Biomes.FOREST, Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_FOREST));
             replace(replacements, byKey, 3, MainBiomes.COLD_MAPLE_FOREST, List.of(Biomes.TAIGA, Biomes.OLD_GROWTH_PINE_TAIGA));
             replace(replacements, byKey, 4, MainBiomes.COLD_BIRCH_FOREST, List.of(Biomes.OLD_GROWTH_BIRCH_FOREST));
-            return new Placement(depths, byKey.get(Biomes.DEEP_DARK), replacements);
+            return new Placement(replacements);
         }
 
         @SuppressWarnings("unchecked")
@@ -123,16 +114,12 @@ public final class MainBiomePlacement {
 
         /** {@code resolver} with Xenon's biomes put in; {@code sampler} gives the world its own region layout. */
         public BiomeResolver wrap(BiomeResolver resolver, Climate.Sampler sampler) {
-            Holder<Biome> depths = this.depths;
-            if (depths == null) {
+            if (replacements.isEmpty()) {
                 return resolver;
             }
             long salt = salt(sampler);
             return (quartX, quartY, quartZ) -> {
                 Holder<Biome> biome = resolver.getNoiseBiome(quartX, quartY, quartZ);
-                if (quartY < DEPTHS_TOP_QUART || biome == deepDark) {
-                    return depths;
-                }
                 @Nullable Holder<Biome>[] byRegion = replacements.get(biome);
                 if (byRegion == null) {
                     return biome;

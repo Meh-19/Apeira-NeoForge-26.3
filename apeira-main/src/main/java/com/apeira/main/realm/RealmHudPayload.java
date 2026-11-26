@@ -55,7 +55,9 @@ public record RealmHudPayload(Optional<String> owner, Optional<BlockPos> balloon
         RealmData data = RealmData.get(level.getServer());
         RealmAccess access = data.access(owner.get());
         RealmRole role = access.roleOf(owner.get(), player.getUUID());
-        return new RealmHudPayload(Optional.of(data.nameOf(owner.get())), access.balloon(), role.ordinal(),
+        // A realm's nether has no balloon: the top bar names the realm there.
+        Optional<BlockPos> balloon = RealmLevels.isRealmNether(level.dimension()) ? Optional.empty() : access.balloon();
+        return new RealmHudPayload(Optional.of(data.nameOf(owner.get())), balloon, role.ordinal(),
                 role == RealmRole.VISITOR && !RealmService.bypassesRoles(player));
     }
 

@@ -5,12 +5,13 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "CoralMixin",
-    "DepthsTerrainMixin",
     "IllagerFleeGrizzlyMixin",
     "LivestockFleeCrocodileMixin",
     "MinecraftServerAccessor",
     "MultiNoiseBiomeSourceMixin",
     "OverworldBiomesMixin",
+    "RealmPortalDestinationMixin",
+    "RealmPortalMixin",
     "RealmVisitorMinecartPushMixin",
     "RealmVisitorPushMixin",
     "RealmVisitorTargetMixin",
@@ -19,6 +20,7 @@
     "ShadowDetectionMixin",
     "SilentBlockBreakMixin",
     "SkeletonFleeGrizzlyMixin",
+    "VanillaDimensionsVoidMixin",
     "ZombieFleeGrizzlyMixin"
   ],
   "client": [
