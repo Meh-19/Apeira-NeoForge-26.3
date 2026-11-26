@@ -48,27 +48,36 @@ public final class Footprint {
     private final List<AABB> straight;
     private final @Nullable List<AABB> diagonal;
     private final @Nullable List<double[]> edges;
+    /**
+     * The outline lines at turn 1 (the edges turned by one step) of a footprint cut down by {@link #without} whose
+     * diagonal boxes lost some, without the lines only those boxes held; {@code null} to turn {@link #edges}.
+     */
+    private final @Nullable List<double[]> diagonalEdges;
     /** The footprint this one was cut down from ({@link #without}), whose blocks it keeps as parts, or {@code null}. */
     private final @Nullable Footprint whole;
     private final Turn[] turns = new Turn[TURNS];
 
     private Footprint(List<AABB> straight, @Nullable List<AABB> diagonal, @Nullable List<double[]> edges) {
-        this(straight, diagonal, edges, null);
+        this(straight, diagonal, edges, null, null);
     }
 
-    private Footprint(List<AABB> straight, @Nullable List<AABB> diagonal, @Nullable List<double[]> edges, @Nullable Footprint whole) {
+    private Footprint(List<AABB> straight, @Nullable List<AABB> diagonal, @Nullable List<double[]> edges,
+            @Nullable List<double[]> diagonalEdges, @Nullable Footprint whole) {
         this.straight = List.copyOf(straight);
         // A cut-down footprint keeps its (maybe emptied) diagonal list, so odd turns don't fall back on the straight boxes.
         this.diagonal = diagonal == null || (diagonal.isEmpty() && whole == null) ? null : List.copyOf(diagonal);
-        this.edges = edges == null || edges.isEmpty() ? null : List.copyOf(edges);
+        // A cut-down footprint keeps an emptied line list, so its outline is not rebuilt from the boxes.
+        this.edges = edges == null || (edges.isEmpty() && whole == null) ? null : List.copyOf(edges);
+        this.diagonalEdges = diagonalEdges == null ? null : List.copyOf(diagonalEdges);
         this.whole = whole;
     }
 
     /**
      * This footprint without the boxes for which {@code removed} answers true (given each box at turn 0, and whether it
-     * is one of the diagonal boxes, the turn 1 list). It keeps this footprint's outline and covers the same blocks, the
-     * ones left without a box holding parts with an empty shape, so placed pieces keep their parts. Returns this
-     * footprint when nothing is removed.
+     * is one of the diagonal boxes, the turn 1 list). It covers the same blocks, the ones left without a box holding
+     * parts with an empty shape, so placed pieces keep their parts. Its outline loses the model's lines that only the
+     * removed boxes held ({@link #keptLines}), so deleted hitboxes leave no outline behind. Returns this footprint when
+     * nothing is removed.
      */
     public Footprint without(java.util.function.BiPredicate<AABB, Boolean> removed) {
         List<AABB> keptStraight = straight.stream().filter(box -> !removed.test(box, false)).toList();
@@ -78,7 +87,47 @@ public final class Footprint {
         }
         // An emptied diagonal list must stay a (now empty) diagonal list, not fall back on turning the straight boxes.
         Footprint root = whole != null ? whole : this;
-        return new Footprint(keptStraight, keptDiagonal, edges, root);
+        List<double[]> rootEdges = root.edges;
+        List<double[]> keptEdges = rootEdges == null ? null : keptLines(rootEdges, root.straight, keptStraight);
+        List<double[]> keptDiagonalEdges = rootEdges == null || root.diagonal == null || keptDiagonal == null ? null
+                : keptLines(turnedLines(rootEdges, 1), root.diagonal, keptDiagonal);
+        return new Footprint(keptStraight, keptDiagonal, keptEdges, keptDiagonalEdges, root);
+    }
+
+    /**
+     * The outline {@code lines} without those only removed boxes held: a line whose middle lies in (or on) a box of
+     * {@code all} that is not {@code kept}, and in or on none of the kept boxes, is dropped. The tolerance is a pixel, as
+     * the boxes of a turned cube are 2-pixel cells round the cube's own edges.
+     */
+    private static List<double[]> keptLines(List<double[]> lines, List<AABB> all, List<AABB> kept) {
+        List<AABB> removed = new ArrayList<>();
+        for (AABB box : all) {
+            if (!kept.contains(box)) {
+                removed.add(box.inflate(PIXEL));
+            }
+        }
+        if (removed.isEmpty()) {
+            return lines;
+        }
+        List<AABB> keptNear = kept.stream().map(box -> box.inflate(PIXEL)).toList();
+        List<double[]> left = new ArrayList<>(lines.size());
+        for (double[] line : lines) {
+            double x = (line[0] + line[3]) / 2, y = (line[1] + line[4]) / 2, z = (line[2] + line[5]) / 2;
+            if (inAny(removed, x, y, z) && !inAny(keptNear, x, y, z)) {
+                continue;
+            }
+            left.add(line);
+        }
+        return left;
+    }
+
+    private static boolean inAny(List<AABB> boxes, double x, double y, double z) {
+        for (AABB box : boxes) {
+            if (x >= box.minX && x <= box.maxX && y >= box.minY && y <= box.maxY && z >= box.minZ && z <= box.maxZ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** The boxes the piece is cut into at {@code turn}, in blocks relative to the controller's block, in source order. */
@@ -196,7 +245,14 @@ public final class Footprint {
         Turn known = turn(turn);
         List<double[]> lines = known.outline;
         if (lines == null) {
-            lines = edges != null ? turnedLines(edges, Math.floorMod(turn, TURNS)) : outline(known.boxes);
+            int t = Math.floorMod(turn, TURNS);
+            if (diagonalEdges != null && t % 2 == 1) {
+                lines = diagonalEdges.isEmpty() && !known.boxes.isEmpty() ? outline(known.boxes) : turnedLines(diagonalEdges, t - 1);
+            } else if (edges != null && !(whole != null && edges.isEmpty() && !known.boxes.isEmpty())) {
+                lines = turnedLines(edges, t);
+            } else {
+                lines = outline(known.boxes);
+            }
             known.outline = lines;
         }
         return lines;

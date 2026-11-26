@@ -1,5 +1,6 @@
 package com.apeira.decor.furniture;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -13,7 +14,12 @@ import com.apeira.decor.multiblock.MultiblockController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -22,6 +28,9 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -48,6 +57,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * {@link #ROTATION} in 45 degree steps, or for one drawn on a wall by its {@code facing}.
  */
 public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockController {
+    /**
+     * Argon's {@code fragile} state, which only pieces built inside {@link #withFragileState} have (archaeology's
+     * artifacts): a fragile piece shatters when a player breaks it, with the decorated pot's shatter sound, a line over
+     * the hotbar and no drop. Off by default; set with the {@code minecraft:block_state} item component, a debug stick
+     * or {@code /setblock}.
+     */
+    public static final BooleanProperty FRAGILE = BooleanProperty.create("fragile");
+    /** Set while {@link #withFragileState} builds blocks, read by {@link #createBlockStateDefinition}. */
+    private static final ThreadLocal<Boolean> BUILDING_FRAGILE = ThreadLocal.withInitial(() -> false);
+
     private final boolean paintable;
     private final Form form;
     private final @Nullable Supplier<? extends Block> wall;
@@ -75,6 +94,68 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
         this.wall = wall;
         this.ceiling = ceiling;
         this.drop = drop;
+        if (hasFragileState()) {
+            registerDefaultState(defaultBlockState().setValue(FRAGILE, false));
+        }
+    }
+
+    /**
+     * Builds furniture blocks with the {@link #FRAGILE} state: every {@code FurnitureBlock} (of any subclass) made by
+     * {@code factory} gets it. Used by archaeology's artifacts only.
+     */
+    public static <B extends Block> B withFragileState(Supplier<B> factory) {
+        boolean before = BUILDING_FRAGILE.get();
+        BUILDING_FRAGILE.set(true);
+        try {
+            return factory.get();
+        } finally {
+            BUILDING_FRAGILE.set(before);
+        }
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        if (BUILDING_FRAGILE.get()) {
+            builder.add(FRAGILE);
+        }
+    }
+
+    /** Whether the block has the {@link #FRAGILE} state at all. */
+    public boolean hasFragileState() {
+        return getStateDefinition().getProperties().contains(FRAGILE);
+    }
+
+    /** Whether {@code state} is a fragile piece, which shatters without a drop. */
+    public static boolean isFragile(BlockState state) {
+        return state.getValueOrElse(FRAGILE, false);
+    }
+
+    /** A fragile piece drops nothing, however it is broken. */
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        return isFragile(state) ? List.of() : super.getDrops(state, params);
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        shatter(level, pos, state, player);
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    /** Broken through one of its parts: a fragile piece shatters as when broken itself. */
+    @Override
+    public void brokenByPlayer(Level level, BlockPos pos, BlockState state, Player player) {
+        shatter(level, pos, state, player);
+    }
+
+    /** A fragile piece broken by a player: the decorated pot's shatter sound and the line over the hotbar. */
+    private static void shatter(Level level, BlockPos pos, BlockState state, Player player) {
+        if (level.isClientSide() || !isFragile(state)) {
+            return;
+        }
+        level.playSound(null, pos, SoundEvents.DECORATED_POT_SHATTER, SoundSource.BLOCKS, 1.0F, 1.0F);
+        player.sendOverlayMessage(Component.translatable("message.apeira.furniture.shattered"));
     }
 
     public FurnitureBlock(BlockBehaviour.Properties properties, boolean paintable, Form form) {
@@ -123,6 +204,31 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
     /** How far the renderer moves the model, in blocks: x, y, z. */
     public float[] renderOffset() {
         return new float[] {renderOffsetX, renderOffsetY, renderOffsetZ};
+    }
+
+    /**
+     * How far the renderers move the model, in blocks (x, y, z): the furniture tuner's live offset, else the baked
+     * tune's, else {@link #renderOffset()}.
+     */
+    public float[] drawnOffset() {
+        FurnitureTuning tuning = FurnitureTunings.get(this);
+        if (tuning == null) {
+            tuning = FurnitureTunes.get(this);
+        }
+        if (tuning == null) {
+            return renderOffset();
+        }
+        FurnitureTuning.Offset offset = tuning.offset();
+        return new float[] {offset.x() / 16.0F, offset.y() / 16.0F, offset.z() / 16.0F};
+    }
+
+    /** How far the renderers turn the model about the block's centre column, in degrees: tuned, baked, else {@link #modelYaw()}. */
+    public float drawnYaw() {
+        FurnitureTuning tuning = FurnitureTunings.get(this);
+        if (tuning == null) {
+            tuning = FurnitureTunes.get(this);
+        }
+        return tuning != null ? tuning.yaw() : modelYaw;
     }
 
     /** How the renderer lays the model into the block, for a placed {@code state}. */

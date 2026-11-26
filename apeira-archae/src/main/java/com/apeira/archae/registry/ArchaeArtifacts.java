@@ -941,7 +941,8 @@ public final class ArchaeArtifacts {
             @Nullable DeferredItem<FragmentItem> fragment, int cost, Function<BlockBehaviour.Properties, ? extends B> factory) {
         ApeiraRegistrar r = ApeiraArchae.REGISTRAR;
         Supplier<BlockBehaviour.Properties> withParts = () -> FurnitureFootprints.properties(name, properties.get());
-        DeferredBlock<B> block = r.blocks().registerBlock(name, factory, withParts);
+        // Artifacts have Argon's fragile state (FurnitureBlock#FRAGILE): broken while fragile, they shatter without a drop.
+        DeferredBlock<B> block = r.blocks().registerBlock(name, p -> FurnitureBlock.withFragileState(() -> factory.apply(p)), withParts);
         DeferredItem<FurnitureBlockItem> item = r.items().registerItem(name, p -> new FurnitureBlockItem(block.get(), p),
                 p -> p.useBlockDescriptionPrefix().component(DataComponents.LORE, EXCLUSIVE_LORE));
         ALL.add(new Artifact(block, item, fragment, cost));

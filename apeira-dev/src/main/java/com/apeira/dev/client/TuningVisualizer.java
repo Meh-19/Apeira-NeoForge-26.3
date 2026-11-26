@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Draws the bound piece's tuning in the world, through anything in front of it: its footprint boxes as placed (white),
  * and by mode the seats (green, the selected one yellow), the box under the crosshair that a right-click deletes (red),
- * or the light and collision; and the piece's front (north before turning).
+ * the light and collision, or the model's offset and rotation; and the piece's front (north before turning).
  */
 final class TuningVisualizer implements DebugRenderer.SimpleDebugRenderer {
     private static final int WHITE = 0xFFFFFFFF;
@@ -69,6 +69,18 @@ final class TuningVisualizer implements DebugRenderer.SimpleDebugRenderer {
                 String light = tuning.light() < 0 ? "own light" : "light " + tuning.light();
                 Gizmos.billboardText(light + ", collision " + (tuning.collision() ? "on" : "off"), Vec3.atCenterOf(pos).add(0.0, 0.9, 0.0),
                         TextGizmo.Style.forColorAndCentered(YELLOW).withScale(0.4F)).setAlwaysOnTop();
+            }
+            case MODEL -> {
+                FurnitureTuning.Offset offset = tuning.offset();
+                String text = "offset " + TuningParameter.number(offset.x()) + " " + TuningParameter.number(offset.y()) + " "
+                        + TuningParameter.number(offset.z()) + " px, rotation " + TuningParameter.number(tuning.yaw()) + " deg";
+                Gizmos.billboardText(text, Vec3.atCenterOf(pos).add(0.0, 0.9, 0.0),
+                        TextGizmo.Style.forColorAndCentered(YELLOW).withScale(0.4F)).setAlwaysOnTop();
+                // Where the offset moves the model's origin to.
+                Vec3 origin = Vec3.atBottomCenterOf(pos);
+                Vec3 moved = origin.add(offset.x() / 16.0, offset.y() / 16.0, offset.z() / 16.0);
+                Gizmos.line(origin, moved, YELLOW).setAlwaysOnTop();
+                Gizmos.point(moved, YELLOW, 8.0F).setAlwaysOnTop();
             }
         }
 

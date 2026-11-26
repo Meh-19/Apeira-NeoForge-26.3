@@ -55,12 +55,12 @@ public final class FurnitureRenderer implements BlockEntityRenderer<FurnitureBlo
         state.mode = block.getBlock() instanceof FurnitureBlock artifact ? artifact.displayMode(block) : DisplayMode.TOP_FACE;
         state.rotation = block.getValueOrElse(FurnitureBlock.ROTATION, 0);
         state.scale = 1.0F;
-        // The piece's own offset (FurnitureBlock#renderOffset).
-        float[] offset = block.getBlock() instanceof FurnitureBlock furniture ? furniture.renderOffset() : new float[3];
+        // The piece's offset and turn, tuned or its own (FurnitureBlock#drawnOffset, #drawnYaw).
+        float[] offset = block.getBlock() instanceof FurnitureBlock furniture ? furniture.drawnOffset() : new float[3];
         state.offsetX = offset[0];
         state.offsetY = offset[1];
         state.offsetZ = offset[2];
-        state.modelYaw = block.getBlock() instanceof FurnitureBlock yawed ? yawed.modelYaw() : 0.0F;
+        state.modelYaw = block.getBlock() instanceof FurnitureBlock yawed ? yawed.drawnYaw() : 0.0F;
         state.facing = block.getOptionalValue(HorizontalDirectionalBlock.FACING).orElse(null);
         ItemStack stack = new ItemStack(block.getBlock());
         if (blockEntity.paint() != null) {

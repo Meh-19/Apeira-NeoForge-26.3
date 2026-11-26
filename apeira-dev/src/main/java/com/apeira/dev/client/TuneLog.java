@@ -55,7 +55,7 @@ public final class TuneLog {
             return;
         }
         JsonObject all = read();
-        JsonObject entry = tuning.toJson();
+        JsonObject entry = tuning.toJson(block);
         entry.addProperty("logged_at", Instant.now().toString());
         all.add(BuiltInRegistries.BLOCK.getKey(block).toString(), entry);
         write(all);

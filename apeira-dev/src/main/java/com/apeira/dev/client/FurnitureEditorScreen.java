@@ -50,14 +50,15 @@ public final class FurnitureEditorScreen extends Screen {
 
         // Mode tabs.
         int x = left;
+        int tab = (300 - 3 * (TunerMode.values().length - 1)) / TunerMode.values().length;
         for (TunerMode mode : TunerMode.values()) {
             boolean on = mode == DevSession.mode();
             Component text = Component.literal(mode.label()).withStyle(on ? ChatFormatting.YELLOW : ChatFormatting.GRAY);
             addRenderableWidget(Button.builder(text, b -> {
                 DevSession.setMode(mode);
                 rebuildWidgets();
-            }).bounds(x, y, 98, 20).build());
-            x += 101;
+            }).bounds(x, y, tab, 20).build());
+            x += tab + 3;
         }
         y += ROW + 8;
 
@@ -65,6 +66,7 @@ public final class FurnitureEditorScreen extends Screen {
             case SEATING -> y = seating(block, tuning, left, y);
             case BOXES -> y = boxes(tuning, left, y);
             case LIGHT -> y = light(tuning, left, y);
+            case MODEL -> y = model(tuning, left, y);
         }
         y += 8;
 
@@ -119,6 +121,25 @@ public final class FurnitureEditorScreen extends Screen {
         Component collision = Component.literal(tuning.collision() ? "Collision: on" : "Collision: off")
                 .withStyle(tuning.collision() ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY);
         addRenderableWidget(Button.builder(collision, b -> edit(t -> t.withCollision(!t.collision()))).bounds(left, y, 96, 20).build());
+        return y + ROW;
+    }
+
+    private int model(FurnitureTuning tuning, int left, int y) {
+        FurnitureTuning.Offset offset = tuning.offset();
+        field(left, y, "Offset X", offset.x(), (t, v) -> t.withOffset(new FurnitureTuning.Offset(v.floatValue(), t.offset().y(), t.offset().z())));
+        field(left + 150, y, "Offset Z", offset.z(), (t, v) -> t.withOffset(new FurnitureTuning.Offset(t.offset().x(), t.offset().y(), v.floatValue())));
+        y += ROW;
+        field(left, y, "Offset Y", offset.y(), (t, v) -> t.withOffset(new FurnitureTuning.Offset(t.offset().x(), v.floatValue(), t.offset().z())));
+        field(left + 150, y, "Rotation", tuning.yaw(), (t, v) -> t.withYaw(v.floatValue()));
+        y += ROW;
+        addRenderableWidget(Button.builder(Component.literal("Turn -45"), b -> edit(t -> t.withYaw(t.yaw() - 45.0F))).bounds(left, y, 70, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Turn +45"), b -> edit(t -> t.withYaw(t.yaw() + 45.0F))).bounds(left + 76, y, 70, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Reset offset"), b -> {
+            FurnitureBlock block = DevSession.block();
+            if (block != null) {
+                edit(t -> t.withOffset(FurnitureTuning.Offset.own(block)).withYaw(block.modelYaw()));
+            }
+        }).bounds(left + 152, y, 148, 20).build());
         return y + ROW;
     }
 

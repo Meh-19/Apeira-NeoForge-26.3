@@ -41,6 +41,8 @@ from parse_blockbench_hitboxes import Box, java_rotation, rotate, simplify
 
 ARCHAE = REPO_ROOT / "apeira-archae" / "src" / "main"
 DECOR = REPO_ROOT / "apeira-decor" / "src" / "main"
+# The furniture tuner's baked tunes (section 13): a tuned "offset" (pixels) or "yaw" (degrees) replaces the piece's own.
+TUNES = DECOR / "resources" / "apeira_decor" / "furniture_tunes.json"
 # Every module with furniture: where its pieces are declared, its models and GeckoLib models, and its table.
 MODULES = {
     "archae": {
@@ -84,6 +86,17 @@ OFFSET = re.compile(r'renderOffset\(([-\d.]+)F?, ([-\d.]+)F?, ([-\d.]+)F?\)')
 YAW = re.compile(r'modelYaw\(([-\d.]+)F?\)')
 # FurnitureBlock#displayAs: the display mode a piece is drawn in whatever its class and id say.
 DISPLAY = re.compile(r'displayAs\(DisplayMode\.(\w+)\)')
+
+
+_TUNES = None
+
+
+def tunes() -> dict:
+    """The baked furniture tunes, keyed by block id (read once)."""
+    global _TUNES
+    if _TUNES is None:
+        _TUNES = read_json(TUNES) if TUNES.is_file() else {}
+    return _TUNES
 
 
 # Matrices --------------------------------------------------------------------------------------------------------
@@ -157,8 +170,14 @@ def artifacts(module: dict) -> list[dict]:
         found = OFFSET.search(after)
         offset = tuple(float(v) / 16 for v in found.groups()) if found else (0.0, 0.0, 0.0)
         yawed = YAW.search(after)
+        yaw = float(yawed.group(1)) if yawed else 0.0
+        tune = tunes().get(f"apeira:{name}", {})
+        if "offset" in tune:
+            offset = tuple(float(v) / 16 for v in tune["offset"])
+        if "yaw" in tune:
+            yaw = float(tune["yaw"])
         pieces.append({"name": name, "mode": mode, "facing": facing, "held": held, "offset": offset, "wall": held == "wall",
-                       "yaw": float(yawed.group(1)) if yawed else 0.0, "module": module})
+                       "yaw": yaw, "module": module})
     if not pieces:
         raise ScriptError(f"{module['source']}: no furniture found")
     return pieces
@@ -184,10 +203,11 @@ def renderer(mode: str, facing: bool, turn_: int):
 
 def placed(piece: dict, turn_: int, item):
     """The model's matrix into the block as ``FurnitureRenderer`` draws it: moved by the piece's ``renderOffset`` (in
-    blocks, before its turn; not for GeckoLib pieces, whose renderer doesn't move them), laid in and turned."""
+    blocks, before its turn), laid in and turned."""
     if piece["mode"] == "GECKOLIB":
-        # AnimatedFurnitureRenderer adds the piece's modelYaw to its turn.
-        return mul(chain(translate(0.5, 0, 0.5), turn("y", -45 * turn_ + piece["yaw"]), scale(1 / 16, 1 / 16, 1 / 16)), item)
+        # AnimatedFurnitureRenderer moves the model by the offset, then adds the piece's modelYaw to its turn.
+        return mul(chain(translate(0.5, 0, 0.5), translate(*piece["offset"]), turn("y", -45 * turn_ + piece["yaw"]),
+                         scale(1 / 16, 1 / 16, 1 / 16)), item)
     matrix = mul(renderer(piece["mode"], piece["facing"], turn_), item)
     # FurnitureRenderer moves the model by renderOffset, then turns it by modelYaw about the block's centre column.
     yaw = chain(translate(0.5, 0, 0.5), turn("y", piece["yaw"]), translate(-0.5, 0, -0.5))

@@ -13,7 +13,8 @@ import com.apeira.decor.furniture.SeatFurnitureBlock;
 
 /**
  * The values the furniture tuner changes with Ctrl + scroll, in the HUD's order: the mode, then the mode's own values.
- * Seat positions step by a pixel, or a quarter pixel with Shift held.
+ * Seat positions and model offsets step by a pixel, or a quarter pixel with Shift held; the model's turn by 45 degrees,
+ * or 5 with Shift held.
  */
 public enum TuningParameter {
     MODE("Mode", null),
@@ -24,7 +25,11 @@ public enum TuningParameter {
     SEAT_Z("Seat Z", TunerMode.SEATING),
     RESTORE("Deleted boxes", TunerMode.BOXES),
     LIGHT("Light", TunerMode.LIGHT),
-    COLLISION("Collision", TunerMode.LIGHT);
+    COLLISION("Collision", TunerMode.LIGHT),
+    OFFSET_X("Offset X", TunerMode.MODEL),
+    OFFSET_Y("Offset Y", TunerMode.MODEL),
+    OFFSET_Z("Offset Z", TunerMode.MODEL),
+    YAW("Rotation", TunerMode.MODEL);
 
     private final String label;
     private final @Nullable TunerMode mode;
@@ -70,6 +75,10 @@ public enum TuningParameter {
             case RESTORE -> tuning.removed().size() + (tuning.removed().isEmpty() ? "" : " (scroll to restore the last)");
             case LIGHT -> tuning.light() < 0 ? "off (own: " + block.defaultBlockState().getLightEmission() + ")" : String.valueOf(tuning.light());
             case COLLISION -> tuning.collision() ? "on" : "off";
+            case OFFSET_X -> number(tuning.offset().x()) + " px";
+            case OFFSET_Y -> number(tuning.offset().y()) + " px";
+            case OFFSET_Z -> number(tuning.offset().z()) + " px";
+            case YAW -> number(tuning.yaw()) + " deg";
         };
     }
 
@@ -90,6 +99,10 @@ public enum TuningParameter {
             case RESTORE -> tuning.removed().isEmpty() ? tuning : tuning.withRemoved(tuning.removed().subList(0, tuning.removed().size() - 1));
             case LIGHT -> tuning.withLight(tuning.light() + steps);
             case COLLISION -> tuning.withCollision(!tuning.collision());
+            case OFFSET_X -> tuning.withOffset(tuning.offset().plus((float) length, 0.0F, 0.0F));
+            case OFFSET_Y -> tuning.withOffset(tuning.offset().plus(0.0F, (float) length, 0.0F));
+            case OFFSET_Z -> tuning.withOffset(tuning.offset().plus(0.0F, 0.0F, (float) length));
+            case YAW -> tuning.withYaw(tuning.yaw() + steps * (fine ? 5.0F : 45.0F));
         };
     }
 
