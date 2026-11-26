@@ -60,6 +60,8 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
         tooltip("paint.color", "Painted %s, Shade %s");
         tooltip("paint.finish", "%s Finish");
         message("paint_copied", "Copied: %s");
+        // A fragile artifact (FurnitureBlock#FRAGILE) broken by a player.
+        message("furniture.shattered", "The artifact was too fragile and shattered!");
         for (PaintColor color : PaintColor.values()) {
             add(color.translationKey(), title(color.name()));
         }

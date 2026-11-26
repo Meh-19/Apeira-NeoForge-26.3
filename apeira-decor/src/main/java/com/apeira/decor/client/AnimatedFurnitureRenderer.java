@@ -34,6 +34,10 @@ public class AnimatedFurnitureRenderer extends GeoBlockRenderer<AnimatedFurnitur
     /** Whether the paint is a finish, drawn with {@link FinishRenderTypes}. */
     private static final DataTicket<Boolean> FINISH = DataTicket.create("apeira_furniture_finish", Boolean.class);
     private static final DataTicket<Float> YAW = DataTicket.create("apeira_furniture_yaw", Float.class);
+    /** The piece's offset in blocks (world axes, before its turn): tuned with apeira-dev's wand, else its own. */
+    private static final DataTicket<Float> OFFSET_X = DataTicket.create("apeira_furniture_offset_x", Float.class);
+    private static final DataTicket<Float> OFFSET_Y = DataTicket.create("apeira_furniture_offset_y", Float.class);
+    private static final DataTicket<Float> OFFSET_Z = DataTicket.create("apeira_furniture_offset_z", Float.class);
 
     public AnimatedFurnitureRenderer(BlockEntityRendererProvider.Context context) {
         super(context, new FurnitureGeoModel());
@@ -50,12 +54,19 @@ public class AnimatedFurnitureRenderer extends GeoBlockRenderer<AnimatedFurnitur
         FinishType finish = paint != null ? FinishType.fromPaint(paint) : null;
         renderState.addGeckolibData(PAINT, paint == null ? -1 : finish != null ? 0xFF000000 | finish.paintValue() : Paint.tint(paint));
         renderState.addGeckolibData(FINISH, finish != null);
-        renderState.addGeckolibData(YAW, artifact.getBlockState().getBlock() instanceof FurnitureBlock block ? block.modelYaw() : 0.0F);
+        FurnitureBlock furniture = artifact.getBlockState().getBlock() instanceof FurnitureBlock block ? block : null;
+        renderState.addGeckolibData(YAW, furniture != null ? furniture.drawnYaw() : 0.0F);
+        float[] offset = furniture != null ? furniture.drawnOffset() : new float[3];
+        renderState.addGeckolibData(OFFSET_X, offset[0]);
+        renderState.addGeckolibData(OFFSET_Y, offset[1]);
+        renderState.addGeckolibData(OFFSET_Z, offset[2]);
     }
 
     @Override
     public void adjustRenderPose(RenderPassInfo<BlockEntityRenderState> renderPassInfo) {
         int rotation = renderPassInfo.getOrDefaultGeckolibData(ROTATION, 0);
+        renderPassInfo.poseStack().translate(renderPassInfo.getOrDefaultGeckolibData(OFFSET_X, 0.0F),
+                renderPassInfo.getOrDefaultGeckolibData(OFFSET_Y, 0.0F), renderPassInfo.getOrDefaultGeckolibData(OFFSET_Z, 0.0F));
         renderPassInfo.poseStack().rotateDegrees(Axis.YP, rotation * -45.0F + renderPassInfo.getOrDefaultGeckolibData(YAW, 0.0F));
     }
 

@@ -15,7 +15,22 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** Placing, finding and removing the parts of {@link MultiblockController} pieces. */
 public final class Multiblock {
+    /**
+     * The share of a neighbouring block the piece must fill for that block to have to be free: a piece filling less of
+     * it is placed beside walls and blocks there, which a block may then be built over ({@link MultiblockPartBlock}).
+     */
+    public static final double SOLID_SHARE = 0.75;
+
     private Multiblock() {}
+
+    /** Whether {@code shape} (in a block's own coordinates) fills at least {@link #SOLID_SHARE} of the block. */
+    public static boolean fills(VoxelShape shape) {
+        double volume = 0.0;
+        for (net.minecraft.world.phys.AABB box : shape.toAabbs()) {
+            volume += box.getXsize() * box.getYsize() * box.getZsize();
+        }
+        return volume >= SOLID_SHARE;
+    }
 
     /** A piece: its controller's position and state. */
     public record Piece(BlockPos pos, BlockState state, MultiblockController controller) {
@@ -53,17 +68,28 @@ public final class Multiblock {
         return piece;
     }
 
-    /** Whether every block the piece at {@code pos} would cover, besides its own, is free (air, plants, water). */
+    /**
+     * Whether every block the piece at {@code pos} would fill, besides its own, is free (air, plants, water). Blocks the
+     * piece fills less than {@link #SOLID_SHARE} of only need to be in the world: a wall or block there stays, and the
+     * piece gets no part in it.
+     */
     public static boolean canPlace(Level level, BlockPos pos, BlockState state) {
         if (!(state.getBlock() instanceof MultiblockController controller)) {
             return true;
         }
-        for (BlockPos offset : controller.footprint(state).parts(controller.turn(state)).keySet()) {
+        for (Map.Entry<BlockPos, VoxelShape> part : controller.footprint(state).parts(controller.turn(state)).entrySet()) {
+            BlockPos offset = part.getKey();
             if (offset.equals(BlockPos.ZERO)) {
                 continue;
             }
             BlockPos at = pos.offset(offset);
-            if (level.isOutsideBuildHeight(at) || !level.getWorldBorder().isWithinBounds(at) || !level.getBlockState(at).canBeReplaced()) {
+            if (!level.getWorldBorder().isWithinBounds(at)) {
+                return false;
+            }
+            if (!fills(part.getValue())) {
+                continue;
+            }
+            if (level.isOutsideBuildHeight(at) || !level.getBlockState(at).canBeReplaced()) {
                 return false;
             }
         }

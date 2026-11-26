@@ -16,6 +16,7 @@
   "message.apeira.dev.export_failed": "Export failed: %s",
   "hud.apeira.dev.not_a_seat": "Not a seat piece: the seating adjuster only tunes seats",
   "hud.apeira.dev.box_deleter": "Right-click the piece to delete the box under the crosshair",
+  "hud.apeira.dev.model": "Moves and turns only the drawn model; bake it, then rerun artifact_footprints.py for the hitbox",
   "message.apeira.dev.no_box": "No box of the bound piece under the crosshair",
   "message.apeira.dev.box_deleted": "Box deleted (%s deleted in all)",
   "message.apeira.dev.tune_log": "Tune log: sent %s unapplied tunings again, dropped %s already in code (%s)",

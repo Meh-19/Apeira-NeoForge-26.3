@@ -15,8 +15,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * What apeira-dev's furniture tuner changes on a piece, in its three modes: the seats (seating adjuster), the footprint
- * boxes taken out of its hitbox (bounding box deleter), and its light level and collision (light and collision toggle).
+ * What apeira-dev's furniture tuner changes on a piece, in its four modes: the seats (seating adjuster), the footprint
+ * boxes taken out of its hitbox (bounding box deleter), its light level and collision (light and collision toggle), and
+ * where its model is drawn (offset and rotation).
  * Lengths are in pixels at turn 0, as the footprint tables have them. The same values, applied to code, are the baked
  * tunes of {@link FurnitureTunes}; live ones are {@link FurnitureTunings}.
  *
@@ -25,20 +26,28 @@ import net.minecraft.world.phys.Vec3;
  *                  pieces ({@link SeatFurnitureBlock}) use them
  * @param light     the light the piece gives, 0-15, or {@link #OWN_LIGHT} for its own
  * @param collision whether the piece (and its parts) stops entities
+ * @param offset    how far the drawn model is moved, in pixels (world axes, before its turn), as
+ *                  {@link FurnitureBlock#renderOffset(float, float, float)} has it; the piece's own offset untuned
+ * @param yaw       how far the drawn model is turned about the block's centre column, in degrees, as
+ *                  {@link FurnitureBlock#modelYaw(float)} has it; the piece's own turn untuned
  */
-public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int light, boolean collision) {
+public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int light, boolean collision, Offset offset, float yaw) {
     /** The most boxes and seats a client may give a piece. */
     public static final int MAX_ENTRIES = 64;
     /** {@link #light} for a piece that gives its own light. */
     public static final int OWN_LIGHT = -1;
     /** Seats stay within the reach of the multiblock around the block (pixels). */
     private static final double SEAT_REACH = 64.0;
+    /** The model is moved at most this far on each axis (pixels). */
+    private static final float OFFSET_REACH = 64.0F;
 
     public static final StreamCodec<ByteBuf, FurnitureTuning> STREAM_CODEC = StreamCodec.composite(
             RemovedBox.STREAM_CODEC.apply(ByteBufCodecs.list()), FurnitureTuning::removed,
             Seat.STREAM_CODEC.apply(ByteBufCodecs.list()), FurnitureTuning::seats,
             ByteBufCodecs.VAR_INT, FurnitureTuning::light,
             ByteBufCodecs.BOOL, FurnitureTuning::collision,
+            Offset.STREAM_CODEC, FurnitureTuning::offset,
+            ByteBufCodecs.FLOAT, FurnitureTuning::yaw,
             FurnitureTuning::new);
 
     public FurnitureTuning {
@@ -51,7 +60,8 @@ public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int li
         FurnitureTuning baked = FurnitureTunes.get(block);
         List<Seat> seats = baked != null && !baked.seats.isEmpty() ? baked.seats : ownSeats(block);
         return new FurnitureTuning(baked != null ? baked.removed : List.of(), seats, baked != null ? baked.light : OWN_LIGHT,
-                baked != null ? baked.collision : block.ownCollision());
+                baked != null ? baked.collision : block.ownCollision(), baked != null ? baked.offset : Offset.own(block),
+                baked != null ? baked.yaw : Mth.wrapDegrees(block.modelYaw()));
     }
 
     /** A seat piece's seats in pixels at turn 0, as it is registered; none for other pieces. */
@@ -73,7 +83,8 @@ public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int li
         for (Seat seat : seats.subList(0, Math.min(seats.size(), MAX_ENTRIES))) {
             kept.add(seat.clamped());
         }
-        return new FurnitureTuning(removed.subList(0, Math.min(removed.size(), MAX_ENTRIES)), kept, Mth.clamp(light, OWN_LIGHT, 15), collision);
+        return new FurnitureTuning(removed.subList(0, Math.min(removed.size(), MAX_ENTRIES)), kept, Mth.clamp(light, OWN_LIGHT, 15), collision,
+                offset.clamped(), Float.isFinite(yaw) ? Mth.wrapDegrees(yaw) : 0.0F);
     }
 
     /** Whether {@code box} (turn 0, or turn 1 when {@code diagonal}) is one this tuning takes out. */
@@ -87,11 +98,11 @@ public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int li
     }
 
     public FurnitureTuning withRemoved(List<RemovedBox> removed) {
-        return new FurnitureTuning(removed, seats, light, collision);
+        return new FurnitureTuning(removed, seats, light, collision, offset, yaw);
     }
 
     public FurnitureTuning withSeats(List<Seat> seats) {
-        return new FurnitureTuning(removed, seats, light, collision);
+        return new FurnitureTuning(removed, seats, light, collision, offset, yaw);
     }
 
     public FurnitureTuning withSeat(int index, Seat seat) {
@@ -101,15 +112,26 @@ public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int li
     }
 
     public FurnitureTuning withLight(int light) {
-        return new FurnitureTuning(removed, seats, Mth.clamp(light, OWN_LIGHT, 15), collision);
+        return new FurnitureTuning(removed, seats, Mth.clamp(light, OWN_LIGHT, 15), collision, offset, yaw);
     }
 
     public FurnitureTuning withCollision(boolean collision) {
-        return new FurnitureTuning(removed, seats, light, collision);
+        return new FurnitureTuning(removed, seats, light, collision, offset, yaw);
     }
 
-    /** The tuning as the tune log and the baked tunes file write it. */
-    public JsonObject toJson() {
+    public FurnitureTuning withOffset(Offset offset) {
+        return new FurnitureTuning(removed, seats, light, collision, offset, yaw);
+    }
+
+    public FurnitureTuning withYaw(float yaw) {
+        return new FurnitureTuning(removed, seats, light, collision, offset, Mth.wrapDegrees(yaw));
+    }
+
+    /**
+     * The tuning as the tune log and the baked tunes file write it. The offset and yaw are written only where they
+     * differ from {@code block}'s own, so a baked entry keeps following the code's {@code renderOffset}/{@code modelYaw}.
+     */
+    public JsonObject toJson(FurnitureBlock block) {
         JsonObject json = new JsonObject();
         JsonArray straight = new JsonArray();
         JsonArray diagonal = new JsonArray();
@@ -129,12 +151,22 @@ public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int li
         json.add("seats", seatList);
         json.addProperty("light", light);
         json.addProperty("collision", collision);
+        if (!offset.equals(Offset.own(block))) {
+            JsonArray numbers = new JsonArray();
+            numbers.add(offset.x);
+            numbers.add(offset.y);
+            numbers.add(offset.z);
+            json.add("offset", numbers);
+        }
+        if (yaw != Mth.wrapDegrees(block.modelYaw())) {
+            json.addProperty("yaw", yaw);
+        }
         return json;
     }
 
     /**
-     * Reads {@link #toJson()}'s format; missing fields are {@code block}'s own (no removed boxes, its seats, its light
-     * and collision), so a baked entry may name only what it changes.
+     * Reads {@link #toJson(FurnitureBlock)}'s format; missing fields are {@code block}'s own (no removed boxes, its
+     * seats, its light, collision, offset and yaw), so a baked entry may name only what it changes.
      */
     public static FurnitureTuning fromJson(JsonObject json, FurnitureBlock block) {
         List<RemovedBox> removed = new ArrayList<>();
@@ -154,7 +186,13 @@ public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int li
         }
         int light = json.has("light") ? json.get("light").getAsInt() : OWN_LIGHT;
         boolean collision = json.has("collision") ? json.get("collision").getAsBoolean() : block.ownCollision();
-        return new FurnitureTuning(removed, seats, light, collision).sanitized();
+        Offset offset = Offset.own(block);
+        if (json.has("offset")) {
+            JsonArray numbers = json.getAsJsonArray("offset");
+            offset = new Offset(numbers.get(0).getAsFloat(), numbers.get(1).getAsFloat(), numbers.get(2).getAsFloat());
+        }
+        float yaw = json.has("yaw") ? json.get("yaw").getAsFloat() : block.modelYaw();
+        return new FurnitureTuning(removed, seats, light, collision, offset, yaw).sanitized();
     }
 
     private static double round(double pixels) {
@@ -223,6 +261,38 @@ public record FurnitureTuning(List<RemovedBox> removed, List<Seat> seats, int li
         /** The seat in blocks. */
         public Vec3 blocks() {
             return new Vec3(x / 16.0, y / 16.0, z / 16.0);
+        }
+    }
+
+    /** How far the drawn model is moved, in pixels: world axes, before the piece's turn. */
+    public record Offset(float x, float y, float z) {
+        public static final Offset NONE = new Offset(0.0F, 0.0F, 0.0F);
+        public static final StreamCodec<ByteBuf, Offset> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.FLOAT, Offset::x,
+                ByteBufCodecs.FLOAT, Offset::y,
+                ByteBufCodecs.FLOAT, Offset::z,
+                Offset::new);
+
+        /** {@code block}'s own offset, its {@link FurnitureBlock#renderOffset(float, float, float)}, in pixels. */
+        public static Offset own(FurnitureBlock block) {
+            float[] blocks = block.renderOffset();
+            return new Offset(roundF(blocks[0] * 16.0F), roundF(blocks[1] * 16.0F), roundF(blocks[2] * 16.0F));
+        }
+
+        Offset clamped() {
+            return new Offset(clamp(x), clamp(y), clamp(z));
+        }
+
+        private static float clamp(float value) {
+            return Float.isFinite(value) ? Mth.clamp(value, -OFFSET_REACH, OFFSET_REACH) : 0.0F;
+        }
+
+        private static float roundF(float pixels) {
+            return Math.round(pixels * 100.0F) / 100.0F;
+        }
+
+        public Offset plus(float dx, float dy, float dz) {
+            return new Offset(roundF(x + dx), roundF(y + dy), roundF(z + dz));
         }
     }
 }

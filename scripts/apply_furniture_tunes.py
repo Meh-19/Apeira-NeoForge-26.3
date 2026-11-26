@@ -2,7 +2,7 @@
 """Apply the furniture tuner's tune log to code and delete the applied entries from the log.
 
 apeira-dev's furniture tuner logs every tuned piece to ``logs/apeira_furniture_tune_log.json`` in the game directory
-(``apeira-main/run/logs/`` in dev), keyed by block id: removed footprint boxes, seats, light and collision. This script
+(``apeira-main/run/logs/`` in dev), keyed by block id: removed footprint boxes, seats, light, collision and the model's offset and yaw. This script
 moves those entries into decor's baked tunes, ``apeira-decor/src/main/resources/apeira_decor/furniture_tunes.json``
 (read by ``FurnitureTunes``), and removes every entry it applied from the log, so a stale entry is never applied twice.
 Entries already in the baked file are replaced. ``--only`` picks block ids, ``--dry-run`` writes nothing.

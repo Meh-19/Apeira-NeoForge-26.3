@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
@@ -149,12 +150,34 @@ public class MultiblockPartBlock extends Block implements SimpleWaterloggedBlock
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         Multiblock.Piece piece = piece(level, pos, state);
         if (piece != null && !level.isClientSide()) {
+            piece.controller().brokenByPlayer(level, piece.pos(), piece.state(), player);
             if (!player.preventsBlockDrops() && player.hasCorrectToolForDrops(piece.state())) {
                 Block.dropResources(piece.state(), level, piece.pos(), level.getBlockEntity(piece.pos()), player, player.getMainHandItem());
             }
             level.destroyBlock(piece.pos(), false, player);
         }
         return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    /**
+     * A part the piece fills less than {@link Multiblock#SOLID_SHARE} of may be built over: a block placed there takes
+     * its place (the piece keeps the rest of its hitbox), so blocks fit next to furniture whose model only pokes into
+     * the neighbouring block. Clicking the part itself places against it, never into it.
+     */
+    @Override
+    protected boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
+        // The context first asks the clicked block itself (still "replacing the clicked block"): a part never is, so the
+        // block goes beside it; after that it asks the block it would go into, which may be this part.
+        if (context.replacingClickedOnBlock()) {
+            return false;
+        }
+        BlockPos at = context.getClickedPos();
+        Level level = context.getLevel();
+        if (level.getBlockState(at) != state) {
+            return false;
+        }
+        Multiblock.Piece piece = piece(level, at, state);
+        return piece != null && !Multiblock.fills(piece.parts().getOrDefault(at.subtract(piece.pos()), Shapes.block()));
     }
 
     /** A part removed any other way (explosions, commands, pistons) breaks the piece, with its drops. */

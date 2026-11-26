@@ -1,6 +1,8 @@
 package com.apeira.decor.multiblock;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -23,6 +25,12 @@ public interface MultiblockController {
 
     /** Whether the parts stop entities, as the piece does. */
     boolean partsCollide(BlockState state);
+
+    /**
+     * Called on the server when a player breaks the piece through one of its parts, before the controller is destroyed
+     * (breaking the controller itself goes through its own {@code playerWillDestroy}).
+     */
+    default void brokenByPlayer(Level level, BlockPos pos, BlockState state, Player player) {}
 
     /** The piece's shape inside the controller's own block. */
     default VoxelShape controllerShape(BlockState state) {

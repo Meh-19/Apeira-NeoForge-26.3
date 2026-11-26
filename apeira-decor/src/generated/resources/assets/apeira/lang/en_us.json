@@ -275,6 +275,7 @@
   "finish.apeira.snow": "Snow",
   "item.apeira.paintbrush": "Paintbrush",
   "key.apeira.open_wardrobe": "Open Wardrobe",
+  "message.apeira.furniture.shattered": "The artifact was too fragile and shattered!",
   "message.apeira.paint_copied": "Copied: %s",
   "paint_color.apeira.blue": "Blue",
   "paint_color.apeira.green": "Green",

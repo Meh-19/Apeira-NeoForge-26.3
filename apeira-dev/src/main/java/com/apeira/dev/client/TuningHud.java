@@ -117,6 +117,7 @@ final class TuningHud {
                         + (target.removed().diagonal() ? " (diagonal)" : ""), target == null ? GREY : RED, null));
             }
             case LIGHT -> {}
+            case MODEL -> lines.add(new Line(Component.translatable("hud.apeira.dev.model").getString(), GREY, null));
         }
         lines.add(new Line(Component.translatable("hud.apeira.dev.controls").getString(), GREY, null));
         lines.add(new Line(Component.translatable("hud.apeira.dev.editor", ApeiraDevClient.OPEN_EDITOR.getTranslatedKeyMessage()).getString(),
@@ -150,6 +151,8 @@ final class TuningHud {
             case SEATS -> Tool.ADD;
             case SEAT_X, SEAT_Y, SEAT_Z -> Tool.MOVE;
             case RESTORE -> Tool.UNDO;
+            case OFFSET_X, OFFSET_Y, OFFSET_Z -> Tool.MOVE;
+            case YAW -> Tool.TURN;
             default -> null;
         };
     }
