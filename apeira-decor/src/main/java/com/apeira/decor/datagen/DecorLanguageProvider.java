@@ -61,7 +61,7 @@ public final class DecorLanguageProvider extends ApeiraLanguageProvider {
         tooltip("paint.finish", "%s Finish");
         message("paint_copied", "Copied: %s");
         // A fragile artifact (FurnitureBlock#FRAGILE) broken by a player.
-        message("furniture.shattered", "The artifact was too fragile and shattered!");
+        message("furniture.shattered", "Artifacts are fragile! To obtain these, brush Suspicious Blocks to find Fragments. Put together Fragments in the Archeology Table.");
         for (PaintColor color : PaintColor.values()) {
             add(color.translationKey(), title(color.name()));
         }
