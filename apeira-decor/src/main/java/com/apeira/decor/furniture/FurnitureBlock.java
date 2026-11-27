@@ -149,13 +149,16 @@ public class FurnitureBlock extends ApeiraFurnitureBlock implements MultiblockCo
         shatter(level, pos, state, player);
     }
 
-    /** A fragile piece broken by a player: the decorated pot's shatter sound and the line over the hotbar. */
+    /** Origin Realms' red for the shatter line, as captured. */
+    private static final int SHATTERED_COLOR = 0xDC2625;
+
+    /** A fragile piece broken by a player: the decorated pot's shatter sound and Origin Realms' red chat line. */
     private static void shatter(Level level, BlockPos pos, BlockState state, Player player) {
         if (level.isClientSide() || !isFragile(state)) {
             return;
         }
         level.playSound(null, pos, SoundEvents.DECORATED_POT_SHATTER, SoundSource.BLOCKS, 1.0F, 1.0F);
-        player.sendOverlayMessage(Component.translatable("message.apeira.furniture.shattered"));
+        player.sendSystemMessage(Component.translatable("message.apeira.furniture.shattered").withColor(SHATTERED_COLOR));
     }
 
     public FurnitureBlock(BlockBehaviour.Properties properties, boolean paintable, Form form) {

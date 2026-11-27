@@ -17,7 +17,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public final class Multiblock {
     /**
      * The share of a neighbouring block the piece must fill for that block to have to be free: a piece filling less of
-     * it is placed beside walls and blocks there, which a block may then be built over ({@link MultiblockPartBlock}).
+     * it is placed beside walls and blocks there (it gets no part in them).
      */
     public static final double SOLID_SHARE = 0.75;
 
