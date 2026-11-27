@@ -28,6 +28,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -92,10 +93,20 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
     private int goneTicks;
     private boolean wasDying;
     private @Nullable Map<String, int[]> labels;
+    /** The last recorded tick and the followed entity then, for timing and placing sounds. */
+    private int lastTick = -1;
+    private @Nullable Entity anchor;
+    private final JsonArray sounds = new JsonArray();
+    /** Sounds this far from the mob, or nearer, are its own. */
+    private static final double SOUND_REACH = 12;
+    private static final java.util.Set<net.minecraft.sounds.SoundSource> SKIPPED_SOUNDS = java.util.EnumSet.of(
+            net.minecraft.sounds.SoundSource.MUSIC, net.minecraft.sounds.SoundSource.RECORDS, net.minecraft.sounds.SoundSource.AMBIENT,
+            net.minecraft.sounds.SoundSource.WEATHER, net.minecraft.sounds.SoundSource.PLAYERS, net.minecraft.sounds.SoundSource.UI);
 
-    private MobRecorder(String name, LivingEntity mob) {
+    private MobRecorder(String name, Entity mob, String resolvedBy) {
         this.name = name;
         target.addProperty("type", EntityType.getKey(mob.getType()).toString());
+        target.addProperty("resolved_by", resolvedBy);
         target.addProperty("uuid", mob.getUUID().toString());
         if (mob.getCustomName() != null) {
             target.addProperty("custom_name", mob.getCustomName().getString());
@@ -104,12 +115,17 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
         target.addProperty("hitbox_height", mob.getBbHeight());
         target.addProperty("eye_height", mob.getEyeHeight());
         target.addProperty("invisible", mob.isInvisible());
-        target.addProperty("max_health", mob.getMaxHealth());
-        target.addProperty("health", mob.getHealth());
-        try {
-            target.addProperty("movement_speed", mob.getAttributeValue(Attributes.MOVEMENT_SPEED));
-        } catch (RuntimeException e) {
-            // Not every entity has the attribute.
+        if (mob instanceof LivingEntity living) {
+            target.addProperty("max_health", living.getMaxHealth());
+            target.addProperty("health", living.getHealth());
+            try {
+                target.addProperty("movement_speed", living.getAttributeValue(Attributes.MOVEMENT_SPEED));
+            } catch (RuntimeException e) {
+                // Not every entity has the attribute.
+            }
+        } else {
+            target.addProperty("note", "No living entity was found for it (the server likely hides the real mob, as ModelEngine does), so the "
+                    + "recording follows this hitbox entity; health, hurt and death are not known to the client.");
         }
         JsonArray passengers = new JsonArray();
         for (Entity passenger : mob.getPassengers()) {
@@ -119,6 +135,38 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
         if (mob.getVehicle() != null) {
             target.addProperty("vehicle", EntityType.getKey(mob.getVehicle().getType()).toString());
         }
+    }
+
+    /**
+     * Every sound the client plays ({@link SoundInspector}'s listener): while a mob is recorded, a positioned sound within
+     * {@link #SOUND_REACH} blocks of it (not music, ambience, weather, players' or UI sounds) is kept with its recording
+     * tick, label, offset from the mob, the variant played (file, volume, pitch, stream, attenuation, length, subtitle)
+     * and the event's {@code sounds.json} entries.
+     */
+    static void onSound(net.minecraft.client.resources.sounds.SoundInstance instance, net.minecraft.client.sounds.WeighedSoundEvents event, float range) {
+        MobRecorder recorder = active;
+        if (recorder == null || !ArmorStandRecorder.recording() || recorder.anchor == null || instance.isRelative()
+                || SKIPPED_SOUNDS.contains(instance.getSource())) {
+            return;
+        }
+        Vec3 at = new Vec3(instance.getX(), instance.getY(), instance.getZ());
+        Vec3 mob = recorder.anchor.position();
+        if (at.distanceTo(mob) > SOUND_REACH) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        JsonObject entry = new JsonObject();
+        // Sounds arrive with the server's packets, before this tick is recorded.
+        int tick = recorder.lastTick + 1;
+        entry.addProperty("tick", tick);
+        entry.addProperty("seconds", tick / 20.0);
+        SoundInspector.describe(minecraft, instance, event, range, entry);
+        JsonArray offset = new JsonArray();
+        offset.add(Math.round((at.x - mob.x) * 1000) / 1000.0);
+        offset.add(Math.round((at.y - mob.y) * 1000) / 1000.0);
+        offset.add(Math.round((at.z - mob.z) * 1000) / 1000.0);
+        entry.add("offset_from_mob", offset);
+        recorder.sounds.add(entry);
     }
 
     static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
@@ -156,20 +204,22 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
 
     private static int start(@Nullable String name, double radius) {
         Minecraft minecraft = Minecraft.getInstance();
-        LivingEntity mob = pick(minecraft);
-        if (mob == null) {
-            Feedback.error(Component.literal("[Mob] Look at a mob (or a part of its model) to record it"));
+        Picked picked = pick(minecraft);
+        if (picked == null) {
+            Feedback.error(Component.literal("[Mob] Look at a mob, its hitbox or a part of its model to record it"));
             return 0;
         }
+        Entity mob = picked.entity();
+        SoundInspector.ensureListener(minecraft);
         String clip = name != null ? name : "mob_" + ArmorStandRecorder.boneName(EntityType.getKey(mob.getType()).getPath());
         double r = radius > 0 ? radius : Math.ceil(mob.getBbWidth() / 2 + 3);
         double above = Math.ceil(mob.getBbHeight() + 4);
-        MobRecorder recorder = new MobRecorder(clip, mob);
+        MobRecorder recorder = new MobRecorder(clip, mob, picked.how());
         if (!ArmorStandRecorder.startFollowing(clip, mob, true, true, r, 2, above, recorder)) {
             return 0;
         }
         active = recorder;
-        Feedback.ok(Component.literal("[Mob] Recording " + recorder.target.get("type").getAsString() + " as " + clip
+        Feedback.ok(Component.literal("[Mob] Recording " + recorder.target.get("type").getAsString() + " (" + picked.how() + ") as " + clip
                 + " (locked in place; press again to stop)").withStyle(ChatFormatting.GOLD));
         return 1;
     }
@@ -186,30 +236,70 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
         return 1;
     }
 
-    /** The mob under the crosshair, the mob a looked-at model part rides or stands by, else the mob nearest the crosshair line. */
-    static @Nullable LivingEntity pick(Minecraft minecraft) {
+    /** The entity a recording follows and how it was found (for {@code mob.json}). */
+    record Picked(Entity entity, String how) {
+    }
+
+    /**
+     * The mob to record. From the entity under the crosshair: itself when it is a mob; the mob it rides (its root
+     * vehicle) or that rides it; the nearest mob within a few blocks (servers put {@code minecraft:interaction}
+     * hitboxes, armor stands and displays beside a hidden mob); else, when it is a hitbox ({@code minecraft:interaction})
+     * or a model part with no mob anywhere near (ModelEngine-style mobs, such as the Wraith, never send the real mob to
+     * clients), that hitbox itself, or the interaction nearest the looked-at part. With nothing under the crosshair, the
+     * mob, then the interaction, nearest the crosshair line.
+     */
+    static @Nullable Picked pick(Minecraft minecraft) {
         Player player = minecraft.player;
         if (player == null || minecraft.level == null) {
             return null;
         }
         Entity hit = minecraft.crosshairPickEntity;
-        if (hit != null) {
+        if (hit != null && !(hit instanceof Player)) {
             if (isMob(hit)) {
-                return (LivingEntity) hit;
+                return new Picked(hit, "crosshair");
             }
-            if (isMob(hit.getRootVehicle())) {
-                return (LivingEntity) hit.getRootVehicle();
+            Entity root = hit.getRootVehicle();
+            if (isMob(root)) {
+                return new Picked(root, "vehicle_of_" + kind(hit));
             }
-            LivingEntity near = nearest(minecraft, hit.position(), 3);
+            for (Entity rider : hit.getIndirectPassengers()) {
+                if (isMob(rider)) {
+                    return new Picked(rider, "rider_of_" + kind(hit));
+                }
+            }
+            double reach = Math.max(3, Math.max(hit.getBbWidth(), hit.getBbHeight()) + 1);
+            Entity near = nearest(minecraft, hit.position(), reach, MobRecorder::isMob);
             if (near != null) {
-                return near;
+                return new Picked(near, "near_" + kind(hit));
+            }
+            if (hit instanceof Interaction) {
+                return new Picked(hit, "interaction");
+            }
+            Entity box = nearest(minecraft, hit.position(), reach, entity -> entity instanceof Interaction);
+            if (box != null) {
+                return new Picked(box, "interaction_near_" + kind(hit));
             }
         }
+        Entity mob = alongLook(minecraft, player, MobRecorder::isMob);
+        if (mob != null) {
+            return new Picked(mob, "look_line");
+        }
+        Entity box = alongLook(minecraft, player, entity -> entity instanceof Interaction);
+        return box == null ? null : new Picked(box, "interaction_look_line");
+    }
+
+    private static String kind(Entity entity) {
+        return entity instanceof Interaction ? "interaction" : AreaEntities.kind(entity).equals("entity")
+                ? ArmorStandRecorder.boneName(EntityType.getKey(entity.getType()).getPath()) : AreaEntities.kind(entity);
+    }
+
+    /** The matching entity nearest the crosshair line, within {@link #PICK_SPREAD} of it and {@link #PICK_REACH} along it. */
+    private static @Nullable Entity alongLook(Minecraft minecraft, Player player, java.util.function.Predicate<Entity> filter) {
         Vec3 eye = player.getEyePosition();
         Vec3 look = player.getViewVector(1.0F);
-        LivingEntity best = null;
+        Entity best = null;
         double bestOff = PICK_SPREAD;
-        for (Entity entity : minecraft.level.getEntities(player, player.getBoundingBox().inflate(PICK_REACH), MobRecorder::isMob)) {
+        for (Entity entity : minecraft.level.getEntities(player, player.getBoundingBox().inflate(PICK_REACH), filter)) {
             Vec3 to = entity.getBoundingBox().getCenter().subtract(eye);
             double along = to.dot(look);
             if (along <= 0) {
@@ -218,20 +308,20 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
             double off = to.subtract(look.scale(along)).length();
             if (off < bestOff) {
                 bestOff = off;
-                best = (LivingEntity) entity;
+                best = entity;
             }
         }
         return best;
     }
 
-    private static @Nullable LivingEntity nearest(Minecraft minecraft, Vec3 at, double reach) {
-        LivingEntity best = null;
+    private static @Nullable Entity nearest(Minecraft minecraft, Vec3 at, double reach, java.util.function.Predicate<Entity> filter) {
+        Entity best = null;
         double bestDistance = reach * reach;
-        for (Entity entity : minecraft.level.getEntities(minecraft.player, new net.minecraft.world.phys.AABB(at, at).inflate(reach), MobRecorder::isMob)) {
+        for (Entity entity : minecraft.level.getEntities(minecraft.player, new net.minecraft.world.phys.AABB(at, at).inflate(reach), filter)) {
             double distance = entity.position().distanceToSqr(at);
             if (distance < bestDistance) {
                 bestDistance = distance;
-                best = (LivingEntity) entity;
+                best = entity;
             }
         }
         return best;
@@ -245,11 +335,15 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
     public void tick(Minecraft minecraft, int tick, @Nullable Entity anchor) {
         Player player = minecraft.player;
         manual.add(override);
-        if (!(anchor instanceof LivingEntity mob) || player == null) {
+        lastTick = tick;
+        if (anchor == null || player == null) {
             goneTicks++;
             auto.add(wasDying ? "death" : "gone");
             return;
         }
+        Entity mob = anchor;
+        LivingEntity living = mob instanceof LivingEntity alive ? alive : null;
+        this.anchor = mob;
         Vec3 pos = mob.position();
         Vec3 step = lastPos == null ? Vec3.ZERO : pos.subtract(lastPos);
         lastPos = pos;
@@ -273,13 +367,13 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
             aggression.add(change);
             lastAggressive = withAi.isAggressive();
         }
-        if (mob.getHealth() != lastHealth) {
+        if (living != null && living.getHealth() != lastHealth) {
             JsonObject change = new JsonObject();
             change.addProperty("tick", tick);
-            change.addProperty("health", mob.getHealth());
-            change.addProperty("max_health", mob.getMaxHealth());
+            change.addProperty("health", living.getHealth());
+            change.addProperty("max_health", living.getMaxHealth());
             health.add(change);
-            lastHealth = mob.getHealth();
+            lastHealth = living.getHealth();
         }
         String custom = mob.getCustomName() == null ? null : mob.getCustomName().getString();
         if (custom != null && !custom.equals(lastName)) {
@@ -293,19 +387,21 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
         // The player was hurt this tick (hurtTime jumps up) while close: count it as the mob's hit.
         boolean playerHurt = player.hurtTime > lastPlayerHurt;
         lastPlayerHurt = player.hurtTime;
-        boolean swingStart = mob.isSwinging() && !lastSwinging;
-        lastSwinging = mob.isSwinging();
+        boolean swinging = living != null && living.isSwinging();
+        boolean swingStart = swinging && !lastSwinging;
+        lastSwinging = swinging;
         if (playerHurt && distance <= HIT_REACH || swingStart) {
             hits.add(tick);
             JsonObject hit = entry(tick, distance);
             hit.addProperty("by", playerHurt && distance <= HIT_REACH ? "player_hurt" : "swing");
             hitLog.add(hit);
         }
-        wasDying = mob.isDeadOrDying();
-        auto.add(wasDying ? "death" : mob.hurtTime > 0 ? "hurt" : speed > MOVE_SPEED ? "move" : "idle");
+        wasDying = living != null && living.isDeadOrDying();
+        auto.add(wasDying ? "death" : living != null && living.hurtTime > 0 ? "hurt" : speed > MOVE_SPEED ? "move" : "idle");
         if (tick % 20 == 0) {
             minecraft.gui.hud.setOverlayMessage(Component.literal("[Mob] " + name + " " + label(tick) + "  " + String.format(Locale.ROOT,
-                    "%.1fs  %.1f blocks  %.0f/%.0f hp", tick / 20.0, distance, mob.getHealth(), mob.getMaxHealth())), false);
+                    "%.1fs  %.1f blocks  %d sounds", tick / 20.0, distance, sounds.size())
+                    + (living == null ? "" : String.format(Locale.ROOT, "  %.0f/%.0f hp", living.getHealth(), living.getMaxHealth()))), false);
         }
     }
 
@@ -425,12 +521,56 @@ final class MobRecorder implements ArmorStandRecorder.Observer {
         json.add("detection", detection);
         json.add("health", health);
         json.add("name_changes", names);
+        List<String> finalLabels = finalLabels();
+        JsonObject events = new JsonObject();
+        for (var element : sounds) {
+            JsonObject sound = element.getAsJsonObject();
+            int tick = sound.get("tick").getAsInt();
+            if (tick < finalLabels.size()) {
+                sound.addProperty("label", finalLabels.get(tick));
+            }
+            // Where it falls in each exported label clip (the clip's own tick 0 is the run's first tick).
+            JsonObject clips = new JsonObject();
+            if (labels != null) {
+                for (Map.Entry<String, int[]> label : labels.entrySet()) {
+                    int from = label.getValue()[0];
+                    if (tick >= from && tick < from + label.getValue()[1]) {
+                        clips.addProperty(label.getKey(), tick - from);
+                    }
+                }
+            }
+            sound.add("clip_ticks", clips);
+            String id = sound.get("sound").getAsString();
+            JsonObject summary = events.has(id) ? events.getAsJsonObject(id) : null;
+            if (summary == null) {
+                summary = new JsonObject();
+                summary.addProperty("count", 0);
+                summary.add("sounds_json", SoundInspector.definitions(Minecraft.getInstance(), net.minecraft.resources.Identifier.parse(id)));
+                events.add(id, summary);
+            }
+            summary.addProperty("count", summary.get("count").getAsInt() + 1);
+        }
+        JsonObject soundFile = new JsonObject();
+        soundFile.add("events", events);
+        soundFile.add("sounds", sounds);
+        JsonObject soundSummary = new JsonObject();
+        soundSummary.addProperty("file", "mob_sounds.json");
+        soundSummary.addProperty("count", sounds.size());
+        JsonArray ids = new JsonArray();
+        events.keySet().forEach(ids::add);
+        soundSummary.add("events", ids);
+        json.add("sounds", soundSummary);
+        try {
+            Files.writeString(folder.resolve("mob_sounds.json"), GSON.toJson(soundFile), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            UiCaptureClient.LOGGER.error("mob_sounds.json failed", e);
+        }
         try {
             Files.writeString(folder.resolve("mob.json"), GSON.toJson(json), StandardCharsets.UTF_8);
         } catch (IOException e) {
             UiCaptureClient.LOGGER.error("mob.json failed", e);
         }
-        Feedback.ok(Component.literal("[Mob] " + recording.ticks() + " ticks, clips " + String.join(", ", labels == null ? List.of() : labels.keySet())
+        Feedback.ok(Component.literal("[Mob] " + recording.ticks() + " ticks, " + sounds.size() + " sounds, clips " + String.join(", ", labels == null ? List.of() : labels.keySet())
                 + String.format(Locale.ROOT, "; range ~%.1f, reach ~%.1f; hitbox %sx%s -> %s", range, reach,
                 target.get("hitbox_width").getAsString(), target.get("hitbox_height").getAsString(), folder.getFileName()))
                 .withStyle(ChatFormatting.GREEN));

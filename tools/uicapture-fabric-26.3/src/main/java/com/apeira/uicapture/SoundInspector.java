@@ -14,7 +14,10 @@ import java.util.Optional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -125,10 +128,7 @@ public final class SoundInspector {
 
     private static int toggleListening(CommandContext<FabricClientCommandSource> context, boolean chat) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (!listenerAdded) {
-            listenerAdded = true;
-            minecraft.getSoundManager().addListener(new Listener());
-        }
+        ensureListener(minecraft);
         listening = !listening;
         toChat = listening && chat;
         if (listening) {
@@ -150,12 +150,40 @@ public final class SoundInspector {
     private static final class Listener implements SoundEventListener {
         @Override
         public void onPlaySound(SoundInstance instance, WeighedSoundEvents event, float range) {
+            MobRecorder.onSound(instance, event, range);
             if (!listening) {
                 return;
             }
             Minecraft minecraft = Minecraft.getInstance();
             JsonObject entry = new JsonObject();
             entry.addProperty("ms", (System.nanoTime() - started) / 1_000_000L);
+            describe(minecraft, instance, event, range, entry);
+            Sound sound = instance.getSound();
+            Player player = minecraft.player;
+            String subtitle = entry.has("subtitle") ? entry.get("subtitle").getAsString() : "-";
+            logged++;
+            append(entry);
+            String line = instance.getIdentifier() + " | " + (sound == null ? "-" : sound.getPath()) + " | volume " + format(instance.getVolume())
+                    + " | pitch " + format(instance.getPitch()) + " | attenuation " + (sound == null ? "-" : sound.getAttenuationDistance())
+                    + " (" + instance.getAttenuation().name().toLowerCase(Locale.ROOT) + ") | subtitle " + subtitle;
+            UiCaptureClient.LOGGER.info("[sound log] {}", line);
+            if (toChat && player != null) {
+                Feedback.ok(Component.literal(line).withStyle(ChatFormatting.GRAY));
+            }
+        }
+    }
+
+    /** Adds the sound listener once (the sound manager exists only after the client starts). */
+    static void ensureListener(Minecraft minecraft) {
+        if (!listenerAdded) {
+            listenerAdded = true;
+            minecraft.getSoundManager().addListener(new Listener());
+        }
+    }
+
+    /** A played sound as JSON: event, file, pack, stream flag, attenuation, length, category, volume, pitch, position, subtitle. */
+    static void describe(Minecraft minecraft, SoundInstance instance, WeighedSoundEvents event, float range, JsonObject entry) {
+        {
             entry.addProperty("sound", instance.getIdentifier().toString());
             Sound sound = instance.getSound();
             if (sound != null) {
@@ -190,16 +218,35 @@ public final class SoundInspector {
                         ? translatable.getKey() : event.getSubtitle().getString();
                 entry.addProperty("subtitle", subtitle);
             }
-            logged++;
-            append(entry);
-            String line = instance.getIdentifier() + " | " + (sound == null ? "-" : sound.getPath()) + " | volume " + format(instance.getVolume())
-                    + " | pitch " + format(instance.getPitch()) + " | attenuation " + (sound == null ? "-" : sound.getAttenuationDistance())
-                    + " (" + instance.getAttenuation().name().toLowerCase(Locale.ROOT) + ") | subtitle " + subtitle;
-            UiCaptureClient.LOGGER.info("[sound log] {}", line);
-            if (toChat && player != null) {
-                Feedback.ok(Component.literal(line).withStyle(ChatFormatting.GRAY));
-            }
         }
+    }
+
+    private static final Map<Identifier, JsonArray> DEFINITIONS = new HashMap<>();
+
+    /**
+     * The sound event's {@code sounds.json} entries, one per resource pack that defines it (lowest pack first), each
+     * {@code {"pack", "definition"}} with the entry as written (sounds with their volume, pitch, weight, stream,
+     * attenuation_distance and preload; replace; subtitle). Cached per event; cleared when the packs reload is not
+     * needed for a capture session.
+     */
+    static JsonArray definitions(Minecraft minecraft, Identifier event) {
+        return DEFINITIONS.computeIfAbsent(event, id -> {
+            JsonArray out = new JsonArray();
+            for (Resource resource : minecraft.getResourceManager().getResourceStack(Identifier.fromNamespaceAndPath(id.getNamespace(), "sounds.json"))) {
+                try (java.io.BufferedReader reader = resource.openAsReader()) {
+                    JsonElement root = JsonParser.parseReader(reader);
+                    if (root.isJsonObject() && root.getAsJsonObject().has(id.getPath())) {
+                        JsonObject entry = new JsonObject();
+                        entry.addProperty("pack", resource.sourcePackId());
+                        entry.add("definition", root.getAsJsonObject().get(id.getPath()));
+                        out.add(entry);
+                    }
+                } catch (IOException | RuntimeException e) {
+                    UiCaptureClient.LOGGER.debug("Could not read {} from {}", id, resource.sourcePackId(), e);
+                }
+            }
+            return out;
+        });
     }
 
     private static void append(JsonObject entry) {

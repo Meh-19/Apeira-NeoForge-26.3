@@ -698,7 +698,8 @@ public final class ArmorStandRecorder {
     private static void recordHitboxes(Minecraft minecraft, ClientLevel level, Session session) {
         int tick = session.tick;
         Set<UUID> now = new HashSet<>();
-        for (Interaction hitbox : level.getEntitiesOfClass(Interaction.class, session.box, e -> session.box.contains(e.position()))) {
+        for (Interaction hitbox : level.getEntitiesOfClass(Interaction.class, session.box, e -> session.box.contains(e.position())
+                && !(session.anchor != null && session.anchor.asHitbox && session.isAnchor(e)))) {
             now.add(hitbox.getUUID());
             HitboxTrack track = hitboxTrack(session, hitbox);
             HitboxSnapshot snapshot = session.lock(new HitboxSnapshot(hitbox.position(), hitbox.getYRot(), hitbox.getBbWidth(), hitbox.getBbHeight(),
@@ -729,7 +730,7 @@ public final class ArmorStandRecorder {
             HitboxTrack track = session.hitboxes.computeIfAbsent(anchored.getUUID(),
                     uuid -> new HitboxTrack(uuid, session.name("hitbox"), anchored.getId(), session.tick));
             HitboxSnapshot snapshot = session.lock(new HitboxSnapshot(anchored.position(), Anchor.yawOf(anchored), anchored.getBbWidth(),
-                    anchored.getBbHeight(), false));
+                    anchored.getBbHeight(), anchored instanceof Interaction interaction && ((InteractionAccessor) interaction).apeira$getResponse()));
             HitboxSnapshot last = track.frames.get(tick - 1);
             if (last == null) {
                 session.events.add(new Event(tick, tick == 0 ? "present" : "enter", track.bone, describe(snapshot)));
