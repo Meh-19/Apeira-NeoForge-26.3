@@ -143,7 +143,8 @@ public final class MainPlacedFeatures {
         place.at(SHELF_FUNGUS_CLUSTER, MainConfiguredFeatures.SHELF_FUNGUS_CLUSTER, surface(RarityFilter.onAverageOnceEvery(5), WORLD_SURFACE));
         place.at(LEAF_LITTER_PATCH, MainConfiguredFeatures.LEAF_LITTER_PATCH, surface(CountPlacement.of(3), WORLD_SURFACE));
         place.at(FALLEN_OAK_LOG, MainConfiguredFeatures.FALLEN_OAK_LOG, surface(RarityFilter.onAverageOnceEvery(6), WORLD_SURFACE));
-        place.at(CATTAILS, MainConfiguredFeatures.CATTAILS, surface(RarityFilter.onAverageOnceEvery(2), WORLD_SURFACE));
+        // Cattails try twice a chunk; the feature only places where it finds a bank or one-block-deep water.
+        place.at(CATTAILS, MainConfiguredFeatures.CATTAILS, surface(CountPlacement.of(2), WORLD_SURFACE));
         place.at(WATER_SILT_DISK, MainConfiguredFeatures.WATER_SILT_DISK, surface(RarityFilter.onAverageOnceEvery(3), OCEAN_FLOOR));
         place.at(DIORITE_MOUND, MainConfiguredFeatures.DIORITE_MOUND, surface(RarityFilter.onAverageOnceEvery(8), WORLD_SURFACE));
         place.at(ANDESITE_MOUND, MainConfiguredFeatures.ANDESITE_MOUND, surface(RarityFilter.onAverageOnceEvery(8), WORLD_SURFACE));
@@ -156,9 +157,10 @@ public final class MainPlacedFeatures {
         place.at(FOOTHILLS_ANDESITE_MOUND, MainConfiguredFeatures.ANDESITE_MOUND, surface(RarityFilter.onAverageOnceEvery(4), WORLD_SURFACE));
         place.at(FOOTHILLS_DIORITE_MOUND, MainConfiguredFeatures.DIORITE_MOUND, surface(RarityFilter.onAverageOnceEvery(12), WORLD_SURFACE));
         place.at(FOOTHILLS_GRANITE_MOUND, MainConfiguredFeatures.GRANITE_MOUND, surface(RarityFilter.onAverageOnceEvery(24), WORLD_SURFACE));
-        place.at(FOOTHILLS_SLATE_MOUND, MainConfiguredFeatures.SLATE_BOULDER, surface(RarityFilter.onAverageOnceEvery(4), OCEAN_FLOOR));
-        place.at(SLATE_BOULDER, MainConfiguredFeatures.SLATE_BOULDER, surface(RarityFilter.onAverageOnceEvery(5), OCEAN_FLOOR));
-        place.at(RIVER_SLATE_BOULDER, MainConfiguredFeatures.SLATE_BOULDER, surface(RarityFilter.onAverageOnceEvery(3), OCEAN_FLOOR));
+        // Slate boulders keep to shallow water and banks (the feature checks the ground round them too).
+        place.at(FOOTHILLS_SLATE_MOUND, MainConfiguredFeatures.SLATE_BOULDER, shallow(RarityFilter.onAverageOnceEvery(3)));
+        place.at(SLATE_BOULDER, MainConfiguredFeatures.SLATE_BOULDER, shallow(RarityFilter.onAverageOnceEvery(4)));
+        place.at(RIVER_SLATE_BOULDER, MainConfiguredFeatures.SLATE_BOULDER, shallow(RarityFilter.onAverageOnceEvery(2)));
         place.at(STONE_SHORE, MainConfiguredFeatures.STONE_SHORE, surface(RarityFilter.onAverageOnceEvery(8), WORLD_SURFACE));
         place.at(SLATE_WATER_MOUND, MainConfiguredFeatures.SLATE_WATER_MOUND, List.of(RarityFilter.onAverageOnceEvery(10),
                 InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(2), OCEAN_FLOOR, BiomeFilter.biome()));
@@ -203,6 +205,11 @@ public final class MainPlacedFeatures {
 
     private static List<PlacementModifier> tree(PlacementModifier count) {
         return List.of(count, InSquarePlacement.spread(), DRY, WORLD_SURFACE, BiomeFilter.biome());
+    }
+
+    /** {@code count} positions on the ground under at most two blocks of water. */
+    private static List<PlacementModifier> shallow(PlacementModifier count) {
+        return List.of(count, InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(2), OCEAN_FLOOR, BiomeFilter.biome());
     }
 
     private static List<PlacementModifier> surface(PlacementModifier count, PlacementModifier heightmap) {

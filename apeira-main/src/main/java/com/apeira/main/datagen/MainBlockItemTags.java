@@ -70,15 +70,14 @@ final class MainBlockItemTags {
     }
 
     /**
-     * Xenon's flower tags (it called most of its grasses flowers, so bees visit them), yellow birch leaves as leaves and
-     * the mycena stems as logs that burn. Xenon also had the stick in its flower tag; it is left out.
+     * Vanilla's flower tags hold only the flowers (Xenon also tagged its grasses, cattail, small lily, mycena and the
+     * stick, which let bees pollinate grass): the hibiscus and oculus orchid are small flowers, and the amaryllis and
+     * clover flowers, as vanilla's tall flowers and pink petals are. Yellow birch leaves are leaves and the mycena stems
+     * logs that burn.
      */
     private static void addXenonPlants(BlockAndItemTags tags) {
-        tags.add(BlockItemTags.FLOWERS, Stream.concat(MainPlants.grasses().stream(), Stream.of(MainPlants.CATTAIL, MainPlants.OCULUS_ORCHID,
-                MainPlants.HIBISCUS, MainPlants.CLOVER, MainPlants.SMALL_LILY, MainPlants.ORANGE_MYCENA)).toArray(DeferredBlock<?>[]::new));
-        tags.add(BlockItemTags.SMALL_FLOWERS, MainPlants.HOGWEED, MainPlants.FROSTED_GRASS, MainPlants.DRY_GRASS, MainPlants.HIBISCUS,
-                MainPlants.OCULUS_ORCHID, MainPlants.CLOVER, MainPlants.GRIMWEED, MainPlants.DRY_BUSH, MainPlants.SOUL_STALKS,
-                MainPlants.BEACH_GRASS, MainPlants.BRAMBLE);
+        tags.add(BlockItemTags.FLOWERS, MainPlants.AMARYLLIS, MainPlants.CLOVER);
+        tags.add(BlockItemTags.SMALL_FLOWERS, MainPlants.HIBISCUS, MainPlants.OCULUS_ORCHID);
         tags.add(BlockItemTags.LEAVES, MainSpecialBlocks.YELLOW_BIRCH_LEAVES);
         tags.add(BlockItemTags.LOGS_THAT_BURN, MainSpecialBlocks.MYCENA_MUSHROOM_STEM, MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM);
     }

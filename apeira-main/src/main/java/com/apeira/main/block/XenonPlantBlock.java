@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -40,6 +41,7 @@ public class XenonPlantBlock extends VegetationBlock implements BonemealableBloc
     private final @Nullable Supplier<? extends Block> grownInto;
     private final boolean thorny;
     private boolean netherSoil;
+    private boolean drySoil;
 
     public XenonPlantBlock(Properties properties, VoxelShape shape, @Nullable Supplier<? extends Block> grownInto, boolean thorny) {
         super(properties);
@@ -54,9 +56,19 @@ public class XenonPlantBlock extends VegetationBlock implements BonemealableBloc
         return this;
     }
 
+    /**
+     * Lets the plant grow where vanilla's dry grass and dead bush do ({@code #minecraft:supports_dry_vegetation}: sand
+     * and terracotta as well as dirt); call it when constructing.
+     */
+    public XenonPlantBlock onDrySoil() {
+        drySoil = true;
+        return this;
+    }
+
     @Override
     protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
-        return super.mayPlaceOn(state, level, pos) || netherSoil && state.is(MainTags.NETHER_PLANT_SOIL);
+        return super.mayPlaceOn(state, level, pos) || netherSoil && state.is(MainTags.NETHER_PLANT_SOIL)
+                || drySoil && state.is(BlockTags.SUPPORTS_DRY_VEGETATION);
     }
 
     /** A short plant that bone meal turns into {@code tall}. */

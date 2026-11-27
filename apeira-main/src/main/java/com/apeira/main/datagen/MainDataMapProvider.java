@@ -1,6 +1,7 @@
 package com.apeira.main.datagen;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.apeira.core.datagen.ApeiraDataGenerators;
 import com.apeira.core.datagen.ApeiraDataMapProvider;
@@ -8,11 +9,13 @@ import com.apeira.core.registry.PlankSet;
 import com.apeira.main.registry.MainFarming;
 import com.apeira.main.registry.MainGear;
 import com.apeira.main.registry.MainItems;
+import com.apeira.main.registry.MainPlants;
 import com.apeira.main.registry.MainSpecialBlocks;
 import com.apeira.main.registry.MainWoods;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.registries.DeferredBlock;
 
 /**
  * NeoForge data maps for {@link MainWoods}: axes strip logs and woods ({@code neoforge:transformables}), and wood and
@@ -41,6 +44,16 @@ public final class MainDataMapProvider extends ApeiraDataMapProvider {
         MainWoods.carvedPlanks().forEach(carved -> flammable(carved.get(), 5, 20));
         MainWoods.beams().forEach(beam -> flammable(beam.get(), 5, 5));
         MainWoods.VANILLA_VERTICAL_PLANKS.forEach(vertical -> flammable(vertical.vertical().get(), 5, 20));
+        // Plants burn as vanilla's do: grasses, flowers, cattails, clover, aubrietas and leaf litter as short grass,
+        // the moss hangs as vines and the moss covers as moss carpet. Nether plants and mushrooms don't.
+        MainPlants.grasses().stream().filter(plant -> plant != MainPlants.SOUL_STALKS && plant != MainPlants.TALL_SOUL_STALKS)
+                .forEach(plant -> flammable(plant.get(), 60, 100));
+        Stream.<DeferredBlock<?>>concat(Stream.of(MainPlants.HIBISCUS, MainPlants.CATTAIL, MainPlants.CLOVER, MainPlants.DRIED_LEAF_LITTER,
+                MainPlants.COLD_LEAF_LITTER, MainPlants.LEAF_LITTER), MainPlants.aubrietas().stream()).forEach(plant -> flammable(plant.get(), 60, 100));
+        Stream.<DeferredBlock<?>>of(MainPlants.DAMP_MOSS_HANG, MainPlants.DAMP_MOSS_HANG_BOTTOM, MainPlants.GRIMOSS_HANG, MainPlants.GRIMOSS_HANG_BOTTOM)
+                .forEach(vine -> flammable(vine.get(), 15, 100));
+        flammable(MainPlants.DAMP_MOSS.get(), 5, 100);
+        flammable(MainPlants.GRIMOSS.get(), 5, 100);
         // Xenon had a stripped mycena stem but never registered the stripping; axes strip it here so it can be had.
         strippable(MainSpecialBlocks.MYCENA_MUSHROOM_STEM.get(), MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM.get());
 
