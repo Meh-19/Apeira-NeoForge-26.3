@@ -16,16 +16,18 @@ import com.apeira.main.block.HangingVineBlock;
 import com.apeira.main.block.HangingVinePlantBlock;
 import com.apeira.main.block.MossCoverBlock;
 import com.apeira.main.block.TwigBlock;
-import com.apeira.main.block.RandomRotationBlock;
 import com.apeira.main.block.SmallLilyBlock;
 import com.apeira.main.block.TallOrangeMycenaBlock;
 import com.apeira.main.block.XenonFlowerBlock;
 import com.apeira.main.block.XenonPlantBlock;
 
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 /**
@@ -37,31 +39,35 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 public final class MainPlants {
     private static final ApeiraRegistrar R = Apeira.REGISTRAR;
     private static final List<DeferredBlock<? extends Block>> ALL = new ArrayList<>();
+    private static final ResourceKey<ContextIntProvider> LOW = ContextIntProviders.COMPOSTABLE_LOW;
+    private static final ResourceKey<ContextIntProvider> LOW_MEDIUM = ContextIntProviders.COMPOSTABLE_LOW_MEDIUM;
+    private static final ResourceKey<ContextIntProvider> MEDIUM = ContextIntProviders.COMPOSTABLE_MEDIUM;
 
-    public static final DeferredBlock<XenonPlantBlock> AMARYLLIS = block("amaryllis", XenonPlantBlock::tall, MainBlockProperties::plants);
-    public static final DeferredBlock<CattailBlock> CATTAIL = block("cattail", CattailBlock::new, MainBlockProperties::plants);
+    public static final DeferredBlock<XenonPlantBlock> AMARYLLIS = block("amaryllis", XenonPlantBlock::tall, MainBlockProperties::plants, MEDIUM);
+    public static final DeferredBlock<CattailBlock> CATTAIL = block("cattail", CattailBlock::new, MainBlockProperties::plants, LOW_MEDIUM);
     public static final DeferredBlock<XenonFlowerBlock> OCULUS_ORCHID = block("oculus_orchid",
-            p -> new XenonFlowerBlock(MobEffects.FIRE_RESISTANCE, 0.35F, p).onNetherSoil(), MainBlockProperties::plants);
+            p -> new XenonFlowerBlock(MobEffects.FIRE_RESISTANCE, 0.35F, p).onNetherSoil(), MainBlockProperties::plants, MEDIUM);
     /** Placed on water like a lily pad. */
     public static final DeferredBlock<SmallLilyBlock> SMALL_LILY = R.blocks().registerBlock("small_lily", SmallLilyBlock::new,
             MainBlockProperties::smallLily);
     static {
         ALL.add(SMALL_LILY);
-        R.items().registerItem("small_lily", p -> new PlaceOnWaterBlockItem(SMALL_LILY.get(), p.useBlockDescriptionPrefix()));
+        R.items().registerItem("small_lily", p -> new PlaceOnWaterBlockItem(SMALL_LILY.get(),
+                p.useBlockDescriptionPrefix().compostable(ContextIntProviders.COMPOSTABLE_MEDIUM)));
     }
     public static final DeferredBlock<XenonFlowerBlock> HIBISCUS = block("hibiscus",
-            p -> new XenonFlowerBlock(MobEffects.ABSORPTION, 0.35F, p), MainBlockProperties::plants);
+            p -> new XenonFlowerBlock(MobEffects.ABSORPTION, 0.35F, p), MainBlockProperties::plants, MEDIUM);
 
-    public static final DeferredBlock<XenonPlantBlock> TALL_BEACH_GRASS = tall("tall_beach_grass");
-    public static final DeferredBlock<XenonPlantBlock> BEACH_GRASS = growsInto("beach_grass", TALL_BEACH_GRASS);
+    public static final DeferredBlock<XenonPlantBlock> TALL_BEACH_GRASS = dryTall("tall_beach_grass");
+    public static final DeferredBlock<XenonPlantBlock> BEACH_GRASS = dryGrowsInto("beach_grass", TALL_BEACH_GRASS);
     public static final DeferredBlock<XenonPlantBlock> TALL_BRAMBLE = block("tall_bramble",
-            p -> new XenonPlantBlock(p, XenonPlantBlock.TALL, null, true), MainBlockProperties::bramble);
+            p -> new XenonPlantBlock(p, XenonPlantBlock.TALL, null, true), MainBlockProperties::bramble, LOW_MEDIUM);
     public static final DeferredBlock<XenonPlantBlock> BRAMBLE = block("bramble",
-            p -> new XenonPlantBlock(p, XenonPlantBlock.SHORT, TALL_BRAMBLE, true), MainBlockProperties::bramble);
-    public static final DeferredBlock<XenonPlantBlock> TALL_DRY_GRASS = tall("tall_dry_grass");
-    public static final DeferredBlock<XenonPlantBlock> DRY_GRASS = growsInto("dry_grass", TALL_DRY_GRASS);
-    public static final DeferredBlock<XenonPlantBlock> TALL_DRY_BUSH = tall("tall_dry_bush");
-    public static final DeferredBlock<XenonPlantBlock> DRY_BUSH = growsInto("dry_bush", TALL_DRY_BUSH);
+            p -> new XenonPlantBlock(p, XenonPlantBlock.SHORT, TALL_BRAMBLE, true), MainBlockProperties::bramble, LOW);
+    public static final DeferredBlock<XenonPlantBlock> TALL_DRY_GRASS = dryTall("tall_dry_grass");
+    public static final DeferredBlock<XenonPlantBlock> DRY_GRASS = dryGrowsInto("dry_grass", TALL_DRY_GRASS);
+    public static final DeferredBlock<XenonPlantBlock> TALL_DRY_BUSH = dryTall("tall_dry_bush");
+    public static final DeferredBlock<XenonPlantBlock> DRY_BUSH = dryGrowsInto("dry_bush", TALL_DRY_BUSH);
     public static final DeferredBlock<XenonPlantBlock> TALL_FROSTED_GRASS = tall("tall_frosted_grass");
     public static final DeferredBlock<XenonPlantBlock> FROSTED_GRASS = growsInto("frosted_grass", TALL_FROSTED_GRASS);
     public static final DeferredBlock<XenonPlantBlock> TALL_GRIMWEED = tall("tall_grimweed");
@@ -69,18 +75,20 @@ public final class MainPlants {
     public static final DeferredBlock<XenonPlantBlock> TALL_PALE_GRIMWEED = tall("tall_pale_grimweed");
     public static final DeferredBlock<XenonPlantBlock> PALE_GRIMWEED = growsInto("pale_grimweed", TALL_PALE_GRIMWEED);
     public static final DeferredBlock<XenonPlantBlock> TALL_HOGWEED = block("tall_hogweed", p -> XenonPlantBlock.tall(p).onNetherSoil(),
-            MainBlockProperties::plants);
+            MainBlockProperties::grasses, LOW_MEDIUM);
     public static final DeferredBlock<XenonPlantBlock> HOGWEED = block("hogweed", p -> XenonPlantBlock.growsInto(p, TALL_HOGWEED).onNetherSoil(),
-            MainBlockProperties::plants);
+            MainBlockProperties::grasses, LOW);
     /** Bone meal on it grows one of Xenon's orange mycena mushrooms ({@code OrangeMycenaFeature}). */
     public static final DeferredBlock<TallOrangeMycenaBlock> TALL_ORANGE_MYCENA = block("tall_orange_mycena", TallOrangeMycenaBlock::new,
-            MainBlockProperties::plants);
-    public static final DeferredBlock<XenonPlantBlock> ORANGE_MYCENA = growsInto("orange_mycena", TALL_ORANGE_MYCENA);
+            MainBlockProperties::plants, MEDIUM);
+    /** A mushroom, so unlike the grasses a placed block does not replace it. */
+    public static final DeferredBlock<XenonPlantBlock> ORANGE_MYCENA = block("orange_mycena", p -> XenonPlantBlock.growsInto(p, TALL_ORANGE_MYCENA),
+            MainBlockProperties::plants, MEDIUM);
     public static final DeferredBlock<XenonPlantBlock> TALL_SOUL_STALKS = block("tall_soul_stalks", p -> XenonPlantBlock.tall(p).onNetherSoil(),
-            MainBlockProperties::plants);
+            MainBlockProperties::grasses, LOW_MEDIUM);
     public static final DeferredBlock<XenonPlantBlock> SOUL_STALKS = block("soul_stalks",
-            p -> XenonPlantBlock.growsInto(p, TALL_SOUL_STALKS).onNetherSoil(), MainBlockProperties::plants);
-    public static final DeferredBlock<CloverBlock> CLOVER = block("clover", CloverBlock::new, MainBlockProperties::plants);
+            p -> XenonPlantBlock.growsInto(p, TALL_SOUL_STALKS).onNetherSoil(), MainBlockProperties::grasses, LOW);
+    public static final DeferredBlock<CloverBlock> CLOVER = block("clover", CloverBlock::new, MainBlockProperties::plants, LOW);
 
     public static final DeferredBlock<GroundedRotationBlock> BLUE_AUBRIETA = aubrieta("blue_aubrieta");
     public static final DeferredBlock<GroundedRotationBlock> PINK_AUBRIETA = aubrieta("pink_aubrieta");
@@ -91,25 +99,26 @@ public final class MainPlants {
     public static final DeferredBlock<TwigBlock> TWIG = block("twig", TwigBlock::new, MainBlockProperties::stickPlaceable);
 
     public static final DeferredBlock<HangingVineBlock> SCULK_VINES = block("sculk_vines",
-            p -> new HangingVineBlock(p, MainPlants.SCULK_VINES_END), MainBlockProperties::vines);
+            p -> new HangingVineBlock(p, MainPlants.SCULK_VINES_END), MainBlockProperties::vines, LOW_MEDIUM);
     /** The rest of the sculk vines; the tip's item places both. */
     public static final DeferredBlock<HangingVinePlantBlock> SCULK_VINES_END = vineBody("sculk_vines_end", SCULK_VINES,
             MainBlockProperties::vines);
     public static final DeferredBlock<HangingVineBlock> WARPED_VEIL = block("warped_veil",
-            p -> new HangingVineBlock(p, MainPlants.WARPED_VEIL_BOTTOM), MainBlockProperties::vines);
+            p -> new HangingVineBlock(p, MainPlants.WARPED_VEIL_BOTTOM), MainBlockProperties::vines, LOW_MEDIUM);
     public static final DeferredBlock<HangingVinePlantBlock> WARPED_VEIL_BOTTOM = vineBody("warped_veil_bottom", WARPED_VEIL,
             MainBlockProperties::vines);
 
     public static final DeferredBlock<GroundCoverBlock> ASH = block("ash", GroundCoverBlock::new, MainBlockProperties::ash);
     public static final DeferredBlock<GroundCoverBlock> FROST = block("frost", GroundCoverBlock::new, MainBlockProperties::frost);
-    public static final DeferredBlock<RandomRotationBlock> DRIED_LEAF_LITTER = block("dried_leaf_litter", RandomRotationBlock::new,
-            MainBlockProperties::natural);
-    public static final DeferredBlock<RandomRotationBlock> COLD_LEAF_LITTER = block("cold_leaf_litter", RandomRotationBlock::new,
-            MainBlockProperties::natural);
-    public static final DeferredBlock<RandomRotationBlock> LEAF_LITTER = block("leaf_litter", RandomRotationBlock::new,
-            MainBlockProperties::natural);
-    public static final DeferredBlock<RandomRotationBlock> SHELF_FUNGUS = block("shelf_fungus", RandomRotationBlock::new,
-            MainBlockProperties::naturalMushroom);
+    /** Leaf litter and shelf fungus need a full face under them and go when it does, like vanilla's leaf litter. */
+    public static final DeferredBlock<GroundedRotationBlock> DRIED_LEAF_LITTER = block("dried_leaf_litter", GroundedRotationBlock::new,
+            MainBlockProperties::natural, LOW);
+    public static final DeferredBlock<GroundedRotationBlock> COLD_LEAF_LITTER = block("cold_leaf_litter", GroundedRotationBlock::new,
+            MainBlockProperties::natural, LOW);
+    public static final DeferredBlock<GroundedRotationBlock> LEAF_LITTER = block("leaf_litter", GroundedRotationBlock::new,
+            MainBlockProperties::natural, LOW);
+    public static final DeferredBlock<GroundedRotationBlock> SHELF_FUNGUS = block("shelf_fungus", GroundedRotationBlock::new,
+            MainBlockProperties::naturalMushroom, MEDIUM);
 
     /**
      * Xenon's {@code grimoss_hang_bottom} is the vine above the tip, {@code grimoss_hang} the tip. Neither has an item:
@@ -120,13 +129,13 @@ public final class MainPlants {
     public static final DeferredBlock<HangingVineBlock> GRIMOSS_HANG = blockOnly("grimoss_hang",
             p -> new HangingVineBlock(p, GRIMOSS_HANG_BOTTOM, MainPlants.GRIMOSS), MainBlockProperties::mossHang);
     public static final DeferredBlock<MossCoverBlock> GRIMOSS = block("grimoss", p -> new MossCoverBlock(p, GRIMOSS_HANG, GRIMOSS_HANG_BOTTOM),
-            MainBlockProperties::mossCover);
+            MainBlockProperties::mossCover, LOW);
     public static final DeferredBlock<HangingVinePlantBlock> DAMP_MOSS_HANG_BOTTOM = vineBody("damp_moss_hang_bottom",
             () -> MainPlants.DAMP_MOSS_HANG.get(), MainBlockProperties::mossHang);
     public static final DeferredBlock<HangingVineBlock> DAMP_MOSS_HANG = blockOnly("damp_moss_hang",
             p -> new HangingVineBlock(p, DAMP_MOSS_HANG_BOTTOM, MainPlants.DAMP_MOSS), MainBlockProperties::mossHang);
     public static final DeferredBlock<MossCoverBlock> DAMP_MOSS = block("damp_moss",
-            p -> new MossCoverBlock(p, DAMP_MOSS_HANG, DAMP_MOSS_HANG_BOTTOM), MainBlockProperties::mossCover);
+            p -> new MossCoverBlock(p, DAMP_MOSS_HANG, DAMP_MOSS_HANG_BOTTOM), MainBlockProperties::mossCover, LOW);
 
     public static final DeferredBlock<DecorationBlock> ROCK = block("rock", DecorationBlock::new, MainBlockProperties::rockItem);
     public static final DeferredBlock<DecorationBlock> PEBBLES = block("pebbles", DecorationBlock::new, MainBlockProperties::rockItem);
@@ -149,7 +158,7 @@ public final class MainPlants {
         return List.of(BLUE_AUBRIETA, PINK_AUBRIETA, PURPLE_AUBRIETA, WHITE_AUBRIETA, RED_AUBRIETA);
     }
 
-    public static List<DeferredBlock<RandomRotationBlock>> litter() {
+    public static List<DeferredBlock<GroundedRotationBlock>> litter() {
         return List.of(DRIED_LEAF_LITTER, COLD_LEAF_LITTER, LEAF_LITTER, SHELF_FUNGUS);
     }
 
@@ -166,16 +175,33 @@ public final class MainPlants {
         return block;
     }
 
+    /** A block whose item a composter takes with {@code compost}'s chance (vanilla's: short grass low, tall grass low-medium, flowers medium). */
+    private static <B extends Block> DeferredBlock<B> block(String name, Function<BlockBehaviour.Properties, ? extends B> factory,
+            Supplier<BlockBehaviour.Properties> properties, ResourceKey<ContextIntProvider> compost) {
+        DeferredBlock<B> block = R.blockWithItem(name, factory, properties, p -> p.compostable(compost));
+        ALL.add(block);
+        return block;
+    }
+
     private static DeferredBlock<XenonPlantBlock> tall(String name) {
-        return block(name, XenonPlantBlock::tall, MainBlockProperties::plants);
+        return block(name, XenonPlantBlock::tall, MainBlockProperties::grasses, LOW_MEDIUM);
     }
 
     private static DeferredBlock<XenonPlantBlock> growsInto(String name, DeferredBlock<? extends XenonPlantBlock> tall) {
-        return block(name, p -> XenonPlantBlock.growsInto(p, tall), MainBlockProperties::plants);
+        return block(name, p -> XenonPlantBlock.growsInto(p, tall), MainBlockProperties::grasses, LOW);
+    }
+
+    /** A tall dry grass, which grows on sand and terracotta too, like vanilla's dry grass and dead bush. */
+    private static DeferredBlock<XenonPlantBlock> dryTall(String name) {
+        return block(name, p -> XenonPlantBlock.tall(p).onDrySoil(), MainBlockProperties::dryGrasses, LOW_MEDIUM);
+    }
+
+    private static DeferredBlock<XenonPlantBlock> dryGrowsInto(String name, DeferredBlock<? extends XenonPlantBlock> tall) {
+        return block(name, p -> XenonPlantBlock.growsInto(p, tall).onDrySoil(), MainBlockProperties::dryGrasses, LOW);
     }
 
     private static DeferredBlock<GroundedRotationBlock> aubrieta(String name) {
-        return block(name, GroundedRotationBlock::new, MainBlockProperties::plantsNoOffset);
+        return block(name, GroundedRotationBlock::new, MainBlockProperties::plantsNoOffset, LOW);
     }
 
     /** The rest of a vine, above its tip {@code head}; it has no item of its own ({@link HangingVineBlock#item()}). */

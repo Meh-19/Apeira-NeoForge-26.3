@@ -1,5 +1,6 @@
 package com.apeira.main.datagen;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -105,6 +106,7 @@ public final class MainBlockTagProvider extends ApeiraBlockTagsProvider {
                 .flatMap(s -> s).toArray(DeferredBlock<?>[]::new);
         add(BlockTags.MINEABLE_WITH_HOE, hoe);
         add(BlockTags.CLIMBABLE, MainPlants.vines().toArray(DeferredBlock<?>[]::new));
+        vanillaPlantTags();
         add(BlockTags.MINEABLE_WITH_SHOVEL, MainPlants.ASH, MainPlants.FROST, MainPlants.DAMP_MOSS, MainPlants.GRIMOSS);
         add(BlockTags.MINEABLE_WITH_AXE, MainSpecialBlocks.MYCENA_MUSHROOM_STEM, MainSpecialBlocks.STRIPPED_MYCENA_MUSHROOM_STEM,
                 MainSpecialBlocks.MYCENA_MUSHROOM_BLOCK);
@@ -121,6 +123,27 @@ public final class MainBlockTagProvider extends ApeiraBlockTagsProvider {
                 MainRocks.POLISHED_DOLOMITE, MainRocks.DOLOMITE_BRICKS, MainRocks.CHISELED_DOLOMITE, MainRocks.POROUS_DOLOMITE),
                 MainRocks.DOLOMITE_SHAPES.shapes().stream(), MainRocks.POLISHED_DOLOMITE_SHAPES.shapes().stream(),
                 MainRocks.DOLOMITE_BRICKS_SHAPES.shapes().stream()).flatMap(s -> s).toArray(DeferredBlock<?>[]::new));
+    }
+
+    /**
+     * The vanilla tags vanilla's own plants of each kind are in: grasses, cattails, leaf litter and the moss covers are
+     * replaced by growing trees and huge mushrooms (shelf fungus by trees, as vanilla's shelf mushroom), litter, clover,
+     * aubrietas and the small lily give their own steps' sound (as leaf litter, pink petals and lily pads do), the
+     * covers theirs with the block's under them (moss carpet, snow), and swords cut vines quickly.
+     */
+    private void vanillaPlantTags() {
+        List<DeferredBlock<?>> replaceable = new ArrayList<>(MainPlants.grasses());
+        replaceable.removeAll(List.of(MainPlants.BRAMBLE, MainPlants.TALL_BRAMBLE, MainPlants.AMARYLLIS));
+        replaceable.addAll(List.of(MainPlants.CATTAIL, MainPlants.DRIED_LEAF_LITTER, MainPlants.COLD_LEAF_LITTER, MainPlants.LEAF_LITTER,
+                MainPlants.DAMP_MOSS, MainPlants.GRIMOSS));
+        add(BlockTags.REPLACEABLE_BY_MUSHROOMS, replaceable.toArray(DeferredBlock<?>[]::new));
+        replaceable.add(MainPlants.SHELF_FUNGUS);
+        add(BlockTags.REPLACEABLE_BY_TREES, replaceable.toArray(DeferredBlock<?>[]::new));
+        add(BlockTags.INSIDE_STEP_SOUND_BLOCKS, Stream.<DeferredBlock<?>>concat(Stream.of(MainPlants.DRIED_LEAF_LITTER, MainPlants.COLD_LEAF_LITTER,
+                MainPlants.LEAF_LITTER, MainPlants.CLOVER, MainPlants.SMALL_LILY), MainPlants.aubrietas().stream())
+                .toArray(DeferredBlock<?>[]::new));
+        add(BlockTags.COMBINATION_STEP_SOUND_BLOCKS, MainPlants.DAMP_MOSS, MainPlants.GRIMOSS, MainPlants.ASH, MainPlants.FROST);
+        add(BlockTags.SWORD_EFFICIENT, MainPlants.vines().toArray(DeferredBlock<?>[]::new));
     }
 
     private static Stream<DeferredBlock<?>> withShapes(MainDyedBlocks.Dyed dyed) {

@@ -8,11 +8,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
-/** A vanilla flower (suspicious stew effect, bees) with Xenon's wider outline, that of its short plants. */
+/** A vanilla flower: suspicious stew effect, bees, and vanilla's flower outline (Xenon's was its short plants' wider one). */
 public class XenonFlowerBlock extends FlowerBlock {
     private boolean netherSoil;
 
@@ -29,11 +26,5 @@ public class XenonFlowerBlock extends FlowerBlock {
     @Override
     protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
         return super.mayPlaceOn(state, level, pos) || netherSoil && state.is(MainTags.NETHER_PLANT_SOIL);
-    }
-
-    @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Vec3 offset = state.getOffset(pos);
-        return XenonPlantBlock.SHORT.move(offset.x, offset.y, offset.z);
     }
 }
