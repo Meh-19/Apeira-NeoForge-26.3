@@ -8,6 +8,10 @@
       "burn_odds": 20,
       "ignite_odds": 5
     },
+    "apeira:amaryllis": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
     "apeira:baobab_beam": {
       "burn_odds": 5,
       "ignite_odds": 5
@@ -88,6 +92,10 @@
       "burn_odds": 5,
       "ignite_odds": 5
     },
+    "apeira:beach_grass": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
     "apeira:birch_beam": {
       "burn_odds": 5,
       "ignite_odds": 5
@@ -156,6 +164,10 @@
       "burn_odds": 5,
       "ignite_odds": 5
     },
+    "apeira:blue_aubrieta": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
     "apeira:blue_fungal_fence": {
       "burn_odds": 20,
       "ignite_odds": 5
@@ -175,6 +187,10 @@
     "apeira:blue_fungal_stairs": {
       "burn_odds": 20,
       "ignite_odds": 5
+    },
+    "apeira:bramble": {
+      "burn_odds": 100,
+      "ignite_odds": 60
     },
     "apeira:brown_fungal_fence": {
       "burn_odds": 20,
@@ -196,6 +212,10 @@
       "burn_odds": 20,
       "ignite_odds": 5
     },
+    "apeira:cattail": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
     "apeira:cherry_beam": {
       "burn_odds": 5,
       "ignite_odds": 5
@@ -203,6 +223,14 @@
     "apeira:cherry_planks_carved": {
       "burn_odds": 20,
       "ignite_odds": 5
+    },
+    "apeira:clover": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:cold_leaf_litter": {
+      "burn_odds": 100,
+      "ignite_odds": 60
     },
     "apeira:crimson_beam": {
       "burn_odds": 5,
@@ -232,6 +260,18 @@
       "burn_odds": 20,
       "ignite_odds": 5
     },
+    "apeira:damp_moss": {
+      "burn_odds": 100,
+      "ignite_odds": 5
+    },
+    "apeira:damp_moss_hang": {
+      "burn_odds": 100,
+      "ignite_odds": 15
+    },
+    "apeira:damp_moss_hang_bottom": {
+      "burn_odds": 100,
+      "ignite_odds": 15
+    },
     "apeira:dark_oak_beam": {
       "burn_odds": 5,
       "ignite_odds": 5
@@ -239,6 +279,18 @@
     "apeira:dark_oak_planks_carved": {
       "burn_odds": 20,
       "ignite_odds": 5
+    },
+    "apeira:dried_leaf_litter": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:dry_bush": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:dry_grass": {
+      "burn_odds": 100,
+      "ignite_odds": 60
     },
     "apeira:fir_beam": {
       "burn_odds": 5,
@@ -275,6 +327,10 @@
     "apeira:fir_wood": {
       "burn_odds": 5,
       "ignite_odds": 5
+    },
+    "apeira:frosted_grass": {
+      "burn_odds": 100,
+      "ignite_odds": 60
     },
     "apeira:fungal_fence": {
       "burn_odds": 20,
@@ -344,6 +400,30 @@
       "burn_odds": 20,
       "ignite_odds": 5
     },
+    "apeira:grimoss": {
+      "burn_odds": 100,
+      "ignite_odds": 5
+    },
+    "apeira:grimoss_hang": {
+      "burn_odds": 100,
+      "ignite_odds": 15
+    },
+    "apeira:grimoss_hang_bottom": {
+      "burn_odds": 100,
+      "ignite_odds": 15
+    },
+    "apeira:grimweed": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:hibiscus": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:hogweed": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
     "apeira:jungle_beam": {
       "burn_odds": 5,
       "ignite_odds": 5
@@ -351,6 +431,10 @@
     "apeira:jungle_planks_carved": {
       "burn_odds": 20,
       "ignite_odds": 5
+    },
+    "apeira:leaf_litter": {
+      "burn_odds": 100,
+      "ignite_odds": 60
     },
     "apeira:light_blue_fungal_fence": {
       "burn_odds": 20,
@@ -512,6 +596,10 @@
       "burn_odds": 60,
       "ignite_odds": 30
     },
+    "apeira:pale_grimweed": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
     "apeira:palm_beam": {
       "burn_odds": 5,
       "ignite_odds": 5
@@ -556,6 +644,10 @@
       "burn_odds": 5,
       "ignite_odds": 5
     },
+    "apeira:pink_aubrieta": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
     "apeira:pink_fungal_fence": {
       "burn_odds": 20,
       "ignite_odds": 5
@@ -576,6 +668,10 @@
       "burn_odds": 20,
       "ignite_odds": 5
     },
+    "apeira:purple_aubrieta": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
     "apeira:purple_fungal_fence": {
       "burn_odds": 20,
       "ignite_odds": 5
@@ -595,6 +691,10 @@
     "apeira:purple_fungal_stairs": {
       "burn_odds": 20,
       "ignite_odds": 5
+    },
+    "apeira:red_aubrieta": {
+      "burn_odds": 100,
+      "ignite_odds": 60
     },
     "apeira:red_fungal_fence": {
       "burn_odds": 20,
@@ -684,6 +784,38 @@
       "burn_odds": 5,
       "ignite_odds": 5
     },
+    "apeira:tall_beach_grass": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:tall_bramble": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:tall_dry_bush": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:tall_dry_grass": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:tall_frosted_grass": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:tall_grimweed": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:tall_hogweed": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
+    "apeira:tall_pale_grimweed": {
+      "burn_odds": 100,
+      "ignite_odds": 60
+    },
     "apeira:vertical_acacia_planks": {
       "burn_odds": 20,
       "ignite_odds": 5
@@ -767,6 +899,10 @@
     "apeira:warped_planks_carved": {
       "burn_odds": 20,
       "ignite_odds": 5
+    },
+    "apeira:white_aubrieta": {
+      "burn_odds": 100,
+      "ignite_odds": 60
     },
     "apeira:white_fungal_fence": {
       "burn_odds": 20,

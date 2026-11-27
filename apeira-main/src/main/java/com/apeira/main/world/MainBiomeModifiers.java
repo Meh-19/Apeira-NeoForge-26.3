@@ -22,12 +22,13 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 /**
  * What Xenon's Fabric biome modifications did to vanilla biomes, as NeoForge biome modifiers
  * ({@code data/apeira/neoforge/biome_modifier/}): platinum, ruby and slate veins in every overworld biome, slate boulders
- * in rivers, and its own birch trees in place of vanilla's in birch forests. Xenon's own biomes have these in their
- * definitions ({@link MainBiomes}); they are not in {@code #minecraft:is_overworld}, so nothing is added twice.
+ * in rivers, and its own birch trees in place of vanilla's in birch forests; and Apeira's cattails at the water's edge in
+ * rivers and swamps. Xenon's own biomes have these in their definitions ({@link MainBiomes}); they are not in {@code #minecraft:is_overworld}, so nothing is added twice.
  */
 public final class MainBiomeModifiers {
     public static final ResourceKey<BiomeModifier> OVERWORLD_ORES = key("overworld_ores");
     public static final ResourceKey<BiomeModifier> RIVER_SLATE_BOULDERS = key("river_slate_boulders");
+    public static final ResourceKey<BiomeModifier> WETLAND_CATTAILS = key("wetland_cattails");
     public static final ResourceKey<BiomeModifier> REMOVE_VANILLA_BIRCHES = key("remove_vanilla_birches");
     public static final ResourceKey<BiomeModifier> BIRCH_FOREST_TREES = key("birch_forest_trees");
 
@@ -45,6 +46,9 @@ public final class MainBiomeModifiers {
         context.register(RIVER_SLATE_BOULDERS, new BiomeModifiers.AddFeaturesBiomeModifier(
                 HolderSet.direct(biomes.getOrThrow(Biomes.RIVER), biomes.getOrThrow(Biomes.FROZEN_RIVER)),
                 HolderSet.direct(features.getOrThrow(MainPlacedFeatures.RIVER_SLATE_BOULDER)), GenerationStep.Decoration.VEGETAL_DECORATION));
+        context.register(WETLAND_CATTAILS, new BiomeModifiers.AddFeaturesBiomeModifier(HolderSet.direct(biomes.getOrThrow(Biomes.RIVER),
+                biomes.getOrThrow(Biomes.SWAMP), biomes.getOrThrow(Biomes.MANGROVE_SWAMP)),
+                HolderSet.direct(features.getOrThrow(MainPlacedFeatures.CATTAILS)), GenerationStep.Decoration.VEGETAL_DECORATION));
         context.register(REMOVE_VANILLA_BIRCHES, new BiomeModifiers.RemoveFeaturesBiomeModifier(birchForests,
                 HolderSet.direct(features.getOrThrow(VegetationPlacements.TREES_BIRCH), features.getOrThrow(VegetationPlacements.BIRCH_TALL)),
                 Set.of(GenerationStep.Decoration.VEGETAL_DECORATION)));

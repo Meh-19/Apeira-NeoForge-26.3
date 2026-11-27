@@ -1,0 +1,27 @@
+{
+  "values": [
+    "apeira:beach_grass",
+    "apeira:tall_beach_grass",
+    "apeira:dry_grass",
+    "apeira:tall_dry_grass",
+    "apeira:dry_bush",
+    "apeira:tall_dry_bush",
+    "apeira:frosted_grass",
+    "apeira:tall_frosted_grass",
+    "apeira:grimweed",
+    "apeira:tall_grimweed",
+    "apeira:pale_grimweed",
+    "apeira:tall_pale_grimweed",
+    "apeira:hogweed",
+    "apeira:tall_hogweed",
+    "apeira:soul_stalks",
+    "apeira:tall_soul_stalks",
+    "apeira:cattail",
+    "apeira:dried_leaf_litter",
+    "apeira:cold_leaf_litter",
+    "apeira:leaf_litter",
+    "apeira:damp_moss",
+    "apeira:grimoss",
+    "apeira:shelf_fungus"
+  ]
+}

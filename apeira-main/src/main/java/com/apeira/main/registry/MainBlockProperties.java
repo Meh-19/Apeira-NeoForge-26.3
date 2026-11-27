@@ -128,8 +128,18 @@ final class MainBlockProperties {
     }
 
     static BlockBehaviour.Properties plantsNoOffset() {
-        return BlockBehaviour.Properties.of().noCollision().noOcclusion().instabreak().sound(SoundType.GRASS).ignitedByLava()
-                .pushReaction(PushReaction.POPPED);
+        return BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollision().noOcclusion().instabreak().sound(SoundType.GRASS)
+                .ignitedByLava().pushReaction(PushReaction.POPPED);
+    }
+
+    /** Grasses: plants that a placed block replaces, like vanilla's short and tall grass. */
+    static BlockBehaviour.Properties grasses() {
+        return plants().replaceable();
+    }
+
+    /** Beach and dry grasses and the dry bush: grasses coloured like vanilla's dry grass on maps. */
+    static BlockBehaviour.Properties dryGrasses() {
+        return grasses().mapColor(MapColor.COLOR_YELLOW);
     }
 
     static BlockBehaviour.Properties smallLily() {
@@ -186,9 +196,10 @@ final class MainBlockProperties {
                 .ignitedByLava();
     }
 
-    /** Leaf litter. */
+    /** Leaf litter: as vanilla's, replaceable and with its sound. */
     static BlockBehaviour.Properties natural() {
-        return BlockBehaviour.Properties.of().noCollision().instabreak().sound(SoundType.GRASS).pushReaction(PushReaction.POPPED);
+        return BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BROWN).replaceable().noCollision().instabreak().sound(SoundType.LEAF_LITTER)
+                .pushReaction(PushReaction.POPPED);
     }
 
     static BlockBehaviour.Properties naturalMushroom() {
