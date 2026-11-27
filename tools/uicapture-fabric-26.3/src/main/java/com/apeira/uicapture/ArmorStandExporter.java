@@ -120,6 +120,16 @@ public final class ArmorStandExporter {
     }
 
     public static Path write(Recording recording, java.util.function.Consumer<String> log) throws IOException {
+        return write(recording, log, Map.of());
+    }
+
+    /**
+     * As {@link #write(Recording, java.util.function.Consumer)}, plus one clip per label ({@code labels}: label to its
+     * first tick and tick count, from a follow recording's {@link ArmorStandRecorder.Observer}): {@code <name>.<label>.animation.json},
+     * clip {@code animation.<name>.<label>}, the loop found inside that range when there is one (so an idle or walk
+     * cycle is one period, not every recorded tick), else the whole range; listed in {@code labels.json}.
+     */
+    public static Path write(Recording recording, java.util.function.Consumer<String> log, Map<String, int[]> labels) throws IOException {
         String name = recording.name().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_.-]", "_");
         Path folder = FabricLoader.getInstance().getGameDir().resolve(FOLDER).resolve(LocalDateTime.now().format(TIME) + "_" + name);
         Files.createDirectories(folder);
@@ -157,6 +167,43 @@ public final class ArmorStandExporter {
                 Files.writeString(folder.resolve(AnimationSegments.file(name, segment)), GSON.toJson(clip), StandardCharsets.UTF_8);
             }
             Files.writeString(folder.resolve("segments.json"), GSON.toJson(AnimationSegments.json(segments, name)), StandardCharsets.UTF_8);
+            if (!labels.isEmpty()) {
+                JsonObject index = new JsonObject();
+                for (Map.Entry<String, int[]> label : labels.entrySet()) {
+                    int from = label.getValue()[0];
+                    int ticks = Math.min(label.getValue()[1], recording.ticks() - from);
+                    if (ticks < 2) {
+                        continue;
+                    }
+                    Recording range = AnimationSegments.slice(recording, from, ticks);
+                    AnimationSegments.Result found = AnimationSegments.find(range);
+                    AnimationSegments.Segment loop = found.segments().stream().filter(AnimationSegments.Segment::loop).findFirst().orElse(null);
+                    Recording clipRange = loop == null ? range : AnimationSegments.slice(range, loop.from(), loop.ticks());
+                    int length = loop == null ? Math.max(1, ticks - 1) : AnimationSegments.length(loop);
+                    String clipName = "animation." + name + "." + label.getKey();
+                    JsonObject clip = animation(clipRange, clipName, origin, items, rest, loop != null, length);
+                    clips.add(clip);
+                    String file = name + "." + label.getKey() + ".animation.json";
+                    Files.writeString(folder.resolve(file), GSON.toJson(clip), StandardCharsets.UTF_8);
+                    JsonObject entry = new JsonObject();
+                    entry.addProperty("file", file);
+                    entry.addProperty("animation", clipName);
+                    entry.addProperty("from_tick", from);
+                    entry.addProperty("to_tick", from + ticks - 1);
+                    entry.addProperty("loop", loop != null);
+                    entry.addProperty("seconds", length / 20.0);
+                    if (loop != null) {
+                        entry.addProperty("loop_from_tick", from + loop.from());
+                        entry.addProperty("period_ticks", found.period());
+                        entry.addProperty("repeats", found.repeats());
+                    } else if (!found.note().isEmpty()) {
+                        entry.addProperty("note", found.note());
+                    }
+                    index.add(label.getKey(), entry);
+                }
+                Files.writeString(folder.resolve("labels.json"), GSON.toJson(index), StandardCharsets.UTF_8);
+                log.accept("Labelled clips: " + String.join(", ", index.keySet()));
+            }
             log.accept(segments.segments().isEmpty() ? "Not split: " + segments.note()
                     : "Clips: " + String.join(", ", segments.segments().stream().map(segment -> segment.name() + " ticks " + segment.from() + "-"
                             + (segment.from() + segment.ticks() - 1)).toList()) + " (loop of " + segments.period() + " ticks, seen " + segments.repeats() + "x)");

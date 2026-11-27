@@ -71,16 +71,29 @@ final class BackswagLogger {
 
     /** The hovered slot's item in the open screen. */
     static void logHovered(Minecraft minecraft, Screen screen) {
+        JsonObject json = hovered(minecraft, screen, "hovered_cosmetic");
+        if (json == null) {
+            return;
+        }
+        write(json);
+        armed = json;
+        print("[Backswag]", json);
+        Feedback.ok(Component.literal("  -> " + LOG + "; equip it, close the menu and press the height key to link its offset")
+                .withStyle(ChatFormatting.GRAY));
+    }
+
+    /** The hovered slot's item as a log entry of type {@code type} (with its tooltip and components), or null after saying there is none. */
+    static @Nullable JsonObject hovered(Minecraft minecraft, Screen screen, String type) {
         Slot slot = screen instanceof AbstractContainerScreen<?> container
                 ? ((AbstractContainerScreenAccessor) container).apeira$hoveredSlot() : null;
         if (slot == null || !slot.hasItem()) {
             Feedback.error(Component.translatable("message.apeira.backswag.no_hovered_item"));
-            return;
+            return null;
         }
         ItemStack stack = slot.getItem();
         DynamicOps<JsonElement> ops = UiCaptureWriter.ops(minecraft);
         JsonObject json = new JsonObject();
-        json.addProperty("type", "hovered_cosmetic");
+        json.addProperty("type", type);
         json.addProperty("time", LocalDateTime.now().toString());
         json.addProperty("screen", screen.getTitle().getString());
         json.addProperty("screen_class", screen.getClass().getName());
@@ -96,20 +109,15 @@ final class BackswagLogger {
         json.add("tooltip", lines);
         json.add("tooltip_json", linesJson);
         json.add("components", UiCaptureWriter.item(stack, ops));
-        write(json);
-        armed = json;
+        return json;
+    }
 
-        Feedback.ok(Component.literal("[Backswag] Hovered: ").withStyle(ChatFormatting.GOLD)
-                .append(Component.literal(stack.getHoverName().getString()).withStyle(ChatFormatting.WHITE)));
-        Feedback.ok(copyable("  id " + json.get("id").getAsString() + "  key " + json.get("translation_key").getAsString()));
+    /** A hovered entry in chat: name, id, match key and colours (the tooltip is in the log). */
+    static void print(String tag, JsonObject json) {
+        Feedback.ok(Component.literal(tag + " Hovered: ").withStyle(ChatFormatting.GOLD)
+                .append(Component.literal(json.get("name").getAsString()).withStyle(ChatFormatting.WHITE)));
         Feedback.ok(copyable("  match " + json.get("match").getAsString()));
         Feedback.ok(copyable("  colours " + colours(json)));
-        for (int i = 1; i < tooltip.size(); i++) {
-            // The first line is the name, written above.
-            Feedback.ok(Component.literal("  | ").withStyle(ChatFormatting.DARK_GRAY).append(tooltip.get(i).copy()));
-        }
-        Feedback.ok(Component.literal("  -> " + LOG + "; equip it, close the menu and press the height key to link its offset")
-                .withStyle(ChatFormatting.GRAY));
     }
 
     /** Every invisible armor stand near the player with a head item, nearest first. */
@@ -338,7 +346,7 @@ final class BackswagLogger {
     }
 
     /** A grey chat line that copies its text when clicked. */
-    private static MutableComponent copyable(String text) {
+    static MutableComponent copyable(String text) {
         return Component.literal(text).withStyle(style -> style.withColor(ChatFormatting.GRAY)
                 .withClickEvent(new ClickEvent.CopyToClipboard(text.trim())));
     }
@@ -377,7 +385,12 @@ final class BackswagLogger {
     }
 
     private static void write(JsonObject json) {
-        Path file = FabricLoader.getInstance().getGameDir().resolve(LOG);
+        append(LOG, json);
+    }
+
+    /** Appends {@code json} as one line to {@code log} in the game directory. */
+    static void append(String log, JsonObject json) {
+        Path file = FabricLoader.getInstance().getGameDir().resolve(log);
         try {
             Files.createDirectories(file.getParent());
             Files.writeString(file, GSON.toJson(json) + System.lineSeparator(), StandardCharsets.UTF_8,
