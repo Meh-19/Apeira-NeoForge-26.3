@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.client.KeyMapping;
@@ -23,6 +24,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 /**
  * Apeira UI Capture, a client-only dev tool: the "Capture UI Layout" key (F8 by default, rebindable in Controls)
@@ -92,6 +94,8 @@ public final class UiCaptureClient implements ClientModInitializer {
         ScreenEvents.AFTER_INIT.register((minecraft, screen, width, height) -> {
             // Key mappings are not clicked while a screen is open, so the screen's own key event arms the capture.
             ScreenKeyboardEvents.allowKeyPress(screen).register((s, event) -> onScreenKey(minecraft, event));
+            // Keys bound to mouse buttons (side buttons) arrive as clicks, not key presses.
+            ScreenMouseEvents.allowMouseClick(screen).register((s, event) -> onScreenMouse(minecraft, event));
             ScreenEvents.beforeExtract(screen).register((s, graphics, mouseX, mouseY, delta) -> {
                 if (pending == Pending.SCREEN || pending == Pending.INSPECT) {
                     UiCapture.begin();
@@ -141,6 +145,22 @@ public final class UiCaptureClient implements ClientModInitializer {
         }
         if (LOG_HUD.matches(event)) {
             minecraft.gui.hud.getChat().addClientSystemMessage(Component.translatable("message.apeira.ui_capture.hud_needs_no_screen"));
+            return false;
+        }
+        return true;
+    }
+
+    /** The backswag keys bound to a mouse button, clicked inside a screen. */
+    private static boolean onScreenMouse(Minecraft minecraft, MouseButtonEvent event) {
+        if (BACKSWAG_HOVER.matchesMouse(event)) {
+            Screen screen = minecraft.gui.screen();
+            if (screen != null) {
+                BackswagLogger.logHovered(minecraft, screen);
+            }
+            return false;
+        }
+        if (BACKSWAG_HEIGHT.matchesMouse(event)) {
+            minecraft.gui.hud.getChat().addClientSystemMessage(Component.translatable("message.apeira.backswag.height_needs_no_screen"));
             return false;
         }
         return true;
