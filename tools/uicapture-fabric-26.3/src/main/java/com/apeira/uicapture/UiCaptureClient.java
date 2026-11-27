@@ -36,7 +36,9 @@ import net.minecraft.network.chat.Component;
  * runs ({@link CommandLogger}); {@code /apeiradev area} and {@code /apeiradev record} record the armor stands and other
  * entities in an area as a GeckoLib model and animation ({@link ArmorStandRecorder}). "Backswag: Log Hovered Cosmetic"
  * (Page Up, in a screen) and "Backswag: Log Head Height" (Page Down, no screen) log a back cosmetic and the height of the
- * invisible armor stand a server shows it on ({@link BackswagLogger}). They are client commands, so they
+ * invisible armor stand a server shows it on ({@link BackswagLogger}). "Mob: Start/Stop Recording" (Home) records a mob
+ * and its armor stand or display model locked in place ({@link MobRecorder}); "Balloon: Log Hovered / Record" (End)
+ * logs a hovered balloon in a screen, and with none open records it until its animation loops ({@link BalloonRecorder}). They are client commands, so they
  * work on any server. It works on any screen, container or not: nothing is registered and nothing is sent but a
  * probe's completion requests, so a plain Fabric 26.3 client with only this jar and Fabric API can join a server without Apeira.
  */
@@ -53,6 +55,8 @@ public final class UiCaptureClient implements ClientModInitializer {
     // F9 and F10 are the deep inspect and HUD log keys, so the backswag keys default to Page Up and Page Down.
     public static final KeyMapping BACKSWAG_HOVER = new KeyMapping("key.apeira.backswag_hover", InputConstants.KEY_PAGEUP, KeyMapping.Category.MISC);
     public static final KeyMapping BACKSWAG_HEIGHT = new KeyMapping("key.apeira.backswag_height", InputConstants.KEY_PAGEDOWN, KeyMapping.Category.MISC);
+    public static final KeyMapping MOB_RECORD = new KeyMapping("key.apeira.mob_record", InputConstants.KEY_HOME, KeyMapping.Category.MISC);
+    public static final KeyMapping BALLOON = new KeyMapping("key.apeira.balloon", InputConstants.KEY_END, KeyMapping.Category.MISC);
 
     /** What the next frame should capture: a screen, a screen with a deep inspection, the HUD, the HUD with its text log, or nothing. */
     private enum Pending { NONE, SCREEN, INSPECT, HUD, HUD_LOG }
@@ -70,6 +74,8 @@ public final class UiCaptureClient implements ClientModInitializer {
         KeyMappingHelper.registerKeyMapping(RECORD_TOGGLE);
         KeyMappingHelper.registerKeyMapping(BACKSWAG_HOVER);
         KeyMappingHelper.registerKeyMapping(BACKSWAG_HEIGHT);
+        KeyMappingHelper.registerKeyMapping(MOB_RECORD);
+        KeyMappingHelper.registerKeyMapping(BALLOON);
         ClientTickEvents.END_CLIENT_TICK.register(UiCaptureClient::onClientTick);
         // Commands going to the server; client commands are not included.
         ClientSendMessageEvents.COMMAND.register(CommandLogger::ran);
@@ -81,6 +87,7 @@ public final class UiCaptureClient implements ClientModInitializer {
             SoundInspector.register(dispatcher);
             CommandLogger.register(dispatcher);
             ArmorStandRecorder.register(dispatcher);
+            MobRecorder.register(dispatcher);
         });
         ScreenEvents.AFTER_INIT.register((minecraft, screen, width, height) -> {
             // Key mappings are not clicked while a screen is open, so the screen's own key event arms the capture.
@@ -118,6 +125,13 @@ public final class UiCaptureClient implements ClientModInitializer {
             Screen screen = minecraft.gui.screen();
             if (screen != null) {
                 BackswagLogger.logHovered(minecraft, screen);
+            }
+            return false;
+        }
+        if (BALLOON.matches(event)) {
+            Screen screen = minecraft.gui.screen();
+            if (screen != null) {
+                BalloonRecorder.logHovered(minecraft, screen);
             }
             return false;
         }
@@ -167,6 +181,16 @@ public final class UiCaptureClient implements ClientModInitializer {
         while (BACKSWAG_HEIGHT.consumeClick()) {
             if (noScreen) {
                 BackswagLogger.logHeights(minecraft);
+            }
+        }
+        while (MOB_RECORD.consumeClick()) {
+            if (noScreen) {
+                MobRecorder.toggleKey(minecraft);
+            }
+        }
+        while (BALLOON.consumeClick()) {
+            if (noScreen) {
+                BalloonRecorder.toggleKey(minecraft);
             }
         }
         recordingKeys(minecraft);

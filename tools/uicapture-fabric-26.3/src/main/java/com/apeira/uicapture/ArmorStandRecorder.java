@@ -82,6 +82,9 @@ public final class ArmorStandRecorder {
     record Snapshot(Vec3 pos, float yaw, boolean invisible, boolean small, boolean marker, boolean showArms, boolean basePlate,
                     Rotations head, Rotations body, Rotations leftArm, Rotations rightArm, Rotations leftLeg, Rotations rightLeg,
                     @Nullable JsonObject[] items, boolean player) {
+        Snapshot moved(Vec3 pos, float yaw) {
+            return new Snapshot(pos, yaw, invisible, small, marker, showArms, basePlate, head, body, leftArm, rightArm, leftLeg, rightLeg, items, player);
+        }
     }
 
     /** A stand seen during the recording: its bone name, the tick it was first seen and a snapshot per tick it was in the area. */
@@ -104,6 +107,9 @@ public final class ArmorStandRecorder {
 
     /** One interaction entity's state in one tick: position, yaw, hitbox width and height (blocks) and whether it responds to clicks. */
     record HitboxSnapshot(Vec3 pos, float yaw, float width, float height, boolean response) {
+        HitboxSnapshot moved(Vec3 pos, float yaw) {
+            return new HitboxSnapshot(pos, yaw, width, height, response);
+        }
     }
 
     /** An interaction entity seen during the recording, as {@link Track} is for a stand. */
@@ -124,6 +130,107 @@ public final class ArmorStandRecorder {
 
     /** A prop's state in one tick: position, yaw, pitch, what picks its look ({@link AreaEntities#state}) and, for display entities, its transformation. */
     record PropSnapshot(Vec3 pos, float yaw, float pitch, JsonObject state, AreaEntities.@Nullable Transform transform) {
+        PropSnapshot moved(Vec3 pos, float yaw) {
+            return new PropSnapshot(pos, yaw, pitch, state, transform);
+        }
+    }
+
+    /**
+     * What a follow recording ({@link MobRecorder}, {@link BalloonRecorder}) adds to the plain one: it is told every
+     * recorded tick, may end the recording, names labelled clips for the exporter and writes its own files when done.
+     */
+    interface Observer {
+        /** After tick {@code tick} was recorded; {@code anchor} is the followed entity, or null once it is gone. */
+        default void tick(Minecraft minecraft, int tick, @Nullable Entity anchor) {
+        }
+
+        /** Whether to stop and export now, {@code ticks} ticks in. */
+        default boolean shouldStop(int ticks) {
+            return false;
+        }
+
+        /** Labelled clips to export besides the full recording and its loop: label to {first tick, tick count}. */
+        default Map<String, int[]> labels() {
+            return Map.of();
+        }
+
+        /** The export was written to {@code folder}. */
+        default void done(Recording recording, Path folder) {
+        }
+    }
+
+    /**
+     * The entity a follow recording is locked to. Each tick the area is moved to it and every recorded position is taken
+     * relative to it, so the followed entity stays at the export's origin and a walking mob walks on the spot. With
+     * {@code lockYaw} its turning is taken out too (positions turned back about it and yaws less its turn), so the model
+     * always faces the way it did at the start.
+     */
+    static final class Anchor {
+        final int entityId;
+        final boolean lockYaw;
+        /** Whether the followed entity's own hitbox is recorded as the {@code hitbox} interaction bone (mobs), and so not as a prop. */
+        final boolean asHitbox;
+        final double radius;
+        final double below;
+        final double above;
+        /** Where the followed entity is put: the export origin, the bottom centre of its block at the start. */
+        final Vec3 target;
+        final float startYaw;
+        Vec3 now;
+        float yaw;
+        boolean gone;
+
+        Anchor(Entity entity, boolean lockYaw, boolean asHitbox, double radius, double below, double above) {
+            this.entityId = entity.getId();
+            this.lockYaw = lockYaw;
+            this.asHitbox = asHitbox;
+            this.radius = radius;
+            this.below = below;
+            this.above = above;
+            BlockPos block = BlockPos.containing(entity.position());
+            this.target = new Vec3(block.getX() + 0.5, block.getY(), block.getZ() + 0.5);
+            this.now = entity.position();
+            this.startYaw = yawOf(entity);
+            this.yaw = startYaw;
+        }
+
+        static float yawOf(Entity entity) {
+            return entity instanceof LivingEntity living ? living.yBodyRot : entity.getYRot();
+        }
+
+        float turn() {
+            return lockYaw ? net.minecraft.util.Mth.wrapDegrees(yaw - startYaw) : 0;
+        }
+
+        Vec3 lock(Vec3 pos) {
+            Vec3 d = pos.subtract(now);
+            float turn = turn();
+            if (turn != 0) {
+                // Turning an offset by a yaw of a degrees: x' = x cos a - z sin a, z' = x sin a + z cos a; undone with -turn.
+                double a = Math.toRadians(-turn);
+                double cos = Math.cos(a), sin = Math.sin(a);
+                d = new Vec3(d.x * cos - d.z * sin, d.y, d.x * sin + d.z * cos);
+            }
+            return target.add(d);
+        }
+
+        float lockYaw(float value) {
+            return value - turn();
+        }
+
+        AABB box() {
+            return new AABB(now.x - radius, now.y - below, now.z - radius, now.x + radius, now.y + above, now.z + radius);
+        }
+
+        BlockPos min() {
+            int r = (int) Math.ceil(radius);
+            return BlockPos.containing(target).offset(-r, 0, -r);
+        }
+
+        BlockPos max() {
+            int r = (int) Math.ceil(radius);
+            return BlockPos.containing(target).offset(r, (int) Math.ceil(above), r);
+        }
     }
 
     /** Any other entity seen in the area (display entities, item frames, dropped items, mobs), as {@link Track} is for a stand. */
@@ -195,7 +302,9 @@ public final class ArmorStandRecorder {
         final String name;
         final BlockPos min;
         final BlockPos max;
-        final AABB box;
+        AABB box;
+        @Nullable Anchor anchor;
+        @Nullable Observer observer;
         final Map<UUID, Track> tracks = new LinkedHashMap<>();
         final Map<UUID, HitboxTrack> hitboxes = new LinkedHashMap<>();
         /** The interactions in the area last tick, and the one the crosshair is on. */
@@ -213,6 +322,22 @@ public final class ArmorStandRecorder {
         /** The stands in the area last tick. */
         Set<UUID> inside = new HashSet<>();
         int tick;
+
+        Snapshot lock(Snapshot s) {
+            return anchor == null ? s : s.moved(anchor.lock(s.pos()), anchor.lockYaw(s.yaw()));
+        }
+
+        HitboxSnapshot lock(HitboxSnapshot s) {
+            return anchor == null ? s : s.moved(anchor.lock(s.pos()), anchor.lockYaw(s.yaw()));
+        }
+
+        PropSnapshot lock(PropSnapshot s) {
+            return anchor == null ? s : s.moved(anchor.lock(s.pos()), anchor.lockYaw(s.yaw()));
+        }
+
+        boolean isAnchor(Entity entity) {
+            return anchor != null && entity.getId() == anchor.entityId;
+        }
 
         /** {@code base}, or {@code base_2}, {@code base_3} ... when it is taken. */
         String name(String base) {
@@ -379,6 +504,41 @@ public final class ArmorStandRecorder {
         return 1;
     }
 
+    /** Whether a recording (plain or following) is running. */
+    static boolean recording() {
+        return session != null;
+    }
+
+    /**
+     * Starts a recording locked to {@code entity} ({@link Anchor}): the area is a box {@code radius} blocks round it,
+     * {@code below} under and {@code above} over its feet, moved with it every tick, and {@code observer} is told each tick.
+     */
+    static boolean startFollowing(String name, Entity entity, boolean lockYaw, boolean asHitbox, double radius, double below, double above,
+            Observer observer) {
+        if (session != null) {
+            Feedback.error(Component.translatable("message.apeira.armor_stands.busy"));
+            return false;
+        }
+        Anchor anchor = new Anchor(entity, lockYaw, asHitbox, radius, below, above);
+        Session started = new Session(name, anchor.min(), anchor.max());
+        started.anchor = anchor;
+        started.observer = observer;
+        started.box = anchor.box();
+        session = started;
+        return true;
+    }
+
+    /** The running recording so far (the tracks' frame maps are shared, not copied), or null. */
+    static @Nullable Recording current() {
+        Session current = session;
+        return current == null ? null : new Recording(current.name, current.min, current.max, current.tick, new ArrayList<>(current.tracks.values()),
+                new ArrayList<>(current.hitboxes.values()), new ArrayList<>(current.props.values()), current.events);
+    }
+
+    static int stopRecording() {
+        return stop();
+    }
+
     private static int stop(CommandContext<FabricClientCommandSource> context) {
         return stop();
     }
@@ -393,10 +553,17 @@ public final class ArmorStandRecorder {
         Recording recording = new Recording(done.name, done.min, done.max, done.tick, new ArrayList<>(done.tracks.values()),
                 new ArrayList<>(done.hitboxes.values()), new ArrayList<>(done.props.values()), done.events);
         try {
+            // Follow recordings keep chat short: their diagnostics go to the game log only.
+            boolean quiet = done.observer != null;
             Path folder = ArmorStandExporter.write(recording, line -> {
-                Feedback.ok(Component.literal(line).withStyle(ChatFormatting.GRAY));
+                if (!quiet) {
+                    Feedback.ok(Component.literal(line).withStyle(ChatFormatting.GRAY));
+                }
                 UiCaptureClient.LOGGER.info("[display diagnostics] {}", line);
-            });
+            }, done.observer == null ? Map.of() : done.observer.labels());
+            if (done.observer != null) {
+                done.observer.done(recording, folder);
+            }
             UiCaptureClient.LOGGER.info("Armor stand recording written to {}", folder);
             Feedback.ok(Component.translatable("message.apeira.armor_stands.done",
                     done.tracks.size(), done.hitboxes.size(), done.props.size(), done.tick, done.events.size(), folder.getFileName().toString()));
@@ -434,15 +601,40 @@ public final class ArmorStandRecorder {
         }
         Session current = session;
         if (current != null && !minecraft.isPaused()) {
+            Entity followed = follow(level, current);
             record(level, current);
             recordHitboxes(minecraft, level, current);
             recordProps(minecraft, level, current);
+            if (current.observer != null) {
+                current.observer.tick(minecraft, current.tick, followed);
+            }
             current.tick++;
+            if (current.observer != null && current.observer.shouldStop(current.tick)) {
+                stop();
+                return;
+            }
             if (current.tick % 10 == 0) {
                 minecraft.gui.hud.setOverlayMessage(Component.translatable("message.apeira.armor_stands.recording",
                         current.name, current.inside.size(), current.hitboxesInside.size(), current.propsInside.size(), String.format("%.1f", current.tick / 20.0)), false);
             }
         }
+    }
+
+    /** Moves a follow recording's area to its entity (kept where it was last seen once it is gone); the entity, or null. */
+    private static @Nullable Entity follow(ClientLevel level, Session session) {
+        Anchor anchor = session.anchor;
+        if (anchor == null) {
+            return null;
+        }
+        Entity entity = level.getEntity(anchor.entityId);
+        if (entity == null || entity.isRemoved()) {
+            anchor.gone = true;
+            return null;
+        }
+        anchor.now = entity.position();
+        anchor.yaw = Anchor.yawOf(entity);
+        session.box = anchor.box();
+        return entity;
     }
 
     private static void record(ClientLevel level, Session session) {
@@ -455,7 +647,7 @@ public final class ArmorStandRecorder {
                 e -> (e instanceof ArmorStand || e instanceof Player && e != self) && session.box.contains(e.position()))) {
             UUID uuid = stand.getUUID();
             now.add(uuid);
-            Snapshot snapshot = snapshot(stand);
+            Snapshot snapshot = session.lock(snapshot(stand));
             Track track = session.tracks.get(uuid);
             if (track == null) {
                 Component custom = stand.getCustomName();
@@ -509,8 +701,8 @@ public final class ArmorStandRecorder {
         for (Interaction hitbox : level.getEntitiesOfClass(Interaction.class, session.box, e -> session.box.contains(e.position()))) {
             now.add(hitbox.getUUID());
             HitboxTrack track = hitboxTrack(session, hitbox);
-            HitboxSnapshot snapshot = new HitboxSnapshot(hitbox.position(), hitbox.getYRot(), hitbox.getBbWidth(), hitbox.getBbHeight(),
-                    ((InteractionAccessor) hitbox).apeira$getResponse());
+            HitboxSnapshot snapshot = session.lock(new HitboxSnapshot(hitbox.position(), hitbox.getYRot(), hitbox.getBbWidth(), hitbox.getBbHeight(),
+                    ((InteractionAccessor) hitbox).apeira$getResponse()));
             HitboxSnapshot last = track.frames.get(tick - 1);
             if (last == null) {
                 String type = tick == 0 ? "present" : hitbox.tickCount <= 2 ? "spawn" : "enter";
@@ -527,6 +719,25 @@ public final class ArmorStandRecorder {
                     details.addProperty("response", snapshot.response());
                     session.events.add(new Event(tick, "response", track.bone, details));
                 }
+            }
+            track.frames.put(tick, snapshot);
+        }
+        // A followed mob's own hitbox (often an invisible slime or fox under the armor stands), as the hitbox bone.
+        Entity anchored = session.anchor != null && session.anchor.asHitbox && !session.anchor.gone ? level.getEntity(session.anchor.entityId) : null;
+        if (anchored != null) {
+            now.add(anchored.getUUID());
+            HitboxTrack track = session.hitboxes.computeIfAbsent(anchored.getUUID(),
+                    uuid -> new HitboxTrack(uuid, session.name("hitbox"), anchored.getId(), session.tick));
+            HitboxSnapshot snapshot = session.lock(new HitboxSnapshot(anchored.position(), Anchor.yawOf(anchored), anchored.getBbWidth(),
+                    anchored.getBbHeight(), false));
+            HitboxSnapshot last = track.frames.get(tick - 1);
+            if (last == null) {
+                session.events.add(new Event(tick, tick == 0 ? "present" : "enter", track.bone, describe(snapshot)));
+            } else if (last.width() != snapshot.width() || last.height() != snapshot.height()) {
+                JsonObject details = new JsonObject();
+                details.addProperty("width", snapshot.width());
+                details.addProperty("height", snapshot.height());
+                session.events.add(new Event(tick, "resize", track.bone, details));
             }
             track.frames.put(tick, snapshot);
         }
@@ -556,7 +767,8 @@ public final class ArmorStandRecorder {
         int tick = session.tick;
         Set<UUID> now = new HashSet<>();
         var ops = UiCaptureWriter.ops(minecraft);
-        for (Entity entity : level.getEntities((Entity) null, session.box, e -> AreaEntities.isProp(e) && session.box.contains(e.position()))) {
+        for (Entity entity : level.getEntities((Entity) null, session.box, e -> AreaEntities.isProp(e) && !(session.anchor != null && session.anchor.asHitbox && session.isAnchor(e))
+                && session.box.contains(e.position()))) {
             now.add(entity.getUUID());
             PropTrack track = session.props.computeIfAbsent(entity.getUUID(), uuid -> {
                 String kind = AreaEntities.kind(entity);
@@ -566,8 +778,8 @@ public final class ArmorStandRecorder {
                         ? modelName(session, item, state.has("item_display") ? state.get("item_display").getAsString() : "fixed") : null;
                 return new PropTrack(uuid, session.name(model == null ? kind + "_" + index : model), kind, AreaEntities.typeId(entity), entity.getId(), tick);
             });
-            PropSnapshot snapshot = new PropSnapshot(entity.position(), entity.getYRot(), entity.getXRot(), AreaEntities.state(entity, ops),
-                    AreaEntities.transform(entity));
+            PropSnapshot snapshot = session.lock(new PropSnapshot(entity.position(), entity.getYRot(), entity.getXRot(), AreaEntities.state(entity, ops),
+                    AreaEntities.transform(entity)));
             PropSnapshot last = track.frames.get(tick - 1);
             if (last == null) {
                 String type = tick == 0 ? "present" : entity.tickCount <= 2 ? "spawn" : "enter";

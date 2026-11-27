@@ -11,6 +11,8 @@
   "key.apeira.record_toggle": "Start/Stop Recording",
   "key.apeira.backswag_hover": "Backswag: Log Hovered Cosmetic",
   "key.apeira.backswag_height": "Backswag: Log Head Height",
+  "key.apeira.mob_record": "Mob: Start/Stop Recording",
+  "key.apeira.balloon": "Balloon: Log Hovered / Record",
   "message.apeira.backswag.hover_needs_screen": "Open a cosmetic screen and hover the cosmetic to log it",
   "message.apeira.backswag.height_needs_no_screen": "Close the screen to log the backswag height",
   "message.apeira.backswag.no_hovered_item": "No item under the mouse",
